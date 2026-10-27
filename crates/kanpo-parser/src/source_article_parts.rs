@@ -68,13 +68,26 @@ pub(crate) fn documents(
     desired: &[Document],
     tables: &[crate::trace::Table],
 ) -> Option<Vec<Document>> {
+    documents_mode(original,segment,parts,pages,desired,tables,None)
+}
+pub(crate) fn documents_with_scopes(original:&Document,segment:&str,parts:&[Part],pages:&[PageTrace],desired:&[Document],scopes:&crate::native_table_scopes::Scopes)->Option<Vec<Document>>{documents_mode(original,segment,parts,pages,desired,scopes.tables(),Some(scopes))}
+fn documents_mode(
+    original: &Document,
+    segment: &str,
+    parts: &[Part],
+    pages: &[PageTrace],
+    desired: &[Document],
+    tables: &[crate::trace::Table],
+    scopes:Option<&crate::native_table_scopes::Scopes>,
+) -> Option<Vec<Document>> {
     if !authorized(original, segment, parts, pages) || desired.len() != parts.len() {
         return None;
     }
-    let source = Document::from_paragraph_text_with_tables(segment, tables);
+    let make=|text:&str|match scopes{Some(scopes)=>Document::from_source_paragraph_text_with_tables(text,scopes),None=>Document::from_paragraph_text_with_tables(text,tables)};
+    let source=make(segment);
     let wanted: Vec<_> = parts
         .iter()
-        .map(|p| Document::from_paragraph_text_with_tables(&p.text, tables))
+        .map(|p|make(&p.text))
         .collect();
     let preserved = crate::company_document_parts::repartition(&source, &wanted)?;
     Some(

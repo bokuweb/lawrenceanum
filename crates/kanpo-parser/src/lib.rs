@@ -149,7 +149,8 @@ pub fn analyze_with_rules(xhtml: &str, rules: &[Option<lines::PageRules>]) -> An
     };
     let text = join(&|p| p.text.as_str());
     let doc_text = join(&|p| p.doc_text.as_str());
-    let tables: Vec<trace::Table> = pages.iter().flat_map(|p| p.tables.iter().cloned()).collect();
+    let table_scopes=native_table_scopes::Scopes::for_pages(&pages,rules);
+    let tables=table_scopes.tables();
     let mut segments = segment_articles(&doc_text);
     wrapped_notice_titles::repair_wrapped_notice_titles(&mut segments, &pages);
     financial_enclosures::repair_segments(&mut segments,&pages,rules);
@@ -158,11 +159,11 @@ pub fn analyze_with_rules(xhtml: &str, rules: &[Option<lines::PageRules>]) -> An
     let mut articles=Vec::new();
     let mut article_sources=Vec::new();
     for (segment,parts)in segments.into_iter().zip(groups){
-        let original=Document::from_text_with_tables(&segment,&tables);
+        let original=Document::from_source_text_with_tables(&segment,&table_scopes);
         if parts.len()>1 {
-            let desired:Vec<_>=parts.iter().map(|p|Document::from_text_with_tables(&p.text,&tables)).collect();
+            let desired:Vec<_>=parts.iter().map(|p|Document::from_source_text_with_tables(&p.text,&table_scopes)).collect();
             let documents=company_document_parts::repartition(&original,&desired)
-                .or_else(||source_article_parts::documents(&original,&segment,&parts,&pages,&desired,&tables));
+                .or_else(||source_article_parts::documents_with_scopes(&original,&segment,&parts,&pages,&desired,&table_scopes));
             if let Some(documents)=documents{
                 for (p,document) in parts.into_iter().zip(documents) {
                     let notices=notice_sources::for_sources(&certificates,p.sources.iter().copied());
@@ -732,3 +733,5 @@ mod native_numeric_frames;
 mod native_terminal_glyph;
 
 mod source_font_alias;
+
+mod native_table_scopes;

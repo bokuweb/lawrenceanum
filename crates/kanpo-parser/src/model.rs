@@ -427,11 +427,11 @@ impl Document {
 
     /// [`Document::from_text`] と同じだが、テキスト中の表の目印（[`crate::trace::table_marker`]）を
     /// `tables` の表に置き換え、本文の流れの中の表（`Run::table`）にする。
-    pub(crate) fn from_text_with_tables(text:&str,tables:&[Table])->Document{Self::from_text_tables_mode(text,tables,true)}
-    pub(crate) fn from_paragraph_text_with_tables(text:&str,tables:&[Table])->Document{Self::from_text_tables_mode(text,tables,false)}
-    fn from_text_tables_mode(text:&str,tables:&[Table],comparison_markers:bool)->Document {
+    pub(crate) fn from_text_with_tables(text:&str,tables:&[Table])->Document{Self::from_text_tables_mode(text,tables,true,None)}
+    pub(crate) fn from_paragraph_text_with_tables(text:&str,tables:&[Table])->Document{Self::from_text_tables_mode(text,tables,false,None)}
+    fn from_text_tables_mode(text:&str,tables:&[Table],comparison_markers:bool,scopes:Option<&crate::native_table_scopes::Scopes>)->Document {
         let mut doc = Self::from_text_mode(text,comparison_markers);
-        let splice = |runs: &mut Vec<Run>| *runs = join_adjacent_tables(splice_tables(std::mem::take(runs), tables));
+        let splice = |runs: &mut Vec<Run>| *runs = join_adjacent_tables(splice_tables(std::mem::take(runs), tables),scopes);
         for block in &mut doc.blocks {
             match block {
                 Block::Paragraph { runs } => splice(runs),
@@ -445,6 +445,9 @@ impl Document {
         }
         doc
     }
+
+    pub(crate) fn from_source_text_with_tables(text:&str,scopes:&crate::native_table_scopes::Scopes)->Document{Self::from_text_tables_mode(text,scopes.tables(),true,Some(scopes))}
+    pub(crate) fn from_source_paragraph_text_with_tables(text:&str,scopes:&crate::native_table_scopes::Scopes)->Document{Self::from_text_tables_mode(text,scopes.tables(),false,Some(scopes))}
 
     /// 構造化表現を `reconstruct_vertical` 互換のフラットテキストへ戻す。
     /// 記事分割・標題突合など既存のテキスト前提処理との後方互換に使う。
@@ -808,47 +811,78 @@ fn join_tables(a: &mut NestedTable, b: &NestedTable) -> bool {
 }
 
 /// 続けて並ぶ表の Run（本文を挟まない）で列数が同じものを 1 つの表につなぐ。
-fn join_adjacent_tables(runs: Vec<Run>) -> Vec<Run> {
-    let mut out: Vec<Run> = Vec::new();
-    for run in runs {
-        if let (Some(Run { table: Some(a), .. }), Some(b)) = (out.last_mut(), run.table.as_ref()) {
-            if join_tables(a, b) {
-                continue;
+/// The original marker identity remains attached until all source-aware joins finish.
+struct TableRun {
+    run: Run,
+    sources: Vec<usize>,
+}
+impl TableRun {
+    fn legacy(run: Run) -> Self {
+        Self {
+            run,
+            sources: vec![],
+        }
+    }
+}
+fn join_adjacent_tables(
+    runs: Vec<TableRun>,
+    scopes: Option<&crate::native_table_scopes::Scopes>,
+) -> Vec<Run> {
+    let mut out: Vec<TableRun> = vec![];
+    for next in runs {
+        if let Some(last) = out.last_mut() {
+            let permitted = scopes.is_none_or(|s| {
+                last.sources
+                    .iter()
+                    .all(|a| next.sources.iter().all(|b| s.may_join(*a, *b)))
+            });
+            if permitted {
+                if let (Some(a), Some(b)) = (last.run.table.as_mut(), next.run.table.as_ref()) {
+                    if join_tables(a, b) {
+                        last.sources.extend(next.sources);
+                        continue;
+                    }
+                }
             }
         }
-        out.push(run);
+        out.push(next);
     }
-    out
+    out.into_iter().map(|r| r.run).collect()
 }
-
-/// Run の中の表の目印の行を表の Run に置き換える（前後の本文は別の Run に分ける）。
-fn splice_tables(runs: Vec<Run>, tables: &[Table]) -> Vec<Run> {
-    let mut out: Vec<Run> = Vec::new();
+/// Replace source markers without discarding their actual table IDs.
+fn splice_tables(runs: Vec<Run>, tables: &[Table]) -> Vec<TableRun> {
+    let mut out = vec![];
     for run in runs {
-        if run.table.is_some() || !run.text.contains('\u{E000}') {
-            out.push(run);
+        if run.table.is_some() || !run.text.contains('\u{e000}') {
+            out.push(TableRun::legacy(run));
             continue;
         }
-        let mut buf: Vec<&str> = Vec::new();
-        let flush = |buf: &mut Vec<&str>, out: &mut Vec<Run>| {
-            let t = buf.concat().trim().to_string();
-            if !t.is_empty() {
-                out.push(Run::plain(t));
+        let mut buf = vec![];
+        let flush = |buf: &mut Vec<&str>, out: &mut Vec<TableRun>| {
+            let text = buf.concat().trim().to_owned();
+            if !text.is_empty() {
+                out.push(TableRun::legacy(Run::plain(text)));
             }
             buf.clear();
         };
-        // 目印は通常は独立した行だが、行の途中にあっても表に置き換える。
         let mut rest = run.text.as_str();
-        while let Some(start) = rest.find('\u{E000}') {
-            let Some(len) = rest[start..].find('\u{E001}') else { break };
-            let end = start + len + '\u{E001}'.len_utf8();
+        while let Some(start) = rest.find('\u{e000}') {
+            let Some(len) = rest[start..].find('\u{e001}') else {
+                break;
+            };
+            let end = start + len + '\u{e001}'.len_utf8();
             buf.push(&rest[..start]);
-            if let Some(t) = parse_table_marker(&rest[start..end]).and_then(|i| tables.get(i)) {
+            if let Some((id, t)) =
+                parse_table_marker(&rest[start..end]).and_then(|i| tables.get(i).map(|t| (i, t)))
+            {
                 flush(&mut buf, &mut out);
-                out.push(Run {
-                    text: String::new(),
-                    underline: false,
-                    table: Some(t.to_nested()),
+                out.push(TableRun {
+                    run: Run {
+                        text: String::new(),
+                        underline: false,
+                        table: Some(t.to_nested()),
+                    },
+                    sources: vec![id],
                 });
             }
             rest = &rest[end..];

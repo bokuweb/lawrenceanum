@@ -1,0 +1,2018 @@
+{
+  "schema_version": 1,
+  "issue": 227,
+  "stage": "native158",
+  "baseline_local_commit": "8a8065b1cfaccb16763a274bf136791b792d6a38",
+  "baseline_publication_commit": "4d6ca8fbc3480c84b3976a3f45fa6936068706e1",
+  "problem": "Legacy adjacent-table joining mistook equal data rows for repeated headers and concatenated cells across independent source parent columns. A recovered trace.Table can also be a genuine logical-table fragment, so merely separating every native Table is incorrect.",
+  "runtime": {
+    "preserve_all_original_marker_IDs_through_splicing_and_joins": true,
+    "positive_parent_evidence": [
+      "Original internal crossbar meets continuing outer walls (a page bottom at a shared newspaper frontier is insufficient).",
+      "Two distinct original open sibling frames and complete coextensive native child-table intervals."
+    ],
+    "source_validation": [
+      "Merge only exactly touching/overlapping original vertical supports, never bridge gaps with a tolerance.",
+      "Strict source inner-table containment and original source frontiers.",
+      "No shared child Word IDs or crossing original Used glyphs.",
+      "Retain all source IDs after intermediate joins so an earlier join cannot launder a fenced parent."
+    ],
+    "no_new_runtime_dispatch_by": [
+      "page or fixture key",
+      "title/company/address/year",
+      "font name/CID/PUA value",
+      "Japanese character counts",
+      "neighbor-line budgets",
+      "fixed point tolerance"
+    ],
+    "no_new_public_Glyph_Word_PageTrace_or_Document_schema_fields": true,
+    "unproved_parent_relations": "Existing legacy continuation behavior retained; this is not a certificate of its correctness.",
+    "same_rule_in_article_repartition_fallback": true
+  },
+  "tdd": {
+    "actual_Cargo157_source_API": {
+      "passed": 10,
+      "failed": 26
+    },
+    "production_source_API_cases": 36,
+    "production_source_API_passed": 36,
+    "new_synthetic_controls": 21,
+    "new_native_tests_total": 57,
+    "private_prototypes_not_adopted": [
+      {
+        "prototype": "v2 blanket native-Table independence",
+        "single_changed": 543,
+        "whole_changed": 93,
+        "rejection": "Original balance-sheet/fair-value tables prove some trace.Tables are column fragments."
+      },
+      {
+        "prototype": "v3 shared outer newspaper frontier",
+        "single_changed": 79,
+        "whole_changed": 11,
+        "rejection": "Original multi-column coordinate lists prove a reading-column gutter/page frontier alone is insufficient."
+      }
+    ],
+    "six_coordinate_originals_entire_actual_serialized_Analysis_exact157_in_private_v4": true,
+    "wire_gold_representation": "Compare actual emitted JSON on both sides; serde_json::to_value widens native f32 to f64 and is not a wire-JSON baseline. No geometry fields or tolerances removed."
+  },
+  "cohort": {
+    "single_items": 11992,
+    "changed": 26,
+    "unchanged": 11966,
+    "whole_items": 159,
+    "whole_changed": 0,
+    "all_changed_original_PageTrace_text_format_article_non_document_exact": true,
+    "all_changed_complete_Analysis_strict_reverse_projection_exact": true,
+    "all_original_cell_payloads_and_merges_exact": true,
+    "selected_regression_cases_not_independent_accuracy_gold": true,
+    "extra_document_rows_retained": 29
+  },
+  "source_boundary_originals": [
+    {
+      "key": "20260717g001600065",
+      "original_sha256": "ecc45eda337845790863c8a2ebe52584f5ce1ca308e2cf0969343aeb05dc119d",
+      "full_PDFium_source_pixels_sha256": "bbf4cd3494575f00e94e3fbc7d33df2ee3b38f3fb251b33131731ce3e3665d95",
+      "source_boundary_visual_review": "all26original pages viewed in four contact sheets;65 and702 also full-page review; text/cell contents checked against exact complete native payloads, no re-rendered candidate used as original",
+      "original_native_tables": [
+        {
+          "x0": 83.25,
+          "y0": 46.0,
+          "x1": 411.25,
+          "y1": 480.5,
+          "rows": 4,
+          "cols": 4
+        },
+        {
+          "x0": 438.75,
+          "y0": 46.0,
+          "x1": 766.75,
+          "y1": 480.5,
+          "rows": 4,
+          "cols": 4
+        }
+      ],
+      "one_exact_original_ruling_witness": {
+        "kind": "internal_outer_grid_row",
+        "left": {
+          "x": 69.5,
+          "y0": 46.0,
+          "y1": 526.5
+        },
+        "divider": {
+          "x": 425.0,
+          "y0": 46.0,
+          "y1": 509.5
+        },
+        "right": {
+          "x": 780.5,
+          "y0": 46.0,
+          "y1": 526.5
+        },
+        "crossbar_y": 509.5
+      }
+    },
+    {
+      "key": "20260724g001650659",
+      "original_sha256": "3e666b82ea69c3e101813c533518f2c10c44b7cbeb3d707880444f9538dd6ea5",
+      "full_PDFium_source_pixels_sha256": "f69c33f0c5f27de478f62c873b66956a2d33d87de029b793fe0cd594112a1bb0",
+      "source_boundary_visual_review": "all26original pages viewed in four contact sheets;65 and702 also full-page review; text/cell contents checked against exact complete native payloads, no re-rendered candidate used as original",
+      "original_native_tables": [
+        {
+          "x0": 87.25,
+          "y0": 46.0,
+          "x1": 419.25,
+          "y1": 549.0,
+          "rows": 43,
+          "cols": 3
+        },
+        {
+          "x0": 442.75,
+          "y0": 46.0,
+          "x1": 774.75,
+          "y1": 549.0,
+          "rows": 43,
+          "cols": 3
+        }
+      ],
+      "one_exact_original_ruling_witness": {
+        "kind": "disjoint_complete_open_sibling_frames",
+        "left": {
+          "x": 69.5,
+          "y0": 46.0,
+          "y1": 549.0
+        },
+        "inner_walls": [
+          {
+            "x": 425.0,
+            "y0": 46.0,
+            "y1": 549.0
+          },
+          {
+            "x": 430.75,
+            "y0": 46.0,
+            "y1": 549.0
+          }
+        ],
+        "right": {
+          "x": 780.5,
+          "y0": 46.0,
+          "y1": 549.0
+        }
+      }
+    },
+    {
+      "key": "20260724g001650660",
+      "original_sha256": "a08743e5a38f055d052350473446c6c8cd9073fe8dbf73f5fa8bf4e3574dedbd",
+      "full_PDFium_source_pixels_sha256": "0937ae5c60ac7dc8d9478e681463ea9bdaa81b18919329dbfe8f43d43f32ae79",
+      "source_boundary_visual_review": "all26original pages viewed in four contact sheets;65 and702 also full-page review; text/cell contents checked against exact complete native payloads, no re-rendered candidate used as original",
+      "original_native_tables": [
+        {
+          "x0": 87.25,
+          "y0": 46.0,
+          "x1": 419.25,
+          "y1": 549.0,
+          "rows": 2,
+          "cols": 3
+        },
+        {
+          "x0": 442.75,
+          "y0": 46.0,
+          "x1": 774.75,
+          "y1": 549.0,
+          "rows": 2,
+          "cols": 3
+        }
+      ],
+      "one_exact_original_ruling_witness": {
+        "kind": "disjoint_complete_open_sibling_frames",
+        "left": {
+          "x": 69.5,
+          "y0": 46.0,
+          "y1": 549.0
+        },
+        "inner_walls": [
+          {
+            "x": 425.0,
+            "y0": 46.0,
+            "y1": 549.0
+          },
+          {
+            "x": 430.75,
+            "y0": 46.0,
+            "y1": 549.0
+          }
+        ],
+        "right": {
+          "x": 780.5,
+          "y0": 46.0,
+          "y1": 549.0
+        }
+      }
+    },
+    {
+      "key": "20260724g001650661",
+      "original_sha256": "96f2ef40faa691b74284b66348a6da213b29720350522e863861059dbc8be059",
+      "full_PDFium_source_pixels_sha256": "d34f3c678a133bddb49724048d97698ca64404b860c83db6aeff0b2620c5549a",
+      "source_boundary_visual_review": "all26original pages viewed in four contact sheets;65 and702 also full-page review; text/cell contents checked against exact complete native payloads, no re-rendered candidate used as original",
+      "original_native_tables": [
+        {
+          "x0": 87.25,
+          "y0": 46.0,
+          "x1": 419.25,
+          "y1": 549.0,
+          "rows": 39,
+          "cols": 3
+        },
+        {
+          "x0": 442.75,
+          "y0": 46.0,
+          "x1": 774.75,
+          "y1": 549.0,
+          "rows": 39,
+          "cols": 3
+        }
+      ],
+      "one_exact_original_ruling_witness": {
+        "kind": "disjoint_complete_open_sibling_frames",
+        "left": {
+          "x": 69.5,
+          "y0": 46.0,
+          "y1": 549.0
+        },
+        "inner_walls": [
+          {
+            "x": 425.0,
+            "y0": 46.0,
+            "y1": 549.0
+          },
+          {
+            "x": 430.75,
+            "y0": 46.0,
+            "y1": 549.0
+          }
+        ],
+        "right": {
+          "x": 780.5,
+          "y0": 46.0,
+          "y1": 549.0
+        }
+      }
+    },
+    {
+      "key": "20260724g001650662",
+      "original_sha256": "b766fa061fe3c04cc53b6669e2f667badc3b19eeb7e51bac1597283982bd15cc",
+      "full_PDFium_source_pixels_sha256": "8f4592e622ad06d12c137aed2f0cccb139492adeae81a4314b70baced3b4e529",
+      "source_boundary_visual_review": "all26original pages viewed in four contact sheets;65 and702 also full-page review; text/cell contents checked against exact complete native payloads, no re-rendered candidate used as original",
+      "original_native_tables": [
+        {
+          "x0": 87.25,
+          "y0": 46.0,
+          "x1": 419.25,
+          "y1": 549.0,
+          "rows": 34,
+          "cols": 3
+        },
+        {
+          "x0": 442.75,
+          "y0": 46.0,
+          "x1": 774.75,
+          "y1": 549.0,
+          "rows": 34,
+          "cols": 3
+        }
+      ],
+      "one_exact_original_ruling_witness": {
+        "kind": "disjoint_complete_open_sibling_frames",
+        "left": {
+          "x": 69.5,
+          "y0": 46.0,
+          "y1": 549.0
+        },
+        "inner_walls": [
+          {
+            "x": 425.0,
+            "y0": 46.0,
+            "y1": 549.0
+          },
+          {
+            "x": 430.75,
+            "y0": 46.0,
+            "y1": 549.0
+          }
+        ],
+        "right": {
+          "x": 780.5,
+          "y0": 46.0,
+          "y1": 549.0
+        }
+      }
+    },
+    {
+      "key": "20260724g001650665",
+      "original_sha256": "0841611b5fbdcab0941266cf66fe773c2fc4df8d7704bf2d69f2bb9c0bd3e036",
+      "full_PDFium_source_pixels_sha256": "75fc5d98d56e6669c128ea6561175ce32d4a0d685cfad5af74949eb2dda91bae",
+      "source_boundary_visual_review": "all26original pages viewed in four contact sheets;65 and702 also full-page review; text/cell contents checked against exact complete native payloads, no re-rendered candidate used as original",
+      "original_native_tables": [
+        {
+          "x0": 87.25,
+          "y0": 46.0,
+          "x1": 419.25,
+          "y1": 549.0,
+          "rows": 32,
+          "cols": 3
+        },
+        {
+          "x0": 442.75,
+          "y0": 46.0,
+          "x1": 774.75,
+          "y1": 549.0,
+          "rows": 32,
+          "cols": 3
+        }
+      ],
+      "one_exact_original_ruling_witness": {
+        "kind": "disjoint_complete_open_sibling_frames",
+        "left": {
+          "x": 69.5,
+          "y0": 46.0,
+          "y1": 549.0
+        },
+        "inner_walls": [
+          {
+            "x": 425.0,
+            "y0": 46.0,
+            "y1": 549.0
+          },
+          {
+            "x": 430.75,
+            "y0": 46.0,
+            "y1": 549.0
+          }
+        ],
+        "right": {
+          "x": 780.5,
+          "y0": 46.0,
+          "y1": 549.0
+        }
+      }
+    },
+    {
+      "key": "20260724g001650667",
+      "original_sha256": "40c7f7811f706e3ae982987600d9829e18c35199d68e4c83a100a7dee26b9ddb",
+      "full_PDFium_source_pixels_sha256": "741665d5d9705fb79c106f3f50dafc575fbde96e0184565510f552019fd86040",
+      "source_boundary_visual_review": "all26original pages viewed in four contact sheets;65 and702 also full-page review; text/cell contents checked against exact complete native payloads, no re-rendered candidate used as original",
+      "original_native_tables": [
+        {
+          "x0": 87.25,
+          "y0": 46.0,
+          "x1": 419.25,
+          "y1": 549.0,
+          "rows": 37,
+          "cols": 3
+        },
+        {
+          "x0": 442.75,
+          "y0": 46.0,
+          "x1": 774.75,
+          "y1": 549.0,
+          "rows": 37,
+          "cols": 3
+        }
+      ],
+      "one_exact_original_ruling_witness": {
+        "kind": "disjoint_complete_open_sibling_frames",
+        "left": {
+          "x": 69.5,
+          "y0": 46.0,
+          "y1": 549.0
+        },
+        "inner_walls": [
+          {
+            "x": 425.0,
+            "y0": 46.0,
+            "y1": 549.0
+          },
+          {
+            "x": 430.75,
+            "y0": 46.0,
+            "y1": 549.0
+          }
+        ],
+        "right": {
+          "x": 780.5,
+          "y0": 46.0,
+          "y1": 549.0
+        }
+      }
+    },
+    {
+      "key": "20260724g001650682",
+      "original_sha256": "d505a22042f697dde0c33a88e255deb70e870c511a47e580400b56bea31d0722",
+      "full_PDFium_source_pixels_sha256": "f0ddf404489ccc4340469f0f52389d4968d27b3631c37699dc933df5d6ad0860",
+      "source_boundary_visual_review": "all26original pages viewed in four contact sheets;65 and702 also full-page review; text/cell contents checked against exact complete native payloads, no re-rendered candidate used as original",
+      "original_native_tables": [
+        {
+          "x0": 155.25,
+          "y0": 46.0,
+          "x1": 419.25,
+          "y1": 549.0,
+          "rows": 2,
+          "cols": 2
+        },
+        {
+          "x0": 510.75,
+          "y0": 46.0,
+          "x1": 774.75,
+          "y1": 549.0,
+          "rows": 2,
+          "cols": 2
+        }
+      ],
+      "one_exact_original_ruling_witness": {
+        "kind": "disjoint_complete_open_sibling_frames",
+        "left": {
+          "x": 69.5,
+          "y0": 46.0,
+          "y1": 549.0
+        },
+        "inner_walls": [
+          {
+            "x": 425.0,
+            "y0": 46.0,
+            "y1": 549.0
+          },
+          {
+            "x": 430.75,
+            "y0": 46.0,
+            "y1": 549.0
+          }
+        ],
+        "right": {
+          "x": 780.5,
+          "y0": 46.0,
+          "y1": 549.0
+        }
+      }
+    },
+    {
+      "key": "20260724g001650683",
+      "original_sha256": "4bf8d58c92f14fb1cf8b578531496585cadf4e2f3bd29b941a2d31497b25c795",
+      "full_PDFium_source_pixels_sha256": "eec997aca97c08f923ae97aaa3f840aeecfff378b84a58271ba72aea78de0782",
+      "source_boundary_visual_review": "all26original pages viewed in four contact sheets;65 and702 also full-page review; text/cell contents checked against exact complete native payloads, no re-rendered candidate used as original",
+      "original_native_tables": [
+        {
+          "x0": 87.25,
+          "y0": 46.0,
+          "x1": 419.25,
+          "y1": 549.0,
+          "rows": 29,
+          "cols": 3
+        },
+        {
+          "x0": 442.75,
+          "y0": 46.0,
+          "x1": 774.75,
+          "y1": 549.0,
+          "rows": 29,
+          "cols": 3
+        }
+      ],
+      "one_exact_original_ruling_witness": {
+        "kind": "disjoint_complete_open_sibling_frames",
+        "left": {
+          "x": 69.5,
+          "y0": 46.0,
+          "y1": 549.0
+        },
+        "inner_walls": [
+          {
+            "x": 425.0,
+            "y0": 46.0,
+            "y1": 549.0
+          },
+          {
+            "x": 430.75,
+            "y0": 46.0,
+            "y1": 549.0
+          }
+        ],
+        "right": {
+          "x": 780.5,
+          "y0": 46.0,
+          "y1": 549.0
+        }
+      }
+    },
+    {
+      "key": "20260724g001650684",
+      "original_sha256": "6d363259b43b89982178aadfbd3683e84c26e3bc353af6045c1990207772201b",
+      "full_PDFium_source_pixels_sha256": "960c21963d516ac550e2a6e54d8769dc479a614f96273143fa86aa50dcafb5b5",
+      "source_boundary_visual_review": "all26original pages viewed in four contact sheets;65 and702 also full-page review; text/cell contents checked against exact complete native payloads, no re-rendered candidate used as original",
+      "original_native_tables": [
+        {
+          "x0": 155.25,
+          "y0": 46.0,
+          "x1": 419.25,
+          "y1": 549.0,
+          "rows": 42,
+          "cols": 2
+        },
+        {
+          "x0": 510.75,
+          "y0": 46.0,
+          "x1": 774.75,
+          "y1": 549.0,
+          "rows": 42,
+          "cols": 2
+        }
+      ],
+      "one_exact_original_ruling_witness": {
+        "kind": "disjoint_complete_open_sibling_frames",
+        "left": {
+          "x": 69.5,
+          "y0": 46.0,
+          "y1": 549.0
+        },
+        "inner_walls": [
+          {
+            "x": 425.0,
+            "y0": 46.0,
+            "y1": 549.0
+          },
+          {
+            "x": 430.75,
+            "y0": 46.0,
+            "y1": 549.0
+          }
+        ],
+        "right": {
+          "x": 780.5,
+          "y0": 46.0,
+          "y1": 549.0
+        }
+      }
+    },
+    {
+      "key": "20260724g001650685",
+      "original_sha256": "2377e731f1e85f1b193558023e9beaae63a0ab93507f16e8a96278aa3de7da31",
+      "full_PDFium_source_pixels_sha256": "c492ed34cd1ecfa6250adab224a8b128d0a9014029741c64ffe4c1ba2bd50aee",
+      "source_boundary_visual_review": "all26original pages viewed in four contact sheets;65 and702 also full-page review; text/cell contents checked against exact complete native payloads, no re-rendered candidate used as original",
+      "original_native_tables": [
+        {
+          "x0": 87.25,
+          "y0": 46.0,
+          "x1": 419.25,
+          "y1": 549.0,
+          "rows": 36,
+          "cols": 3
+        },
+        {
+          "x0": 442.75,
+          "y0": 46.0,
+          "x1": 774.75,
+          "y1": 549.0,
+          "rows": 36,
+          "cols": 3
+        }
+      ],
+      "one_exact_original_ruling_witness": {
+        "kind": "disjoint_complete_open_sibling_frames",
+        "left": {
+          "x": 69.5,
+          "y0": 46.0,
+          "y1": 549.0
+        },
+        "inner_walls": [
+          {
+            "x": 425.0,
+            "y0": 46.0,
+            "y1": 549.0
+          },
+          {
+            "x": 430.75,
+            "y0": 46.0,
+            "y1": 549.0
+          }
+        ],
+        "right": {
+          "x": 780.5,
+          "y0": 46.0,
+          "y1": 549.0
+        }
+      }
+    },
+    {
+      "key": "20260724g001650687",
+      "original_sha256": "df8fa740f49ec77483373abc3e2a7849e2ece8cf3af2a9d73ece4c92be160dc7",
+      "full_PDFium_source_pixels_sha256": "20c5070d04f66b8e25b409167921a1e536b1eaeb477f5941d1e479cf27e82e17",
+      "source_boundary_visual_review": "all26original pages viewed in four contact sheets;65 and702 also full-page review; text/cell contents checked against exact complete native payloads, no re-rendered candidate used as original",
+      "original_native_tables": [
+        {
+          "x0": 87.25,
+          "y0": 46.0,
+          "x1": 419.25,
+          "y1": 549.0,
+          "rows": 37,
+          "cols": 3
+        },
+        {
+          "x0": 442.75,
+          "y0": 46.0,
+          "x1": 774.75,
+          "y1": 549.0,
+          "rows": 37,
+          "cols": 3
+        }
+      ],
+      "one_exact_original_ruling_witness": {
+        "kind": "disjoint_complete_open_sibling_frames",
+        "left": {
+          "x": 69.5,
+          "y0": 46.0,
+          "y1": 549.0
+        },
+        "inner_walls": [
+          {
+            "x": 425.0,
+            "y0": 46.0,
+            "y1": 549.0
+          },
+          {
+            "x": 430.75,
+            "y0": 46.0,
+            "y1": 549.0
+          }
+        ],
+        "right": {
+          "x": 780.5,
+          "y0": 46.0,
+          "y1": 549.0
+        }
+      }
+    },
+    {
+      "key": "20260724g001650688",
+      "original_sha256": "ee1737e26d2375f309c60bc0c94360a6397cdd3f6bf10ab4446c2534844bd530",
+      "full_PDFium_source_pixels_sha256": "8b7c2dedffa47bd5fd545192ee4ba5e9579a517de29ca5cb01561874cb5f62c2",
+      "source_boundary_visual_review": "all26original pages viewed in four contact sheets;65 and702 also full-page review; text/cell contents checked against exact complete native payloads, no re-rendered candidate used as original",
+      "original_native_tables": [
+        {
+          "x0": 87.25,
+          "y0": 46.0,
+          "x1": 419.25,
+          "y1": 549.0,
+          "rows": 35,
+          "cols": 3
+        },
+        {
+          "x0": 442.75,
+          "y0": 46.0,
+          "x1": 774.75,
+          "y1": 549.0,
+          "rows": 35,
+          "cols": 3
+        }
+      ],
+      "one_exact_original_ruling_witness": {
+        "kind": "disjoint_complete_open_sibling_frames",
+        "left": {
+          "x": 69.5,
+          "y0": 46.0,
+          "y1": 549.0
+        },
+        "inner_walls": [
+          {
+            "x": 425.0,
+            "y0": 46.0,
+            "y1": 549.0
+          },
+          {
+            "x": 430.75,
+            "y0": 46.0,
+            "y1": 549.0
+          }
+        ],
+        "right": {
+          "x": 780.5,
+          "y0": 46.0,
+          "y1": 549.0
+        }
+      }
+    },
+    {
+      "key": "20260724g001650693",
+      "original_sha256": "7af6e5ded60427ad5589965a32965dbbf908e908e06de3a06c5d0486fa0ac667",
+      "full_PDFium_source_pixels_sha256": "c2139ebfdd6640e8ccbbc4f62570554e45122cdc62603b82eed3cae28f89e0d3",
+      "source_boundary_visual_review": "all26original pages viewed in four contact sheets;65 and702 also full-page review; text/cell contents checked against exact complete native payloads, no re-rendered candidate used as original",
+      "original_native_tables": [
+        {
+          "x0": 87.25,
+          "y0": 46.0,
+          "x1": 419.25,
+          "y1": 549.0,
+          "rows": 39,
+          "cols": 3
+        },
+        {
+          "x0": 442.75,
+          "y0": 46.0,
+          "x1": 774.75,
+          "y1": 549.0,
+          "rows": 39,
+          "cols": 3
+        }
+      ],
+      "one_exact_original_ruling_witness": {
+        "kind": "disjoint_complete_open_sibling_frames",
+        "left": {
+          "x": 69.5,
+          "y0": 46.0,
+          "y1": 549.0
+        },
+        "inner_walls": [
+          {
+            "x": 425.0,
+            "y0": 46.0,
+            "y1": 549.0
+          },
+          {
+            "x": 430.75,
+            "y0": 46.0,
+            "y1": 549.0
+          }
+        ],
+        "right": {
+          "x": 780.5,
+          "y0": 46.0,
+          "y1": 549.0
+        }
+      }
+    },
+    {
+      "key": "20260724g001650694",
+      "original_sha256": "da9f05c5ca3d226b5318046e7a653cbcc4147212d02bdd1d6901c1d5a996d625",
+      "full_PDFium_source_pixels_sha256": "92dff73336567e085049833abc8daef2a9e793ed09d8780eb1ef7ef550b8ddb5",
+      "source_boundary_visual_review": "all26original pages viewed in four contact sheets;65 and702 also full-page review; text/cell contents checked against exact complete native payloads, no re-rendered candidate used as original",
+      "original_native_tables": [
+        {
+          "x0": 87.25,
+          "y0": 46.0,
+          "x1": 419.25,
+          "y1": 549.0,
+          "rows": 36,
+          "cols": 3
+        },
+        {
+          "x0": 442.75,
+          "y0": 46.0,
+          "x1": 774.75,
+          "y1": 549.0,
+          "rows": 36,
+          "cols": 3
+        }
+      ],
+      "one_exact_original_ruling_witness": {
+        "kind": "disjoint_complete_open_sibling_frames",
+        "left": {
+          "x": 69.5,
+          "y0": 46.0,
+          "y1": 549.0
+        },
+        "inner_walls": [
+          {
+            "x": 425.0,
+            "y0": 46.0,
+            "y1": 549.0
+          },
+          {
+            "x": 430.75,
+            "y0": 46.0,
+            "y1": 549.0
+          }
+        ],
+        "right": {
+          "x": 780.5,
+          "y0": 46.0,
+          "y1": 549.0
+        }
+      }
+    },
+    {
+      "key": "20260724g001650702",
+      "original_sha256": "eff8f59ef4b53cd3a31453119ff6f588f076d95d1ef372aaecf841322b43091e",
+      "full_PDFium_source_pixels_sha256": "b4c25943311407fdce94f89dcf34551e0bbb31bf305f313effb063a9bc53bef1",
+      "source_boundary_visual_review": "all26original pages viewed in four contact sheets;65 and702 also full-page review; text/cell contents checked against exact complete native payloads, no re-rendered candidate used as original",
+      "original_native_tables": [
+        {
+          "x0": 87.25,
+          "y0": 46.0,
+          "x1": 419.25,
+          "y1": 549.0,
+          "rows": 32,
+          "cols": 3
+        },
+        {
+          "x0": 442.75,
+          "y0": 46.0,
+          "x1": 774.75,
+          "y1": 549.0,
+          "rows": 32,
+          "cols": 3
+        }
+      ],
+      "one_exact_original_ruling_witness": {
+        "kind": "disjoint_complete_open_sibling_frames",
+        "left": {
+          "x": 69.5,
+          "y0": 46.0,
+          "y1": 549.0
+        },
+        "inner_walls": [
+          {
+            "x": 425.0,
+            "y0": 46.0,
+            "y1": 549.0
+          },
+          {
+            "x": 430.75,
+            "y0": 46.0,
+            "y1": 549.0
+          }
+        ],
+        "right": {
+          "x": 780.5,
+          "y0": 46.0,
+          "y1": 549.0
+        }
+      }
+    },
+    {
+      "key": "20260724g001650704",
+      "original_sha256": "b993375853a70f7d2eb2db79bb5fa362a9bf2571dedf3bcb7f024578fd49db5a",
+      "full_PDFium_source_pixels_sha256": "a27e84378aa81508a11b653b04327aee49f08b2103655afd42e39d18ce4d8649",
+      "source_boundary_visual_review": "all26original pages viewed in four contact sheets;65 and702 also full-page review; text/cell contents checked against exact complete native payloads, no re-rendered candidate used as original",
+      "original_native_tables": [
+        {
+          "x0": 87.25,
+          "y0": 46.0,
+          "x1": 419.25,
+          "y1": 549.0,
+          "rows": 2,
+          "cols": 3
+        },
+        {
+          "x0": 442.75,
+          "y0": 46.0,
+          "x1": 774.75,
+          "y1": 549.0,
+          "rows": 2,
+          "cols": 3
+        }
+      ],
+      "one_exact_original_ruling_witness": {
+        "kind": "disjoint_complete_open_sibling_frames",
+        "left": {
+          "x": 69.5,
+          "y0": 46.0,
+          "y1": 549.0
+        },
+        "inner_walls": [
+          {
+            "x": 425.0,
+            "y0": 46.0,
+            "y1": 549.0
+          },
+          {
+            "x": 430.75,
+            "y0": 46.0,
+            "y1": 549.0
+          }
+        ],
+        "right": {
+          "x": 780.5,
+          "y0": 46.0,
+          "y1": 549.0
+        }
+      }
+    },
+    {
+      "key": "20260724g001650706",
+      "original_sha256": "f8ccb108dcdd363463b37655ce80c6343041d63d65b8384d81cf62fd20ca599f",
+      "full_PDFium_source_pixels_sha256": "83219aa14317a67e17ec926ae57fb1712f584ab0d0343b5402dc876422887f18",
+      "source_boundary_visual_review": "all26original pages viewed in four contact sheets;65 and702 also full-page review; text/cell contents checked against exact complete native payloads, no re-rendered candidate used as original",
+      "original_native_tables": [
+        {
+          "x0": 87.25,
+          "y0": 46.0,
+          "x1": 419.25,
+          "y1": 549.0,
+          "rows": 2,
+          "cols": 3
+        },
+        {
+          "x0": 442.75,
+          "y0": 46.0,
+          "x1": 774.75,
+          "y1": 549.0,
+          "rows": 2,
+          "cols": 3
+        }
+      ],
+      "one_exact_original_ruling_witness": {
+        "kind": "disjoint_complete_open_sibling_frames",
+        "left": {
+          "x": 69.5,
+          "y0": 46.0,
+          "y1": 549.0
+        },
+        "inner_walls": [
+          {
+            "x": 425.0,
+            "y0": 46.0,
+            "y1": 549.0
+          },
+          {
+            "x": 430.75,
+            "y0": 46.0,
+            "y1": 549.0
+          }
+        ],
+        "right": {
+          "x": 780.5,
+          "y0": 46.0,
+          "y1": 549.0
+        }
+      }
+    },
+    {
+      "key": "20260724g001650709",
+      "original_sha256": "68f27c46d9e4970b6f2ea06a17d7a46172e2e42b96a9e7f9b36d5fbd46d209ea",
+      "full_PDFium_source_pixels_sha256": "814fcf55e05fd4f017a2a0b9df35ecc420ad2e1e8c610dc36f8d3980b20c5d6b",
+      "source_boundary_visual_review": "all26original pages viewed in four contact sheets;65 and702 also full-page review; text/cell contents checked against exact complete native payloads, no re-rendered candidate used as original",
+      "original_native_tables": [
+        {
+          "x0": 87.25,
+          "y0": 46.0,
+          "x1": 419.25,
+          "y1": 549.0,
+          "rows": 37,
+          "cols": 3
+        },
+        {
+          "x0": 442.75,
+          "y0": 46.0,
+          "x1": 774.75,
+          "y1": 549.0,
+          "rows": 37,
+          "cols": 3
+        }
+      ],
+      "one_exact_original_ruling_witness": {
+        "kind": "disjoint_complete_open_sibling_frames",
+        "left": {
+          "x": 69.5,
+          "y0": 46.0,
+          "y1": 549.0
+        },
+        "inner_walls": [
+          {
+            "x": 425.0,
+            "y0": 46.0,
+            "y1": 549.0
+          },
+          {
+            "x": 430.75,
+            "y0": 46.0,
+            "y1": 549.0
+          }
+        ],
+        "right": {
+          "x": 780.5,
+          "y0": 46.0,
+          "y1": 549.0
+        }
+      }
+    },
+    {
+      "key": "20260724g001650711",
+      "original_sha256": "b87c436109a92245b54d4de72856e459cea1eb08d8ac5fb021f5c41daa9c41ea",
+      "full_PDFium_source_pixels_sha256": "d2aeb2aa8f07aa74668248066712186cafd397094803897a75e76abd888fa43f",
+      "source_boundary_visual_review": "all26original pages viewed in four contact sheets;65 and702 also full-page review; text/cell contents checked against exact complete native payloads, no re-rendered candidate used as original",
+      "original_native_tables": [
+        {
+          "x0": 87.25,
+          "y0": 46.0,
+          "x1": 419.25,
+          "y1": 549.0,
+          "rows": 38,
+          "cols": 3
+        },
+        {
+          "x0": 442.75,
+          "y0": 46.0,
+          "x1": 774.75,
+          "y1": 549.0,
+          "rows": 38,
+          "cols": 3
+        }
+      ],
+      "one_exact_original_ruling_witness": {
+        "kind": "disjoint_complete_open_sibling_frames",
+        "left": {
+          "x": 69.5,
+          "y0": 46.0,
+          "y1": 549.0
+        },
+        "inner_walls": [
+          {
+            "x": 425.0,
+            "y0": 46.0,
+            "y1": 549.0
+          },
+          {
+            "x": 430.75,
+            "y0": 46.0,
+            "y1": 549.0
+          }
+        ],
+        "right": {
+          "x": 780.5,
+          "y0": 46.0,
+          "y1": 549.0
+        }
+      }
+    },
+    {
+      "key": "20260724g001650713",
+      "original_sha256": "4b9b266f1f463d31298666d3103e072c508db72781f168299bab91baabb4e447",
+      "full_PDFium_source_pixels_sha256": "83bfa13829219fd047fdbec0c2db67297ba70ad19cc52e065c86102272ca8005",
+      "source_boundary_visual_review": "all26original pages viewed in four contact sheets;65 and702 also full-page review; text/cell contents checked against exact complete native payloads, no re-rendered candidate used as original",
+      "original_native_tables": [
+        {
+          "x0": 87.25,
+          "y0": 46.0,
+          "x1": 419.25,
+          "y1": 549.0,
+          "rows": 41,
+          "cols": 3
+        },
+        {
+          "x0": 442.75,
+          "y0": 46.0,
+          "x1": 774.75,
+          "y1": 549.0,
+          "rows": 41,
+          "cols": 3
+        }
+      ],
+      "one_exact_original_ruling_witness": {
+        "kind": "disjoint_complete_open_sibling_frames",
+        "left": {
+          "x": 69.5,
+          "y0": 46.0,
+          "y1": 549.0
+        },
+        "inner_walls": [
+          {
+            "x": 425.0,
+            "y0": 46.0,
+            "y1": 549.0
+          },
+          {
+            "x": 430.75,
+            "y0": 46.0,
+            "y1": 549.0
+          }
+        ],
+        "right": {
+          "x": 780.5,
+          "y0": 46.0,
+          "y1": 549.0
+        }
+      }
+    },
+    {
+      "key": "20260724g001650717",
+      "original_sha256": "729d1a8210453827b4a3c2991727a33edf7e9993fef30717685587505e2a888c",
+      "full_PDFium_source_pixels_sha256": "631cc1c67772fc9163c8f598286bd3eecdf8fd97d976f4b11e44357a5ca9855b",
+      "source_boundary_visual_review": "all26original pages viewed in four contact sheets;65 and702 also full-page review; text/cell contents checked against exact complete native payloads, no re-rendered candidate used as original",
+      "original_native_tables": [
+        {
+          "x0": 87.25,
+          "y0": 46.0,
+          "x1": 419.25,
+          "y1": 549.0,
+          "rows": 2,
+          "cols": 3
+        },
+        {
+          "x0": 442.75,
+          "y0": 46.0,
+          "x1": 774.75,
+          "y1": 549.0,
+          "rows": 2,
+          "cols": 3
+        }
+      ],
+      "one_exact_original_ruling_witness": {
+        "kind": "disjoint_complete_open_sibling_frames",
+        "left": {
+          "x": 69.5,
+          "y0": 46.0,
+          "y1": 549.0
+        },
+        "inner_walls": [
+          {
+            "x": 425.0,
+            "y0": 46.0,
+            "y1": 549.0
+          },
+          {
+            "x": 430.75,
+            "y0": 46.0,
+            "y1": 549.0
+          }
+        ],
+        "right": {
+          "x": 780.5,
+          "y0": 46.0,
+          "y1": 549.0
+        }
+      }
+    },
+    {
+      "key": "20260724g001650718",
+      "original_sha256": "fca63186e5df4e860bb5eac24c8c410464aff39c7f9ec1efe9f4aacae7f55531",
+      "full_PDFium_source_pixels_sha256": "460e5e6fa140e9044b4ecd3dfbba716d6a56937abde7e9f46a590422da253c3c",
+      "source_boundary_visual_review": "all26original pages viewed in four contact sheets;65 and702 also full-page review; text/cell contents checked against exact complete native payloads, no re-rendered candidate used as original",
+      "original_native_tables": [
+        {
+          "x0": 155.25,
+          "y0": 46.0,
+          "x1": 419.25,
+          "y1": 549.0,
+          "rows": 2,
+          "cols": 2
+        },
+        {
+          "x0": 510.75,
+          "y0": 46.0,
+          "x1": 774.75,
+          "y1": 549.0,
+          "rows": 2,
+          "cols": 2
+        }
+      ],
+      "one_exact_original_ruling_witness": {
+        "kind": "disjoint_complete_open_sibling_frames",
+        "left": {
+          "x": 69.5,
+          "y0": 46.0,
+          "y1": 549.0
+        },
+        "inner_walls": [
+          {
+            "x": 425.0,
+            "y0": 46.0,
+            "y1": 549.0
+          },
+          {
+            "x": 430.75,
+            "y0": 46.0,
+            "y1": 549.0
+          }
+        ],
+        "right": {
+          "x": 780.5,
+          "y0": 46.0,
+          "y1": 549.0
+        }
+      }
+    },
+    {
+      "key": "20260724g001650725",
+      "original_sha256": "3ac1edaf7045caf8cc498b5a6ce694628fe12717a248c0bf834bde7244a551be",
+      "full_PDFium_source_pixels_sha256": "e4540215af123f1f894f081f71fac55e703ced108bcb500d7f4d92806e1a9bb9",
+      "source_boundary_visual_review": "all26original pages viewed in four contact sheets;65 and702 also full-page review; text/cell contents checked against exact complete native payloads, no re-rendered candidate used as original",
+      "original_native_tables": [
+        {
+          "x0": 155.25,
+          "y0": 46.0,
+          "x1": 419.25,
+          "y1": 549.0,
+          "rows": 37,
+          "cols": 2
+        },
+        {
+          "x0": 510.75,
+          "y0": 46.0,
+          "x1": 774.75,
+          "y1": 549.0,
+          "rows": 37,
+          "cols": 2
+        }
+      ],
+      "one_exact_original_ruling_witness": {
+        "kind": "disjoint_complete_open_sibling_frames",
+        "left": {
+          "x": 69.5,
+          "y0": 46.0,
+          "y1": 549.0
+        },
+        "inner_walls": [
+          {
+            "x": 425.0,
+            "y0": 46.0,
+            "y1": 549.0
+          },
+          {
+            "x": 430.75,
+            "y0": 46.0,
+            "y1": 549.0
+          }
+        ],
+        "right": {
+          "x": 780.5,
+          "y0": 46.0,
+          "y1": 549.0
+        }
+      }
+    },
+    {
+      "key": "20260724g001650727",
+      "original_sha256": "92636bdc0aa19a6ad84898ce6eb8b6f8360b77aec36bd398d514d454c3293c27",
+      "full_PDFium_source_pixels_sha256": "277dbbba52dab8fdffc986f79a577e7e8accf8baf51332dc56e95f874a54baf9",
+      "source_boundary_visual_review": "all26original pages viewed in four contact sheets;65 and702 also full-page review; text/cell contents checked against exact complete native payloads, no re-rendered candidate used as original",
+      "original_native_tables": [
+        {
+          "x0": 155.25,
+          "y0": 46.0,
+          "x1": 419.25,
+          "y1": 549.0,
+          "rows": 2,
+          "cols": 2
+        },
+        {
+          "x0": 510.75,
+          "y0": 46.0,
+          "x1": 774.75,
+          "y1": 549.0,
+          "rows": 2,
+          "cols": 2
+        }
+      ],
+      "one_exact_original_ruling_witness": {
+        "kind": "disjoint_complete_open_sibling_frames",
+        "left": {
+          "x": 69.5,
+          "y0": 46.0,
+          "y1": 549.0
+        },
+        "inner_walls": [
+          {
+            "x": 425.0,
+            "y0": 46.0,
+            "y1": 549.0
+          },
+          {
+            "x": 430.75,
+            "y0": 46.0,
+            "y1": 549.0
+          }
+        ],
+        "right": {
+          "x": 780.5,
+          "y0": 46.0,
+          "y1": 549.0
+        }
+      }
+    },
+    {
+      "key": "20260724g001650765",
+      "original_sha256": "1913d93fefb246ac73cdfb8a9d5b6b5b81cdce8df95054d89208143060edfd3f",
+      "full_PDFium_source_pixels_sha256": "84bcdce359087d1eb1ac81d0f5a9cb32d32746e8829217e3b24508c9a1e82183",
+      "source_boundary_visual_review": "all26original pages viewed in four contact sheets;65 and702 also full-page review; text/cell contents checked against exact complete native payloads, no re-rendered candidate used as original",
+      "original_native_tables": [
+        {
+          "x0": 155.25,
+          "y0": 46.0,
+          "x1": 411.25,
+          "y1": 549.0,
+          "rows": 16,
+          "cols": 2
+        },
+        {
+          "x0": 510.75,
+          "y0": 46.0,
+          "x1": 766.75,
+          "y1": 549.0,
+          "rows": 16,
+          "cols": 2
+        }
+      ],
+      "one_exact_original_ruling_witness": {
+        "kind": "disjoint_complete_open_sibling_frames",
+        "left": {
+          "x": 69.5,
+          "y0": 46.0,
+          "y1": 549.0
+        },
+        "inner_walls": [
+          {
+            "x": 425.0,
+            "y0": 46.0,
+            "y1": 549.0
+          },
+          {
+            "x": 438.75,
+            "y0": 46.0,
+            "y1": 549.0
+          }
+        ],
+        "right": {
+          "x": 780.5,
+          "y0": 46.0,
+          "y1": 549.0
+        }
+      }
+    }
+  ],
+  "strict_Analysis_delta_cases": [
+    {
+      "key": "20260717g001600065",
+      "original_native_cells_exact": true,
+      "only_document_edit": "one collapsed table run -> two complete original native table runs; exact strict reverse projection of every other Analysis field",
+      "old_rows": [
+        [
+          7,
+          4
+        ]
+      ],
+      "new_rows": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ]
+    },
+    {
+      "key": "20260724g001650659",
+      "original_native_cells_exact": true,
+      "only_document_edit": "one collapsed table run -> two complete original native table runs; exact strict reverse projection of every other Analysis field",
+      "old_rows": [
+        [
+          84,
+          3
+        ]
+      ],
+      "new_rows": [
+        [
+          43,
+          3
+        ],
+        [
+          43,
+          3
+        ]
+      ]
+    },
+    {
+      "key": "20260724g001650660",
+      "original_native_cells_exact": true,
+      "only_document_edit": "one collapsed table run -> two complete original native table runs; exact strict reverse projection of every other Analysis field",
+      "old_rows": [
+        [
+          3,
+          3
+        ]
+      ],
+      "new_rows": [
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          3
+        ]
+      ]
+    },
+    {
+      "key": "20260724g001650661",
+      "original_native_cells_exact": true,
+      "only_document_edit": "one collapsed table run -> two complete original native table runs; exact strict reverse projection of every other Analysis field",
+      "old_rows": [
+        [
+          77,
+          3
+        ]
+      ],
+      "new_rows": [
+        [
+          39,
+          3
+        ],
+        [
+          39,
+          3
+        ]
+      ]
+    },
+    {
+      "key": "20260724g001650662",
+      "original_native_cells_exact": true,
+      "only_document_edit": "one collapsed table run -> two complete original native table runs; exact strict reverse projection of every other Analysis field",
+      "old_rows": [
+        [
+          67,
+          3
+        ]
+      ],
+      "new_rows": [
+        [
+          34,
+          3
+        ],
+        [
+          34,
+          3
+        ]
+      ]
+    },
+    {
+      "key": "20260724g001650665",
+      "original_native_cells_exact": true,
+      "only_document_edit": "one collapsed table run -> two complete original native table runs; exact strict reverse projection of every other Analysis field",
+      "old_rows": [
+        [
+          63,
+          3
+        ]
+      ],
+      "new_rows": [
+        [
+          32,
+          3
+        ],
+        [
+          32,
+          3
+        ]
+      ]
+    },
+    {
+      "key": "20260724g001650667",
+      "original_native_cells_exact": true,
+      "only_document_edit": "one collapsed table run -> two complete original native table runs; exact strict reverse projection of every other Analysis field",
+      "old_rows": [
+        [
+          73,
+          3
+        ]
+      ],
+      "new_rows": [
+        [
+          37,
+          3
+        ],
+        [
+          37,
+          3
+        ]
+      ]
+    },
+    {
+      "key": "20260724g001650682",
+      "original_native_cells_exact": true,
+      "only_document_edit": "one collapsed table run -> two complete original native table runs; exact strict reverse projection of every other Analysis field",
+      "old_rows": [
+        [
+          3,
+          2
+        ]
+      ],
+      "new_rows": [
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          2
+        ]
+      ]
+    },
+    {
+      "key": "20260724g001650683",
+      "original_native_cells_exact": true,
+      "only_document_edit": "one collapsed table run -> two complete original native table runs; exact strict reverse projection of every other Analysis field",
+      "old_rows": [
+        [
+          57,
+          3
+        ]
+      ],
+      "new_rows": [
+        [
+          29,
+          3
+        ],
+        [
+          29,
+          3
+        ]
+      ]
+    },
+    {
+      "key": "20260724g001650684",
+      "original_native_cells_exact": true,
+      "only_document_edit": "one collapsed table run -> two complete original native table runs; exact strict reverse projection of every other Analysis field",
+      "old_rows": [
+        [
+          83,
+          2
+        ]
+      ],
+      "new_rows": [
+        [
+          42,
+          2
+        ],
+        [
+          42,
+          2
+        ]
+      ]
+    },
+    {
+      "key": "20260724g001650685",
+      "original_native_cells_exact": true,
+      "only_document_edit": "one collapsed table run -> two complete original native table runs; exact strict reverse projection of every other Analysis field",
+      "old_rows": [
+        [
+          70,
+          3
+        ]
+      ],
+      "new_rows": [
+        [
+          36,
+          3
+        ],
+        [
+          36,
+          3
+        ]
+      ]
+    },
+    {
+      "key": "20260724g001650687",
+      "original_native_cells_exact": true,
+      "only_document_edit": "one collapsed table run -> two complete original native table runs; exact strict reverse projection of every other Analysis field",
+      "old_rows": [
+        [
+          73,
+          3
+        ]
+      ],
+      "new_rows": [
+        [
+          37,
+          3
+        ],
+        [
+          37,
+          3
+        ]
+      ]
+    },
+    {
+      "key": "20260724g001650688",
+      "original_native_cells_exact": true,
+      "only_document_edit": "one collapsed table run -> two complete original native table runs; exact strict reverse projection of every other Analysis field",
+      "old_rows": [
+        [
+          69,
+          3
+        ]
+      ],
+      "new_rows": [
+        [
+          35,
+          3
+        ],
+        [
+          35,
+          3
+        ]
+      ]
+    },
+    {
+      "key": "20260724g001650693",
+      "original_native_cells_exact": true,
+      "only_document_edit": "one collapsed table run -> two complete original native table runs; exact strict reverse projection of every other Analysis field",
+      "old_rows": [
+        [
+          77,
+          3
+        ]
+      ],
+      "new_rows": [
+        [
+          39,
+          3
+        ],
+        [
+          39,
+          3
+        ]
+      ]
+    },
+    {
+      "key": "20260724g001650694",
+      "original_native_cells_exact": true,
+      "only_document_edit": "one collapsed table run -> two complete original native table runs; exact strict reverse projection of every other Analysis field",
+      "old_rows": [
+        [
+          71,
+          3
+        ]
+      ],
+      "new_rows": [
+        [
+          36,
+          3
+        ],
+        [
+          36,
+          3
+        ]
+      ]
+    },
+    {
+      "key": "20260724g001650702",
+      "original_native_cells_exact": true,
+      "only_document_edit": "one collapsed table run -> two complete original native table runs; exact strict reverse projection of every other Analysis field",
+      "old_rows": [
+        [
+          63,
+          3
+        ]
+      ],
+      "new_rows": [
+        [
+          32,
+          3
+        ],
+        [
+          32,
+          3
+        ]
+      ]
+    },
+    {
+      "key": "20260724g001650704",
+      "original_native_cells_exact": true,
+      "only_document_edit": "one collapsed table run -> two complete original native table runs; exact strict reverse projection of every other Analysis field",
+      "old_rows": [
+        [
+          3,
+          3
+        ]
+      ],
+      "new_rows": [
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          3
+        ]
+      ]
+    },
+    {
+      "key": "20260724g001650706",
+      "original_native_cells_exact": true,
+      "only_document_edit": "one collapsed table run -> two complete original native table runs; exact strict reverse projection of every other Analysis field",
+      "old_rows": [
+        [
+          3,
+          3
+        ]
+      ],
+      "new_rows": [
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          3
+        ]
+      ]
+    },
+    {
+      "key": "20260724g001650709",
+      "original_native_cells_exact": true,
+      "only_document_edit": "one collapsed table run -> two complete original native table runs; exact strict reverse projection of every other Analysis field",
+      "old_rows": [
+        [
+          73,
+          3
+        ]
+      ],
+      "new_rows": [
+        [
+          37,
+          3
+        ],
+        [
+          37,
+          3
+        ]
+      ]
+    },
+    {
+      "key": "20260724g001650711",
+      "original_native_cells_exact": true,
+      "only_document_edit": "one collapsed table run -> two complete original native table runs; exact strict reverse projection of every other Analysis field",
+      "old_rows": [
+        [
+          75,
+          3
+        ]
+      ],
+      "new_rows": [
+        [
+          38,
+          3
+        ],
+        [
+          38,
+          3
+        ]
+      ]
+    },
+    {
+      "key": "20260724g001650713",
+      "original_native_cells_exact": true,
+      "only_document_edit": "one collapsed table run -> two complete original native table runs; exact strict reverse projection of every other Analysis field",
+      "old_rows": [
+        [
+          81,
+          3
+        ]
+      ],
+      "new_rows": [
+        [
+          41,
+          3
+        ],
+        [
+          41,
+          3
+        ]
+      ]
+    },
+    {
+      "key": "20260724g001650717",
+      "original_native_cells_exact": true,
+      "only_document_edit": "one collapsed table run -> two complete original native table runs; exact strict reverse projection of every other Analysis field",
+      "old_rows": [
+        [
+          3,
+          3
+        ]
+      ],
+      "new_rows": [
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          3
+        ]
+      ]
+    },
+    {
+      "key": "20260724g001650718",
+      "original_native_cells_exact": true,
+      "only_document_edit": "one collapsed table run -> two complete original native table runs; exact strict reverse projection of every other Analysis field",
+      "old_rows": [
+        [
+          3,
+          2
+        ]
+      ],
+      "new_rows": [
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          2
+        ]
+      ]
+    },
+    {
+      "key": "20260724g001650725",
+      "original_native_cells_exact": true,
+      "only_document_edit": "one collapsed table run -> two complete original native table runs; exact strict reverse projection of every other Analysis field",
+      "old_rows": [
+        [
+          72,
+          2
+        ]
+      ],
+      "new_rows": [
+        [
+          37,
+          2
+        ],
+        [
+          37,
+          2
+        ]
+      ]
+    },
+    {
+      "key": "20260724g001650727",
+      "original_native_cells_exact": true,
+      "only_document_edit": "one collapsed table run -> two complete original native table runs; exact strict reverse projection of every other Analysis field",
+      "old_rows": [
+        [
+          3,
+          2
+        ]
+      ],
+      "new_rows": [
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          2
+        ]
+      ]
+    },
+    {
+      "key": "20260724g001650765",
+      "original_native_cells_exact": true,
+      "only_document_edit": "one collapsed table run -> two complete original native table runs; exact strict reverse projection of every other Analysis field",
+      "old_rows": [
+        [
+          31,
+          2
+        ]
+      ],
+      "new_rows": [
+        [
+          16,
+          2
+        ],
+        [
+          16,
+          2
+        ]
+      ]
+    }
+  ],
+  "normal_native": {
+    "terminal": 0,
+    "commands": 2,
+    "integration_targets": 156,
+    "result_groups": 164,
+    "passed": 3965,
+    "failed": 0,
+    "ignored": 0,
+    "source_manifest_sha256": "2131304c183e58167b17ee46a32fce4cddd34d583611d2f7eba731f82b45bce5",
+    "source_and_all_existing_test_inputs_prepost_exact": true,
+    "snapshot_updates_disabled": true
+  },
+  "shared_actual_renderer": {
+    "passed": 10,
+    "failed": 0
+  },
+  "actual_Cargo_release": {
+    "profile": "actual Cargo release, final W sources",
+    "single_complete_Analysis_exact_private_final": 11992,
+    "whole_complete_Analysis_exact_private_final": 159,
+    "actual_release_PDF_textdump_CLI_native_body_bytes_exact": 11992,
+    "single_duplicate_owner_pages": 0,
+    "CLI_duplicate_word_reports": 0,
+    "all_original_inputs_native_sources_Cargo_and_binaries_prepost_exact": true,
+    "seconds": 399.959792667,
+    "scope": "Full final actual-Cargo release public API Analysis and native CLI over original PDFs; source-reviewed26single pages restore29Document rows by preserving both complete independent native table parents. Whole159 exact157. No independent accuracy claim."
+  },
+  "old_assets": {
+    "baseline": "8a8065b1cfaccb16763a274bf136791b792d6a38",
+    "old_assets": 3120,
+    "unchanged": 3117,
+    "source_constructed_snapshot_corrections": 3,
+    "unchanged_old_PDFs": 1121,
+    "unchanged_old_JSON": 977,
+    "unchanged_old_snapshots": 811,
+    "all_old_snapshot_names_retained": 814,
+    "all_other_old_asset_bytes_exact": true,
+    "all_three_source_constructed_corrections_have_strict_reverse_projection": true
+  },
+  "source_snapshot_corrections": [
+    {
+      "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260724g00165__20260724g001650693.pdf.snap",
+      "old_sha256": "ca409bd4ba8bed3e56bfd9926f9bbdbd203b18ff7374972e0d0ab4fb2c223d65",
+      "new_sha256": "0abbdac2f010dfded0aecac8023e369c2a8d747f77e2a941ff17567b6b87c815",
+      "source_constructed": "replace one old collapsed table block with the two exact original native table blocks; no candidate JSON used for expected payload",
+      "reverse_projection_restores_every_old_byte": true,
+      "old_rows": 77,
+      "native_rows": [
+        39,
+        39
+      ],
+      "original_snapshot_renderer_helpers_body_verbatim": true
+    },
+    {
+      "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260724g00165__20260724g001650694.pdf.snap",
+      "old_sha256": "93fb0f0a92af00ee342760b2084c2c73d9af997afdc926cff232dba73fb84ed1",
+      "new_sha256": "896508f8ddd04c2b279ddc96427bb0015521bedebc68c0015ad7a8c8e522035d",
+      "source_constructed": "replace one old collapsed table block with the two exact original native table blocks; no candidate JSON used for expected payload",
+      "reverse_projection_restores_every_old_byte": true,
+      "old_rows": 71,
+      "native_rows": [
+        36,
+        36
+      ],
+      "original_snapshot_renderer_helpers_body_verbatim": true
+    },
+    {
+      "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260724g00165__20260724g001650725.pdf.snap",
+      "old_sha256": "49880174b45a6d9366a44dc0286a797b971297ad7ce3c15397a2cad7e9d2b1b9",
+      "new_sha256": "1bc101a155f7ecdd59e780bd8143dfc8ba028424321e13e1f8a0d10e371c9530",
+      "source_constructed": "replace one old collapsed table block with the two exact original native table blocks; no candidate JSON used for expected payload",
+      "reverse_projection_restores_every_old_byte": true,
+      "old_rows": 72,
+      "native_rows": [
+        37,
+        37
+      ],
+      "original_snapshot_renderer_helpers_body_verbatim": true
+    }
+  ],
+  "snapshot_policy": "Three and only three source-constructed original-table block replacements. Each strict reverse projection restores every old snapshot byte. No blanket snapshot update. First two normal attempts failed archive_pages (693/694/725, then725); final full normal suite rerun clean. An initially truncated log read missed725 and was corrected.",
+  "runtime_and_test_owned_files_sha256": {
+    "crates/kanpo-parser/src/lib.rs": "9d9f65a131dc14f0fa344515242c7cabe61be911e9d7f8ca76c992d1ca0922bc",
+    "crates/kanpo-parser/src/model.rs": "ad503cb746ed5e5f90fcb2f0af7ffa73cdaa80ab47af5ca27421274f882d723c",
+    "crates/kanpo-parser/src/source_article_parts.rs": "3e9a06dcd25d77ba2cce1f2492b38cc8a2a7b70a5c3db30ecea3fc4b95298082",
+    "crates/kanpo-parser/src/native_table_scopes.rs": "7c255ae4f356a334de936934c602c9096a8666b25b3ab23a3561cc0ed2d34efd",
+    "crates/kanpo-parser/src/native_table_scopes_tests158.rs": "acd6cc26395afa1e576bd175f4f2f83a540a3b15378da47b80151462a362f9f0",
+    "crates/kanpo-parser/tests/native_table_scopes158.rs": "579494bfeaa7e4bb9c3a99a8059a224a4fb9444433272418d1c8d025e6cd499b",
+    "crates/kanpo-parser/tests/expected-native-table-scopes158.json": "96489ef1058978b196af08af2d756ced248496f4c85bfd1a7527097e6be50641",
+    "crates/kanpo-parser/tests/data/native-table-scopes/20260717g001600065.pdf": "ecc45eda337845790863c8a2ebe52584f5ce1ca308e2cf0969343aeb05dc119d",
+    "crates/kanpo-parser/tests/data/native-table-scopes/20260724g001650659.pdf": "3e666b82ea69c3e101813c533518f2c10c44b7cbeb3d707880444f9538dd6ea5",
+    "crates/kanpo-parser/tests/data/native-table-scopes/20260724g001650660.pdf": "a08743e5a38f055d052350473446c6c8cd9073fe8dbf73f5fa8bf4e3574dedbd",
+    "crates/kanpo-parser/tests/data/native-table-scopes/20260724g001650661.pdf": "96f2ef40faa691b74284b66348a6da213b29720350522e863861059dbc8be059",
+    "crates/kanpo-parser/tests/data/native-table-scopes/20260724g001650662.pdf": "b766fa061fe3c04cc53b6669e2f667badc3b19eeb7e51bac1597283982bd15cc",
+    "crates/kanpo-parser/tests/data/native-table-scopes/20260724g001650665.pdf": "0841611b5fbdcab0941266cf66fe773c2fc4df8d7704bf2d69f2bb9c0bd3e036",
+    "crates/kanpo-parser/tests/data/native-table-scopes/20260724g001650667.pdf": "40c7f7811f706e3ae982987600d9829e18c35199d68e4c83a100a7dee26b9ddb",
+    "crates/kanpo-parser/tests/data/native-table-scopes/20260724g001650682.pdf": "d505a22042f697dde0c33a88e255deb70e870c511a47e580400b56bea31d0722",
+    "crates/kanpo-parser/tests/data/native-table-scopes/20260724g001650683.pdf": "4bf8d58c92f14fb1cf8b578531496585cadf4e2f3bd29b941a2d31497b25c795",
+    "crates/kanpo-parser/tests/data/native-table-scopes/20260724g001650684.pdf": "6d363259b43b89982178aadfbd3683e84c26e3bc353af6045c1990207772201b",
+    "crates/kanpo-parser/tests/data/native-table-scopes/20260724g001650685.pdf": "2377e731f1e85f1b193558023e9beaae63a0ab93507f16e8a96278aa3de7da31",
+    "crates/kanpo-parser/tests/data/native-table-scopes/20260724g001650687.pdf": "df8fa740f49ec77483373abc3e2a7849e2ece8cf3af2a9d73ece4c92be160dc7",
+    "crates/kanpo-parser/tests/data/native-table-scopes/20260724g001650688.pdf": "ee1737e26d2375f309c60bc0c94360a6397cdd3f6bf10ab4446c2534844bd530",
+    "crates/kanpo-parser/tests/data/native-table-scopes/20260724g001650702.pdf": "eff8f59ef4b53cd3a31453119ff6f588f076d95d1ef372aaecf841322b43091e",
+    "crates/kanpo-parser/tests/data/native-table-scopes/20260724g001650704.pdf": "b993375853a70f7d2eb2db79bb5fa362a9bf2571dedf3bcb7f024578fd49db5a",
+    "crates/kanpo-parser/tests/data/native-table-scopes/20260724g001650706.pdf": "f8ccb108dcdd363463b37655ce80c6343041d63d65b8384d81cf62fd20ca599f",
+    "crates/kanpo-parser/tests/data/native-table-scopes/20260724g001650709.pdf": "68f27c46d9e4970b6f2ea06a17d7a46172e2e42b96a9e7f9b36d5fbd46d209ea",
+    "crates/kanpo-parser/tests/data/native-table-scopes/20260724g001650711.pdf": "b87c436109a92245b54d4de72856e459cea1eb08d8ac5fb021f5c41daa9c41ea",
+    "crates/kanpo-parser/tests/data/native-table-scopes/20260724g001650713.pdf": "4b9b266f1f463d31298666d3103e072c508db72781f168299bab91baabb4e447",
+    "crates/kanpo-parser/tests/data/native-table-scopes/20260724g001650717.pdf": "729d1a8210453827b4a3c2991727a33edf7e9993fef30717685587505e2a888c",
+    "crates/kanpo-parser/tests/data/native-table-scopes/20260724g001650718.pdf": "fca63186e5df4e860bb5eac24c8c410464aff39c7f9ec1efe9f4aacae7f55531",
+    "crates/kanpo-parser/tests/data/native-table-scopes/20260724g001650727.pdf": "92636bdc0aa19a6ad84898ce6eb8b6f8360b77aec36bd398d514d454c3293c27",
+    "crates/kanpo-parser/tests/data/native-table-scopes/20260724g001650765.pdf": "1913d93fefb246ac73cdfb8a9d5b6b5b81cdce8df95054d89208143060edfd3f",
+    "crates/kanpo-parser/tests/data/native-table-scopes/20260717g001600103.pdf": "c201213b47795bc41369b1af188110a0f89024f704825534322504ff9f8d4485",
+    "crates/kanpo-parser/tests/data/native-table-scopes/20260813h017670007.pdf": "8b310c6d1a8bc37fdae05762f15edf8c76f703e8e3abb545ddc07b5f0d4bdae4",
+    "crates/kanpo-parser/tests/data/native-table-scopes/20260813h017670008.pdf": "65bc3f87bb08c9cb0c45655ce6fa795261853c4b715f2d30714f5028c4d0c836",
+    "crates/kanpo-parser/tests/data/native-table-scopes/20260813h017670009.pdf": "f869fbbd4c1d3767f0c024f7b6e10c9d5214581caa884ad3956d12abfe14ca6d",
+    "crates/kanpo-parser/tests/data/native-table-scopes/20260818h017700004.pdf": "028eb034e2acf05625a5c6f97a7dfe67d7d6f6e91c51ef2e379f9066c98ea406",
+    "crates/kanpo-parser/tests/data/native-table-scopes/20260818h017700005.pdf": "3b80fbfd8f6f8e56439c69b49629c46b209dfcc7df2744c6002714b91c9c50bc",
+    "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260724g00165__20260724g001650693.pdf.snap": "0abbdac2f010dfded0aecac8023e369c2a8d747f77e2a941ff17567b6b87c815",
+    "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260724g00165__20260724g001650694.pdf.snap": "896508f8ddd04c2b279ddc96427bb0015521bedebc68c0015ad7a8c8e522035d",
+    "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260724g00165__20260724g001650725.pdf.snap": "1bc101a155f7ecdd59e780bd8143dfc8ba028424321e13e1f8a0d10e371c9530"
+  },
+  "limits": [
+    "Selected source regressions and worker source review are nonblind QA, not independent full-text accuracy gold or a100percent score.",
+    "Other parallel original tables with insufficient parent evidence still take the legacy path; independent parent and continuation inference remains an active issue227 objective.",
+    "Nested unruled cell columns and wrapped headers (e.g.source702) remain. Original TD/T* source-line relations have two separately frozen failing actualCargo157 reproductions, no new runtime workaround.",
+    "Independent notice boundaries (source03113notices vs11Articles), unknown character encodings and other complex cells/column continuations remain.",
+    "Images are lower priority. Image OCR stays explicit opt-in, NDLOCR0.0.15 revisionf97e930b8c3e9512f7788f258ef685da26416483; no automatic OCR or new model dependency."
+  ],
+  "goal_status": "active; issue227 not complete; PR stays draft; no merge or issue closure"
+}
