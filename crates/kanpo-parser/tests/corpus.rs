@@ -25,7 +25,7 @@ use std::path::{Path, PathBuf};
 // Original glyph/envelope/font-size contracts are tested in kanpo-pdf.
 fn source_payload(actual: &str, expected: &str) -> String {
     let mut out = actual.to_owned();
-    for needle in [" data-native-cell-origin=\"", " data-native-advance-band=\""] {
+    for needle in [" data-native-cell-origin=\"", " data-native-advance-band=\"", " data-native-terminal-glyph=\""] {
         if expected.contains(needle) {
             continue;
         }
@@ -231,4 +231,15 @@ fn additive_band_metadata_does_not_hide_existing_or_current_payload() {
     for changed in [both.replace("a b","ab"),both.replace("xmin='10'","xmin='11'"),both.replace("'right'","'left'"),both.replace("1 original","2 changed"),both.replace("2 original","3 changed")] {
         assert_ne!(source_payload(&changed,&both),both);
     }
+}
+
+#[test]
+fn terminal_metadata156_keeps_legacy_bytes_and_checks_every_current_field() {
+ let old="<word xmin='10' data-native-axis='right'>a b</word>";
+ let current=old.replace(" data-native-axis"," data-native-terminal-glyph=\"1 0 2 14 18 20\" data-native-axis");
+ assert_eq!(source_payload(&current,old),old);
+ assert_eq!(source_payload(&current,&current),current);
+ for changed in [current.replace("a b","ab"),current.replace("xmin='10'","xmin='11'"),current.replace("'right'","'left'"),current.replace("1 0 2 14 18 20","1 0 2 15 18 20"),current.replace(" data-native-axis"," data-native-unrecognized=\"changed\" data-native-axis")] {
+  assert_ne!(source_payload(&changed,&current),current);
+ }
 }

@@ -460,6 +460,8 @@ fn layout<'a>(pages: impl IntoIterator<Item=(&'a Page,Option<&'a [Option<char>]>
                     .map(|band| format!(" data-native-advance-band=\"{}\"", band.attribute()))
                     .unwrap_or_default()
             } else { String::new() };
+            let terminal=if emit_styles {native_terminal_glyph::from_word(page,&word)
+                .map(|t|format!(" data-native-terminal-glyph=\"{}\"",t.attribute())).unwrap_or_default()}else{String::new()};
             let range=if emit_styles{native_glyph_range(page,&word).map(|(first,after)|format!(" data-native-flow-first-glyph=\"{first}\" data-native-flow-after-glyph=\"{after}\"")).unwrap_or_default()}else{String::new()};
             let content = if emit_styles {
                 let value = native_content_styles(page, &word, resolved_source).unwrap_or_else(|| "unknown".into());
@@ -473,7 +475,7 @@ fn layout<'a>(pages: impl IntoIterator<Item=(&'a Page,Option<&'a [Option<char>]>
             let resolved = if resolved_aj1_word(page, &word) { " data-unicode-aj1=\"1\"" } else { "" };
             let _ = writeln!(
                 s,
-                "    <flow>\n      <block {attrs}>\n        <line {attrs}>\n          <word {attrs}{native}{resolved}{source_attr}{styles}{content}{axis}{ruling}{flow}{range}{cell_origin}{advance_band}>{}</word>\n        </line>\n      </block>\n    </flow>",
+                "    <flow>\n      <block {attrs}>\n        <line {attrs}>\n          <word {attrs}{native}{resolved}{source_attr}{styles}{content}{axis}{ruling}{flow}{range}{cell_origin}{advance_band}{terminal}>{}</word>\n        </line>\n      </block>\n    </flow>",
                 escape(&word.text)
             );
         }
@@ -706,7 +708,7 @@ mod native_style_tests {
         let old = bbox_layout_with_aj1_sources(&sources);
         let mut new = bbox_layout_with_native_styles(&sources);
         assert_eq!(new.matches(" data-native-styles=\"").count(), 2);
-        for attr in ["data-native-cell-origin", "data-native-glyph-count", "data-native-flow-first-glyph", "data-native-flow-after-glyph", "data-native-flow-start","data-native-flow-baseline","data-native-flow-end","data-native-flow-leading", "data-native-flow-trailing", "data-native-flow-prefix","data-native-styles", "data-native-content-styles", "data-native-axis", "data-native-ruling", "data-native-ink-xmin", "data-native-ink-ymin", "data-native-ink-xmax", "data-native-ink-ymax"] {
+        for attr in ["data-native-terminal-glyph", "data-native-cell-origin", "data-native-glyph-count", "data-native-flow-first-glyph", "data-native-flow-after-glyph", "data-native-flow-start","data-native-flow-baseline","data-native-flow-end","data-native-flow-leading", "data-native-flow-trailing", "data-native-flow-prefix","data-native-styles", "data-native-content-styles", "data-native-axis", "data-native-ruling", "data-native-ink-xmin", "data-native-ink-ymin", "data-native-ink-xmax", "data-native-ink-ymax"] {
             let needle = format!(" {attr}=\"");
             while let Some(start) = new.find(&needle) {
                 let from = start + needle.len();
@@ -764,3 +766,6 @@ mod native_projected_flow_tests;
 
 #[path = "native_advance_band.rs"]
 mod native_advance_band;
+
+#[path="native_terminal_glyph.rs"]
+mod native_terminal_glyph;

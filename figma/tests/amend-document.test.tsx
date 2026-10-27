@@ -107,3 +107,14 @@ test("the actual backend documents keep every source year label with its own rat
   const rows = results.flatMap((result) => result.rows).filter((row) => row.length === 2);
   assert.deepEqual(rows, sourceRateRows.rows.map((row) => [row.label.replace(/\s/g, ""), row.amount]));
 });
+
+import sourceTerminalDocuments from "../../crates/kanpo-parser/tests/data/native-terminal-glyphs/documents156.json";
+import sourceTerminalRows from "../../crates/kanpo-parser/tests/data/native-terminal-glyphs/manual-source117rows156.json";
+
+test("actual backend terminal columns retain all117source rows and empty heading amounts", () => {
+  const results = sourceTerminalDocuments.map((document) => nativeDocumentRows(document as React.ComponentProps<typeof AmendDocumentView>["doc"]));
+  assert.equal(results.reduce((count, result) => count + (result.html.match(/<table\b/g) ?? []).length, 0), 4);
+  const rows = results.flatMap((result) => result.rows);
+  assert.deepEqual(rows, sourceTerminalRows.rows.map((row) => [row.label.replace(/\s/g, ""), row.amount]));
+  assert.equal(rows.filter((row) => row[1] === "").length, 9);
+});

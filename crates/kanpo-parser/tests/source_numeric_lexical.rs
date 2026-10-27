@@ -15,21 +15,36 @@ fn wire<T: serde::Serialize>(v: &T) -> Value {
     serde_json::from_str(&serde_json::to_string(v).unwrap()).unwrap()
 }
 fn analyze(keys: &[&str]) -> (Value, Vec<Value>, Vec<String>) {
+    analyze_profile(keys, true)
+}
+fn analyze_profile(keys: &[&str], terminal: bool) -> (Value, Vec<Value>, Vec<String>) {
     let pdfs = keys
         .iter()
         .map(|key| std::fs::read(data(&format!("{key}.pdf"))).unwrap())
         .collect::<Vec<_>>();
-    let inputs = pdfs
+    let mut inputs = pdfs
         .iter()
         .flat_map(|pdf| kanpo_parser::page_inputs(pdf).unwrap())
         .collect::<Vec<_>>();
+    if !terminal {
+        for i in &mut inputs {
+            i.xhtml = without_terminal(&i.xhtml);
+        }
+    }
     (
         wire(&kanpo_parser::analyze_item(&inputs)),
         pdfs.iter()
             .map(|pdf| wire(&kanpo_parser::page_rules(pdf).unwrap()))
             .collect(),
         pdfs.iter()
-            .map(|pdf| kanpo_parser::bbox_xhtml(pdf).unwrap())
+            .map(|pdf| {
+                let x = kanpo_parser::bbox_xhtml(pdf).unwrap();
+                if terminal {
+                    x
+                } else {
+                    without_terminal(&x)
+                }
+            })
             .collect(),
     )
 }
@@ -106,9 +121,9 @@ fn the_next_fourteen_rates_keep_the_independent_existing_grids() {
     );
 }
 #[test]
-fn nearby_distinct_original_amount_edges_are_not_rounded_to_make_a_column() {
+fn legacy_flow_profile_does_not_round_distinct_edges_without_terminal_glyph_evidence() {
     let key = "20260724g001650654";
-    assert_eq!(analyze(&[key]).0, baseline(key));
+    assert_eq!(analyze_profile(&[key], false).0, baseline(key));
 }
 #[test]
 fn actual_three_consecutive_pages_retain_all_material_and_the_complete_forty_rate_witness() {
@@ -117,7 +132,7 @@ fn actual_three_consecutive_pages_retain_all_material_and_the_complete_forty_rat
         "20260724g001650655",
         "20260724g001650656",
     ];
-    let (a, rules, xhtml) = analyze(&keys);
+    let (a, rules, xhtml) = analyze_profile(&keys, false);
     let old = read("consecutive-three-pages-baseline153.json");
     assert_eq!(
         contract::reviewed_lexical_projection(&old, &a, &rules, &xhtml),
@@ -255,4 +270,15 @@ fn coordinated_word_geometry_cannot_borrow_the_original_source_flow() {
         13
     );
     rejected(&old, &a, &rules, &xhtml);
+}
+
+// Explicit legacy provenance profile removes only the new optional source field.
+fn without_terminal(x: &str) -> String {
+    let mut out = x.to_owned();
+    while let Some(i) = out.find(" data-native-terminal-glyph=\"") {
+        let start = i + " data-native-terminal-glyph=\"".len();
+        let end = start + out[start..].find('"').unwrap() + 1;
+        out.replace_range(i..end, "");
+    }
+    out
 }

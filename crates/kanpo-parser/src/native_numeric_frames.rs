@@ -586,3 +586,5 @@ mod matrix152_tests;
 #[path = "native_numeric_matrix.rs"]
 mod matrix;
 pub(crate) use matrix::restore as restore_matrix;
+
+pub(crate) use matrix::restore_with_terminal as restore_matrix_with_terminal;

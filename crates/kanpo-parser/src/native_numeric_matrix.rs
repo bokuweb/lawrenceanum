@@ -67,6 +67,17 @@ fn row(
     baselines: &[Option<f64>],
     owners: &HashMap<usize, usize>,
 ) -> Option<SourceRow> {
+    row_with_terminal_labels(l, index, f, ws, baselines, owners, None)
+}
+fn row_with_terminal_labels(
+    l: &Line,
+    index: usize,
+    f: Frame,
+    ws: &HashMap<usize, &Word>,
+    baselines: &[Option<f64>],
+    owners: &HashMap<usize, usize>,
+    tails: Option<&crate::native_terminal_glyph::Terminals>,
+) -> Option<SourceRow> {
     if l.table.is_some() || l.words.is_empty() {
         return None;
     }
@@ -112,7 +123,10 @@ fn row(
     // Original glyph boxes within a cell can overlap. Source origins must still
     // advance strictly; the complete cell envelopes must prove disjoint global
     // column gutters below. No glyph-specific overlap allowance is used.
-    if words.windows(2).any(|p| p[0].x0 >= p[1].x0) {
+    if words
+        .windows(2)
+        .any(|p| p[0].x0 > p[1].x0 || (p[0].x0 == p[1].x0 && tails.is_none()))
+    {
         return None;
     }
     if compact(&words.iter().map(|w| w.text.as_str()).collect::<String>()) != compact(&l.text) {
@@ -147,6 +161,20 @@ fn row(
     if !one_baseline(&words[..k]) {
         return None;
     }
+    for pair in words[..k].windows(2).filter(|p| p[0].x0 == p[1].x0) {
+        let evidence = tails?;
+        let a = evidence.get(pair[0])?;
+        let b = evidence.get(pair[1])?;
+        let aa = a.origins_for(pair[0])?;
+        let bb = b.origins_for(pair[1])?;
+        if aa != bb
+            || Some(aa[2]) != baselines.get(pair[0].id).copied().flatten()
+            || Some(bb[2]) != baselines.get(pair[1].id).copied().flatten()
+            || a.range_for(pair[0])?.end > b.range_for(pair[1])?.start
+        {
+            return None;
+        }
+    }
     let mut cursor = k;
     let mut amounts = vec![];
     for value in &fields[label_end..] {
@@ -165,7 +193,9 @@ fn row(
         if text != *value || start == cursor {
             return None;
         }
-        if !one_baseline(&words[start..cursor]) {
+        if !one_baseline(&words[start..cursor])
+            || words[start..cursor].windows(2).any(|p| p[0].x0 >= p[1].x0)
+        {
             return None;
         }
         let b = box_for(&words[start..cursor])?;
@@ -195,6 +225,21 @@ fn plan(
     ws: &HashMap<usize, &Word>,
     baselines: &[Option<f64>],
     owners: &HashMap<usize, usize>,
+) -> Option<Plan> {
+    plan_with_rows(
+        units,
+        f,
+        ws,
+        |l, i| row(l, i, f, ws, baselines, owners),
+        |rows| columns(rows, f),
+    )
+}
+fn plan_with_rows(
+    units: &[Unit],
+    f: Frame,
+    ws: &HashMap<usize, &Word>,
+    mut parse: impl FnMut(&Line, usize) -> Option<SourceRow>,
+    mut cuts: impl FnMut(&[SourceRow]) -> Option<Vec<f32>>,
 ) -> Option<Plan> {
     let mut source = vec![];
     for (ui, u) in units.iter().enumerate() {
@@ -229,7 +274,7 @@ fn plan(
             if !plain {
                 return None;
             }
-            source.push((ui, row(l, i, f, ws, baselines, owners)?));
+            source.push((ui, parse(l, i)?));
         }
     }
     let unit = source.first()?.0;
@@ -258,7 +303,7 @@ fn plan(
     {
         return None;
     }
-    let edges = columns(&rows, f)?;
+    let edges = cuts(&rows)?;
     let table = source_table(&rows, f, &edges)?;
     let start = rows.first()?.line;
     let end = rows.last()?.line + 1;
@@ -286,12 +331,10 @@ fn plan(
         ids,
     })
 }
-pub(crate) fn restore(
-    units: &mut [Unit],
-    words: &[Word],
-    rules: &PageRules,
-    baselines: &[Option<f64>],
-) {
+fn source_index<'a>(
+    units: &[Unit],
+    words: &'a [Word],
+) -> Option<(HashMap<usize, &'a Word>, HashMap<usize, usize>)> {
     let ws = words.iter().map(|w| (w.id, w)).collect::<HashMap<_, _>>();
     if ws.len() != words.len()
         || words.iter().any(|w| {
@@ -301,7 +344,7 @@ pub(crate) fn restore(
                     || w.y0 >= w.y1)
         })
     {
-        return;
+        return None;
     }
     let mut owners = HashMap::new();
     for u in units.iter() {
@@ -328,6 +371,17 @@ pub(crate) fn restore(
             }
         }
     }
+    Some((ws, owners))
+}
+pub(crate) fn restore(
+    units: &mut [Unit],
+    words: &[Word],
+    rules: &PageRules,
+    baselines: &[Option<f64>],
+) {
+    let Some((ws, owners)) = source_index(units, words) else {
+        return;
+    };
     // A page-local rail set cannot prove columns in an unseen continuation.
     // Only a complete original four-sided frame authorizes this overlay.
     let mut plans = covered_frames(rules)
@@ -336,6 +390,9 @@ pub(crate) fn restore(
         .filter_map(|f| plan(units, f, &ws, baselines, &owners))
         .collect::<Vec<_>>();
     plans.extend(continuation::plans(units, rules, &ws, baselines, &owners));
+    apply_plans(units, plans);
+}
+fn apply_plans(units: &mut [Unit], plans: Vec<Plan>) {
     let conflicts = (0..plans.len())
         .filter(|&i| (0..plans.len()).any(|j| i != j && !plans[i].ids.is_disjoint(&plans[j].ids)))
         .collect::<HashSet<_>>();
@@ -490,3 +547,25 @@ fn source_table(rows: &[SourceRow], f: Frame, edges: &[f32]) -> Option<Table> {
 }
 #[path = "native_numeric_continuation.rs"]
 mod continuation;
+
+pub(crate) fn restore_with_terminal(
+    units: &mut [Unit],
+    words: &[Word],
+    rules: &PageRules,
+    baselines: &[Option<f64>],
+    make_tails: impl FnOnce() -> crate::native_terminal_glyph::Terminals,
+) {
+    restore(units, words, rules, baselines);
+    let Some((ws, owners)) = source_index(units, words) else {
+        return;
+    };
+    let frames = terminal::candidate_frames(units, rules);
+    if frames.is_empty() {
+        return;
+    }
+    let tails = make_tails();
+    let plans = terminal::plans(units, &frames, &ws, baselines, &owners, &tails);
+    apply_plans(units, plans);
+}
+#[path = "native_numeric_terminal.rs"]
+mod terminal;

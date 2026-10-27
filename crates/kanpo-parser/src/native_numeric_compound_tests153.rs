@@ -435,3 +435,6 @@ fn compound153_an_unsupported_later_source_row_blocks_both_parts() {
 
 #[path = "native_numeric_lexical_labels_tests155.rs"]
 mod lexical155;
+
+#[path = "native_numeric_terminal_tests156.rs"]
+mod terminal156;

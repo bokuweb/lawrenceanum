@@ -587,3 +587,7 @@ pub(crate) fn lexical_material_projection_for_counterexample(
 ) -> usize {
     reviewed_projection_with_min_columns(old, new, rules, 2, |_, _, _, _| {})
 }
+
+#[path = "native_numeric_terminal_contracts.rs"]
+mod terminal_contracts;
+pub(crate) use terminal_contracts::reviewed_terminal_projection;
