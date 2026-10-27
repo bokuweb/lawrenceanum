@@ -23,7 +23,7 @@ fn source_candidate_changes_only_text_not_raw_ID_or_bbox() {
     let a = read(&word(200, &r, "data-source-aj1-text=\"嬴\""));
     let b = read(&word(200, &r, ""));
     assert_eq!(a[0].text, "嬴");
-    assert_eq!(b[0].text, "䑮");
+    assert_eq!(b[0].text, "�");
     assert_eq!(a[0].raw, b[0].raw);
     assert_eq!(a[0].id, b[0].id);
     assert_eq!(
@@ -37,7 +37,7 @@ fn wrong_and_partial_candidate_do_not_gain_authority() {
     for s in ["瀀", "嬴外", ""] {
         assert_eq!(
             read(&word(200, &r, &format!("data-source-aj1-text=\"{s}\"")))[0].text,
-            "䑮"
+            "�"
         );
     }
 }
@@ -47,7 +47,7 @@ fn raw_candidate_evidence_sorts_as_one_occurrence() {
     let a = read(&(word(100, &r, "data-source-aj1-text=\"嬴\"") + &word(200, &r, "")));
     assert_eq!(
         a.iter().map(|w| w.text.as_str()).collect::<Vec<_>>(),
-        ["䑮", "嬴"]
+        ["�", "嬴"]
     );
     assert_eq!(a.iter().map(|w| w.id).collect::<Vec<_>>(), [0, 1]);
 }
@@ -57,12 +57,12 @@ fn exact_bbox_text_ties_do_not_transfer_resolution() {
     let a = read(&(word(200, &r, "data-source-aj1-text=\"嬴\"") + &word(200, &r, "")));
     assert_eq!(
         a.iter().map(|w| w.text.as_str()).collect::<Vec<_>>(),
-        ["嬴", "䑮"]
+        ["嬴", "�"]
     );
     let a = read(&(word(200, &r, "") + &word(200, &r, "data-source-aj1-text=\"嬴\"")));
     assert_eq!(
         a.iter().map(|w| w.text.as_str()).collect::<Vec<_>>(),
-        ["䑮", "嬴"]
+        ["�", "嬴"]
     );
 }
 #[test]

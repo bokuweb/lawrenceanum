@@ -51,7 +51,10 @@ pub(crate) fn word_text(raw: &str) -> String {
         match identity_cid(c) {
             Some(cid) => match cid_glyph(&[cid_char(cid)], 1.0, 1.0, true) {
                 Some(g) => out.push_str(&g.text),
-                None => out.extend(text_char(cid_char(cid))),
+                // A CID is a glyph identifier, not a Unicode scalar. Keep
+                // unresolved source occurrences visible without inventing text.
+                // The source-verified AJ1 candidate is applied separately.
+                None => out.push('\u{fffd}'),
             },
             None => match paren_number(c) {
                 Some(t) => out.push_str(&t),
@@ -773,9 +776,9 @@ mod tests {
         );
         assert_eq!(word_text(&word(&[0x6649, 0x664A])), "（");
         assert_eq!(word_text(&word(&[0x6656, 0x6657, 0x6658])), "）");
-        // 飾り罫は落とす。対応の分からない字は poppler と同じ字にする。
+        // 飾り罫は落とす。未解決CIDはUnicode番号として解釈しない。
         assert_eq!(word_text(&word(&[26265, 26267])), "");
-        assert_eq!(word_text(&word(&[0x6682])), "\u{6682}");
+        assert_eq!(word_text(&word(&[0x6682])), "\u{fffd}");
         // poppler の出力で原本と突き合わせた異体字は、タグが付いていても同じ字にする（鍼灸）。
         assert_eq!(word_text(&word(&[20270])), "灸");
         // 目次のページ番号の字形。
@@ -846,7 +849,7 @@ mod identity_surname_tests {
             assert!(private_cid_glyph(text, 8.0, 8.0).is_none());
         }
         assert_eq!(word_text("\u{E500}"), "");
-        assert_eq!(word_text(&tagged(0x4238)), "䈸");
+        assert_eq!(word_text(&tagged(0x4238)), "\u{fffd}");
     }
 }
 
@@ -893,7 +896,7 @@ mod tsuji_source_glyph_tests {
         // 未タグUnicodeのword_textは不変。既存poppler幾何fallbackも維持。
         assert_eq!(private_cid_glyph("婹", 8., 8.).unwrap().text, "辻");
         assert_eq!(word_text("\u{E466}\u{E468}\u{E500}"), "");
-        assert_eq!(word_text(&tagged(23162)), "婺");
+        assert_eq!(word_text(&tagged(23162)), "\u{fffd}");
         assert_eq!(word_text("\u{E469}"), "鄭");
     }
 }
@@ -944,3 +947,50 @@ mod verified_chi_tests {
 /// A source alias may only fill a scalar with no existing native PUA decoder.
 /// In particular a recognized standalone minus retains its deliberate suppression.
 pub(crate) fn unresolved_private_scalar(c:char)->bool{is_private_use(c)&&private_use_char(c).is_none()&&paren_number(c).is_none()}
+
+#[cfg(test)]
+mod unresolved_identity_tests167 {
+    use super::*;
+    fn tag(cid: u32) -> String {
+        char::from_u32(kanpo_pdf::bbox::IDENTITY_CID_BASE + cid)
+            .unwrap()
+            .into()
+    }
+    #[test]
+    fn unknown_identity_is_not_a_unicode_codepoint() {
+        for cid in 0..=0xfffd {
+            let raw = tag(cid);
+            if private_cid_glyph(&raw, 1., 1.).is_none() {
+                assert_eq!(word_text(&raw), "\u{fffd}", "unmapped CID {cid}");
+            }
+        }
+    }
+    #[test]
+    fn mixed_unknown_occurrences_keep_their_positions() {
+        let raw = format!("前{}中{}後", tag(65), tag(0x4238));
+        assert_eq!(word_text(&raw), "前\u{fffd}中\u{fffd}後");
+    }
+    #[test]
+    fn explicit_unicode_with_same_number_stays_literal() {
+        for cid in [65, 0x4238, 0x6682] {
+            let c = char::from_u32(cid).unwrap();
+            assert_eq!(word_text(&c.to_string()), c.to_string());
+        }
+    }
+    #[test]
+    fn verified_identity_singletons_and_compounds_keep_their_decoder() {
+        assert_eq!(word_text(&tag(0x5a51)), "榊");
+        assert_eq!(
+            private_cid_glyph(&(tag(0x661d) + &tag(0x6627)), 1., 1.)
+                .unwrap()
+                .text,
+            "（１１）"
+        );
+        assert_eq!(
+            private_cid_glyph(&(tag(0x661d) + &tag(0x6627) + &tag(0x6395)), 1., 1.)
+                .unwrap()
+                .text,
+            "（１１）（i）"
+        );
+    }
+}

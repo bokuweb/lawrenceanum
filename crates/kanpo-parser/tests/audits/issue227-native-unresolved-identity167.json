@@ -1,0 +1,340 @@
+{
+  "issue": 227,
+  "stage": 167,
+  "baseline_root_commit": "688af96c2f8898614c304a21f4cc252608b50736",
+  "baseline_worktree_commit": "89d662768bed68f047a757a669448a1716ad494d",
+  "change": "An unmapped tagged Identity CID is a glyph identifier, not a Unicode scalar. word_text now emits U+FFFD rather than text_char(cid_char(cid)). Existing verified CID/PUA dictionaries, whole-word compound decoders, source-verified AJ1 candidates and literal Unicode retain their priority and behavior. Original raw source symbols/boxes remain available.",
+  "general_rule": {
+    "new_font_name_title_company_page_PUA_or_CID_value_dispatch": false,
+    "new_mapping_entries": 0,
+    "unknown_source_is_not_arbitrarily_cast_to_a_different_character": true,
+    "not_a_claim_that_legacy_rules_are_all_generalized": true
+  },
+  "limits": "Does not restore the original unknown character. Some of these occurrences are drawn grouping-brace parts; others are name variants or a compound numeral. OCR remains explicit opt-in, NDLOCR0.0.15 rev f97e930b8c3e9512f7788f258ef685da26416483. No added semantic model. Issue227 remains active; no full-corpus accuracy estimate.",
+  "new_tests": {
+    "unit": 4,
+    "original_API": 1,
+    "scope": "Every representable unresolved Identity payload, mixed inline positions, literal Unicode with equal codepoint numbers, existing singleton/compound decoders;12 original full-Analysis fixture pages/32 source occurrences."
+  },
+  "source_expectations": "Each complete expectation is constructed from baseline165 by replacing only source-unresolved scalar occurrences. Literal original Word checks prevent replacement of a real Unicode character sharing the same numeric value. All other fields, raw source words, IDs, source/display boxes, statuses, memberships, line order, table objects, Article endpoints and Document styles/whitespace stay exact.",
+  "original_PDFs_and_gold": [
+    {
+      "key": "20260723g001630235",
+      "pdf": "data/native-font-aliases/20260723g001630235.pdf",
+      "PDF_sha256": "94d8a9d6fb5302808d6b4ae1aa344eedfd6293e46a6e46e7e7e3803938fbb6b7",
+      "gold": "data/native-unresolved-identity167/20260723g001630235.json",
+      "gold_sha256": "07c971b9bf484d2711ee9ebfdb4ba1aae84279aef96b5a66aa62eb884ece2f9f",
+      "review_crop_sha256": "947462cb2240d46c3dd7eba62d88b372f379dffef38f393373521d388a00fad8",
+      "source_unresolved_word_count": 2
+    },
+    {
+      "key": "20260728h017560006",
+      "pdf": "archive/pages/20260728h01756/20260728h017560006.pdf",
+      "PDF_sha256": "bb625fed4e2beb3330b31554b5c6e0e68440557c96afc17084fcd933c0dce84b",
+      "gold": "data/native-unresolved-identity167/20260728h017560006.json",
+      "gold_sha256": "7b870279c34dc0b1bfa5e6eef23db9c637c219dec3262d9c773981c294cd6823",
+      "review_crop_sha256": "e534f23f2118f19762f3c041c1ce253e9caf61970542b4107df9103f422d4c86",
+      "source_unresolved_word_count": 18
+    },
+    {
+      "key": "20260803g001740153",
+      "pdf": "data/native-unresolved-identity167/20260803g001740153.pdf",
+      "PDF_sha256": "c8c6ea80176b85129aaa8f4098e25424750797801ee8966ce21ed077ff6d354e",
+      "gold": "data/native-unresolved-identity167/20260803g001740153.json",
+      "gold_sha256": "117e14a7a202ac729d36227498b4fa13b3d2276c8164bbcb1400edb9c0a9eac5",
+      "review_crop_sha256": "e50097051ceff263035e04914e316c8525ddb50a72e263b90d76789d4dbc56d1",
+      "source_unresolved_word_count": 2
+    },
+    {
+      "key": "20260812h017660031",
+      "pdf": "data/native-unresolved-identity167/20260812h017660031.pdf",
+      "PDF_sha256": "bdce6e4847444627bfcaa74fb0dd26a9c80e3be24fc963eb4574015223e0026d",
+      "gold": "data/native-unresolved-identity167/20260812h017660031.json",
+      "gold_sha256": "07abbe63b13d507ef338c41566cb0128cafbf6668c4244d81ee6be4a6ced6488",
+      "review_crop_sha256": "070a40ceea7bae2307deeae73ffa161b637ced9cd8396ee97427920305e3fd9a",
+      "source_unresolved_word_count": 1
+    },
+    {
+      "key": "20260819g001850064",
+      "pdf": "data/native-unresolved-identity167/20260819g001850064.pdf",
+      "PDF_sha256": "1fd80df84ea3aa63695c1579994ee84cd2d67b4cb7e0cf26e4d79f19b0d13be8",
+      "gold": "data/native-unresolved-identity167/20260819g001850064.json",
+      "gold_sha256": "9f4bf3c7f24902519600ebd4708e857e03e9b9ab3a69e746c9dbb2b84e4c728c",
+      "review_crop_sha256": "08aa84da5d55f444578d7dffbd548b386b6da883ce6d762e05d0c3542a826f6e",
+      "source_unresolved_word_count": 1
+    },
+    {
+      "key": "20260902h017810031",
+      "pdf": "data/native-unresolved-identity167/20260902h017810031.pdf",
+      "PDF_sha256": "21f3f03a32df95493cc506fde1341544fdb2f123f5340ea63af9fb5f64fa573e",
+      "gold": "data/native-unresolved-identity167/20260902h017810031.json",
+      "gold_sha256": "ca1d8edd98d29e7978c983bc27086874c00118204afae10d4b23c42a16eeb055",
+      "review_crop_sha256": "ac5c085ed0d236e9dac36010fd39399d4b082955bac6cc0e9a853e74add56e04",
+      "source_unresolved_word_count": 1
+    },
+    {
+      "key": "20260915g002050081",
+      "pdf": "archive/pages/20260915g00205/20260915g002050081.pdf",
+      "PDF_sha256": "40189b3d356411b4ffb551cb675bae8e794b878f55d3e9440e55e57b145df8eb",
+      "gold": "data/native-unresolved-identity167/20260915g002050081.json",
+      "gold_sha256": "1becf83c093003dda398f98713c0aaeb70422c11cf7a6327bec574ea87b4a6f3",
+      "review_crop_sha256": "ae3b50ce31186e1433ded675ec5144448c6dbbf22a529be7574ee043609499ee",
+      "source_unresolved_word_count": 1
+    },
+    {
+      "key": "20260915h017900031",
+      "pdf": "data/native-unresolved-identity167/20260915h017900031.pdf",
+      "PDF_sha256": "bff8a53eb529f0dbf10f1be4eef16f384e288c8af9869bfcdab371183a185636",
+      "gold": "data/native-unresolved-identity167/20260915h017900031.json",
+      "gold_sha256": "b593f6a273fafd513c1cd4239f090d4774138601485b97a4a32ae238212a4229",
+      "review_crop_sha256": "69dcb108ce25d4c2fa349cb3ae0455da01946ae13e06a098b1834a9ee75a9a57",
+      "source_unresolved_word_count": 2
+    },
+    {
+      "key": "20260924g002110100",
+      "pdf": "data/native-unresolved-identity167/20260924g002110100.pdf",
+      "PDF_sha256": "6b79a61e406e3f779aaea8bba4b3c52bf4f13002680c1bc853701d5dff34a2ee",
+      "gold": "data/native-unresolved-identity167/20260924g002110100.json",
+      "gold_sha256": "417747695a356173afadc6467c1165fecbc2998f83d7514891364fd7fbc22ccd",
+      "review_crop_sha256": "efa63da03cad669ebd6f5320d8418ff058fc746e194da425e9bca173f8cbe4f0",
+      "source_unresolved_word_count": 1
+    },
+    {
+      "key": "20260928g002130104",
+      "pdf": "data/native-unresolved-identity167/20260928g002130104.pdf",
+      "PDF_sha256": "e3b0c644b45f06a1ee49e1817fd601e10b5f41bb09c223bee674d26e2d486ce8",
+      "gold": "data/native-unresolved-identity167/20260928g002130104.json",
+      "gold_sha256": "80133cd2ddcb9341d1c7e4204686bc19b0c4629cab306738f67cb23b5a4fd12f",
+      "review_crop_sha256": "646cce711055201e80f71b549641527a22d31625838607c8f9ea36235fe69b8d",
+      "source_unresolved_word_count": 1
+    },
+    {
+      "key": "20261009g002230096",
+      "pdf": "data/native-unresolved-identity167/20261009g002230096.pdf",
+      "PDF_sha256": "6bef789c3c91857a710b3ffee59b0d7b48723d9d4b22f41a39932f2dcb97bd2f",
+      "gold": "data/native-unresolved-identity167/20261009g002230096.json",
+      "gold_sha256": "5f4ade4b78bc1397c4585c68dfbde413c6874832891ed7e2d77aee16c96b1734",
+      "review_crop_sha256": "cec095b28fca0251a9a955048800ae91fd8ce057aac89f0a2cd552408a05b04d",
+      "source_unresolved_word_count": 1
+    },
+    {
+      "key": "20261020g002300070",
+      "pdf": "data/native-unresolved-identity167/20261020g002300070.pdf",
+      "PDF_sha256": "47e852fc34f81ae8aafc6f1d894aac9fb577543c9802fba982c420a330da1142",
+      "gold": "data/native-unresolved-identity167/20261020g002300070.json",
+      "gold_sha256": "ea0ec7c0d6def8eca45377875c6de946224d514f7b3c2843ae61a09ffc1162bd",
+      "review_crop_sha256": "18774dda26709db4567d9ebd70c7433dd5a32455b66e1997797339f01d3d579d",
+      "source_unresolved_word_count": 1
+    }
+  ],
+  "single_release_comparison": {
+    "total": 11992,
+    "changed": 12,
+    "unchanged_complete_Analysis": 11980,
+    "changed_source_words": 32
+  },
+  "whole_release_comparison": {
+    "total": 159,
+    "changed": 12,
+    "unchanged_complete_Analysis": 147,
+    "source_constructed_complete_Analysis_proofs": [
+      {
+        "key": "20260723g00163",
+        "changed_source_words": 2,
+        "old_Analysis_sha256": "6d76b800ce5451f75533557cd220244190543c972d8bb48131c9d850695a2bf3",
+        "source_constructed_Analysis_sha256": "82b5a8e90b85afe5f7a99b755c5facfd802ec51d529f8ea187a56a7e86ec351b",
+        "source_words_line_order_tables_article_boundaries_and_all_other_fields_exact": true
+      },
+      {
+        "key": "20260728h01756",
+        "changed_source_words": 18,
+        "old_Analysis_sha256": "aa2c2a61a4bde31f84ec8074a27ef96e6870e01baa8258d071cf732d12f50acc",
+        "source_constructed_Analysis_sha256": "37d296b2384ad1cc2b613e55cb3758d44498dd9434b4bd532807657e617d9fef",
+        "source_words_line_order_tables_article_boundaries_and_all_other_fields_exact": true
+      },
+      {
+        "key": "20260803g00174",
+        "changed_source_words": 2,
+        "old_Analysis_sha256": "231faca4e4fa50e863a01cb4048dce49404f84544819df8cd5446b4d72a99116",
+        "source_constructed_Analysis_sha256": "e1df333da36da2905fcc7a36b4e5045fdccabf6642e195d77d06c1e10db1451b",
+        "source_words_line_order_tables_article_boundaries_and_all_other_fields_exact": true
+      },
+      {
+        "key": "20260812h01766",
+        "changed_source_words": 1,
+        "old_Analysis_sha256": "b5b75c7c5c2edaecc8739d70d81700031c9c0f8ddc30c7b94dafa3ac3bea18e7",
+        "source_constructed_Analysis_sha256": "1698b18372b7665c42b2307a8e9ca321dd9722412f27883b70f310fbe8a7370b",
+        "source_words_line_order_tables_article_boundaries_and_all_other_fields_exact": true
+      },
+      {
+        "key": "20260819g00185",
+        "changed_source_words": 1,
+        "old_Analysis_sha256": "1d4ad035e84f9fefce0d5eb4754e86c143796e55e598801c193b99dce0f0750c",
+        "source_constructed_Analysis_sha256": "6752b832b14fb63279e6a5bf068d4e2b7b5f279241edf7c468c2e0302f16cbe7",
+        "source_words_line_order_tables_article_boundaries_and_all_other_fields_exact": true
+      },
+      {
+        "key": "20260902h01781",
+        "changed_source_words": 1,
+        "old_Analysis_sha256": "f209cb17979901583eef2bce8326274095ea24e7e6e2f597e411473216738fdd",
+        "source_constructed_Analysis_sha256": "c15a01000ba5e4318c2edd4cf6eb160d9603f74da8463209ded4128762b95a14",
+        "source_words_line_order_tables_article_boundaries_and_all_other_fields_exact": true
+      },
+      {
+        "key": "20260915g00205",
+        "changed_source_words": 1,
+        "old_Analysis_sha256": "1f93fb9cdd2cb64f04ffb2d6845aae86fee4719a609261a611d6c60d7b553ce9",
+        "source_constructed_Analysis_sha256": "912482b2b6d7c7ac6c9c4daa67dde6da3bff16320c4e11877dded05ef60a55d0",
+        "source_words_line_order_tables_article_boundaries_and_all_other_fields_exact": true
+      },
+      {
+        "key": "20260915h01790",
+        "changed_source_words": 2,
+        "old_Analysis_sha256": "815c81fba2d318c8d0bc2bbcad690d505b221214f2db5626e2fd337f33f2e127",
+        "source_constructed_Analysis_sha256": "cc5da5b44d1463caef4c629837546a896d9b8aa4966b61719690bb64990df6dc",
+        "source_words_line_order_tables_article_boundaries_and_all_other_fields_exact": true
+      },
+      {
+        "key": "20260924g00211",
+        "changed_source_words": 1,
+        "old_Analysis_sha256": "3e77e53bb505f0c6bf5842ea31b3e403d8a7856545dd355140184d0584f58735",
+        "source_constructed_Analysis_sha256": "17f3868773cc597bb3c08136abcda8900b83b2cc487057837cdd2a80e515f9f4",
+        "source_words_line_order_tables_article_boundaries_and_all_other_fields_exact": true
+      },
+      {
+        "key": "20260928g00213",
+        "changed_source_words": 1,
+        "old_Analysis_sha256": "328bf3ad8905bc344601d0694cebe6c8db5f20d6c14883cbd52a07faa6a09e66",
+        "source_constructed_Analysis_sha256": "fedb51779235fe608c765b2f2092a81368da167e1972d71921a3fc37a6feb6a2",
+        "source_words_line_order_tables_article_boundaries_and_all_other_fields_exact": true
+      },
+      {
+        "key": "20261009g00223",
+        "changed_source_words": 1,
+        "old_Analysis_sha256": "b58b85e6af5cd64d23c8889641c3949b20168534ccbb161a8cc0a9a310bacf10",
+        "source_constructed_Analysis_sha256": "ecc5ddeb37959930426afa63f30e2cfbb9b4adbc674ae2e74b51070dcaf985cd",
+        "source_words_line_order_tables_article_boundaries_and_all_other_fields_exact": true
+      },
+      {
+        "key": "20261020g00230",
+        "changed_source_words": 1,
+        "old_Analysis_sha256": "7d8a232d7c9d198957e787f149d6d5e336e82b14cbd1fbb24d67c69892500145",
+        "source_constructed_Analysis_sha256": "d2da86c132f38ae4d339bf9261a643d9da54ed7e1b31cfccd31f9ffe764c3932",
+        "source_words_line_order_tables_article_boundaries_and_all_other_fields_exact": true
+      }
+    ]
+  },
+  "failures_preserved": {
+    "new_unit_RED": "2failed/2passed against165;4new tests pass prototype",
+    "initial_full_native": {
+      "passed": 4054,
+      "failed": 7,
+      "ignored": 0,
+      "explanation": "Five old unit expectations cast unresolved CID to Unicode; one archive glob detected2old snapshots; one source API fixture detected an old scalar expectation. All failed assertions were retained with source-unresolved expectations. No runtime quote/source ownership predicate was weakened."
+    },
+    "source_constructed_corrections": [
+      {
+        "path": "crates/kanpo-parser/src/source_aj1_parser_tests.rs",
+        "old_sha256": "a328f4d9346647ff0091cae0f8b7b98790a536432c27ff1377adf39a99055ea2",
+        "new_sha256": "b20206e835ecf73b23f1705aa9cca32725a57e41fa651d65964cadbf296c2942",
+        "reason": "Five negative/tie test assertions retain exact source ownership and now require an unresolved marker when source authority is absent. Verified source candidates still require the original actual Unicode."
+      },
+      {
+        "path": "crates/kanpo-parser/src/inline_quotes.rs",
+        "old_sha256": "c38d15625de4a05106155d7399594d0bebb288b27335e457b70e274dd629cd68",
+        "new_sha256": "b75751579fbceed7dbd24841fb98ae3bc5fbc33f0561b5d9362ca558856fff74",
+        "reason": "Quote rejection remains mandatory both for current unresolved text and a legacy normal-looking CID cast; no runtime quote rule changes."
+      },
+      {
+        "path": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260728h01756__20260728h017560006.pdf.snap",
+        "old_sha256": "46516a670102019209f41276a36634584cb91676999bcd33e1355ab2de3c0dff",
+        "new_sha256": "1914b0c5a7e87051f28adc6034f508c074c534f3de1e73d14745dda0c2742a9e",
+        "reason": "Original snapshot renderer first reproduced baseline165 bytes exactly; only reviewed unresolved scalar positions change."
+      },
+      {
+        "path": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260915g00205__20260915g002050081.pdf.snap",
+        "old_sha256": "1bfc616c73f53ff59e034a624a4a9337fa2abee422fe6e66605f02035c0f3af3",
+        "new_sha256": "4bf5274508f507ef935f87f263fa5804abdb3549aee1f0e1f1e04f68c3902104",
+        "reason": "Original snapshot renderer first reproduced baseline165 bytes exactly; only reviewed unresolved scalar positions change."
+      },
+      {
+        "path": "crates/kanpo-parser/tests/expected-source-aj1/20260915g002050081-candidate51.json",
+        "old_sha256": "615c171be8f9d87c78b17d6b3dab6b87baf83c24cfd54b4df26a6b6bcde26884",
+        "new_sha256": "a98e7645dcc20b14a45ec42e7ec02896375b482e783039d2dc9fceb8de604e97",
+        "reason": "Only the reviewed unknown Identity scalar changes. Assembled historical gold/partitions first equal baseline165 complete legacy Analysis."
+      },
+      {
+        "path": "crates/kanpo-parser/tests/expected-native-article-partitions/20260915g002050081.json",
+        "old_sha256": "2ef51d07597e26c3f93f889c64ab7ea6fd30bef0beaedad4a6aebc2bffdd6f48",
+        "new_sha256": "f638a6d9f9b5423f49e2f483628891d1be41b9fd0aebfd1887d8fa9f30350292",
+        "reason": "Only the reviewed unknown Identity scalar changes. Assembled historical gold/partitions first equal baseline165 complete legacy Analysis."
+      }
+    ]
+  },
+  "final_native": {
+    "terminal": 0,
+    "commands": 2,
+    "integration_targets": 160,
+    "result_groups": 168,
+    "passed": 4061,
+    "failed": 0,
+    "ignored": 0,
+    "source_manifest_sha256": "e7b5000aef8a1215bef0454d712bee545f846e8843a949c877c738db2979c00f",
+    "source_and_all_existing_test_inputs_prepost_exact": true,
+    "snapshot_updates_disabled": true
+  },
+  "final_actual_Cargo_release": {
+    "profile": "actual Cargo release, final W sources",
+    "single_complete_Analysis_exact_private_final": 11992,
+    "whole_complete_Analysis_exact_private_final": 159,
+    "actual_release_PDF_textdump_CLI_native_body_bytes_exact": 11992,
+    "single_duplicate_owner_pages": 0,
+    "CLI_duplicate_word_reports": 0,
+    "all_original_inputs_native_sources_Cargo_and_binaries_prepost_exact": true,
+    "seconds": 236.45513725,
+    "scope": "Full final actual-Cargo release public API Analysis and native CLI over original PDFs; Expected complete Analysis independently constructed from165 by replacing only32 source-unresolved scalar occurrences in12singles/12whole issues; all other Word attributes, structures, ownership, line/Article cuts and nativeDocument formatting remain exact. No independent full-corpus accuracy claim."
+  },
+  "read_only_discovery": {
+    "BMP_omissions166": {
+      "pages": 11992,
+      "candidate_pages": 2336,
+      "word_counts": {
+        "empty": 53184,
+        "used": 4431
+      },
+      "seconds": 61.961511707999996,
+      "input_source_binaries_prepost_exact": true,
+      "scope": "Private read-only full native inventory: only original Used/Empty words whose current text equals the ordinary normalizer and an otherwise undecoded private scalar contributes no output. Known private/Identity decoders and already-recovered source aliases excluded. Candidates include graphics; no proposed character map."
+    },
+    "Identity_components167": {
+      "pages": 11992,
+      "candidate_pages": 71,
+      "word_counts": {
+        "used": 406
+      },
+      "seconds": 72.56982670900001,
+      "input_source_binaries_prepost_exact": true,
+      "scope": "Private read-only Identity component/unknown inventory. No production change."
+    },
+    "known_multi_component_scalar_leaks_in_actual_text": 0,
+    "same_program_explicit_Unicode_sibling_resources168": {
+      "candidate_pages": 2336,
+      "root_resource_pages_inspected": 2336,
+      "source_candidate_pages": 0,
+      "seconds": 8.216791833052412,
+      "scope": "Read-only discovery over2336 actual omitted-BMP-PUA candidate pages. Same entire decoded CFF bytes, same actually printed root Identity CID, explicit ordinary ToUnicode on sibling resource. Does not inspect Forms or establish visibility/CFF routing authority; any candidates require native source validation before adoption. No runtime map or decoder changes."
+    },
+    "all2336originalPDFs_match_frozen166_inputs": true,
+    "alias_expansion168": "All11992 pages inspected: only6pages with11multi-scalar relations, all targets already handled by an existing PUA decoder. No consumer widening adopted."
+  },
+  "evidence_file_sha256": {
+    "normalize-RED167.log": "8b08666269855683f3676ef0c4e023567b6ca7e2cf0d41730793b8987c4dbc53",
+    "normalize-GREEN167.log": "2d0b132ec75256dfc4135e2b02323597d3e51a2346b7eaf755f5b86c6f551567",
+    "source-occurrence-impact167.json": "b5cfa2561b22326c600b108b230995cb2225a8b83e194050b41ff021373f0756",
+    "source-constructed-whole-proof167.json": "4e51ef1eb5a04d5ef6f7041a73c87fc7cf6355daf7e4719553ee64186166fc2e",
+    "native-gates-final167/result167.json": "ae0e6c996698f8a189432e18d52f4362f48430664f86ca62e2e34d314409f81a",
+    "native-gates-final167/source-manifest167.json": "e7b5000aef8a1215bef0454d712bee545f846e8843a949c877c738db2979c00f",
+    "actual-release-result-final167.json": "4011099ebb73558dcaa3b011713be282157406e087a11a7980688775249d99d2",
+    "actual-release-final167/prefreeze167.json": "d6c1736b9bff4c5a660305bcd0897b9fa2d073cb272ea5e9c5fdd98c5aa975b4"
+  }
+}
