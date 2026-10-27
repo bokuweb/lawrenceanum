@@ -735,3 +735,5 @@ mod native_terminal_glyph;
 mod source_font_alias;
 
 mod native_table_scopes;
+
+mod native_cell_lineage;

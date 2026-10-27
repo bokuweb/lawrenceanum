@@ -25,7 +25,7 @@ use std::path::{Path, PathBuf};
 // Original glyph/envelope/font-size contracts are tested in kanpo-pdf.
 fn source_payload(actual: &str, expected: &str) -> String {
     let mut out = actual.to_owned();
-    for needle in [" data-native-cell-origin=\"", " data-native-advance-band=\"", " data-native-terminal-glyph=\"", " data-native-font-aliases=\""] {
+    for needle in [" data-native-cell-origin=\"", " data-native-advance-band=\"", " data-native-terminal-glyph=\"", " data-native-font-aliases=\"", " data-native-lineage-coverage=\"", " data-native-lineage-obstacles=\"", " data-native-lineage-ink=\"", " data-native-line-moves=\""] {
         if expected.contains(needle) {
             continue;
         }
@@ -251,4 +251,13 @@ fn font_alias_metadata157_keeps_all_legacy_bytes_and_checks_current_evidence(){
  assert_eq!(source_payload(&current,old),old);
  assert_eq!(source_payload(&current,&current),current);
  for changed in [current.replace("a b","ab"),current.replace("xmin='10'","xmin='11'"),current.replace("'right'","'left'"),current.replace("0:58495:3:23185","0:58496:3:23185"),current.replace("10 20 30 40","11 20 30 40"),current.replace(" data-native-axis"," data-native-unrecognized=\"changed\" data-native-axis")] {assert_ne!(source_payload(&changed,&current),current);}
+}
+
+#[test]
+fn line_move_metadata160_preserves_legacy_payload_and_checks_every_current_field(){
+ let old="<page data-native-glyph-count=\"8\"><word xmin=\"10\" data-native-axis=\"right\">a b</word></page>";
+ let current=old.replace("<page ","<page data-native-lineage-coverage=\"1 8 -\" data-native-lineage-obstacles=\"1 -\" data-native-lineage-ink=\"1 L:0,0,0,8,-1,-1,1,9\" ").replace(" data-native-axis", " data-native-line-moves=\"1 0 3 10 20 30 40 612062 0:3:8\" data-native-axis");
+ assert_eq!(source_payload(&current,old),old);
+ assert_eq!(source_payload(&current,&current),current);
+ for changed in [current.replace("1 8 -","1 9 -"),current.replace("obstacles=\"1 -","obstacles=\"1 1,2,3,4"),current.replace("L:0,0,0,8,-1,-1,1,9","L:0,0,0,8,-2,-1,1,9"),current.replace("0:3:8","0:4:8"),current.replace("612062","612063"),current.replace("a b","ab"),current.replace("xmin=\"10","xmin=\"11"),current.replace(" data-native-axis"," data-native-unrecognized=\"changed\" data-native-axis")]{assert_ne!(source_payload(&changed,&current),current);}
 }

@@ -83,6 +83,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
     let mut prev_native_roles = false;
     for (pi, page) in doc.select(&page_sel).enumerate() {
         let (width, height) = page_size(page);
+        let line_moves=crate::native_cell_lineage::for_page(page);
         let ((cols, mut words, rotated, sideways, merged, minus, native_styles, native_bounds, native_content_styles, native_axes, native_rulings, inline_merged, native_flows, projected_flows, cell_origins),advance_bands) = page_words_with_styles_and_bands(page, width, height, rules.get(pi).and_then(|r| r.as_ref()));
         let native_header_words:std::collections::HashSet<_>=crate::comparison_labels::headers(&cols).into_iter().flat_map(|h|h.words).collect();
         let explicit_comparison_label=!native_header_words.is_empty() || !shinkyu_labels(&cols,'後').is_empty() || !shinkyu_labels(&cols,'前').is_empty();
@@ -532,6 +533,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             let native_atomic_columns=crate::native_atomic_column::restore(&mut units,&words,&native_bounds,&native_axes,&native_flows,rules.get(pi).and_then(|r|r.as_ref()));
             crate::native_grid_fragments::restore_independent_vertical(&mut units,&independent_vertical_plans,&words,&native_bounds,&native_axes,&native_styles,&projected_flows);
         crate::native_cell_text::restore(&mut units,&words,&native_bounds,&cell_origins);
+        crate::native_cell_lineage::restore(&mut units,&words,&native_bounds,&cell_origins,line_moves.as_ref());
         if let Some(r)=rules.get(pi).and_then(|r|r.as_ref()){let b=crate::native_word_flow::horizontal_baselines(&native_bounds,&native_axes,&native_flows);crate::native_numeric_frames::restore(&mut units,&words,r,&b);crate::native_numeric_frames::restore_matrix_with_terminal(&mut units,&words,r,&b,||crate::native_terminal_glyph::for_words(page,&words)); }
             if prev_table {crate::comparison_labels::inherit(&mut units,prev_comparison_labels,explicit_comparison_label);}
             prev_comparison_labels=match units.last(){Some(Unit::Shinkyu{labels,..})=>*labels,_=>None};
@@ -904,6 +906,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
 
         crate::native_grid_fragments::restore_independent_vertical(&mut units,&independent_vertical_plans,&words,&native_bounds,&native_axes,&native_styles,&projected_flows);
         crate::native_cell_text::restore(&mut units,&words,&native_bounds,&cell_origins);
+        crate::native_cell_lineage::restore(&mut units,&words,&native_bounds,&cell_origins,line_moves.as_ref());
         if let Some(r)=rules.get(pi).and_then(|r|r.as_ref()){let b=crate::native_word_flow::horizontal_baselines(&native_bounds,&native_axes,&native_flows);crate::native_numeric_frames::restore(&mut units,&words,r,&b);crate::native_numeric_frames::restore_matrix_with_terminal(&mut units,&words,r,&b,||crate::native_terminal_glyph::for_words(page,&words)); }
         if prev_table {crate::comparison_labels::inherit(&mut units,prev_comparison_labels,explicit_comparison_label);}
         prev_comparison_labels=match units.last(){Some(Unit::Shinkyu{labels,..})=>*labels,_=>None};

@@ -87,3 +87,5 @@ pub fn extract_pages_with_xobject_sources(pdf:&[u8])->Result<Vec<XObjectPageSour
 mod source_ruling;
 
 #[cfg(test)]mod source_ruling_pdf_tests;
+
+mod source_lineage;

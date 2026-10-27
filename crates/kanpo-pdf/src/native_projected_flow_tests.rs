@@ -148,7 +148,7 @@ fn only_native_source_output_adds_ranges_and_page_count() {
     let legacy = bbox_layout(&[p.clone()]);
     assert!(!legacy.contains("data-native-glyph-count"));
     assert!(!legacy.contains("first-glyph"));
-    let s = layout(std::iter::once((&p, None, None, None)), true);
+    let s = layout(std::iter::once((&p,None,None,None,None)), true);
     assert!(s.contains("data-native-glyph-count=\"1\""));
     assert!(s.contains("data-native-flow-first-glyph=\"0\""));
     assert!(s.contains("data-native-flow-after-glyph=\"1\""));

@@ -294,6 +294,15 @@ impl Font {
         }
     }
 
+    pub(crate) fn source_codes_complete(&self,bytes:&[u8],decoded:&[CharCode])->bool{
+        let mut cursor=0usize;
+        for c in decoded{
+            let Some(end)=cursor.checked_add(c.len)else{return false;};let Some(part)=bytes.get(cursor..end)else{return false;};
+            if c.len==0||c.len>4||(!self.composite&&c.len!=1)||(self.composite&&!self.encoding.source_codespace_contains(part)){return false;}
+            let code=part.iter().fold(0u32,|a,&b|(a<<8)|b as u32);if code!=c.code{return false;}cursor=end;
+        }cursor==bytes.len()
+    }
+
     pub(crate) fn decode(&self, bytes: &[u8]) -> Vec<CharCode> {
         if !self.composite {
             return bytes
@@ -492,3 +501,9 @@ mod tests {
 mod source_aj1_font_tests;
 
 #[path="source_font_alias.rs"] pub(crate) mod source_alias;
+#[cfg(test)]mod source_code_coverage_tests{
+ use super::*;
+ fn font()->Font{let b=std::fs::read(std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../kanpo-parser/tests/data/native-lineage160/explicit-TD160.pdf")).unwrap();let d=Document::load(b).unwrap();let p=d.pages();let fs=d.dict_get(&p[0].resources,b"Font").unwrap();let f=d.dict_get(fs.as_dict().unwrap(),b"F1").unwrap();Font::load(&d,f.as_dict().unwrap())}
+ #[test]fn complete_source_bytes_are_required_even_when_decoder_has_a_fallback(){let mut f=font();let b=b"abc";assert!(f.source_codes_complete(b,&f.decode(b)));assert!(!f.source_codes_complete(b,&f.decode(&b[..2])));let mut wrong=f.decode(b);wrong[0].code+=1;assert!(!f.source_codes_complete(b,&wrong));f.composite=true;f.encoding=CMap::identity();assert!(f.source_codes_complete(&[0,65],&f.decode(&[0,65])));assert!(!f.source_codes_complete(&[0,65,0],&f.decode(&[0,65,0])));f.encoding=CMap::default();assert!(!f.source_codes_complete(&[0,65],&f.decode(&[0,65])));}
+ #[test]fn original_codespace_ranges_bound_each_byte(){let mut f=font();f.composite=true;f.encoding=CMap::parse(b"1 begincodespacerange <1020> <2030> endcodespacerange");for bytes in [&[0x10,0x20][..],&[0x20,0x30][..]]{assert!(f.source_codes_complete(bytes,&f.decode(bytes)))}for bytes in [&[0x10,0x1f][..],&[0x21,0x20][..],&[0x10][..]]{assert!(!f.source_codes_complete(bytes,&f.decode(bytes)),"{bytes:?}")}}
+}

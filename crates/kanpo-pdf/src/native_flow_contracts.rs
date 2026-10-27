@@ -1,7 +1,7 @@
 use super::native_style_tests::{glyph,page};
 use super::*;
 fn word(p:&Page)->Word { words(p).remove(0) }
-fn styled(p:&Page)->String { layout(std::iter::once((p,None,None,None)),true) }
+fn styled(p:&Page)->String { layout(std::iter::once((p,None,None,None,None)),true) }
 #[test]fn original_baseline_and_true_first_advance_are_not_averaged_from_word_width(){
  let mut a=glyph("甲",10.,0,8.);a.end_x=13.;a.bbox[2]=13.;let mut b=glyph("乙",13.,0,8.);b.end_x=24.;b.bbox[2]=24.;let p=page(vec![a,b]);let w=word(&p);assert_eq!(w.glyphs,vec![0,1]);assert_eq!(native_flow_tuple(&p,&w),Some([10.,100.,24.,3.]));
 }

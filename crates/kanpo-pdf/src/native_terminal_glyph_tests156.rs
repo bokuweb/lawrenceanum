@@ -125,7 +125,7 @@ fn terminal156_metadata_version_serializes_original_range_and_endpoints() {
 #[test]
 fn terminal156_source_only_metadata_is_emitted_only_with_native_evidence() {
     let (p, _) = source();
-    let native = layout([(&p, None, None, None)], true);
+    let native = layout([(&p,None,None,None,None)], true);
     assert!(native.contains("data-native-terminal-glyph=\"1 0 2 20 23 100\""));
     assert!(!bbox_layout(&[p]).contains("data-native-terminal-glyph"));
 }

@@ -1,0 +1,322 @@
+{
+  "schema_version": 1,
+  "issue": 227,
+  "stage": "native160",
+  "baseline_local_commit": "5159242b7881701def4cf730367587595fbfc620",
+  "baseline_publication_commit": "f4c1ab43318ee222d97802e4c3e032fd0dccf9b6",
+  "problem": "Physical baseline order interleaved an adjacent centered label/symbol into a wrapped native table label. TD/T* also paint ordinary data columns, so source line movement alone cannot authorize paragraph grouping.",
+  "runtime": {
+    "original_operator_facts": "Owned original adjacent Tj/TJ Glyph ranges separated by a valid zero-horizontal/downward Td/TD or positive-leading T*. Same font/text style/linear transforms and actual rightward horizontal glyph flow. Tm, font/style/reset/unsupported adjacency do not manufacture an edge.",
+    "binding": "Private native source tape; native XHTML raw UTF8 hex, original box and original contiguous Glyph-range echoes; complete page Glyph count/unique coverage, only truly unowned invisible/whitespace Glyphs may be omitted. Missing/stale/duplicate/malformed records decline without a legacy evidence fallback. All normalized Empty source marks still count as potential row values.",
+    "cell_scope": "Complete unique existing cell ownership and complete line-chain components; foreign source words in the candidate original vertical band cannot be hidden by assignment to another overlapping cell. A separate horizontally disjoint peer must interleave; a peer row whose two source baselines lie in each other’s original glyph envelopes blocks the move. No numeric vocabulary or baseline epsilon.",
+    "native_paint_counterevidence": "Original finite straight filled geometry and verified conformal straight strokes have source paint bounds; only a complete original outer side of the existing cell can borrow the table-boundary role. A shorter stroke/value dash, filled graphic mark, unknown curve/metric or unobserved shading cannot disappear behind complete native Glyph coverage.",
+    "image_counterevidence": "Named image full transformed unit-square bounds retained without OCR. Only an unclipped/unmasked strictly decoded uniform8bit DeviceGray/RGB/CMYK image covering exactly the full page, before native glyphs/paths, can be ignored as an underlay. A small uniform image can still be a dash/mark. Unknown/masked/partial/late/clipped images do not borrow background status. Decode only when usable source edges exist.",
+    "output": "Reorder only proven member spans and their existing source Word IDs within the same existing cell. Preserve all Word scalar fields/status/coordinates/owners, all nonwhitespace material, unchanged word adjacency whitespace, all other cells, all other Analysis fields. Rerender the existing table/body/Document consistently.",
+    "no_new_runtime_dispatch_by": [
+      "page/fixture key",
+      "title/company/address/year/value",
+      "Japanese vocabulary",
+      "font name/CID/PUA value",
+      "character/neighbor-line budgets",
+      "fixed point tolerance"
+    ],
+    "public_Glyph_Word_PageTrace_Document_schema_fields_unchanged": true,
+    "native_XHTML_additive_attributes": [
+      "data-native-line-moves",
+      "data-native-lineage-coverage",
+      "data-native-lineage-obstacles",
+      "data-native-lineage-ink"
+    ]
+  },
+  "tdd": {
+    "new_native_tests": 57,
+    "new_PDF_observer_controls": 32,
+    "new_parser_controls": 21,
+    "new_public_complete_Analysis_source_API_cases": 3,
+    "new_current_and_legacy_payload_control": 1,
+    "original_actual_Cargo157_header_tests_failed": 2,
+    "noop_consumer_controls": {
+      "passed": 3,
+      "failed": 3
+    },
+    "rejected_private_v1": {
+      "single_changed": 4,
+      "whole_changed": 2,
+      "regression": "Original school-fee page663 separated correct numeric values9.48/6.48 and9.56/6.51 from their item labels. Exact baseline equality was inadequate. Both original cells were visually checked; full old Analysis is now retained as a negative fixture."
+    },
+    "source_geometry_offset_controls_before_fix": {
+      "passed": 17,
+      "failed": 2
+    },
+    "normalized_empty_mark_control_before_fix": {
+      "passed": 0,
+      "failed": 1
+    },
+    "source_vector_mark_control_before_fix": {
+      "passed": 0,
+      "failed": 1
+    },
+    "unknown_shading_control_before_fix": {
+      "passed": 0,
+      "failed": 1
+    },
+    "control_correction": "Early private malformed-Tj/TJ fixture names differed only by case and collided on macOS. Replaced by distinct malformed-string-show / malformed-array-show vectors, checked their actual different operators, and added a noncollision test before adoption.",
+    "wire_gold": "Compare actual emitted JSON, not serde_json::to_value widened f32; no geometry fields/tolerances omitted.",
+    "normal_attempt_history": "Two superseded partial runs are not pass evidence (new Empty-mark control; then a preparation script restart stopped after an immutable-baseline assertion). The first complete normal run was4015pass/1fail: two historical XHTML fixtures lacked the new attrs. All old HTML bytes retained; only recognized new attrs are omitted when absent from historical expected data, while every current field and all legacy payload mutations remain checked. Final full suite rerun clean."
+  },
+  "final_actual_full_cohort": {
+    "single": 11992,
+    "whole": 159,
+    "single_changed": 3,
+    "single_exact158": 11989,
+    "whole_changed": 2,
+    "whole_exact158": 157,
+    "corrected_original_cells": 4,
+    "changed_keys": {
+      "single": [
+        "20260724g001650702",
+        "20260818g001840006",
+        "20260818g001840007"
+      ],
+      "whole": [
+        "20260724g00165",
+        "20260818g00184"
+      ]
+    },
+    "method": "Final actual Cargo release complete Analysis exactly equals the full source5/consumer2 footprint reference for all11992/159. Final source8/consumer4 adds conservative image-underlay, native paint, unknown-shading and Empty-mark guards; final full release and CLI exercise all guards. Four source-reviewed substitutions independently construct the entire changed single/whole Analysis, not only text or selected fields.",
+    "single_source_targets": {
+      "20260724g001650702": {
+        "old": "市及び福祉事務所\nその他の町村設置町村",
+        "new": "市及び福祉事務所\n設置町村\nその他の町村",
+        "cells": [
+          [
+            0,
+            0,
+            0,
+            30,
+            [
+              503,
+              415,
+              416,
+              353,
+              393,
+              367,
+              349,
+              328,
+              490,
+              438,
+              405,
+              401,
+              394,
+              372,
+              368,
+              363
+            ]
+          ],
+          [
+            0,
+            0,
+            1,
+            30,
+            [
+              249,
+              160,
+              161,
+              99,
+              139,
+              113,
+              95,
+              70,
+              230,
+              185,
+              151,
+              147,
+              140,
+              118,
+              114,
+              109
+            ]
+          ]
+        ]
+      },
+      "20260818g001840006": {
+        "old": "うち生産者ふるい目幅未満のう　Ｄち、主食用米への供給見込量",
+        "new": "うち生産者ふるい目幅未満のう\nち、主食用米への供給見込量\nＤ",
+        "cells": [
+          [
+            0,
+            0,
+            26,
+            19,
+            [
+              173,
+              174,
+              162
+            ]
+          ]
+        ]
+      },
+      "20260818g001840007": {
+        "old": "令和８／９年インバウンド需要量　④\n（推計値）",
+        "new": "令和８／９年インバウンド需要量\n（推計値）\n④",
+        "cells": [
+          [
+            0,
+            0,
+            2,
+            16,
+            [
+              177,
+              178,
+              128
+            ]
+          ]
+        ]
+      }
+    },
+    "whole_strict_source_forward": [
+      {
+        "key": "20260724g00165",
+        "pages": 784,
+        "corrected_cells": 2,
+        "complete_Analysis_exact_independent_source_forward": true,
+        "all_native_Word_scalars_and_every_other_output_field_preserved": true
+      },
+      {
+        "key": "20260818g00184",
+        "pages": 64,
+        "corrected_cells": 2,
+        "complete_Analysis_exact_independent_source_forward": true,
+        "all_native_Word_scalars_and_every_other_output_field_preserved": true
+      }
+    ],
+    "all_native_Word_scalars_and_every_other_output_field_exact158": true,
+    "duplicate_source_owners": 0
+  },
+  "source_visual_review": {
+    "method": "Worker nonblind original PDFium source crops, four corrected cells and both cells of the rejected school-fee regression. Not a30page blind audit or independent accuracy score.",
+    "crops_sha256": {
+      "20260724g001650702-changed-cell1-PDFium160.png": "87181de8a2654ffa9e7f6b9af1f8b7ea4782ba9fa82ca8b447b27741f7a297d2",
+      "20260724g001650663-changed-cell1-PDFium160.png": "3bf1440c34b2912e7b7daf8295bde46f2fd5025fef8afaef84954561d1e003fe",
+      "20260724g001650663-changed-cell0-PDFium160.png": "687fd4074d920c24e590fba1815f133753a20457231b6d2f2f91ad72c26ecd52",
+      "20260724g001650702-changed-cell0-PDFium160.png": "494abe9bad0b1d24330bc7d9c708ca179fdac293ab65a52512df05f6b4220b12",
+      "20260818g001840006-original-cell-PDFium160.png": "1d70cd42b3a7757aea4fcd4240a9356491715d57c6381b51a57fcec7b08d925a",
+      "20260818g001840007-original-cell-PDFium160.png": "d2d4706fc82b3cbd1bbcbbea5b5e50e23179fe20d278313d304dff4e86de9521"
+    }
+  },
+  "normal_native": {
+    "terminal": 0,
+    "commands": 2,
+    "integration_targets": 157,
+    "result_groups": 165,
+    "passed": 4022,
+    "failed": 0,
+    "ignored": 0,
+    "source_manifest_sha256": "d965b75139d3a62160c098c202c8cc7d2a1ca6d0123b4537f2fb2dce966062d5",
+    "source_and_all_existing_test_inputs_prepost_exact": true,
+    "snapshot_updates_disabled": true
+  },
+  "shared_actual_renderer": {
+    "existing_tests_passed": 10,
+    "actual_release_changed_source_documents_passed": 3,
+    "corrected_source_cells_rendered_once_in_correct_material_order": 4
+  },
+  "actual_Cargo_release": {
+    "profile": "actual Cargo release, final W sources",
+    "single_complete_Analysis_exact_private_final": 11992,
+    "whole_complete_Analysis_exact_private_final": 159,
+    "actual_release_PDF_textdump_CLI_native_body_bytes_exact": 11992,
+    "single_duplicate_owner_pages": 0,
+    "CLI_duplicate_word_reports": 0,
+    "all_original_inputs_native_sources_Cargo_and_binaries_prepost_exact": true,
+    "seconds": 241.19120700000002,
+    "scope": "Full final actual-Cargo release public API Analysis and native CLI over original PDFs; source-reviewed3single pages restore4wrapped labels; whole2issues have only those source-constructed substitutions. Every native Word scalar and all other output is unchanged158. No independent accuracy claim."
+  },
+  "old_assets": {
+    "old_assets": 3151,
+    "old_assets_unchanged": 3150,
+    "only_changed_existing_asset": "crates/kanpo-parser/tests/expected-native-table-scopes158.json",
+    "all_old_PDFs_bytes_exact": 1150,
+    "all_old_snapshots_bytes_exact": 814,
+    "all_other_old_JSONs_bytes_exact": 978,
+    "all_old_HTML_XHTML_bytes_exact": 57,
+    "source_gold_change": "Only existing702 expected body/Document strings changed by independently source-reviewed header substitutions;35other cases exactly retained. No original PDF, XHTML or snapshot updated."
+  },
+  "runtime_and_test_owned_files_sha256": {
+    "crates/kanpo-pdf/src/page.rs": "d468dcc7400d0d0e83397d19e5aefe118b75ef356cad7a5ad039e77fd44981bd",
+    "crates/kanpo-pdf/src/native_axis_tests.rs": "31e315abd0f5d66d1ebdef2018387c50bda01df4161a8cc0f4b0143cb7246887",
+    "crates/kanpo-pdf/src/font.rs": "ec03e2ce18e6198ff1863f99992726c6918cbe045b24076c2b5bc0bd35069064",
+    "crates/kanpo-pdf/src/native_advance_band_tests.rs": "9b0936711822a3de3f83bfbd281012a228eb80c90ea9f8d524c9dc3d361b4034",
+    "crates/kanpo-pdf/src/source_aj1_word_tests.rs": "b7903f6de4af15ab378c9dee7856fd3ad82862eda8ad488a7bc01d0ff9139c70",
+    "crates/kanpo-pdf/src/cmap.rs": "3f916666e5ee0dc17719f702a91e3ed27e190b4fdf8b5aeb00a097b72a700c7e",
+    "crates/kanpo-pdf/src/native_terminal_glyph_tests156.rs": "3e315282c7dccdb73a048a6078b0d19731d35aeadea349caf4115ca19e863613",
+    "crates/kanpo-pdf/src/lib.rs": "87c28d8aab61180d64d0c4a6a2d8103aa19a330524f9b9d7838fb72dc3660818",
+    "crates/kanpo-pdf/src/native_projected_flow_tests.rs": "45fbbd522ca542e26d3290b57b2c1a2cb5ecef514419d492839f1adcbc96e2b1",
+    "crates/kanpo-pdf/src/bbox.rs": "257976b892f10252f88c8eac90651feae3412ac07e40b8e6b3758aa85ee03225",
+    "crates/kanpo-pdf/src/source_lineage.rs": "f3a1501ef0d1f87eb6ce9eb3f4aadc6b735d4f97177e0cb0db95d5c8f94ee673",
+    "crates/kanpo-pdf/src/source_aj1.rs": "fdd39aa45665622cbebe2e3fe1aeb4283b165495dbaac319ff3267c7583d3d9c",
+    "crates/kanpo-pdf/src/native_content_style_tests.rs": "64b71f2f55d5b198bb637f030ba0fc345e1c3c2f912404e2e1336e8ff22b5cc3",
+    "crates/kanpo-pdf/src/native_flow_contracts.rs": "85596c8a059f045c39c9c3e0322106f1c43c4d5195aa18d66bc119061ccb70d3",
+    "crates/kanpo-pdf/src/native_cell_origin_tests.rs": "3719b17d3bb6379e56e326ab115c5b95f1d677d93159ed76f3da21248191de1a",
+    "crates/kanpo-parser/src/lib.rs": "0a698c8347eb448dfcec60b16ac74988e4963af3f3ccb0e22babd1f6001dc1ed",
+    "crates/kanpo-parser/src/vertical.rs": "9b4492e4a06393ddbb5f61063863f91d57642135115b82416874f8b035c42ddb",
+    "crates/kanpo-parser/src/native_cell_lineage.rs": "8690317da7f9d5442ee7e6542fbc24074fc4527f4ef15ac66d020b241daf6cdf",
+    "crates/kanpo-parser/src/native_cell_lineage_tests.rs": "0b1657ec604de32c73a3ba2fed3eba0b9b65c4fc40f75254eeed007d03ded1a8",
+    "crates/kanpo-parser/tests/data/native-lineage160/image-outside160.pdf": "810fff3302633bdc047d67b72d910439468920d1fd6cacad0fbf8ce260504a41",
+    "crates/kanpo-parser/tests/data/native-lineage160/font-reset160.pdf": "6ce0eb22e9c0af7d901f5eb8279ac984d0220622c8660234a4f2d9f3f0c7ab89",
+    "crates/kanpo-parser/tests/data/native-lineage160/malformed-Td160.pdf": "8acbc074555c9caffc7bcf713522468062f079931e4587720655a7795f838f55",
+    "crates/kanpo-parser/tests/data/native-lineage160/unknown-restored-context160.pdf": "fb7f466ece88b9e9348ab1a9280a2009d134ce05a02a711612142c0e055bd321",
+    "crates/kanpo-parser/tests/data/native-lineage160/image-unknown160.pdf": "a514b914a3618b9982aee9644b154bc368daf1a744d9a8f52805dff56dc8f2f1",
+    "crates/kanpo-parser/tests/data/native-lineage160/valid-Tstar160.pdf": "cf37f11146b148d3400f20c72b4a483bc68ce17d3535fb1c5e43c5b6e8fc4139",
+    "crates/kanpo-parser/tests/data/native-lineage160/truncated-uniform160.pdf": "33638b321151b6d0561e6470fa7f257eeaf09693b77bbac39818a4425bac379c",
+    "crates/kanpo-parser/tests/data/native-lineage160/three-lines160.pdf": "775a4f735030f66bb38bf088dd63b6f18b7c4a41e5e243bb6cf07425d07cba83",
+    "crates/kanpo-parser/tests/data/native-lineage160/uniform-clipped-background160.pdf": "1cda3e1c58c5e5241fb9c7c72309a9067bfcb19b7a97a0e691740352c83cda7f",
+    "crates/kanpo-parser/tests/data/native-lineage160/malformed-array-show160.pdf": "f1f572df32fa5797eeccbaf048680212c95f72d454c409a40fc22166468b24cc",
+    "crates/kanpo-parser/tests/data/native-lineage160/upward-TD160.pdf": "73f5312b343693704c1361ace5ed33a779cf5557c7c3a8782a44cd8873e16cda",
+    "crates/kanpo-parser/tests/data/native-lineage160/vector-filled-row-mark160.pdf": "aa1b009454bc69b7a745d25c665d51610825546c0aea728653d86dd17a661413",
+    "crates/kanpo-parser/tests/data/native-lineage160/aligned-full160.pdf": "23270263f963301097dfe0fe45977941e6ab973c932789d2fba6f205b2b5cc08",
+    "crates/kanpo-parser/tests/data/native-lineage160/source-663160.pdf": "450bcf7cfa47608119ab7c646f7f9cfa3eda431bc9c6431881a275697c639336",
+    "crates/kanpo-parser/tests/data/native-lineage160/aligned-middle160.pdf": "cb5f383d1574a173c115290479f0137699a04f3eafed7171cdb18de7a78f030d",
+    "crates/kanpo-parser/tests/data/native-lineage160/explicit-TD160.pdf": "400232c464237e7cbff23276543d5f682ad78cffea39b3eb39eee84b5333b3c5",
+    "crates/kanpo-parser/tests/data/native-lineage160/uniform160.pdf": "12b01515066882cfd33d2c01a789cefe38b866abd96297d990cc5003126c72f8",
+    "crates/kanpo-parser/tests/data/native-lineage160/masked-uniform160.pdf": "0316886377681bcd401ed4c3378eba3e1fb492cf457db5a0b8936da5b2e125b6",
+    "crates/kanpo-parser/tests/data/native-lineage160/zero-TD160.pdf": "2d590aba2f6cc580500fe7e891a9da5df8937c791436a06912b86198ab085287",
+    "crates/kanpo-parser/tests/data/native-lineage160/vector-row-dash160.pdf": "70853daf70cf5618eb0e427341e9c64977e027c42dd65280caa6195763a19fdd",
+    "crates/kanpo-parser/tests/data/native-lineage160/aligned-empty-second160.pdf": "47ba3bfd12e49f59cd867185ee06332466bd1c42d8d4baaf4265a7eab409ca49",
+    "crates/kanpo-parser/tests/data/native-lineage160/independent-Tm160.pdf": "ad6983ad1b70c03c67e17c16d0a4543b0de3a611bb4370e4e76a817b5438ae2b",
+    "crates/kanpo-parser/tests/data/native-lineage160/aligned-offset160.pdf": "422f8d73967258434ce2e61f9e10ac68d8b9429bbf283842079c4c89f7f92288",
+    "crates/kanpo-parser/tests/data/native-lineage160/image-inside160.pdf": "7a911a4ad052f4da9dbd11f11f505fc001985c2ba7c07821a3dab561e088c84a",
+    "crates/kanpo-parser/tests/data/native-lineage160/valid-Td160.pdf": "fc24a6c5d0b009a3e762198385ad2fcf873e4e54449e680ae8cd7b6a1d75dd0c",
+    "crates/kanpo-parser/tests/data/native-lineage160/unknown-shading160.pdf": "106fdc74cded52a7b1a89ca45bc7a80f24c4f639d64cca9f8e0f87635651e022",
+    "crates/kanpo-parser/tests/data/native-lineage160/malformed-string-show160.pdf": "41d331437b9f7f7d9947ef6f4d0a9cf22cbabbaf08630955b74cd7c5918a6e88",
+    "crates/kanpo-parser/tests/data/native-lineage160/uniform-overpaint160.pdf": "1e32c4f64466edb00f3c9dba5999cd82e121b08416979ad18a77293d92790642",
+    "crates/kanpo-parser/tests/data/native-lineage160/uniform-background160.pdf": "810e4f4f39bb5f86389969fb96d1a76f548230170d479d1e8052a125531c85bd",
+    "crates/kanpo-parser/tests/data/native-lineage160/nonconformal-stroke160.pdf": "ba19e2ffe60d19ce6a8d3f4ea70a4d76ee65e44d88030c0c704d0b1cdbbf3f0d",
+    "crates/kanpo-parser/tests/data/native-lineage160/curve-ink-context160.pdf": "c2ac62847144635c1d9ffe42120813423e6ca4f72148c6c2b58450cbccedb15b",
+    "crates/kanpo-parser/tests/data/native-lineage160/diagonal-TD160.pdf": "e9825d508fa5a2419992bcbce8b9dd5c6e77d99ecd2599847988a17906ac83a4",
+    "crates/kanpo-parser/tests/data/native-lineage160/missing-font-source160.pdf": "5b4462338ddc1924edf782848136d074d815ae8724f11e86d4dea94b58ddfb3c",
+    "crates/kanpo-parser/tests/data/native-lineage160/aligned-full-Analysis158.json": "b843ae32ff59adf3f9861cc3d6ee7846c9fa75bbf501165e2094152222e41c40",
+    "crates/kanpo-parser/tests/data/native-lineage160/aligned-empty-second-Analysis158.json": "1c0ce4eb7decca9e0206acadf46dc75d967b12c1e9e509c29f55e49d57f2fe47",
+    "crates/kanpo-parser/tests/data/native-lineage160/independent-Tm-Analysis158.json": "6f56b09338b8dd89b8cfe4a0bc156c1008c5c4663d2b614db7c47c1355aff49e",
+    "crates/kanpo-parser/tests/data/native-lineage160/aligned-middle-Analysis158.json": "213370429eb776405a9dcdac1145c45dd887e9075db635600fd1fecea64a8006",
+    "crates/kanpo-parser/tests/data/native-lineage160/aligned-offset-Analysis158.json": "89034557bb63293b0ae67593471f6cff763e1de7378b391a36a93728074ebf9a",
+    "crates/kanpo-parser/tests/data/native-lineage160/source-663-Analysis158.json": "6acf73b968d2ec305b49c6f833c13e2cf54941b7311764369b5f410758619783",
+    "crates/kanpo-parser/tests/data/native-lineage160/vector-row-dash-Analysis158.json": "6f56b09338b8dd89b8cfe4a0bc156c1008c5c4663d2b614db7c47c1355aff49e",
+    "crates/kanpo-parser/tests/data/native-lineage160/vector-filled-row-mark-Analysis158.json": "6f56b09338b8dd89b8cfe4a0bc156c1008c5c4663d2b614db7c47c1355aff49e",
+    "crates/kanpo-parser/tests/data/native-lineage160/20260818g001840006.pdf": "ce5bafe0aff646adaddf0be4e12b5764f7deee4bf2bff7888bb19f3fe29ebc05",
+    "crates/kanpo-parser/tests/data/native-lineage160/20260818g001840007.pdf": "691ca98f97e27219df4f4ff35ed7f73b49ceb960035d32f8c3e309dd08842fa9",
+    "crates/kanpo-parser/tests/expected-native-lineage160.json": "fa03356882087d3ba54e4e12338ec0803a31711f12447d28fe95a50e920dbbba",
+    "crates/kanpo-parser/tests/native_lineage_source160.rs": "7579d61be6fd064a98dcdeb3af47b12206c39979a42290b5cf9e70473fafc59a",
+    "crates/kanpo-parser/tests/expected-native-table-scopes158.json": "643d90ed3ee724c5eceb8243868abcdf62b788abea8a9645f24187fb0345bb52",
+    "crates/kanpo-parser/tests/corpus.rs": "af305b59680962b57c73933c6eae412d7aceb1919442eebc41333ba7cce2da36"
+  },
+  "limits": [
+    "Selected regressions and source-preservation checks are nonblind QA, not independent full-text accuracy gold and not a100percent result.",
+    "Only directly adjacent valid original line-move facts are captured; quote-show/multiple blank moves/same-line multi-show aggregation and other layout authorities remain work.",
+    "Unknown fonts/codespaces/content gaps, inline images/forms/shading/curves/unverified stroke metrics decline this evidence; no content is invented. Native shape/visibility and every possible text mechanism are not claimed generally solved.",
+    "Source702 unruled internal numeric/A-B submatrix and other complex column/cell hierarchy problems remain beyond its corrected wrapped heading.",
+    "Independent notice source031 still has13printed scopes vs11Articles; other parent/continuation, headerless comparison and unresolved character encodings remain active227 work.",
+    "Image OCR stays explicit opt-in and lower priority, NDLOCR0.0.15 revisionf97e930b8c3e9512f7788f258ef685da26416483. No automatic OCR, RURI/ModernBERT or new model dependency."
+  ],
+  "goal_status": "active; issue227 not complete; PR stays draft; no merge or issue closure"
+}
