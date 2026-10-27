@@ -144,6 +144,12 @@ impl Interp<'_> {
         c: &crate::font::CharCode,
         trm: &Matrix,
     ) -> Option<[f64; 4]> {
+        self.capture_outline_rectangle(font,c,trm,false)
+    }
+    pub(super) fn capture_scene_rectangle(&self,font:&Font,c:&crate::font::CharCode,trm:&Matrix)->Option<[f64;4]>{
+        self.capture_outline_rectangle(font,c,trm,true)
+    }
+    fn capture_outline_rectangle(&self,font:&Font,c:&crate::font::CharCode,trm:&Matrix,scene:bool)->Option<[f64;4]>{
         if !self.gs.ink_geometry_complete
             || !self.gs.source_geometry_complete
             || self.gs.render != 0
@@ -151,9 +157,12 @@ impl Interp<'_> {
         {
             return None;
         }
-        let [x0, y0, x1, y1] = font.source_rectangle(self.doc, c)?;
+        let [x0, y0, x1, y1] = if scene {font.source_scene_rectangle(self.doc,c)?} else {font.source_rectangle(self.doc, c)?};
+        // PDF origin1 = origin0 + v; embedded outlines use origin0.
+        let (vx,vy)=if scene&&font.vertical{let(_,vx,vy)=font.vertical_metrics(c);(vx,vy)}else{(0.,0.)};
+        if !vx.is_finite()||!vy.is_finite(){return None;}
         let points = [[x0, y0], [x1, y0], [x1, y1], [x0, y1]].map(|[x, y]| {
-            let (x, y) = trm.apply(x / 1000., y / 1000.);
+            let (x, y) = trm.apply(x / 1000.-vx, y / 1000.-vy);
             [x, y]
         });
         let b = crate::cff_aj1::rectangles::filled_rectangle(&points)?;

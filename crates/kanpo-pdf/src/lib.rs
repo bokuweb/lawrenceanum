@@ -89,3 +89,5 @@ mod source_ruling;
 #[cfg(test)]mod source_ruling_pdf_tests;
 
 mod source_lineage;
+
+mod source_scene;

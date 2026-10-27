@@ -1,0 +1,173 @@
+{
+  "issue": 227,
+  "stage": 175,
+  "baseline_root_commit": "ba897d74d6feb5e591a613a1bf8573a1323787b3",
+  "baseline_worktree_commit": "b97c4960b6e9b1088a5a15d2b00880e13bdcc199",
+  "status": "adopted local candidate; publication/CI tracked separately",
+  "change": "Refine a record only with paired original field grids, a common original parent, exclusive original Word ownership and one-to-one counterpart insertion/deletion marker witnesses. Every target axis from the first transferred head to the old endpoint needs its own witness. Source paint uncertainty refuses the new pass.",
+  "general_rule": {
+    "existing_changed_marker_grammar_reused": true,
+    "new_page_company_title_font_name_CID_PUA_value_dispatch": false,
+    "new_character_neighbor_or_fixed_point_budgets": false,
+    "source_grid_binding": "Complete original occurrences and fields; derived legacy outer rectangle is not source identity.",
+    "source_scene": "Independently versioned complete original glyph partition, original raw/legacy-box occurrences and original paint. Unowned visible glyphs need actual outline proof, including whitespace-looking CID or explicit whitespace values.",
+    "outline": "Exact embedded CFF charset-selected rectangles; actual W2 vertical origins. Existing connected-chain geometric ruling proof reused without Unicode guessing.",
+    "images": "All original transformed image bounds remain obstacles except qualified first, unmasked/unclipped whole-page backgrounds whose complete decoded component tuples are identical. Scene pixel verification is lazy, exact-program cached, and uses strict complete zlib. It is not OCR.",
+    "paint": "Page line-inventory membership is insufficient. An overlapping original stroke must support a boundary of the actual candidate grid within its original physical paint interval; no numeric tolerance. Curves, Forms, unknown/malformed paint, invalid source coverage and missing/inconsistent scene data refuse.",
+    "node_order": "Original glyph ranges identify occurrences. Certificate and trace bindings are complete bijections, independent of XHTML source-node order. The pre-existing changed-marker necessary condition is evaluated before decoding scene metadata.",
+    "not_all_legacy_rules_generalized": true
+  },
+  "original_source": {
+    "key": "20260723g001630108",
+    "pdf": "data/native-marker-records/source.pdf",
+    "sha256": "2b179a76188691ee8f81e63c6a6b75ec8ee4de25ab145b76e29d9587e8c4afaf",
+    "original_review": "Root non-blind PDFium top/bottom review; long-stroke derived control also visually compared to the original. Not independent full-corpus scoring.",
+    "fixture_index": "data/native-marker-records/index.json"
+  },
+  "independent_expectation": {
+    "baseline": "data/native-marker-records/baseline.json",
+    "baseline_sha256": "795aae37ac8603ab58c36e15dcfd24b61c08b9281828784f3b11ace45c71d5fa",
+    "expected": "data/native-marker-records/expected.json",
+    "expected_sha256": "8d3645f86e738a1bca27525cc910484826f9e5a07790bdc6362c6b9bfbe3c645",
+    "reproducer": "data/native-marker-records/verify_expected.py",
+    "scope": "Construct complete Analysis from baseline167 with only three source-reviewed cuts. Preserve every original Word/raw/status/source and display rectangle, membership, article endpoints, other tables and all other fields; change the corresponding row/cell/line/text/Document representations. Candidate output is not used to construct the gold.",
+    "source_cuts": {
+      "after_old_row4": [
+        [
+          [
+            52
+          ],
+          [
+            53
+          ]
+        ],
+        [
+          [
+            56
+          ],
+          [
+            57
+          ]
+        ],
+        [
+          [
+            60
+          ],
+          [
+            61
+          ]
+        ]
+      ],
+      "before_old_row2": [
+        [
+          [
+            46
+          ],
+          [
+            47
+          ]
+        ],
+        [
+          [
+            50
+          ],
+          [
+            51
+          ]
+        ]
+      ]
+    }
+  },
+  "new_tests": {
+    "PDF_unit": 16,
+    "record_unit": 18,
+    "original_API": 20,
+    "metadata_compatibility": 1,
+    "total": 55,
+    "scope": "Arbitrary source vocabulary, field/record counts, scale/translation/tokenization and ownership/geometry negatives; original CFF/W2 origins with arbitrary CIDs/transforms; source images/fills/curves/Forms/short and long strokes; stale/partial/version/range/word/count/geometry evidence; reversed/interleaved source nodes; exact legacy HTML bytes and every current scene JSON field."
+  },
+  "failure_history": [
+    {
+      "case": "original marker-supported partial target",
+      "old_result": "after5/before6 instead of source-certified7/7",
+      "new_result": "7/7; full9/9 still unresolved"
+    },
+    {
+      "case": "derived original image/fill/curve/Form",
+      "private172": "four RED cases: incorrectly transferred cuts despite unobserved paint",
+      "private174": "all complete baseline Analysis preserved"
+    },
+    {
+      "case": "interior stroke long enough for native line inventory",
+      "167": "complete baseline Analysis preserved",
+      "173": "RED: wrongly transferred cuts",
+      "174": "GREEN: only actual candidate-grid boundaries qualify"
+    },
+    {
+      "case": "unmapped CID numerically equal to Unicode space",
+      "173_initial": "RED: visible unknown outline was ignored as whitespace",
+      "final": "GREEN: visible omitted glyph requires actual outline evidence"
+    },
+    {
+      "case": "normal Cargo integration",
+      "initial": "serde_json was available only as a dev dependency in both crates",
+      "final": "Existing workspace dependency promoted to ordinary dependencies; no version/package addition"
+    },
+    {
+      "case": "legacy corpus HTML",
+      "initial": "14 stored HTML pages differed only by additive scene metadata; corpus gate failed",
+      "final": "Stored HTML/text/gold/snapshots untouched; additive comparison helper checks all previous bytes and every current metadata field"
+    },
+    {
+      "case": "XHTML source-node permutation",
+      "initial": "two RED cases: list-order pairing discarded otherwise complete source evidence",
+      "final": "Original-range bijection; reversed/interleaved nodes retain complete expected Analysis"
+    }
+  ],
+  "limits": {
+    "target_after": 9,
+    "target_before": 9,
+    "proved_after": 7,
+    "proved_before": 7,
+    "remaining_unlabelled_boundaries": 4,
+    "full_target_9_by_9": "Two private RED source tests retained; not ignored, weakened or presented as completion.",
+    "other_issue227_work": "Unknown characters, complex tables and article/field scope remain. No fresh independent accuracy estimate and no fixed30-page rescore.",
+    "OCR": "Explicit opt-in only, NDLOCR0.0.15 rev f97e930b8c3e9512f7788f258ef685da26416483. No additional model."
+  },
+  "normal_native": {
+    "passed": 4116,
+    "failed": 0,
+    "ignored": 0,
+    "groups": 169,
+    "integration_targets": 161,
+    "all_default_examples": true,
+    "source_and_Cargo_prepost_exact": true,
+    "snapshot_updates_disabled": true
+  },
+  "actual_Cargo_release_and_CLI": {
+    "profile": "actual Cargo release, final W sources",
+    "single_complete_Analysis_exact_private_final": 11992,
+    "whole_complete_Analysis_exact_private_final": 159,
+    "actual_release_PDF_textdump_CLI_native_body_bytes_exact": 11992,
+    "single_duplicate_owner_pages": 0,
+    "CLI_duplicate_word_reports": 0,
+    "all_original_inputs_native_sources_Cargo_and_binaries_prepost_exact": true,
+    "seconds": 200.79885704199998,
+    "scope": "Full final actual-Cargo release public API Analysis and native CLI over original PDFs; Expected complete Analysis equals the frozen verified174 census: baseline167 plus three source-marker cuts in one original single/whole page, independently constructed from the original source. All other pages/structures/words/article cuts remain exact. No independent full-corpus accuracy claim."
+  },
+  "census_versus167": {
+    "single_total": 11992,
+    "single_changed": 1,
+    "single_unchanged_complete_Analysis": 11991,
+    "whole_total": 159,
+    "whole_changed": 1,
+    "whole_unchanged_complete_Analysis": 158,
+    "changed_key": "20260723g001630108",
+    "complete_single_and_240page_issue_equal_independent_source_gold": true
+  },
+  "shared_renderer": {
+    "existing_tests_passed": 10,
+    "failed": 0,
+    "actual_source_render": "Outer comparison and two7-row native tables,16rendered rows; all marker-supported name/location pairs retained"
+  }
+}

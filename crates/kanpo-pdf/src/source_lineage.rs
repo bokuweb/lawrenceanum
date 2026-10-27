@@ -6,6 +6,9 @@ pub(crate) struct Tape {
     complete: bool,
     obstacles: Vec<[f64; 4]>,
     ink: Vec<Ink>,
+    scene_images: Vec<[f64;4]>,
+    scene_backgrounds: Vec<(usize,BackgroundProgram)>,
+    scene_rectangles: std::collections::BTreeMap<usize,[f64;4]>,
 }
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct Edge {
@@ -142,6 +145,9 @@ impl Default for Capture {
                 complete: true,
                 obstacles: vec![],
                 ink: vec![],
+                scene_images: vec![],
+                scene_backgrounds: vec![],
+                scene_rectangles: Default::default(),
             },
             previous: None,
             armed: false,
@@ -152,6 +158,7 @@ impl Default for Capture {
 impl Capture {
     pub(crate) fn image(&mut self, b: [f64; 4], background_source: Option<crate::ObjRef>) {
         if b.iter().all(|n| n.is_finite()) && b[0] < b[2] && b[1] < b[3] {
+            self.tape.scene_images.push(b);
             self.pending_images.push((b, background_source));
         } else {
             self.incomplete();
@@ -165,6 +172,12 @@ impl Capture {
         self.armed = false;
     }
     pub(crate) fn finish(mut self, doc: &crate::Document) -> Tape {
+        // Keep only an eligible background program, without decoding pixels.
+        if self.tape.complete {
+            for (index,(_,r)) in self.pending_images.iter().enumerate(){
+                if let Some(program)=r.and_then(|r|background_program(doc,r)){self.tape.scene_backgrounds.push((index,program));}
+            }
+        }
         // Decode only when a source move could be used; never inspect image pixels
         // on the ordinary no-move path. OCR and text recognition are not involved.
         if self.tape.complete && !self.tape.edges.is_empty() {
@@ -526,6 +539,7 @@ mod uniform_image_tests {
 // classification. All source dictionary/context checks precede the cache. Key
 // equality uses exact decrypted encoded bytes, codec, component stride and full
 // expected length, not a digest, page identifier or a known pixel value.
+#[derive(Debug,Clone)]
 struct BackgroundProgram {
     flate: bool,
     expected: usize,
@@ -538,14 +552,10 @@ static BACKGROUND_PROGRAM_CACHE: std::sync::OnceLock<std::sync::Mutex<Option<Bac
 fn uniform_background_samples(doc: &crate::Document, r: crate::ObjRef) -> bool {
     uniform_background_samples_with_cache(doc, r, true)
 }
-fn uniform_background_samples_with_cache(
-    doc: &crate::Document,
-    r: crate::ObjRef,
-    cached: bool,
-) -> bool {
+fn background_program(doc:&crate::Document,r:crate::ObjRef)->Option<BackgroundProgram>{
     let obj = doc.resolve(&Object::Ref(r));
     let Some(s) = obj.as_stream() else {
-        return false;
+        return None;
     };
     let d = &s.dict;
     if [
@@ -562,20 +572,20 @@ fn uniform_background_samples_with_cache(
     .iter()
     .any(|k| d.contains_key(*k))
     {
-        return false;
+        return None;
     }
     if doc
         .dict_get(d, b"ImageMask")
         .is_some_and(|o| o != Object::Bool(false))
     {
-        return false;
+        return None;
     }
     if doc
         .dict_get(d, b"BitsPerComponent")
         .and_then(|o| o.as_i64())
         != Some(8)
     {
-        return false;
+        return None;
     }
     let components = match doc
         .dict_get(d, b"ColorSpace")
@@ -585,36 +595,46 @@ fn uniform_background_samples_with_cache(
         Some(b"DeviceGray") => 1usize,
         Some(b"DeviceRGB") => 3,
         Some(b"DeviceCMYK") => 4,
-        _ => return false,
+        _ => return None,
     };
     if let Some(decode) = doc.dict_get(d, b"Decode") {
         let Some(a) = decode.as_array() else {
-            return false;
+            return None;
         };
         if a.len() != 2 * components || !a.iter().all(|v| v.as_f64().is_some_and(f64::is_finite)) {
-            return false;
+            return None;
         }
     }
     if let Some(filter) = doc.dict_get(d, b"Filter") {
         match filter {
             Object::Name(n) if n == b"FlateDecode" => {}
-            _ => return false,
+            _ => return None,
         }
     }
     let Some(w) = crate::source_images::dimension(doc.dict_get(d, b"Width"))
         .and_then(|v| usize::try_from(v).ok())
     else {
-        return false;
+        return None;
     };
     let Some(h) = crate::source_images::dimension(doc.dict_get(d, b"Height"))
         .and_then(|v| usize::try_from(v).ok())
     else {
-        return false;
+        return None;
     };
     let Some(expected) = w.checked_mul(h).and_then(|v| v.checked_mul(components)) else {
-        return false;
+        return None;
     };
     let flate = doc.dict_get(d, b"Filter").is_some();
+
+ Some(BackgroundProgram{flate,expected,components,encoded:s.data.clone(),uniform:false})
+}
+fn uniform_background_samples_with_cache(
+    doc: &crate::Document,
+    r: crate::ObjRef,
+    cached: bool,
+) -> bool {
+    let Some(program)=background_program(doc,r)else{return false;};
+    let (expected,components,flate)=(program.expected,program.components,program.flate);
     if cached {
         if let Ok(cache) = BACKGROUND_PROGRAM_CACHE
             .get_or_init(Default::default)
@@ -624,14 +644,14 @@ fn uniform_background_samples_with_cache(
                 if entry.flate == flate
                     && entry.expected == expected
                     && entry.components == components
-                    && entry.encoded == s.data
+                    && entry.encoded == program.encoded
                 {
                     return entry.uniform;
                 }
             }
         }
     }
-    let uniform = doc.decode_stream(s).ok().is_some_and(|bytes| {
+    let uniform = doc.resolve(&Object::Ref(r)).as_stream().and_then(|s|doc.decode_stream(s).ok()).is_some_and(|bytes| {
         bytes.len() == expected
             && bytes
                 .get(..components)
@@ -646,7 +666,7 @@ fn uniform_background_samples_with_cache(
                 flate,
                 expected,
                 components,
-                encoded: s.data.clone(),
+                encoded: program.encoded.clone(),
                 uniform,
             });
         }
@@ -995,3 +1015,6 @@ mod program_identity_contract_tests {
         }
     }
 }
+
+#[path="source_scene_capture.rs"]
+mod scene;

@@ -69,7 +69,7 @@ impl Bounds {
 
 // Accept a whole marker, not a substring of prose. Numbered/ranged omissions are
 // publication grammar; the number and its length are not fixed to an example.
-fn marker(text: &str) -> Option<bool> {
+pub(super) fn marker(text: &str) -> Option<bool> {
     let s: String = text.chars().filter(|c| !c.is_whitespace()).collect();
     let mut rest = s.as_str();
     let number = |s: &str| {

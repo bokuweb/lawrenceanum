@@ -25,7 +25,7 @@ use std::path::{Path, PathBuf};
 // Original glyph/envelope/font-size contracts are tested in kanpo-pdf.
 fn source_payload(actual: &str, expected: &str) -> String {
     let mut out = actual.to_owned();
-    for needle in [" data-native-cell-origin=\"", " data-native-advance-band=\"", " data-native-terminal-glyph=\"", " data-native-font-aliases=\"", " data-native-lineage-coverage=\"", " data-native-lineage-obstacles=\"", " data-native-lineage-ink=\"", " data-native-line-moves=\""] {
+    for needle in [" data-native-cell-origin=\"", " data-native-advance-band=\"", " data-native-terminal-glyph=\"", " data-native-font-aliases=\"", " data-native-lineage-coverage=\"", " data-native-lineage-obstacles=\"", " data-native-lineage-ink=\"", " data-native-line-moves=\"", " data-native-scene=\""] {
         if expected.contains(needle) {
             continue;
         }
@@ -260,4 +260,24 @@ fn line_move_metadata160_preserves_legacy_payload_and_checks_every_current_field
  assert_eq!(source_payload(&current,old),old);
  assert_eq!(source_payload(&current,&current),current);
  for changed in [current.replace("1 8 -","1 9 -"),current.replace("obstacles=\"1 -","obstacles=\"1 1,2,3,4"),current.replace("L:0,0,0,8,-1,-1,1,9","L:0,0,0,8,-2,-1,1,9"),current.replace("0:3:8","0:4:8"),current.replace("612062","612063"),current.replace("a b","ab"),current.replace("xmin=\"10","xmin=\"11"),current.replace(" data-native-axis"," data-native-unrecognized=\"changed\" data-native-axis")]{assert_ne!(source_payload(&changed,&current),current);}
+}
+
+#[test]
+fn native_scene_metadata_preserves_legacy_bytes_and_checks_every_current_field(){
+ let input=kanpo_parser::page_inputs(&std::fs::read(Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/data/native-marker-records/source.pdf")).unwrap()).unwrap();
+ let html=&input[0].xhtml;let document=scraper::Html::parse_document(html);
+ let page=document.select(&scraper::Selector::parse("page").unwrap()).next().unwrap();
+ let packet:serde_json::Value=serde_json::from_str(page.value().attr("data-native-scene").unwrap()).unwrap();
+ let rewrite=|packet:Option<&serde_json::Value>|{
+  let mut output=html.clone();let needle=" data-native-scene=\"";let start=output.find(needle).unwrap();let from=start+needle.len();let end=from+output[from..].find('"').unwrap()+1;
+  let value=packet.map(|v|format!("{needle}{}\"",v.to_string().replace('&',"&amp;").replace('"',"&quot;").replace('<',"&lt;").replace('>',"&gt;"))).unwrap_or_default();output.replace_range(start..end,&value);output
+ };
+ let current=rewrite(Some(&packet));let historical=rewrite(None);
+ assert_eq!(source_payload(&current,&historical),historical);
+ assert_eq!(source_payload(&current,&current),current);
+ for key in packet.as_object().unwrap().keys(){let mut changed=packet.clone();changed[key]=serde_json::Value::Null;assert_ne!(source_payload(&rewrite(Some(&changed)),&current),current,"{key}");}
+ for changed in [current.replacen("<word ","<word data-native-unrecognized=\"changed\" ",1),current.replacen("xmin=\"","xmin=\"1",1),current.replacen("data-native-axis=\"down\"","data-native-axis=\"right\"",1)]{
+  assert_ne!(source_payload(&changed,&historical),historical);
+  assert_ne!(source_payload(&changed,&current),current);
+ }
 }

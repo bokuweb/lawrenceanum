@@ -598,6 +598,8 @@ impl Interp<'_> {
             let kern = step(pending_kern,legacy_kern);
             let bbox = bounds(&trm, bbox_pts);
             let ink_rect=if self.source_rects.is_some(){self.capture_ink_rectangle(&font,&c,&trm)}else{None};
+            let scene_rect=if self.source_lineage.is_some(){if font.vertical&&!crate::bbox::readable_ordering(font.ordering.as_deref(),font.has_to_unicode){self.capture_scene_rectangle(&font,&c,&trm)}else{ink_rect}}else{None};
+            if let Some(tape)=self.source_lineage.as_mut(){tape.scene_rectangle(self.glyphs.len(),scene_rect);}
             self.tm = advance.then(&self.tm);
             self.glyphs.push(Glyph {
                 text: font.unicode(&c),

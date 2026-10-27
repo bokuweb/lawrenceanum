@@ -379,7 +379,13 @@ impl Font {
     /// Geometry from this exact embedded program and actual Identity CID route.
     /// Explicit ToUnicode is neither replaced nor used to infer an outline.
     pub(crate) fn source_rectangle(&self,doc:&Document,c:&CharCode)->Option<[f64;4]> {
-        if !self.composite||!self.source_cid0||!self.identity_encoding||self.vertical{return None;}
+        if self.vertical{return None;}
+        self.source_scene_rectangle(doc,c)
+    }
+    // Scene-only primitive evidence. This does not add vertical rulings or words
+    // to legacy layout; the same exact embedded charset route is required.
+    pub(crate) fn source_scene_rectangle(&self,doc:&Document,c:&CharCode)->Option<[f64;4]> {
+        if !self.composite||!self.source_cid0||!self.identity_encoding{return None;}
         let cid=u16::try_from(c.cid).ok()?;
         self.source_rectangles.get_or_init(||{
             let bytes=doc.decode_stream(self.source_cff.as_ref()?).ok()?;

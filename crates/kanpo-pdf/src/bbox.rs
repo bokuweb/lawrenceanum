@@ -106,10 +106,13 @@ pub fn display_boxes(page: &Page, boxes: &[[f64; 4]]) -> Vec<Option<[f64; 4]>> {
 /// （Adobe-Npb1 など）で ToUnicode も無いフォントを読めずに捨てる。官報では傍線などの
 /// 罫線用の字形のフォントがこれにあたる。
 pub fn poppler_readable(font: &FontInfo) -> bool {
-    match font.ordering.as_deref() {
+    readable_ordering(font.ordering.as_deref(),font.has_to_unicode)
+}
+pub(crate) fn readable_ordering(ordering:Option<&str>,has_to_unicode:bool)->bool {
+    match ordering {
         None => true,
         Some("Japan1" | "Japan2" | "GB1" | "CNS1" | "Korea1" | "KR" | "Identity") => true,
-        Some(_) => font.has_to_unicode,
+        Some(_) => has_to_unicode,
     }
 }
 
@@ -441,12 +444,14 @@ fn layout<'a>(pages: impl IntoIterator<Item=(&'a Page,Option<&'a [Option<char>]>
         } else {
             (page.width, page.height)
         };
+        let native_words=words(page);
         let coverage=if emit_styles{lineage.and_then(|l|l.coverage_attribute(page)).map(|x|format!(" data-native-lineage-coverage=\"{x}\"")).unwrap_or_default()}else{String::new()};
         let obstacles=if emit_styles{lineage.and_then(|l|l.obstacle_attribute()).map(|x|format!(" data-native-lineage-obstacles=\"{x}\"")).unwrap_or_default()}else{String::new()};
         let ink=if emit_styles{lineage.and_then(|l|l.ink_attribute()).map(|x|format!(" data-native-lineage-ink=\"{x}\"")).unwrap_or_default()}else{String::new()};
         let count=if emit_styles{format!(" data-native-glyph-count=\"{}\"",page.glyphs.len())}else{String::new()};
-        let _ = writeln!(s, "  <page width=\"{w:.6}\" height=\"{h:.6}\"{count}{coverage}{obstacles}{ink}>");
-        for word in words(page) {
+        let scene=if emit_styles{lineage.and_then(|l|l.scene_attribute(page,&native_words)).map(|x|format!(" data-native-scene=\"{}\"",escape(&x))).unwrap_or_default()}else{String::new()};
+        let _ = writeln!(s, "  <page width=\"{w:.6}\" height=\"{h:.6}\"{count}{coverage}{obstacles}{ink}{scene}>");
+        for word in native_words {
             let attrs = format!(
                 "xMin=\"{:.6}\" yMin=\"{:.6}\" xMax=\"{:.6}\" yMax=\"{:.6}\"",
                 word.x_min, word.y_min, word.x_max, word.y_max
