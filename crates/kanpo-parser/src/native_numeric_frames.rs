@@ -37,7 +37,7 @@ struct Plan {
 fn unsigned(s: &str) -> &str {
     s.strip_prefix(['△', '▲', '−', '－', '+', '-']).unwrap_or(s)
 }
-fn amount(s: &str) -> bool {
+pub(crate) fn amount(s: &str) -> bool {
     let s = unsigned(s);
     let mut parts = s.split('.');
     let whole = parts.next().unwrap_or("");

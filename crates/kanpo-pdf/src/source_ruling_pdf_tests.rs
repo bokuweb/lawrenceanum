@@ -136,7 +136,9 @@ fn unsupported_masks_patterns_clips_text_modes_and_shears_are_not_certificates()
         ("/ArbitraryState gs", "", "/Font [/F1 8]"),
     ] {
         let bytes = pdf(73, rectangle(73), prefix, text, gs, "Identity-H");
-        assert!(!has_rule(&html(&bytes)), "{prefix} {text} {gs}");
+        let html = html(&bytes);
+        assert!(!has_rule(&html), "{prefix} {text} {gs}");
+        assert!(!html.contains("data-native-outline-rectangle"), "{prefix} {text} {gs}");
     }
 }
 #[test]
@@ -212,4 +214,27 @@ fn vertical_outline_positions_use_actual_W2_metrics_under_independent_transforms
    assert!(!has_rule(&bbox::bbox_layout_with_native_styles(&sources)));
   }
  }
+}
+
+#[test]
+fn complete_owned_rectangle_words_keep_original_outline_evidence() {
+    for cid in [73, 43021] {
+        let bytes = pdf(cid, rectangle(cid), "", "", "", "Identity-H");
+        let legacy = bbox::bbox_layout(&extract_pages(&bytes).unwrap());
+        assert!(!legacy.contains("data-native-outline-rectangle"));
+        let styled = html(&bytes);
+        assert!(styled.contains("data-native-outline-rectangle=\"1 "), "arbitrary CID {cid}");
+    }
+}
+#[test]
+fn original_amount_marks_have_their_exact_embedded_word_outlines() {
+    let sources = extract_pages_with_aj1_sources(include_bytes!("../../kanpo-parser/tests/data/native-amount-marks/20260902g001960127.pdf")).unwrap();
+    let styled = bbox::bbox_layout_with_native_styles(&sources);
+    let marks = styled.lines().filter(|l| l.contains(">\u{e61c}</word>"));
+    let mut count = 0;
+    for word in marks {
+        assert!(word.contains("data-native-outline-rectangle=\"1 "), "missing native mark geometry");
+        count += 1;
+    }
+    assert_eq!(count, 12);
 }

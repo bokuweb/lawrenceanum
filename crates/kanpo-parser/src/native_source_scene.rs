@@ -158,6 +158,12 @@ pub(crate) fn for_page(page: scraper::ElementRef, rules: &PageRules) -> Option<S
     })
 }
 impl Scene {
+    pub(crate) fn unobstructed(&self, b: [f32; 4]) -> bool {
+        let b = b.map(f64::from);
+        let overlaps = |a: Rect| a[0] < b[2] && b[0] < a[2] && a[1] < b[3] && b[1] < a[3];
+        valid(b) && self.obstacles.iter().all(|&a| !overlaps(a))
+            && self.lines.iter().all(|&(_,paint,_)| !overlaps(paint))
+    }
     pub(crate) fn matches(&self, words: &[Word]) -> bool {
         if words.len() != self.words.len() || words.iter().enumerate().any(|(id, w)| w.id != id) {
             return false;

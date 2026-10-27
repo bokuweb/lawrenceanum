@@ -462,6 +462,8 @@ fn layout<'a>(pages: impl IntoIterator<Item=(&'a Page,Option<&'a [Option<char>]>
             let ruling=if emit_styles {ink_rects.and_then(|r|crate::source_ruling::word_ruling(page,&word,r)).map(|(axis,[x0,y0,x1,y1])|{
                 format!(" data-native-ruling=\"{axis}\" data-native-ink-xmin=\"{x0}\" data-native-ink-ymin=\"{y0}\" data-native-ink-xmax=\"{x1}\" data-native-ink-ymax=\"{y1}\"")
             }).unwrap_or_default()}else{String::new()};
+            let outline=if emit_styles {ink_rects.and_then(|r|crate::source_ruling::word_outline_attribute(page,&word,r))
+                .map(|v|format!(" data-native-outline-rectangle=\"{v}\"")).unwrap_or_default()}else{String::new()};
             let flow=if emit_styles {native_axis_flow_tuple(page,&word).map(|[start,baseline,end,leading]|{ let trailing=page.glyphs[*word.glyphs.last().unwrap()].spacing; let prefix=page.glyphs[word.glyphs[0]].kern; format!(" data-native-flow-start=\"{start}\" data-native-flow-baseline=\"{baseline}\" data-native-flow-end=\"{end}\" data-native-flow-leading=\"{leading}\" data-native-flow-trailing=\"{trailing}\" data-native-flow-prefix=\"{prefix}\"") }).unwrap_or_default()}else{String::new()};
             let advance_band = if emit_styles && native_axis_flow_tuple(page, &word).is_none() {
                 native_advance_band::from_word(page, &word)
@@ -485,7 +487,7 @@ fn layout<'a>(pages: impl IntoIterator<Item=(&'a Page,Option<&'a [Option<char>]>
             let resolved = if resolved_aj1_word(page, &word) { " data-unicode-aj1=\"1\"" } else { "" };
             let _ = writeln!(
                 s,
-                "    <flow>\n      <block {attrs}>\n        <line {attrs}>\n          <word {attrs}{native}{resolved}{source_attr}{styles}{content}{axis}{ruling}{flow}{range}{cell_origin}{advance_band}{terminal}{alias}{moves}>{}</word>\n        </line>\n      </block>\n    </flow>",
+                "    <flow>\n      <block {attrs}>\n        <line {attrs}>\n          <word {attrs}{native}{resolved}{source_attr}{styles}{content}{axis}{ruling}{flow}{range}{cell_origin}{advance_band}{terminal}{alias}{moves}{outline}>{}</word>\n        </line>\n      </block>\n    </flow>",
                 escape(&word.text)
             );
         }
