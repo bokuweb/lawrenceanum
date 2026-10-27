@@ -38,7 +38,7 @@ fn parent_frame(rules: &Value, page: &Value, t: &Value) -> Frame {
     assert_eq!(answers.len(), 1, "one complete original parent inventory");
     answers.remove(0)
 }
-fn source_baselines(xhtml: &str, page: &Value) -> BTreeMap<usize, Option<f64>> {
+pub(super) fn source_baselines(xhtml: &str, page: &Value) -> BTreeMap<usize, Option<f64>> {
     let dom = scraper::Html::parse_document(xhtml);
     let sel = scraper::Selector::parse("word").unwrap();
     let mut by = BTreeMap::<(String, [u32; 4]), Vec<scraper::ElementRef<'_>>>::new();

@@ -316,8 +316,18 @@ fn reviewed_projection_with_parent(
     old: &Value,
     new: &Value,
     rules: &[Value],
+    parent: impl FnMut(usize, &Value, &Value, &Value),
+) -> usize {
+    reviewed_projection_with_min_columns(old, new, rules, 3, parent)
+}
+fn reviewed_projection_with_min_columns(
+    old: &Value,
+    new: &Value,
+    rules: &[Value],
+    min_columns: usize,
     mut parent: impl FnMut(usize, &Value, &Value, &Value),
 ) -> usize {
+    assert!(min_columns >= 2);
     assert_eq!(old["format"], new["format"]);
     assert_eq!(array(&old["pages"]).len(), array(&new["pages"]).len());
     assert_eq!(array(&old["pages"]).len(), rules.len());
@@ -355,7 +365,7 @@ fn reviewed_projection_with_parent(
                     .get("table")
                     .expect("only complete primitive rows can change");
                 let (rows, cols) = (n(&t["rows"]), n(&t["cols"]));
-                assert!(rows > 0 && cols >= 3 && at + rows <= before.len());
+                assert!(rows > 0 && cols >= min_columns && at + rows <= before.len());
                 assert!(array(&l["words"]).is_empty());
                 assert_eq!(array(&t["cells"]).len(), rows * cols);
                 let original = &before[at..at + rows];
@@ -561,4 +571,19 @@ pub(crate) fn material_projection_for_counterexample(
     rules: &[Value],
 ) -> usize {
     reviewed_projection_with_parent(old, new, rules, |_, _, _, _| {})
+}
+
+#[path = "native_numeric_lexical_contracts.rs"]
+mod lexical_contracts;
+#[allow(unused_imports)]
+pub(crate) use lexical_contracts::reviewed_lexical_projection;
+
+// Deliberately omits authority only for the coordinated-corruption control.
+#[allow(dead_code)]
+pub(crate) fn lexical_material_projection_for_counterexample(
+    old: &Value,
+    new: &Value,
+    rules: &[Value],
+) -> usize {
+    reviewed_projection_with_min_columns(old, new, rules, 2, |_, _, _, _| {})
 }

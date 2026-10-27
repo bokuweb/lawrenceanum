@@ -109,23 +109,63 @@ fn compact(s: &str) -> String {
     s.chars().filter(|c| !c.is_whitespace()).collect()
 }
 fn source_label(s: &str) -> bool {
-    if s.trim().is_empty() {
-        return false;
-    }
-    if !s.chars().any(char::is_numeric) {
-        return true;
-    }
-    let Some((marker, body)) = s.split_once(char::is_whitespace) else {
+    let mut fields = s.split_whitespace();
+    let Some(first) = fields.next() else {
         return false;
     };
-    // Unicode Roman enumerators are a label prefix, not another amount lane.
-    !marker.is_empty()
-        && marker
+    // An amount is a whole numeric field. Digits embedded in a lexical label
+    // (a year, identifier or footnote) do not create another amount rail.
+    // A separate bare number remains ambiguous and cannot be hidden in a label.
+    let literal = |field: &str| {
+        let cs = field.chars().collect::<Vec<_>>();
+        let alpha = |c: char| c.is_alphabetic() && !c.is_numeric();
+        let mut at = 0;
+        while at < cs.len() {
+            if !cs[at].is_numeric() {
+                at += 1;
+                continue;
+            }
+            let start = at;
+            while at < cs.len() && cs[at].is_numeric() {
+                at += 1;
+            }
+            let embedded = start > 0 && at < cs.len() && alpha(cs[start - 1]) && alpha(cs[at]);
+            // Dedicated reference/dagger marks introduce annotation numbers.
+            // A bare terminal number can instead be an accidentally joined
+            // amount; neither lexical text nor a neighboring row proves it.
+            let note = at == cs.len()
+                && start > 0
+                && matches!(cs[start - 1], '※' | '†' | '‡')
+                && cs[..start - 1].iter().copied().any(alpha);
+            if !embedded && !note {
+                return false;
+            }
+        }
+        true
+    };
+    let roman = !first.is_empty()
+        && first
             .chars()
-            .all(|c| ('Ⅰ'..='Ⅿ').contains(&c) || ('ⅰ'..='ⅿ').contains(&c))
-        && !body.trim().is_empty()
-        && !body.chars().any(char::is_numeric)
+            .all(|c| ('Ⅰ'..='Ⅿ').contains(&c) || ('ⅰ'..='ⅿ').contains(&c));
+    let enclosed = first
+        .strip_prefix('(')
+        .and_then(|s| s.strip_suffix(')'))
+        .or_else(|| first.strip_prefix('（').and_then(|s| s.strip_suffix('）')))
+        .is_some_and(|n| {
+            !n.is_empty()
+                && n.chars()
+                    .all(|c| c.is_ascii_digit() || ('０'..='９').contains(&c))
+        });
+    if roman || enclosed {
+        let Some(body) = fields.next() else {
+            return false;
+        };
+        literal(body) && fields.all(literal)
+    } else {
+        literal(first) && fields.all(literal)
+    }
 }
+
 fn row(
     l: &Line,
     index: usize,
@@ -540,9 +580,9 @@ pub(crate) fn restore(
 mod tests;
 
 #[cfg(test)]
-#[path="native_numeric_matrix_tests152.rs"]
+#[path = "native_numeric_matrix_tests152.rs"]
 mod matrix152_tests;
 
-#[path="native_numeric_matrix.rs"]
+#[path = "native_numeric_matrix.rs"]
 mod matrix;
 pub(crate) use matrix::restore as restore_matrix;

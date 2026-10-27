@@ -432,3 +432,6 @@ fn compound153_an_unsupported_later_source_row_blocks_both_parts() {
     }
     decline152(s);
 }
+
+#[path = "native_numeric_lexical_labels_tests155.rs"]
+mod lexical155;

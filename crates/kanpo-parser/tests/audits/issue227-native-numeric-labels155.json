@@ -1,0 +1,253 @@
+{
+  "issue": 227,
+  "stage": "native155",
+  "date": "2026-10-27",
+  "baseline_local": "d1c92d421e413161a4f4a3537cdc91cf0075aabf",
+  "baseline_publication": "761f9dd3f6328570e4dbb30a2a7e39cdec172b1e",
+  "problem": "Numeric label characters were rejected indiscriminately, leaving source item/rate rows as joined prose despite an original capped frame and a shared terminal numeric rail.",
+  "runtime_rule": "Numeric runs embedded between alphabetic source characters, separate leading balanced decimal enumerators, or dedicated reference/dagger annotations remain literal label content. Bare terminal/separate numbers and unpunctuated leading integers stay ambiguous. Existing whole-frame source inventory, native direction/baseline, exact terminal rail, shared empty gutter, role/unit and prior grid authority remain unchanged.",
+  "not_added": [
+    "page/title/year/value/company/person/font-name/CID/PUA runtime dispatch",
+    "fixed point tolerance",
+    "character or neighboring-row budgets",
+    "amount/hierarchy/unknown-character restitution",
+    "OCR or optional language models"
+  ],
+  "TDD": {
+    "new_unit_controls": 18,
+    "refined18_against153": {
+      "passed": 12,
+      "failed": 6
+    },
+    "broad_v3_rejected": {
+      "numeric_passed": 127,
+      "numeric_failed": 1,
+      "unchanged_old_negative": "numeric148_multiple_numeric_lanes_are_not_folded_into_the_label"
+    },
+    "final_private_numeric": {
+      "passed": 128,
+      "failed": 0
+    },
+    "final_private_all_parser": {
+      "passed": 2656,
+      "failed": 0
+    },
+    "original_API_against153": {
+      "passed": 4,
+      "failed": 3
+    },
+    "original_API_final": {
+      "passed": 7,
+      "failed": 0
+    },
+    "intentional_corruptions": 13,
+    "coordinated_material_only_pass_but_source_reject": 2
+  },
+  "source_review": {
+    "reviewer": "root implementer, nonblind",
+    "original_full_PDFs_viewed": [
+      {
+        "key": "20260724g001650655",
+        "PDF_sha256": "9b2c921c48b3f3d4829cd1eba60a3e4deae6d77b81fa79ffa9fd40a0775f494b",
+        "image_sha256": "48be88fd31caf93bc55cb85b6337d85166817c547b38c9a6e626e6e36268b7f7",
+        "original_source_XHTML_sha256": "36e58135f4ef84f7565f2a826e5164bf36551d2b96ac0b40c1be4bd03ac6cea3",
+        "original_source_rules_sha256": "948cf02689f32af5073d6a7c1ba0ceeb3b6f528f0a79f661d7a7ece8f74e60ad",
+        "all_new_rows_manually_compared": true
+      },
+      {
+        "key": "20260724g001650656",
+        "PDF_sha256": "3a395acdfedd76d7f5a80cf464ef5da4f7933db095e787679eb379e0e01d626f",
+        "image_sha256": "e3f83d761d33c7ac753f6ad06b1e465ae07855bdb3ac6d7ac890cdaef7168019",
+        "original_source_XHTML_sha256": "aa08131b0ea5408fc62a95ac8644dfa1f52d8170b78429424bbd05c5d42dcda0",
+        "original_source_rules_sha256": "aca332d0af4d37ffea9256a7acc737f920655149d40277404d611d71e2dc3170",
+        "all_new_rows_manually_compared": true
+      }
+    ],
+    "new_source_labels_and_rates": 40,
+    "new_source_cells": 80,
+    "manual_fixture": {
+      "path": "tests/data/native-numeric-labels/rates-source40rows155.json",
+      "sha256": "b790bed9818850db92c0343aa37226454cfe57ba7cddaeb30204fd236f456321"
+    },
+    "source_scope": "Twenty independently labelled two-rate groups over two actual consecutive original pages. Original year headings remain outside the new per-group tables; unknown composite marker glyphs remain unchanged.",
+    "preservation": "Full native words/raw/status/geometry/order/multiplicity, all source row glyph ownership, original labels/rates and ASCII/U3000, old opaque grids/merges and NoticeSourceSpan streams verified separately. All unrelated completeAnalysis11990single/158books equal153.",
+    "limitations": [
+      "Not blinded or independently reviewed accuracy gold.",
+      "Not all original characters restored; composite PUA markers remain absent/empty as153.",
+      "Does not newly infer old/new comparison roles, hierarchy or cross-page global table schema.",
+      "Source654 still unchanged because exact original terminal edges differ and composite source label origins coincide; no fixed point tolerance or glyph-name dispatch introduced.",
+      "ActualCargo10originaldebugexamples completed; not full11992CLI/releasevalidation."
+    ],
+    "OCR": "explicit opt-in, NDLOCR0.0.15 pinned and unused",
+    "goal_100_percent_achieved": false,
+    "actual_Cargo": {
+      "original_PDFs": 10,
+      "actual_Cargo_library_full_Analysis_equal_private_v4": 10,
+      "actual_Cargo_PDF_textdump": 10,
+      "actual_Cargo_XHTML_textdump": 10,
+      "actual_Cargo_text_example": 10,
+      "actual_Cargo_docjson_singletons": 10,
+      "actual_Cargo_consecutive_three_page_docjson": 1,
+      "duplicate_word_reports": 0,
+      "source_and_binaries_prepost_exact": true,
+      "scope": "Actual Cargo debug examples on all2changed originals and8controls; not full11992CLI or release validation."
+    }
+  },
+  "original_frames": [
+    {
+      "page": "20260724g001650655",
+      "original_frame": {
+        "x0": 430.75,
+        "y0": 74.571,
+        "x1": 774.75,
+        "y1": 549.0,
+        "closed_top": true,
+        "closed_bottom": false
+      },
+      "all_original_Word_records": 177,
+      "original_used_Words": 161,
+      "all_Word_fields_status_coordinates_order_multiplicity_unchanged": true
+    },
+    {
+      "page": "20260724g001650656",
+      "original_frame": {
+        "x0": 430.75,
+        "y0": 46.0,
+        "x1": 774.75,
+        "y1": 310.5,
+        "closed_top": false,
+        "closed_bottom": true
+      },
+      "all_original_Word_records": 391,
+      "original_used_Words": 303,
+      "all_Word_fields_status_coordinates_order_multiplicity_unchanged": true
+    }
+  ],
+  "footprints": {
+    "single": {
+      "mode": "single",
+      "items": 11992,
+      "changed": 2,
+      "inputs_sources_binaries_exact": true,
+      "seconds": 278.27014183299997,
+      "scope": "Private155 lexical/native label source grammar prototype impact only; not adopted/published."
+    },
+    "whole": {
+      "mode": "whole",
+      "items": 159,
+      "changed": 1,
+      "inputs_sources_binaries_exact": true,
+      "seconds": 547.186276542,
+      "scope": "Private155 lexical/native label source grammar prototype impact only; not adopted/published."
+    }
+  },
+  "preservation": {
+    "single": {
+      "changed_items": 2,
+      "native_table_fragments": 20,
+      "source_rows": 40,
+      "old_articles": 2,
+      "unrelated_ArticleAnalysis_exact": 0,
+      "all_native_Word_fields_status_coordinates_source_order_multiplicity": true,
+      "all_body_text_bytes_and_region_article_ownership": true,
+      "all_Document_characters_styles_ASCII_U3000_and_opaque_rows_cells_merges_order": true,
+      "all_notice_source_word_streams_and_other_graph_metadata": true
+    },
+    "whole": {
+      "changed_items": 1,
+      "native_table_fragments": 20,
+      "source_rows": 40,
+      "old_articles": 5,
+      "unrelated_ArticleAnalysis_exact": 4,
+      "all_native_Word_fields_status_coordinates_source_order_multiplicity": true,
+      "all_body_text_bytes_and_region_article_ownership": true,
+      "all_Document_characters_styles_ASCII_U3000_and_opaque_rows_cells_merges_order": true,
+      "all_notice_source_word_streams_and_other_graph_metadata": true
+    }
+  },
+  "whole_original_source_certificate": {
+    "table_fragments": 20,
+    "rows": 40,
+    "changed_PageTraces_exact_single_before_after": true,
+    "all_unchanged_pages_material_exact": true,
+    "source_XHTML_rules": "Reproduced directly from the two original committed PDFs; raw+float32SourceBox identity binds each original flow. Unchanged pages need no new authority certificate.",
+    "full_book_original_articles": 5,
+    "unrelated_articles_exact": 4
+  },
+  "renderer": {
+    "passed": 9,
+    "failed": 0,
+    "actual_shared_renderer_source_unchanged": true,
+    "actual_backend_documents": 2,
+    "all_new_original_labels_rates_compared": 40,
+    "existing_grids_unchanged": 2
+  },
+  "native_gate": {
+    "terminal": 0,
+    "commands": 2,
+    "integration_targets": 153,
+    "result_groups": 161,
+    "passed": 3780,
+    "failed": 0,
+    "ignored": 0,
+    "source_manifest_sha256": "4d70e1ec422e0bdfcb80676e1899c6fc1e75bba8a7bede77331cf0d24120c92e",
+    "source_and_all_existing_test_inputs_prepost_exact": true,
+    "snapshot_updates_disabled": true
+  },
+  "actual_Cargo_CLI": {
+    "original_PDFs": 10,
+    "actual_Cargo_library_full_Analysis_equal_private_v4": 10,
+    "actual_Cargo_PDF_textdump": 10,
+    "actual_Cargo_XHTML_textdump": 10,
+    "actual_Cargo_text_example": 10,
+    "actual_Cargo_docjson_singletons": 10,
+    "actual_Cargo_consecutive_three_page_docjson": 1,
+    "duplicate_word_reports": 0,
+    "source_and_binaries_prepost_exact": true,
+    "scope": "Actual Cargo debug examples on all2changed originals and8controls; not full11992CLI or release validation."
+  },
+  "old_anchors": {
+    "all_old_native_assets": 2874,
+    "all_old_snapshots": 814,
+    "all_exact": true,
+    "baseline": "d1c92d421e413161a4f4a3537cdc91cf0075aabf"
+  },
+  "runtime_equivalence": {
+    "all_parser_sources": 247,
+    "all_byte_or_rustfmt_equivalent": true,
+    "normalization": "Strip only rustfmt exact input filename prolog; no Rust source substitutions.",
+    "rustfmt_only": [
+      "native_numeric_frames.rs",
+      "native_numeric_compound_tests153.rs",
+      "native_numeric_lexical_labels_tests155.rs"
+    ],
+    "private": "private-v4 frozen11992single159whole source",
+    "worktree": "/Users/bokuweb/.codex/worktrees/issue227-comparison-roles147/lawrenceanum"
+  },
+  "frozen_manifest_files": {
+    "single": 12246,
+    "whole": 12246
+  },
+  "unadopted_precedence154": {
+    "single_originals": 11992,
+    "whole_items": 159,
+    "changed": 0,
+    "adopted": false,
+    "synthetic_controls_private_only": 18
+  },
+  "remaining": [
+    "Source65420-rate witness stillRED; exact source amount endpoints differ, composite label origins coincide. No tolerance bypass.",
+    "Unresolved composite PUA enumerators remain empty as153.",
+    "Does not newly infer before/after roles, source table hierarchy or a global schema across unseen page continuations.",
+    "Other character/layout/article ownership failures remain.",
+    "Historical fixed30audit139 remains native138 history; no100percent or new whole-corpus accuracy rate."
+  ],
+  "OCR": {
+    "opt_in": true,
+    "NDLOCR": "0.0.15",
+    "revision": "f97e930b8c3e9512f7788f258ef685da26416483",
+    "invoked": false
+  },
+  "additional_models_used": false,
+  "goal_100_percent_achieved": false
+}

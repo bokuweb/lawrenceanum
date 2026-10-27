@@ -11,6 +11,8 @@ import sourceStatementRows from "../../crates/kanpo-parser/tests/data/native-num
 
 import sourceCompoundDocument from "../../crates/kanpo-parser/tests/data/native-numeric-parents/expenses-document153.json";
 import sourceCompoundRows from "../../crates/kanpo-parser/tests/data/native-numeric-parents/expenses-source-74rows153.json";
+import sourceRateDocuments from "../../crates/kanpo-parser/tests/data/native-numeric-labels/rates-documents155.json";
+import sourceRateRows from "../../crates/kanpo-parser/tests/data/native-numeric-labels/rates-source40rows155.json";
 
 const block = (labels?: { after: string; before: string }) => ({
   kind: "shinkyu" as const,
@@ -96,4 +98,12 @@ test("the backend continuation keeps all74rows in one complete four-column matri
   const { html, rows } = nativeDocumentRows(doc);
   assert.equal((html.match(/<table\b/g) ?? []).length, 1);
   assert.deepEqual(rows, sourceCompoundRows);
+});
+
+
+test("the actual backend documents keep every source year label with its own rate", () => {
+  const results = sourceRateDocuments.map((document) => nativeDocumentRows(document as React.ComponentProps<typeof AmendDocumentView>["doc"]));
+  assert.equal(results.reduce((count, result) => count + (result.html.match(/<table\b/g) ?? []).length, 0), 22);
+  const rows = results.flatMap((result) => result.rows).filter((row) => row.length === 2);
+  assert.deepEqual(rows, sourceRateRows.rows.map((row) => [row.label.replace(/\s/g, ""), row.amount]));
 });
