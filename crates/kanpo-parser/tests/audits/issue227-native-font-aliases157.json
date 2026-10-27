@@ -1,0 +1,2550 @@
+{
+  "stage": 157,
+  "status": "verified final implementation",
+  "baseline_local": "43856a7001cc0145f38292f7a82b67edddc6472e",
+  "baseline_publication": "7621873c388906e4c950fbf22b86310654e0b674",
+  "problem": "An explicit ToUnicode private scalar can omit a printed character while the same actual embedded CFF/CID is already decoded by the existing verified unresolved-Identity decoder elsewhere on the original native page.",
+  "general_rule": "Only original CIDFontType0C CFF programs with structurally validated CID routing/charset, Identity 2-byte actual code==CID, exact decoded program bytes and same actual CID. Target must be a single explicit BMP private scalar; counterpart an actual finite visible unresolved Identity/no-ToUnicode original Glyph. Capture alongside the emitted original CharCode, with no public externally paired Page/evidence route.",
+  "source_attribute": {
+    "name": "data-native-font-aliases",
+    "version": 1,
+    "header": [
+      "version",
+      "first_original_glyph",
+      "after_original_glyph",
+      "original_source_box_xmin",
+      "original_source_box_ymin",
+      "original_source_box_xmax",
+      "original_source_box_ymax"
+    ],
+    "links": [
+      "offset_in_original_word",
+      "actual_ToUnicode_private_scalar",
+      "original_counterpart_glyph_ID",
+      "actual_CID"
+    ],
+    "scope": "Native-evidence XHTML only; no proposed decoded text in metadata. Legacy bbox and raw Page/Glyph/FontInfo/Word unchanged.",
+    "consumer": "Own raw+canonical float32SourceBox/range/page count/native mode/axis/bounds, one raw scalar per original Glyph, unique full original glyph ownership. Every overlapping component and duplicated raw/box source declines. Existing verified Identity decoder Option only; arbitrary CID-as-Unicode fallback forbidden. All unknown private scalars in the word need valid proof."
+  },
+  "priority": "Existing normal Unicode, known PUA, compound decoders and standalone-minus suppression retain priority. Missing, malformed, partial, stale or conflicting source evidence declines.",
+  "no_added_runtime_dispatch": [
+    "page/title/year/value/company/font-name rules",
+    "new CID or PUA decoder entries",
+    "point tolerances or neighbor/character budgets",
+    "outline similarity or text/sequence inference"
+  ],
+  "unit_controls": {
+    "PDF": 28,
+    "parser": 13,
+    "source_API_original_pages": 16,
+    "explicit_optional_metadata_compatibility": 1
+  },
+  "TDD": {
+    "actual_baseline156_source_API": {
+      "passed": 0,
+      "failed": 16
+    },
+    "private_final_source_API": {
+      "passed": 16,
+      "failed": 0
+    },
+    "private_final_PDF_units": {
+      "passed": 266,
+      "failed": 0
+    },
+    "private_final_parser_units": {
+      "passed": 2711,
+      "failed": 0
+    },
+    "explicit_raw_and_source_box_transfer": "RED then GREEN",
+    "optional_metadata_allowlist": "RED then GREEN"
+  },
+  "full_private_footprint": {
+    "single_pages": 11992,
+    "single_changed": 16,
+    "single_unchanged_complete_Analysis": 11976,
+    "restored_original_characters": 22,
+    "character_inventory_for_audit_only": {
+      "薩": 3,
+      "榊": 4,
+      "芦": 7,
+      "葛": 2,
+      "樋": 3,
+      "箭": 3
+    },
+    "whole_issues": 159,
+    "whole_changed": 13,
+    "whole_unchanged_complete_Analysis": 146,
+    "all_changed_single_and_whole_complete_Analysis": "Only independently source-reviewed character insertions in text fields; every other value/key/array/owner/raw/source box/geometry/status/amount/table/cell/Article/Document boundary exact.",
+    "source_QA": "All22original target glyphs and their full caption/address contexts checked in PDFium source crops. Independent pypdf actual ToUnicode/code occurrences/CID/decoded embedded-program byte equality confirmed on all16PDFs. Root implementer nonblind QA, not independent accuracy gold.",
+    "final_raw_box_bound_prototype_equivalence": {
+      "single_complete_Analysis_exact": 11992,
+      "whole_complete_Analysis_exact": 159,
+      "prepost_inputs_sources_binaries_exact": true
+    }
+  },
+  "existing_asset_policy": {
+    "new_original_PDFs": 15,
+    "new_data_location": "tests/data/native-font-aliases",
+    "all_original_archive_PDFs_retained": true,
+    "one_existing_snapshot": "archive_snapshots__archive_pages@20260925g00212__20260925g002120071.pdf.snap",
+    "snapshot_change": "Exactly two original-source-reviewed 榊 insertions. Strict reverse projection restores every old byte. No blanket snapshot updates.",
+    "all_other_original_assets": "preserve and verify after final gates"
+  },
+  "original_PDFs": [
+    {
+      "page": "20260723g001630224",
+      "sha256": "b26b5589eeff8361fbcfa96d39e3769c88fe063a9af865df8f575829b60d0dbb",
+      "word_changes": [
+        {
+          "id": 754,
+          "raw": "鹿児島県摩川内市青山町5928番地５",
+          "old": "鹿児島県摩川内市青山町5928番地５",
+          "new": "鹿児島県薩摩川内市青山町5928番地５",
+          "old_status": "used",
+          "new_status": "used",
+          "changed_fields": [
+            "text"
+          ],
+          "source_box": [
+            66.75,
+            76.3557,
+            202.75,
+            84.5397
+          ]
+        }
+      ],
+      "fixture": "tests/data/native-font-aliases/20260723g001630224.pdf"
+    },
+    {
+      "page": "20260723g001630235",
+      "sha256": "94d8a9d6fb5302808d6b4ae1aa344eedfd6293e46a6e46e7e7e3803938fbb6b7",
+      "word_changes": [
+        {
+          "id": 373,
+          "raw": "鹿児島県摩郡さつま町柏原3265番地",
+          "old": "鹿児島県摩郡さつま町柏原3265番地",
+          "new": "鹿児島県薩摩郡さつま町柏原3265番地",
+          "old_status": "used",
+          "new_status": "used",
+          "changed_fields": [
+            "text"
+          ],
+          "source_box": [
+            233.5,
+            261.4649,
+            369.5,
+            269.6489
+          ]
+        },
+        {
+          "id": 650,
+          "raw": "鹿児島県摩郡さつま町久富木950番地",
+          "old": "鹿児島県摩郡さつま町久富木950番地",
+          "new": "鹿児島県薩摩郡さつま町久富木950番地",
+          "old_status": "used",
+          "new_status": "used",
+          "changed_fields": [
+            "text"
+          ],
+          "source_box": [
+            64.5,
+            270.6057,
+            204.5,
+            278.7897
+          ]
+        }
+      ],
+      "fixture": "tests/data/native-font-aliases/20260723g001630235.pdf"
+    },
+    {
+      "page": "20260724g001660099",
+      "sha256": "db726370f03a098ab708ddbd5e720a302d692d97d6c4b21cda2e76a2f7eb743b",
+      "word_changes": [
+        {
+          "id": 153,
+          "raw": "原富美子",
+          "old": "原富美子",
+          "new": "榊原富美子",
+          "old_status": "used",
+          "new_status": "used",
+          "changed_fields": [
+            "text"
+          ],
+          "source_box": [
+            329.5,
+            642.8597,
+            369.5,
+            651.0437
+          ]
+        },
+        {
+          "id": 447,
+          "raw": "原富美子",
+          "old": "原富美子",
+          "new": "榊原富美子",
+          "old_status": "used",
+          "new_status": "used",
+          "changed_fields": [
+            "text"
+          ],
+          "source_box": [
+            164.5,
+            660.8597,
+            204.5,
+            669.0437
+          ]
+        }
+      ],
+      "fixture": "tests/data/native-font-aliases/20260724g001660099.pdf"
+    },
+    {
+      "page": "20260728g001680084",
+      "sha256": "11096a4b2aa39da0bede9f1e6088d357b9177abed69d1df8999805fb4f403c43",
+      "word_changes": [
+        {
+          "id": 261,
+          "raw": "兵庫県屋市業平町４番６号",
+          "old": "兵庫県屋市業平町４番６号",
+          "new": "兵庫県芦屋市業平町４番６号",
+          "old_status": "used",
+          "new_status": "used",
+          "changed_fields": [
+            "text"
+          ],
+          "source_box": [
+            265.5,
+            261.4649,
+            369.5,
+            269.6489
+          ]
+        },
+        {
+          "id": 536,
+          "raw": "兵庫県屋市業平町４番６号",
+          "old": "兵庫県屋市業平町４番６号",
+          "new": "兵庫県芦屋市業平町４番６号",
+          "old_status": "used",
+          "new_status": "used",
+          "changed_fields": [
+            "text"
+          ],
+          "source_box": [
+            100.5,
+            268.4649,
+            204.5,
+            276.6489
+          ]
+        }
+      ],
+      "fixture": "tests/data/native-font-aliases/20260728g001680084.pdf"
+    },
+    {
+      "page": "20260729g001700071",
+      "sha256": "0d5590f462cf8608f0609b936f3aa401556122161e0665ee2525a1ff396a7932",
+      "word_changes": [
+        {
+          "id": 235,
+          "raw": "西",
+          "old": "西",
+          "new": "葛西",
+          "old_status": "used",
+          "new_status": "used",
+          "changed_fields": [
+            "text"
+          ],
+          "source_box": [
+            333.75,
+            290.6097,
+            349.75,
+            298.7937
+          ]
+        }
+      ],
+      "fixture": "tests/data/native-font-aliases/20260729g001700071.pdf"
+    },
+    {
+      "page": "20260814g001820090",
+      "sha256": "399faf89cbdebe3d599e3e078c2792e4b45579a7f81e0b55e421701ab702ee91",
+      "word_changes": [
+        {
+          "id": 448,
+          "raw": "田",
+          "old": "田",
+          "new": "芦田",
+          "old_status": "used",
+          "new_status": "used",
+          "changed_fields": [
+            "text"
+          ],
+          "source_box": [
+            162.75,
+            281.9669,
+            178.75,
+            290.1509
+          ]
+        }
+      ],
+      "fixture": "tests/data/native-font-aliases/20260814g001820090.pdf"
+    },
+    {
+      "page": "20260821g001870095",
+      "sha256": "fe4504254110402cf9a214e0c5be8836d8bcc77d4e1821b26d84f06f95fb0f69",
+      "word_changes": [
+        {
+          "id": 318,
+          "raw": "兵庫県屋市業平町５番20401号",
+          "old": "兵庫県屋市業平町５番20－401号",
+          "new": "兵庫県芦屋市業平町５番20－401号",
+          "old_status": "used",
+          "new_status": "used",
+          "changed_fields": [
+            "text"
+          ],
+          "source_box": [
+            249.75,
+            86.6057,
+            373.75,
+            94.7897
+          ]
+        }
+      ],
+      "fixture": "tests/data/native-font-aliases/20260821g001870095.pdf"
+    },
+    {
+      "page": "20260826g001900068",
+      "sha256": "ab4bde0e7d59ebe19d78ed625cd7dbf94b975dc38bbd4ef47b9037540eae4dad",
+      "word_changes": [
+        {
+          "id": 267,
+          "raw": "兵庫県屋市西山町23番16号",
+          "old": "兵庫県屋市西山町23番16号",
+          "new": "兵庫県芦屋市西山町23番16号",
+          "old_status": "used",
+          "new_status": "used",
+          "changed_fields": [
+            "text"
+          ],
+          "source_box": [
+            265.5,
+            638.6057,
+            369.5,
+            646.7897
+          ]
+        }
+      ],
+      "fixture": "tests/data/native-font-aliases/20260826g001900068.pdf"
+    },
+    {
+      "page": "20260826g001900067",
+      "sha256": "7d4b7f864790c5627f2f9dc94947672575bea769cfda5e4cfdecccb944a9d4c6",
+      "word_changes": [
+        {
+          "id": 329,
+          "raw": "兵庫県美方郡新温泉町屋451番地",
+          "old": "兵庫県美方郡新温泉町屋451番地",
+          "new": "兵庫県美方郡新温泉町芦屋451番地",
+          "old_status": "used",
+          "new_status": "used",
+          "changed_fields": [
+            "text"
+          ],
+          "source_box": [
+            245.5121,
+            257.8559,
+            369.5121,
+            266.0399
+          ]
+        },
+        {
+          "id": 632,
+          "raw": "兵庫県美方郡新温泉町屋448番地１",
+          "old": "兵庫県美方郡新温泉町屋448番地１",
+          "new": "兵庫県美方郡新温泉町芦屋448番地１",
+          "old_status": "used",
+          "new_status": "used",
+          "changed_fields": [
+            "text"
+          ],
+          "source_box": [
+            72.5,
+            270.3557,
+            204.5,
+            278.5397
+          ]
+        }
+      ],
+      "fixture": "tests/data/native-font-aliases/20260826g001900067.pdf"
+    },
+    {
+      "page": "20260828g001920072",
+      "sha256": "bad35a6efeda9be2e968240f9b2fdd7f2653e1bc682a54845e4c27535ce83f2c",
+      "word_changes": [
+        {
+          "id": 155,
+          "raw": "口",
+          "old": "口",
+          "new": "樋口",
+          "old_status": "used",
+          "new_status": "used",
+          "changed_fields": [
+            "text"
+          ],
+          "source_box": [
+            329.5,
+            642.8597,
+            345.5,
+            651.0437
+          ]
+        },
+        {
+          "id": 423,
+          "raw": "口",
+          "old": "口",
+          "new": "樋口",
+          "old_status": "used",
+          "new_status": "used",
+          "changed_fields": [
+            "text"
+          ],
+          "source_box": [
+            164.5,
+            667.8597,
+            180.5,
+            676.0437
+          ]
+        }
+      ],
+      "fixture": "tests/data/native-font-aliases/20260828g001920072.pdf"
+    },
+    {
+      "page": "20260907g001990060",
+      "sha256": "4ce40d4267f22f6c61caa1bb4bf66249da19436593e306c8cd4da2f40cce2de8",
+      "word_changes": [
+        {
+          "id": 665,
+          "raw": "岡山県倉敷市真備町田862番地12",
+          "old": "岡山県倉敷市真備町田862番地12",
+          "new": "岡山県倉敷市真備町箭田862番地12",
+          "old_status": "used",
+          "new_status": "used",
+          "changed_fields": [
+            "text"
+          ],
+          "source_box": [
+            78.75,
+            634.8597,
+            202.75,
+            643.0437
+          ]
+        }
+      ],
+      "fixture": "tests/data/native-font-aliases/20260907g001990060.pdf"
+    },
+    {
+      "page": "20260916g002070074",
+      "sha256": "caacfd46241c5a4fbc51c4b9e9ee5fb5b1d584685c650927366d8a184f500ce3",
+      "word_changes": [
+        {
+          "id": 412,
+          "raw": "原",
+          "old": "原",
+          "new": "榊原",
+          "old_status": "used",
+          "new_status": "used",
+          "changed_fields": [
+            "text"
+          ],
+          "source_box": [
+            162.75,
+            658.6097,
+            178.75,
+            666.7937
+          ]
+        }
+      ],
+      "fixture": "tests/data/native-font-aliases/20260916g002070074.pdf"
+    },
+    {
+      "page": "20260917g002080090",
+      "sha256": "729d97bb765459de5ebf554d6f245a9506c0e5f1ad895400543101e33fc0f6c7",
+      "word_changes": [
+        {
+          "id": 408,
+          "raw": "口",
+          "old": "口",
+          "new": "樋口",
+          "old_status": "used",
+          "new_status": "used",
+          "changed_fields": [
+            "text"
+          ],
+          "source_box": [
+            162.75,
+            98.8597,
+            178.75,
+            107.0437
+          ]
+        }
+      ],
+      "fixture": "tests/data/native-font-aliases/20260917g002080090.pdf"
+    },
+    {
+      "page": "20260924g002110114",
+      "sha256": "956ffc3db71f5f4eeafeff6f5ec566e15c10e78429a3a9fcaba5b07b76284cbc",
+      "word_changes": [
+        {
+          "id": 382,
+          "raw": "埼玉県東松山市弓町二丁目３番２号",
+          "old": "埼玉県東松山市弓町二丁目３番２号",
+          "new": "埼玉県東松山市箭弓町二丁目３番２号",
+          "old_status": "used",
+          "new_status": "used",
+          "changed_fields": [
+            "text"
+          ],
+          "source_box": [
+            233.5,
+            77.4649,
+            369.5,
+            85.6489
+          ]
+        },
+        {
+          "id": 660,
+          "raw": "埼玉県東松山市弓町二丁目３番２号",
+          "old": "埼玉県東松山市弓町二丁目３番２号",
+          "new": "埼玉県東松山市箭弓町二丁目３番２号",
+          "old_status": "used",
+          "new_status": "used",
+          "changed_fields": [
+            "text"
+          ],
+          "source_box": [
+            68.5,
+            90.6057,
+            204.5,
+            98.7897
+          ]
+        }
+      ],
+      "fixture": "tests/data/native-font-aliases/20260924g002110114.pdf"
+    },
+    {
+      "page": "20260925g002120071",
+      "sha256": "abeacec1712c55cc5cb382f6937e3a50cb6f38c9865ef30403649ae6332d4f88",
+      "word_changes": [
+        {
+          "id": 208,
+          "raw": "原",
+          "old": "原",
+          "new": "榊原",
+          "old_status": "used",
+          "new_status": "used",
+          "changed_fields": [
+            "text"
+          ],
+          "source_box": [
+            333.75,
+            650.8597,
+            349.75,
+            659.0437
+          ]
+        }
+      ],
+      "fixture": "tests/archive/pages/20260925g00212/20260925g002120071.pdf"
+    },
+    {
+      "page": "20260925g002120081",
+      "sha256": "bd8d1fbecd6e5f0ec7b9e3bff40b47d2ce7922d17b47b6f4564d4871ef257e4c",
+      "word_changes": [
+        {
+          "id": 155,
+          "raw": "西",
+          "old": "西",
+          "new": "葛西",
+          "old_status": "used",
+          "new_status": "used",
+          "changed_fields": [
+            "text"
+          ],
+          "source_box": [
+            329.5,
+            109.5977,
+            345.5,
+            117.7817
+          ]
+        }
+      ],
+      "fixture": "tests/data/native-font-aliases/20260925g002120081.pdf"
+    }
+  ],
+  "independent_font_program_proofs": [
+    {
+      "page": "20260723g001630224",
+      "actual_embedded_font_proofs": [
+        {
+          "Word": 754,
+          "restored_character": "薩",
+          "proofs": [
+            {
+              "raw_scalar": "U+E440",
+              "CID": 23122,
+              "target_resource": "/C0_9",
+              "source_resource": "/C0_7",
+              "same_decoded_program_bytes": true,
+              "program_sha256": "c86eeb03cfc9e316c54db48320ce6b287e1b6b0f87dee937b89f84463f8d2f90",
+              "program_length": 1871,
+              "target_original_encoded_occurrences": 1,
+              "source_original_encoded_occurrences": 2
+            }
+          ]
+        }
+      ],
+      "complete_Analysis_only_reviewed_text_insertions": true,
+      "all_other_values_keys_arrays_owners_geometry_tables_notices_exact": true,
+      "text_changes": [
+        {
+          "path": [
+            "pages",
+            0,
+            "words",
+            754,
+            "text"
+          ],
+          "insertions": [
+            "薩"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "regions",
+            0,
+            "lines",
+            16,
+            "text"
+          ],
+          "insertions": [
+            "薩"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "text"
+          ],
+          "insertions": [
+            "薩"
+          ]
+        },
+        {
+          "path": [
+            "text"
+          ],
+          "insertions": [
+            "薩"
+          ]
+        },
+        {
+          "path": [
+            "articles",
+            0,
+            "text"
+          ],
+          "insertions": [
+            "薩"
+          ]
+        },
+        {
+          "path": [
+            "articles",
+            0,
+            "document",
+            "blocks",
+            0,
+            "runs",
+            0,
+            "text"
+          ],
+          "insertions": [
+            "薩"
+          ]
+        }
+      ]
+    },
+    {
+      "page": "20260723g001630235",
+      "actual_embedded_font_proofs": [
+        {
+          "Word": 373,
+          "restored_character": "薩",
+          "proofs": [
+            {
+              "raw_scalar": "U+E440",
+              "CID": 23122,
+              "target_resource": "/C0_6",
+              "source_resource": "/C0_2",
+              "same_decoded_program_bytes": true,
+              "program_sha256": "4aa832f0b9732b81b46dd31c330adbe7eeb0fab6bbac708e9bb03d4e84071a49",
+              "program_length": 2491,
+              "target_original_encoded_occurrences": 2,
+              "source_original_encoded_occurrences": 2
+            }
+          ]
+        },
+        {
+          "Word": 650,
+          "restored_character": "薩",
+          "proofs": [
+            {
+              "raw_scalar": "U+E440",
+              "CID": 23122,
+              "target_resource": "/C0_6",
+              "source_resource": "/C0_2",
+              "same_decoded_program_bytes": true,
+              "program_sha256": "4aa832f0b9732b81b46dd31c330adbe7eeb0fab6bbac708e9bb03d4e84071a49",
+              "program_length": 2491,
+              "target_original_encoded_occurrences": 2,
+              "source_original_encoded_occurrences": 2
+            }
+          ]
+        }
+      ],
+      "complete_Analysis_only_reviewed_text_insertions": true,
+      "all_other_values_keys_arrays_owners_geometry_tables_notices_exact": true,
+      "text_changes": [
+        {
+          "path": [
+            "pages",
+            0,
+            "words",
+            373,
+            "text"
+          ],
+          "insertions": [
+            "薩"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "words",
+            650,
+            "text"
+          ],
+          "insertions": [
+            "薩"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "regions",
+            0,
+            "lines",
+            50,
+            "text"
+          ],
+          "insertions": [
+            "薩"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "regions",
+            0,
+            "lines",
+            57,
+            "text"
+          ],
+          "insertions": [
+            "薩"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "text"
+          ],
+          "insertions": [
+            "薩",
+            "薩"
+          ]
+        },
+        {
+          "path": [
+            "text"
+          ],
+          "insertions": [
+            "薩",
+            "薩"
+          ]
+        },
+        {
+          "path": [
+            "articles",
+            1,
+            "text"
+          ],
+          "insertions": [
+            "薩",
+            "薩"
+          ]
+        },
+        {
+          "path": [
+            "articles",
+            1,
+            "document",
+            "blocks",
+            0,
+            "runs",
+            0,
+            "text"
+          ],
+          "insertions": [
+            "薩"
+          ]
+        },
+        {
+          "path": [
+            "articles",
+            1,
+            "document",
+            "blocks",
+            0,
+            "runs",
+            2,
+            "text"
+          ],
+          "insertions": [
+            "薩"
+          ]
+        }
+      ]
+    },
+    {
+      "page": "20260724g001660099",
+      "actual_embedded_font_proofs": [
+        {
+          "Word": 153,
+          "restored_character": "榊",
+          "proofs": [
+            {
+              "raw_scalar": "U+E43F",
+              "CID": 23121,
+              "target_resource": "/C0_6",
+              "source_resource": "/C0_2",
+              "same_decoded_program_bytes": true,
+              "program_sha256": "6595470c4226f9e66073c4dc1604a3b94c2c2a53215ab15d9fed0d90099036f7",
+              "program_length": 1821,
+              "target_original_encoded_occurrences": 2,
+              "source_original_encoded_occurrences": 2
+            }
+          ]
+        },
+        {
+          "Word": 447,
+          "restored_character": "榊",
+          "proofs": [
+            {
+              "raw_scalar": "U+E43F",
+              "CID": 23121,
+              "target_resource": "/C0_6",
+              "source_resource": "/C0_2",
+              "same_decoded_program_bytes": true,
+              "program_sha256": "6595470c4226f9e66073c4dc1604a3b94c2c2a53215ab15d9fed0d90099036f7",
+              "program_length": 1821,
+              "target_original_encoded_occurrences": 2,
+              "source_original_encoded_occurrences": 2
+            }
+          ]
+        }
+      ],
+      "complete_Analysis_only_reviewed_text_insertions": true,
+      "all_other_values_keys_arrays_owners_geometry_tables_notices_exact": true,
+      "text_changes": [
+        {
+          "path": [
+            "pages",
+            0,
+            "words",
+            153,
+            "text"
+          ],
+          "insertions": [
+            "榊"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "words",
+            447,
+            "text"
+          ],
+          "insertions": [
+            "榊"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "regions",
+            0,
+            "lines",
+            110,
+            "text"
+          ],
+          "insertions": [
+            "榊"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "regions",
+            0,
+            "lines",
+            116,
+            "text"
+          ],
+          "insertions": [
+            "榊"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "text"
+          ],
+          "insertions": [
+            "榊",
+            "榊"
+          ]
+        },
+        {
+          "path": [
+            "text"
+          ],
+          "insertions": [
+            "榊",
+            "榊"
+          ]
+        },
+        {
+          "path": [
+            "articles",
+            3,
+            "text"
+          ],
+          "insertions": [
+            "榊",
+            "榊"
+          ]
+        },
+        {
+          "path": [
+            "articles",
+            3,
+            "document",
+            "blocks",
+            0,
+            "runs",
+            0,
+            "text"
+          ],
+          "insertions": [
+            "榊"
+          ]
+        },
+        {
+          "path": [
+            "articles",
+            3,
+            "document",
+            "blocks",
+            0,
+            "runs",
+            2,
+            "text"
+          ],
+          "insertions": [
+            "榊"
+          ]
+        }
+      ]
+    },
+    {
+      "page": "20260728g001680084",
+      "actual_embedded_font_proofs": [
+        {
+          "Word": 261,
+          "restored_character": "芦",
+          "proofs": [
+            {
+              "raw_scalar": "U+E40E",
+              "CID": 23072,
+              "target_resource": "/C0_8",
+              "source_resource": "/C0_9",
+              "same_decoded_program_bytes": true,
+              "program_sha256": "a89a36bc54dcba7085e0b6ed2db289e523aeabe63a32d33089a9b4c29bca1e84",
+              "program_length": 1251,
+              "target_original_encoded_occurrences": 2,
+              "source_original_encoded_occurrences": 2
+            }
+          ]
+        },
+        {
+          "Word": 536,
+          "restored_character": "芦",
+          "proofs": [
+            {
+              "raw_scalar": "U+E40E",
+              "CID": 23072,
+              "target_resource": "/C0_8",
+              "source_resource": "/C0_9",
+              "same_decoded_program_bytes": true,
+              "program_sha256": "a89a36bc54dcba7085e0b6ed2db289e523aeabe63a32d33089a9b4c29bca1e84",
+              "program_length": 1251,
+              "target_original_encoded_occurrences": 2,
+              "source_original_encoded_occurrences": 2
+            }
+          ]
+        }
+      ],
+      "complete_Analysis_only_reviewed_text_insertions": true,
+      "all_other_values_keys_arrays_owners_geometry_tables_notices_exact": true,
+      "text_changes": [
+        {
+          "path": [
+            "pages",
+            0,
+            "words",
+            261,
+            "text"
+          ],
+          "insertions": [
+            "芦"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "words",
+            536,
+            "text"
+          ],
+          "insertions": [
+            "芦"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "regions",
+            0,
+            "lines",
+            47,
+            "text"
+          ],
+          "insertions": [
+            "芦"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "regions",
+            0,
+            "lines",
+            53,
+            "text"
+          ],
+          "insertions": [
+            "芦"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "text"
+          ],
+          "insertions": [
+            "芦",
+            "芦"
+          ]
+        },
+        {
+          "path": [
+            "text"
+          ],
+          "insertions": [
+            "芦",
+            "芦"
+          ]
+        },
+        {
+          "path": [
+            "articles",
+            1,
+            "text"
+          ],
+          "insertions": [
+            "芦",
+            "芦"
+          ]
+        },
+        {
+          "path": [
+            "articles",
+            1,
+            "document",
+            "blocks",
+            0,
+            "runs",
+            0,
+            "text"
+          ],
+          "insertions": [
+            "芦"
+          ]
+        },
+        {
+          "path": [
+            "articles",
+            1,
+            "document",
+            "blocks",
+            0,
+            "runs",
+            2,
+            "text"
+          ],
+          "insertions": [
+            "芦"
+          ]
+        }
+      ]
+    },
+    {
+      "page": "20260729g001700071",
+      "actual_embedded_font_proofs": [
+        {
+          "Word": 235,
+          "restored_character": "葛",
+          "proofs": [
+            {
+              "raw_scalar": "U+E41F",
+              "CID": 23089,
+              "target_resource": "/C0_2",
+              "source_resource": "/C0_8",
+              "same_decoded_program_bytes": true,
+              "program_sha256": "1137644985fc082dbb20f328134216f8ae2153c958ebf4e103710be308473fef",
+              "program_length": 1621,
+              "target_original_encoded_occurrences": 1,
+              "source_original_encoded_occurrences": 2
+            }
+          ]
+        }
+      ],
+      "complete_Analysis_only_reviewed_text_insertions": true,
+      "all_other_values_keys_arrays_owners_geometry_tables_notices_exact": true,
+      "text_changes": [
+        {
+          "path": [
+            "pages",
+            0,
+            "words",
+            235,
+            "text"
+          ],
+          "insertions": [
+            "葛"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "regions",
+            0,
+            "lines",
+            49,
+            "text"
+          ],
+          "insertions": [
+            "葛"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "text"
+          ],
+          "insertions": [
+            "葛"
+          ]
+        },
+        {
+          "path": [
+            "text"
+          ],
+          "insertions": [
+            "葛"
+          ]
+        },
+        {
+          "path": [
+            "articles",
+            3,
+            "text"
+          ],
+          "insertions": [
+            "葛"
+          ]
+        },
+        {
+          "path": [
+            "articles",
+            3,
+            "document",
+            "blocks",
+            0,
+            "runs",
+            0,
+            "text"
+          ],
+          "insertions": [
+            "葛"
+          ]
+        }
+      ]
+    },
+    {
+      "page": "20260814g001820090",
+      "actual_embedded_font_proofs": [
+        {
+          "Word": 448,
+          "restored_character": "芦",
+          "proofs": [
+            {
+              "raw_scalar": "U+E40E",
+              "CID": 23072,
+              "target_resource": "/C0_6",
+              "source_resource": "/C0_8",
+              "same_decoded_program_bytes": true,
+              "program_sha256": "bbc296c6bfdfb8b2b272796e84f6c01dde8113f174964958ef91adb48ee592b6",
+              "program_length": 1453,
+              "target_original_encoded_occurrences": 1,
+              "source_original_encoded_occurrences": 1
+            }
+          ]
+        }
+      ],
+      "complete_Analysis_only_reviewed_text_insertions": true,
+      "all_other_values_keys_arrays_owners_geometry_tables_notices_exact": true,
+      "text_changes": [
+        {
+          "path": [
+            "pages",
+            0,
+            "words",
+            448,
+            "text"
+          ],
+          "insertions": [
+            "芦"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "regions",
+            0,
+            "lines",
+            34,
+            "text"
+          ],
+          "insertions": [
+            "芦"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "text"
+          ],
+          "insertions": [
+            "芦"
+          ]
+        },
+        {
+          "path": [
+            "text"
+          ],
+          "insertions": [
+            "芦"
+          ]
+        },
+        {
+          "path": [
+            "articles",
+            2,
+            "text"
+          ],
+          "insertions": [
+            "芦"
+          ]
+        },
+        {
+          "path": [
+            "articles",
+            2,
+            "document",
+            "blocks",
+            0,
+            "runs",
+            0,
+            "text"
+          ],
+          "insertions": [
+            "芦"
+          ]
+        }
+      ]
+    },
+    {
+      "page": "20260821g001870095",
+      "actual_embedded_font_proofs": [
+        {
+          "Word": 318,
+          "restored_character": "芦",
+          "proofs": [
+            {
+              "raw_scalar": "U+E40E",
+              "CID": 23072,
+              "target_resource": "/C0_6",
+              "source_resource": "/C0_2",
+              "same_decoded_program_bytes": true,
+              "program_sha256": "92e3ec5dda809786609d893f7cca8cc8d57eee12c34650be0117ed8f0407df3a",
+              "program_length": 1362,
+              "target_original_encoded_occurrences": 1,
+              "source_original_encoded_occurrences": 1
+            }
+          ]
+        }
+      ],
+      "complete_Analysis_only_reviewed_text_insertions": true,
+      "all_other_values_keys_arrays_owners_geometry_tables_notices_exact": true,
+      "text_changes": [
+        {
+          "path": [
+            "pages",
+            0,
+            "words",
+            318,
+            "text"
+          ],
+          "insertions": [
+            "芦"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "regions",
+            0,
+            "lines",
+            24,
+            "text"
+          ],
+          "insertions": [
+            "芦"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "text"
+          ],
+          "insertions": [
+            "芦"
+          ]
+        },
+        {
+          "path": [
+            "text"
+          ],
+          "insertions": [
+            "芦"
+          ]
+        },
+        {
+          "path": [
+            "articles",
+            1,
+            "text"
+          ],
+          "insertions": [
+            "芦"
+          ]
+        },
+        {
+          "path": [
+            "articles",
+            1,
+            "document",
+            "blocks",
+            0,
+            "runs",
+            0,
+            "text"
+          ],
+          "insertions": [
+            "芦"
+          ]
+        }
+      ]
+    },
+    {
+      "page": "20260826g001900068",
+      "actual_embedded_font_proofs": [
+        {
+          "Word": 267,
+          "restored_character": "芦",
+          "proofs": [
+            {
+              "raw_scalar": "U+E40E",
+              "CID": 23072,
+              "target_resource": "/C0_8",
+              "source_resource": "/C0_9",
+              "same_decoded_program_bytes": true,
+              "program_sha256": "71252f365adeb67ecdffa34907eb8c9c5b4152088b92bcf17251d9108374fa0f",
+              "program_length": 1381,
+              "target_original_encoded_occurrences": 1,
+              "source_original_encoded_occurrences": 1
+            }
+          ]
+        }
+      ],
+      "complete_Analysis_only_reviewed_text_insertions": true,
+      "all_other_values_keys_arrays_owners_geometry_tables_notices_exact": true,
+      "text_changes": [
+        {
+          "path": [
+            "pages",
+            0,
+            "words",
+            267,
+            "text"
+          ],
+          "insertions": [
+            "芦"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "regions",
+            0,
+            "lines",
+            127,
+            "text"
+          ],
+          "insertions": [
+            "芦"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "text"
+          ],
+          "insertions": [
+            "芦"
+          ]
+        },
+        {
+          "path": [
+            "text"
+          ],
+          "insertions": [
+            "芦"
+          ]
+        },
+        {
+          "path": [
+            "articles",
+            3,
+            "text"
+          ],
+          "insertions": [
+            "芦"
+          ]
+        },
+        {
+          "path": [
+            "articles",
+            3,
+            "document",
+            "blocks",
+            0,
+            "runs",
+            2,
+            "text"
+          ],
+          "insertions": [
+            "芦"
+          ]
+        }
+      ]
+    },
+    {
+      "page": "20260826g001900067",
+      "actual_embedded_font_proofs": [
+        {
+          "Word": 329,
+          "restored_character": "芦",
+          "proofs": [
+            {
+              "raw_scalar": "U+E40E",
+              "CID": 23072,
+              "target_resource": "/C0_9",
+              "source_resource": "/C0_8",
+              "same_decoded_program_bytes": true,
+              "program_sha256": "258cf8a2cdf83073871309914fa7824798a77e94f070b928bad078b19c2ad72b",
+              "program_length": 1463,
+              "target_original_encoded_occurrences": 2,
+              "source_original_encoded_occurrences": 2
+            }
+          ]
+        },
+        {
+          "Word": 632,
+          "restored_character": "芦",
+          "proofs": [
+            {
+              "raw_scalar": "U+E40E",
+              "CID": 23072,
+              "target_resource": "/C0_9",
+              "source_resource": "/C0_8",
+              "same_decoded_program_bytes": true,
+              "program_sha256": "258cf8a2cdf83073871309914fa7824798a77e94f070b928bad078b19c2ad72b",
+              "program_length": 1463,
+              "target_original_encoded_occurrences": 2,
+              "source_original_encoded_occurrences": 2
+            }
+          ]
+        }
+      ],
+      "complete_Analysis_only_reviewed_text_insertions": true,
+      "all_other_values_keys_arrays_owners_geometry_tables_notices_exact": true,
+      "text_changes": [
+        {
+          "path": [
+            "pages",
+            0,
+            "words",
+            329,
+            "text"
+          ],
+          "insertions": [
+            "芦"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "words",
+            632,
+            "text"
+          ],
+          "insertions": [
+            "芦"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "regions",
+            0,
+            "lines",
+            46,
+            "text"
+          ],
+          "insertions": [
+            "芦"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "regions",
+            0,
+            "lines",
+            51,
+            "text"
+          ],
+          "insertions": [
+            "芦"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "text"
+          ],
+          "insertions": [
+            "芦",
+            "芦"
+          ]
+        },
+        {
+          "path": [
+            "text"
+          ],
+          "insertions": [
+            "芦",
+            "芦"
+          ]
+        },
+        {
+          "path": [
+            "articles",
+            1,
+            "text"
+          ],
+          "insertions": [
+            "芦",
+            "芦"
+          ]
+        },
+        {
+          "path": [
+            "articles",
+            1,
+            "document",
+            "blocks",
+            0,
+            "runs",
+            0,
+            "text"
+          ],
+          "insertions": [
+            "芦"
+          ]
+        },
+        {
+          "path": [
+            "articles",
+            1,
+            "document",
+            "blocks",
+            0,
+            "runs",
+            2,
+            "text"
+          ],
+          "insertions": [
+            "芦"
+          ]
+        }
+      ]
+    },
+    {
+      "page": "20260828g001920072",
+      "actual_embedded_font_proofs": [
+        {
+          "Word": 155,
+          "restored_character": "樋",
+          "proofs": [
+            {
+              "raw_scalar": "U+E47F",
+              "CID": 23185,
+              "target_resource": "/C0_8",
+              "source_resource": "/C0_9",
+              "same_decoded_program_bytes": true,
+              "program_sha256": "34ec8ee60970597c9299c840a200e999c99695cb59fec84d9eadc65debc30c7c",
+              "program_length": 1413,
+              "target_original_encoded_occurrences": 2,
+              "source_original_encoded_occurrences": 3
+            }
+          ]
+        },
+        {
+          "Word": 423,
+          "restored_character": "樋",
+          "proofs": [
+            {
+              "raw_scalar": "U+E47F",
+              "CID": 23185,
+              "target_resource": "/C0_8",
+              "source_resource": "/C0_9",
+              "same_decoded_program_bytes": true,
+              "program_sha256": "34ec8ee60970597c9299c840a200e999c99695cb59fec84d9eadc65debc30c7c",
+              "program_length": 1413,
+              "target_original_encoded_occurrences": 2,
+              "source_original_encoded_occurrences": 3
+            }
+          ]
+        }
+      ],
+      "complete_Analysis_only_reviewed_text_insertions": true,
+      "all_other_values_keys_arrays_owners_geometry_tables_notices_exact": true,
+      "text_changes": [
+        {
+          "path": [
+            "pages",
+            0,
+            "words",
+            155,
+            "text"
+          ],
+          "insertions": [
+            "樋"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "words",
+            423,
+            "text"
+          ],
+          "insertions": [
+            "樋"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "regions",
+            0,
+            "lines",
+            95,
+            "text"
+          ],
+          "insertions": [
+            "樋"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "regions",
+            0,
+            "lines",
+            117,
+            "text"
+          ],
+          "insertions": [
+            "樋"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "text"
+          ],
+          "insertions": [
+            "樋",
+            "樋"
+          ]
+        },
+        {
+          "path": [
+            "text"
+          ],
+          "insertions": [
+            "樋",
+            "樋"
+          ]
+        },
+        {
+          "path": [
+            "articles",
+            3,
+            "text"
+          ],
+          "insertions": [
+            "樋",
+            "樋"
+          ]
+        },
+        {
+          "path": [
+            "articles",
+            3,
+            "document",
+            "blocks",
+            0,
+            "runs",
+            0,
+            "text"
+          ],
+          "insertions": [
+            "樋"
+          ]
+        },
+        {
+          "path": [
+            "articles",
+            3,
+            "document",
+            "blocks",
+            0,
+            "runs",
+            2,
+            "text"
+          ],
+          "insertions": [
+            "樋"
+          ]
+        }
+      ]
+    },
+    {
+      "page": "20260907g001990060",
+      "actual_embedded_font_proofs": [
+        {
+          "Word": 665,
+          "restored_character": "箭",
+          "proofs": [
+            {
+              "raw_scalar": "U+E457",
+              "CID": 23145,
+              "target_resource": "/C0_4",
+              "source_resource": "/C0_8",
+              "same_decoded_program_bytes": true,
+              "program_sha256": "f4fe664f8aef6655752e460ba41c7fab15472f056ad0e69d42982748eea45153",
+              "program_length": 1685,
+              "target_original_encoded_occurrences": 1,
+              "source_original_encoded_occurrences": 1
+            }
+          ]
+        }
+      ],
+      "complete_Analysis_only_reviewed_text_insertions": true,
+      "all_other_values_keys_arrays_owners_geometry_tables_notices_exact": true,
+      "text_changes": [
+        {
+          "path": [
+            "pages",
+            0,
+            "words",
+            665,
+            "text"
+          ],
+          "insertions": [
+            "箭"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "regions",
+            0,
+            "lines",
+            71,
+            "text"
+          ],
+          "insertions": [
+            "箭"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "text"
+          ],
+          "insertions": [
+            "箭"
+          ]
+        },
+        {
+          "path": [
+            "text"
+          ],
+          "insertions": [
+            "箭"
+          ]
+        },
+        {
+          "path": [
+            "articles",
+            6,
+            "text"
+          ],
+          "insertions": [
+            "箭"
+          ]
+        },
+        {
+          "path": [
+            "articles",
+            6,
+            "document",
+            "blocks",
+            0,
+            "runs",
+            0,
+            "text"
+          ],
+          "insertions": [
+            "箭"
+          ]
+        }
+      ]
+    },
+    {
+      "page": "20260916g002070074",
+      "actual_embedded_font_proofs": [
+        {
+          "Word": 412,
+          "restored_character": "榊",
+          "proofs": [
+            {
+              "raw_scalar": "U+E43F",
+              "CID": 23121,
+              "target_resource": "/C0_6",
+              "source_resource": "/C0_9",
+              "same_decoded_program_bytes": true,
+              "program_sha256": "dc3b35501bd4e1636c417958eea96f7cdcdb1edf03fba57b597ecdb6e9ff8b9c",
+              "program_length": 1689,
+              "target_original_encoded_occurrences": 1,
+              "source_original_encoded_occurrences": 1
+            }
+          ]
+        }
+      ],
+      "complete_Analysis_only_reviewed_text_insertions": true,
+      "all_other_values_keys_arrays_owners_geometry_tables_notices_exact": true,
+      "text_changes": [
+        {
+          "path": [
+            "pages",
+            0,
+            "words",
+            412,
+            "text"
+          ],
+          "insertions": [
+            "榊"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "regions",
+            0,
+            "lines",
+            110,
+            "text"
+          ],
+          "insertions": [
+            "榊"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "text"
+          ],
+          "insertions": [
+            "榊"
+          ]
+        },
+        {
+          "path": [
+            "text"
+          ],
+          "insertions": [
+            "榊"
+          ]
+        },
+        {
+          "path": [
+            "articles",
+            6,
+            "text"
+          ],
+          "insertions": [
+            "榊"
+          ]
+        },
+        {
+          "path": [
+            "articles",
+            6,
+            "document",
+            "blocks",
+            0,
+            "runs",
+            0,
+            "text"
+          ],
+          "insertions": [
+            "榊"
+          ]
+        }
+      ]
+    },
+    {
+      "page": "20260917g002080090",
+      "actual_embedded_font_proofs": [
+        {
+          "Word": 408,
+          "restored_character": "樋",
+          "proofs": [
+            {
+              "raw_scalar": "U+E47F",
+              "CID": 23185,
+              "target_resource": "/C0_6",
+              "source_resource": "/C0_8",
+              "same_decoded_program_bytes": true,
+              "program_sha256": "f97df367e75615a577fbf1bb58a41db6bf15ec6d3d1f4d6b79a5886950bf8fe8",
+              "program_length": 1544,
+              "target_original_encoded_occurrences": 1,
+              "source_original_encoded_occurrences": 1
+            }
+          ]
+        }
+      ],
+      "complete_Analysis_only_reviewed_text_insertions": true,
+      "all_other_values_keys_arrays_owners_geometry_tables_notices_exact": true,
+      "text_changes": [
+        {
+          "path": [
+            "pages",
+            0,
+            "words",
+            408,
+            "text"
+          ],
+          "insertions": [
+            "樋"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "regions",
+            0,
+            "lines",
+            17,
+            "text"
+          ],
+          "insertions": [
+            "樋"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "text"
+          ],
+          "insertions": [
+            "樋"
+          ]
+        },
+        {
+          "path": [
+            "text"
+          ],
+          "insertions": [
+            "樋"
+          ]
+        },
+        {
+          "path": [
+            "articles",
+            0,
+            "text"
+          ],
+          "insertions": [
+            "樋"
+          ]
+        },
+        {
+          "path": [
+            "articles",
+            0,
+            "document",
+            "blocks",
+            0,
+            "runs",
+            0,
+            "text"
+          ],
+          "insertions": [
+            "樋"
+          ]
+        }
+      ]
+    },
+    {
+      "page": "20260924g002110114",
+      "actual_embedded_font_proofs": [
+        {
+          "Word": 382,
+          "restored_character": "箭",
+          "proofs": [
+            {
+              "raw_scalar": "U+E457",
+              "CID": 23145,
+              "target_resource": "/C0_6",
+              "source_resource": "/C0_2",
+              "same_decoded_program_bytes": true,
+              "program_sha256": "ed83d0247f6099e819641014361d9393b02711b195fbdfb155900d70b1f7a6f3",
+              "program_length": 1473,
+              "target_original_encoded_occurrences": 2,
+              "source_original_encoded_occurrences": 2
+            }
+          ]
+        },
+        {
+          "Word": 660,
+          "restored_character": "箭",
+          "proofs": [
+            {
+              "raw_scalar": "U+E457",
+              "CID": 23145,
+              "target_resource": "/C0_6",
+              "source_resource": "/C0_2",
+              "same_decoded_program_bytes": true,
+              "program_sha256": "ed83d0247f6099e819641014361d9393b02711b195fbdfb155900d70b1f7a6f3",
+              "program_length": 1473,
+              "target_original_encoded_occurrences": 2,
+              "source_original_encoded_occurrences": 2
+            }
+          ]
+        }
+      ],
+      "complete_Analysis_only_reviewed_text_insertions": true,
+      "all_other_values_keys_arrays_owners_geometry_tables_notices_exact": true,
+      "text_changes": [
+        {
+          "path": [
+            "pages",
+            0,
+            "words",
+            382,
+            "text"
+          ],
+          "insertions": [
+            "箭"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "words",
+            660,
+            "text"
+          ],
+          "insertions": [
+            "箭"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "regions",
+            0,
+            "lines",
+            21,
+            "text"
+          ],
+          "insertions": [
+            "箭"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "regions",
+            0,
+            "lines",
+            28,
+            "text"
+          ],
+          "insertions": [
+            "箭"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "text"
+          ],
+          "insertions": [
+            "箭",
+            "箭"
+          ]
+        },
+        {
+          "path": [
+            "text"
+          ],
+          "insertions": [
+            "箭",
+            "箭"
+          ]
+        },
+        {
+          "path": [
+            "articles",
+            0,
+            "text"
+          ],
+          "insertions": [
+            "箭",
+            "箭"
+          ]
+        },
+        {
+          "path": [
+            "articles",
+            0,
+            "document",
+            "blocks",
+            0,
+            "runs",
+            0,
+            "text"
+          ],
+          "insertions": [
+            "箭"
+          ]
+        },
+        {
+          "path": [
+            "articles",
+            0,
+            "document",
+            "blocks",
+            0,
+            "runs",
+            2,
+            "text"
+          ],
+          "insertions": [
+            "箭"
+          ]
+        }
+      ]
+    },
+    {
+      "page": "20260925g002120071",
+      "actual_embedded_font_proofs": [
+        {
+          "Word": 208,
+          "restored_character": "榊",
+          "proofs": [
+            {
+              "raw_scalar": "U+E43F",
+              "CID": 23121,
+              "target_resource": "/C0_2",
+              "source_resource": "/C0_9",
+              "same_decoded_program_bytes": true,
+              "program_sha256": "c75cf916f28f9649ee306c867eedd28bb133fcc90b9909f67bb3441e2bb5867d",
+              "program_length": 1831,
+              "target_original_encoded_occurrences": 1,
+              "source_original_encoded_occurrences": 1
+            }
+          ]
+        }
+      ],
+      "complete_Analysis_only_reviewed_text_insertions": true,
+      "all_other_values_keys_arrays_owners_geometry_tables_notices_exact": true,
+      "text_changes": [
+        {
+          "path": [
+            "pages",
+            0,
+            "words",
+            208,
+            "text"
+          ],
+          "insertions": [
+            "榊"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "regions",
+            0,
+            "lines",
+            105,
+            "text"
+          ],
+          "insertions": [
+            "榊"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "text"
+          ],
+          "insertions": [
+            "榊"
+          ]
+        },
+        {
+          "path": [
+            "text"
+          ],
+          "insertions": [
+            "榊"
+          ]
+        },
+        {
+          "path": [
+            "articles",
+            7,
+            "text"
+          ],
+          "insertions": [
+            "榊"
+          ]
+        },
+        {
+          "path": [
+            "articles",
+            7,
+            "document",
+            "blocks",
+            0,
+            "runs",
+            0,
+            "text"
+          ],
+          "insertions": [
+            "榊"
+          ]
+        }
+      ]
+    },
+    {
+      "page": "20260925g002120081",
+      "actual_embedded_font_proofs": [
+        {
+          "Word": 155,
+          "restored_character": "葛",
+          "proofs": [
+            {
+              "raw_scalar": "U+E41F",
+              "CID": 23089,
+              "target_resource": "/C0_6",
+              "source_resource": "/C0_2",
+              "same_decoded_program_bytes": true,
+              "program_sha256": "2740d3324f6fc57ce6db26bf76dcb255fca9c932e6b563072534edddee6a6b42",
+              "program_length": 1494,
+              "target_original_encoded_occurrences": 1,
+              "source_original_encoded_occurrences": 1
+            }
+          ]
+        }
+      ],
+      "complete_Analysis_only_reviewed_text_insertions": true,
+      "all_other_values_keys_arrays_owners_geometry_tables_notices_exact": true,
+      "text_changes": [
+        {
+          "path": [
+            "pages",
+            0,
+            "words",
+            155,
+            "text"
+          ],
+          "insertions": [
+            "葛"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "regions",
+            0,
+            "lines",
+            30,
+            "text"
+          ],
+          "insertions": [
+            "葛"
+          ]
+        },
+        {
+          "path": [
+            "pages",
+            0,
+            "text"
+          ],
+          "insertions": [
+            "葛"
+          ]
+        },
+        {
+          "path": [
+            "text"
+          ],
+          "insertions": [
+            "葛"
+          ]
+        },
+        {
+          "path": [
+            "articles",
+            0,
+            "text"
+          ],
+          "insertions": [
+            "葛"
+          ]
+        },
+        {
+          "path": [
+            "articles",
+            0,
+            "document",
+            "blocks",
+            0,
+            "runs",
+            2,
+            "text"
+          ],
+          "insertions": [
+            "葛"
+          ]
+        }
+      ]
+    }
+  ],
+  "OCR": {
+    "image_OCR": "explicit opt-in",
+    "NDLOCR_version": "0.0.15",
+    "revision": "f97e930b8c3e9512f7788f258ef685da26416483"
+  },
+  "remaining": "Goal active. Separate frozen REDs for independent32x3 parents becoming63x3 Document table (158) and13printed notices becoming11Articles (159). Other unknown encodings, incomplete/open financial grids and source ownership remain. No 100% accuracy claim.",
+  "normal_native_gates": {
+    "terminal": 0,
+    "commands": 2,
+    "integration_targets": 155,
+    "result_groups": 163,
+    "passed": 3908,
+    "failed": 0,
+    "ignored": 0,
+    "source_manifest_sha256": "d0eec8396ce7474f975069f661048f2f4adff4e385a3fa7a56261f6cef3c19fa",
+    "source_and_all_existing_test_inputs_prepost_exact": true,
+    "snapshot_updates_disabled": true
+  },
+  "actual_Cargo_release": {
+    "profile": "actual Cargo release, final W sources",
+    "single_complete_Analysis_exact_private_final": 11992,
+    "whole_complete_Analysis_exact_private_final": 159,
+    "actual_release_PDF_textdump_CLI_native_body_bytes_exact": 11992,
+    "single_duplicate_owner_pages": 0,
+    "CLI_duplicate_word_reports": 0,
+    "all_original_inputs_native_sources_Cargo_and_binaries_prepost_exact": true,
+    "seconds": 171.021418292,
+    "scope": "Full final actual-Cargo release public API Analysis and native CLI over original PDFs; source-reviewed footprint16pages22characters13issues. No independent accuracy claim."
+  },
+  "old_asset_proof": {
+    "old_assets": 3103,
+    "unchanged_old_assets": 3102,
+    "changed_assets": [
+      "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260925g00212__20260925g002120071.pdf.snap"
+    ],
+    "snapshot_reverse_projection": {
+      "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260925g00212__20260925g002120071.pdf.snap",
+      "old_sha256": "3861d08a305c4c0815004a72e2abdbf45e28b5b7e56f22ab1acbd7792116b885",
+      "new_sha256": "3f1aeca88a7488a57d98078c2fc0531ebace64827ddc36397c8e0916f5a4476b",
+      "only_source_reviewed_insertions": [
+        {
+          "new_offset": 3182,
+          "old_offset": 3182,
+          "inserted": "榊"
+        },
+        {
+          "new_offset": 8094,
+          "old_offset": 8093,
+          "inserted": "榊"
+        }
+      ],
+      "reverse_projection_restores_all_original_bytes": true,
+      "original_snapshot_renderer_source_sha256": "92e890cade89735ab6b7ff98ecce6fa6b04b91bc7e0a4be3ef59687dca6092cd",
+      "renderer_helpers_and_body_copied_verbatim": true,
+      "no_snapshot_auto_update": true
+    },
+    "all_old_archive_PDF_bytes_exact": true,
+    "unchanged_old_snapshots": 813,
+    "all_native_tracked_changed_paths": [
+      "crates/kanpo-parser/src/lib.rs",
+      "crates/kanpo-parser/src/normalize.rs",
+      "crates/kanpo-parser/src/vertical.rs",
+      "crates/kanpo-parser/tests/corpus.rs",
+      "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260925g00212__20260925g002120071.pdf.snap",
+      "crates/kanpo-pdf/src/bbox.rs",
+      "crates/kanpo-pdf/src/cff_aj1.rs",
+      "crates/kanpo-pdf/src/font.rs",
+      "crates/kanpo-pdf/src/native_advance_band_tests.rs",
+      "crates/kanpo-pdf/src/native_axis_tests.rs",
+      "crates/kanpo-pdf/src/native_cell_origin_tests.rs",
+      "crates/kanpo-pdf/src/native_content_style_tests.rs",
+      "crates/kanpo-pdf/src/native_flow_contracts.rs",
+      "crates/kanpo-pdf/src/native_projected_flow_tests.rs",
+      "crates/kanpo-pdf/src/native_terminal_glyph_tests156.rs",
+      "crates/kanpo-pdf/src/page.rs",
+      "crates/kanpo-pdf/src/source_aj1.rs",
+      "crates/kanpo-pdf/src/source_aj1_word_tests.rs"
+    ]
+  },
+  "runtime_source_equivalence": "All20 changed/new sourcefiles match final frozen PDFv5/parserv2 byte-for-byte after only the declared internal module filename and test fixture path translation; unchanged native sources/Cargo are bound to the final normal and actual-release source manifests."
+}

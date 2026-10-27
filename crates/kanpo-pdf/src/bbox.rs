@@ -319,7 +319,7 @@ fn resolved_aj1_word(page: &Page, word: &Word) -> bool {
 
 /// ページを `pdftotext -bbox-layout` 形式の XHTML にする。語ごとに 1 つの flow・block・line に入れる。
 pub fn bbox_layout(pages: &[Page]) -> String {
-    layout(pages.iter().map(|p| (p,None,None)), false)
+    layout(pages.iter().map(|p| (p,None,None,None)), false)
 }
 /// Render only owned original pages with their own source evidence.
 /// There is no external Page argument to which evidence could be transferred.
@@ -333,12 +333,12 @@ pub fn bbox_layout(pages: &[Page]) -> String {
 /// let _ = kanpo_pdf::bbox::bbox_layout_with_aj1_sources(pages, sources);
 /// ```
 pub fn bbox_layout_with_aj1_sources(sources: &[crate::Aj1PageSources]) -> String {
-    layout(sources.iter().map(|s| (s.page(),Some(s.resolved()),None)), false)
+    layout(sources.iter().map(|s| (s.page(),Some(s.resolved()),None,None)), false)
 }
 /// Original source font/size identities. These are provenance, not inferred boldness.
 /// Each style is bound to the glyphs of its own emitted word.
 pub fn bbox_layout_with_native_styles(sources: &[crate::Aj1PageSources]) -> String {
-    layout(sources.iter().map(|s| (s.page(), Some(s.resolved()),Some(s.ink_rects()))), true)
+    layout(sources.iter().map(|s| (s.page(), Some(s.resolved()),Some(s.ink_rects()),Some(&s.aliases))), true)
 }
 fn native_styles(page: &Page, word: &Word) -> Option<String> {
     let mut styles = std::collections::BTreeSet::new();
@@ -429,12 +429,12 @@ fn native_flow_tuple(page:&Page,word:&Word)->Option<[f64;4]>{
     let flow=[first.x,first.y,last.end_x,first.end_x-first.x];
     (flow.iter().all(|n|n.is_finite()) && flow[0]<flow[2] && flow[3]>0. && flow[3]<=flow[2]-flow[0] && (last.end_x+last.spacing).is_finite() && (flow[3]+first.kern).is_finite()).then_some(flow)
 }
-fn layout<'a>(pages: impl IntoIterator<Item=(&'a Page,Option<&'a [Option<char>]>,Option<&'a [Option<[f64;4]>]>)>, emit_styles:bool) -> String {
+fn layout<'a>(pages: impl IntoIterator<Item=(&'a Page,Option<&'a [Option<char>]>,Option<&'a [Option<[f64;4]>]>,Option<&'a crate::font::source_alias::Aliases>)>, emit_styles:bool) -> String {
     let mut s = String::from(
         "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\
          <html xmlns=\"http://www.w3.org/1999/xhtml\">\n<head>\n<title></title>\n</head>\n<body>\n<doc>\n",
     );
-    for (page, resolved_source, ink_rects) in pages {
+    for (page, resolved_source, ink_rects, aliases) in pages {
         // poppler は /Rotate の前の幅・高さを書く。
         let (w, h) = if page.rotate % 180 == 90 {
             (page.height, page.width)
@@ -460,6 +460,7 @@ fn layout<'a>(pages: impl IntoIterator<Item=(&'a Page,Option<&'a [Option<char>]>
                     .map(|band| format!(" data-native-advance-band=\"{}\"", band.attribute()))
                     .unwrap_or_default()
             } else { String::new() };
+            let alias=if emit_styles{aliases.and_then(|a|a.word_attribute(page,&word)).map(|s|format!(" data-native-font-aliases=\"{s}\"")).unwrap_or_default()}else{String::new()};
             let terminal=if emit_styles {native_terminal_glyph::from_word(page,&word)
                 .map(|t|format!(" data-native-terminal-glyph=\"{}\"",t.attribute())).unwrap_or_default()}else{String::new()};
             let range=if emit_styles{native_glyph_range(page,&word).map(|(first,after)|format!(" data-native-flow-first-glyph=\"{first}\" data-native-flow-after-glyph=\"{after}\"")).unwrap_or_default()}else{String::new()};
@@ -475,7 +476,7 @@ fn layout<'a>(pages: impl IntoIterator<Item=(&'a Page,Option<&'a [Option<char>]>
             let resolved = if resolved_aj1_word(page, &word) { " data-unicode-aj1=\"1\"" } else { "" };
             let _ = writeln!(
                 s,
-                "    <flow>\n      <block {attrs}>\n        <line {attrs}>\n          <word {attrs}{native}{resolved}{source_attr}{styles}{content}{axis}{ruling}{flow}{range}{cell_origin}{advance_band}{terminal}>{}</word>\n        </line>\n      </block>\n    </flow>",
+                "    <flow>\n      <block {attrs}>\n        <line {attrs}>\n          <word {attrs}{native}{resolved}{source_attr}{styles}{content}{axis}{ruling}{flow}{range}{cell_origin}{advance_band}{terminal}{alias}>{}</word>\n        </line>\n      </block>\n    </flow>",
                 escape(&word.text)
             );
         }
@@ -701,7 +702,7 @@ mod native_style_tests {
     #[test]
     fn source_style_renderer_only_adds_metadata_to_the_legacy_rendering() {
         let p = page(vec![glyph("同", 10., 0, 8.), glyph("同", 40., 1, 9.)]);
-        let sources = vec![crate::Aj1PageSources { ink_rects:vec![],
+        let sources = vec![crate::Aj1PageSources { aliases:Default::default(), ink_rects:vec![],
             resolved: vec![None, None],
             original: p.clone(),
         }];
@@ -753,7 +754,7 @@ fn native_axis_flow_tuple(page:&Page,word:&Word)->Option<[f64;4]>{
     let result=[start.0,start.1,end.0,lead];
     (result.iter().all(|v|v.is_finite())&&start.0<end.0&&lead>0.&&lead<=end.0-start.0&&(end.0+last.spacing).is_finite()&&(lead+first.kern).is_finite()).then_some(result)
 }
-fn native_glyph_range(page:&Page,word:&Word)->Option<(usize,usize)>{
+pub(crate) fn native_glyph_range(page:&Page,word:&Word)->Option<(usize,usize)>{
     native_axis_flow_tuple(page,word)?;
     let first=*word.glyphs.first()?;let after=word.glyphs.last()?.checked_add(1)?;
     (after<=page.glyphs.len()&&word.glyphs.iter().enumerate().all(|(i,&id)|first.checked_add(i)==Some(id))).then_some((first,after))

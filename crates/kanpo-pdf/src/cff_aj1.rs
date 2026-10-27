@@ -220,6 +220,13 @@ fn cid_routing(
     Some(())
 }
 pub(crate) fn standard_cids(data: &[u8]) -> Option<Vec<u16>> {
+    routed_cids(data, |reg, order, supplement| reg == b"Adobe" && order == b"Japan1" && (0..=7).contains(&supplement))
+}
+/// Structural CID routing only; this supplies no Unicode or collection meaning.
+pub(crate) fn program_cids(data: &[u8]) -> Option<Vec<u16>> {
+    routed_cids(data, |reg, order, supplement| !reg.is_empty() && !order.is_empty() && supplement >= 0)
+}
+fn routed_cids(data: &[u8], authorize: impl FnOnce(&[u8], &[u8], i64) -> bool) -> Option<Vec<u16>> {
     if data.get(..2)? != [1, 0] {
         return None;
     }
@@ -245,15 +252,12 @@ pub(crate) fn standard_cids(data: &[u8]) -> Option<Vec<u16>> {
     let [Some(reg), Some(order), Some(supp)] = ros.as_slice() else {
         return None;
     };
-    if !(0..=7).contains(supp) {
-        return None;
-    }
     let sid = |n: i64| -> Option<&[u8]> {
         strings
             .get(usize::try_from(n.checked_sub(391)?).ok()?)
             .copied()
     };
-    if sid(*reg)? != b"Adobe" || sid(*order)? != b"Japan1" {
+    if !authorize(sid(*reg)?, sid(*order)?, *supp) {
         return None;
     }
     let offset = |op| -> Option<usize> {

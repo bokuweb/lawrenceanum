@@ -172,6 +172,7 @@ struct Interp<'a> {
     /// Source candidates stay adjacent to the original emitted CharCode.
     /// Legacy extraction does not allocate or decode source evidence.
     source_resolved: Option<Vec<Option<char>>>,
+    source_alias_keys:Option<Vec<Option<crate::font::source_alias::FontGlyph>>>,
     source_rects:Option<Vec<Option<[f64;4]>>>,
     ink_viewport:[f64;4],
     image_draws: Option<Vec<crate::source_images::ImageDraw>>,
@@ -193,15 +194,15 @@ pub fn extract_page(doc: &Document, page: &PageRef) -> Page {
     interpret_page(doc, page, false, false).0
 }
 pub(crate) fn extract_page_source_aj1(doc: &Document, page: &PageRef) -> crate::Aj1PageSources {
-    let (page, resolved, ink_rects, _, _) = interpret_page(doc, page, true, false);
-    crate::source_aj1::Aj1PageSources { original: page, resolved, ink_rects }
+    let (page, resolved, ink_rects, aliases, _, _) = interpret_page(doc, page, true, false);
+    crate::source_aj1::Aj1PageSources { original: page, resolved, ink_rects, aliases }
 }
 
 pub(crate) fn extract_page_source_images(doc:&Document,page:&PageRef)->crate::source_images::XObjectPageSources{
- let(original,resolved,ink_rects,draws,gaps)=interpret_page(doc,page,true,true);
- crate::source_images::XObjectPageSources{native:crate::source_aj1::Aj1PageSources{original,resolved,ink_rects},crop:page.crop_box,draws,gaps,document_digest:[0;32],media:page.media_box}
+ let(original,resolved,ink_rects,aliases,draws,gaps)=interpret_page(doc,page,true,true);
+ crate::source_images::XObjectPageSources{native:crate::source_aj1::Aj1PageSources{original,resolved,ink_rects,aliases},crop:page.crop_box,draws,gaps,document_digest:[0;32],media:page.media_box}
 }
-fn interpret_page(doc: &Document, page: &PageRef, source: bool, image_sources:bool) -> (Page, Vec<Option<char>>,Vec<Option<[f64;4]>>,Vec<crate::source_images::ImageDraw>,Vec<crate::source_images::CaptureGap>) {
+fn interpret_page(doc: &Document, page: &PageRef, source: bool, image_sources:bool) -> (Page, Vec<Option<char>>,Vec<Option<[f64;4]>>,crate::font::source_alias::Aliases,Vec<crate::source_images::ImageDraw>,Vec<crate::source_images::CaptureGap>) {
     let [x0, y0, x1, y1] = page.crop_box;
     let device = match page.rotate {
         90 => Matrix([0.0, 1.0, 1.0, 0.0, -y0, -x0]),
@@ -239,6 +240,7 @@ fn interpret_page(doc: &Document, page: &PageRef, source: bool, image_sources:bo
         font_ids: HashMap::new(),
         glyphs: Vec::new(),
         source_resolved: source.then(Vec::new),
+        source_alias_keys:source.then(Vec::new),
         source_rects:source.then(Vec::new),
         ink_viewport:[0.,0.,width,height],
         image_draws: image_sources.then(Vec::new),
@@ -258,6 +260,7 @@ fn interpret_page(doc: &Document, page: &PageRef, source: bool, image_sources:bo
 
     if image_sources && (!(width.is_finite()&&height.is_finite()&&width>0.&&height>0.)||!device.0.iter().all(|v|v.is_finite())){it.gs.source_geometry_complete=false;it.image_gap(crate::source_images::GapKind::InvalidPageGeometry,b"");}
     it.run(&content, &page.resources);
+    let aliases=it.source_alias_keys.take().map(|keys|crate::font::source_alias::Aliases::capture(&it.glyphs,&keys)).unwrap_or_default();
     let resolved = it.source_resolved.take().unwrap_or_default();
     let ink_rects=it.source_rects.take().unwrap_or_default();
     let image_draws=it.image_draws.take().unwrap_or_default();
@@ -282,6 +285,7 @@ fn interpret_page(doc: &Document, page: &PageRef, source: bool, image_sources:bo
     },
         resolved,
         ink_rects,
+        aliases,
         image_draws,
         image_gaps,
     )
@@ -591,6 +595,7 @@ impl Interp<'_> {
                 show: self.show_count,
             });
             if let Some(rects)=&mut self.source_rects{rects.push(ink_rect);}
+            if let Some(keys)=&mut self.source_alias_keys{keys.push(font.source_alias_key(self.doc,&c));}
             if let Some(resolved) = &mut self.source_resolved {
                 resolved.push(font.source_aj1_fallback(self.doc, &c));
             }

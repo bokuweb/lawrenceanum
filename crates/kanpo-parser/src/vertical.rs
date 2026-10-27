@@ -2422,6 +2422,7 @@ fn page_words_with_styles_and_bands(
     let mut projected_flows=Vec::new();
     let mut cell_origins=Vec::new();
     let mut advance_bands=Vec::new();
+    let font_aliases=crate::source_font_alias::for_page(page);
     let glyph_count=page.value().attr("data-native-glyph-count").and_then(|n|n.parse::<usize>().ok());
     let mut native_vertical: std::collections::HashMap<[u32; 4], Vec<(String, [f32; 4])>> = Default::default();
     let mut native_horizontal_chars = 0usize;
@@ -2471,7 +2472,7 @@ fn page_words_with_styles_and_bands(
             native_content_styles.push(crate::native_content_styles::from_word(w, native_styles.last().unwrap().as_ref()));
             source_candidates.push(
                 v.attr("data-source-aj1-text")
-                    .and_then(|value| crate::source_aj1::candidate(&text, value)),
+                    .and_then(|value| crate::source_aj1::candidate(&text, value)).or_else(||font_aliases.for_word(w)),
             );
             raws.push((x, y, x1, y1, text));
             resolved_aj1.push(v.attr("data-unicode-aj1") == Some("1"));

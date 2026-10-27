@@ -217,7 +217,7 @@ fn attr<'a>(s: &'a str, name: &str) -> Option<&'a str> {
     Some(rest.split_once('"')?.0)
 }
 fn native_html(p: &Page) -> String {
-    layout(std::iter::once((p, None, None)), true)
+    layout(std::iter::once((p, None, None, None)), true)
 }
 #[test]
 fn band144_legacy_xhtml_never_receives_source_band_metadata() {

@@ -31,7 +31,7 @@ fn sample() -> (Page, Aj1PageSources, crate::bbox::Word) {
             has_to_unicode: false,
         }],
     };
-    let s = Aj1PageSources { ink_rects:vec![],
+    let s = Aj1PageSources { aliases:Default::default(), ink_rects:vec![],
         original: p.clone(),
         resolved: vec![Some('嬴')],
     };

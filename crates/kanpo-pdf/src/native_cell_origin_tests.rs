@@ -118,7 +118,7 @@ fn source_renderer_records_the_envelope_without_inventing_strict_flow() {
     assert!(native_flow_tuple(&p, &w).is_none());
     let legacy = bbox_layout(&[p.clone()]);
     assert!(!legacy.contains("data-native-cell-origin"));
-    let source = layout(std::iter::once((&p, None, None)), true);
+    let source = layout(std::iter::once((&p, None, None, None)), true);
     assert!(
         source.contains("data-native-cell-origin=\"2 0 3 10 100 34 8 0 0 10 92.84 34 102 8 8\"")
     );

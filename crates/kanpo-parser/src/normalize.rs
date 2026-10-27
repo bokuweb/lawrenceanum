@@ -940,3 +940,7 @@ mod verified_chi_tests {
         assert_eq!(normalize_text("前\u{E9F5}後"), "前後");
     }
 }
+
+/// A source alias may only fill a scalar with no existing native PUA decoder.
+/// In particular a recognized standalone minus retains its deliberate suppression.
+pub(crate) fn unresolved_private_scalar(c:char)->bool{is_private_use(c)&&private_use_char(c).is_none()&&paren_number(c).is_none()}

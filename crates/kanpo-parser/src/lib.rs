@@ -730,3 +730,5 @@ mod source_article_parts;
 mod native_numeric_frames;
 
 mod native_terminal_glyph;
+
+mod source_font_alias;

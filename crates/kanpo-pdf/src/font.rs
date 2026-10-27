@@ -67,6 +67,7 @@ pub struct Font {
     source_charset: OnceLock<Option<Vec<u16>>>,
     source_cid0: bool,
     source_rectangles: OnceLock<Option<std::collections::BTreeMap<u16,[f64;4]>>>,
+    source_alias_program: OnceLock<Option<source_alias::Program>>,
 }
 
 /// 文字列中の 1 文字。
@@ -113,6 +114,7 @@ impl Font {
             source_charset: OnceLock::new(),
             source_cid0: false,
             source_rectangles: OnceLock::new(),
+            source_alias_program: OnceLock::new(),
         };
         if subtype == "Type0" {
             font.composite = true;
@@ -488,3 +490,5 @@ mod tests {
 #[cfg(test)]
 #[path = "source_aj1_font_tests.rs"]
 mod source_aj1_font_tests;
+
+#[path="source_font_alias.rs"] pub(crate) mod source_alias;
