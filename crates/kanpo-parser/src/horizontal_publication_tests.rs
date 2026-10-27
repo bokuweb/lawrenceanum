@@ -742,3 +742,359 @@ fn header141_font_bijection_and_word_id_permutation_keep_the_same_source_order()
     let title=header141_first_id(&p,"無名の団体の任意の期間の");let date=header141_first_id(&p,"2026年7月1日");
     assert!(header141_position(&p,title)<header141_position(&p,date));assert_eq!(cuts(&p,&r),vec![1]);
 }
+
+// A source-typed instrument need not use an announcement noun in its title.
+fn native_instrument(title: &str, office: &str) -> PageTrace {
+    let mut p = empty();
+    add(&mut p, "以前の別件の本文。", [50., 10., 350., 18.], 1, 8.);
+    add(&mut p, title, [50., 40., 220., 49.], 2, 9.);
+    add(
+        &mut p,
+        "根拠となる制度に基づいて本件を定める。",
+        [50., 60., 350., 68.],
+        1,
+        8.,
+    );
+    add(&mut p, "2026年7月1日", [60., 80., 160., 88.], 1, 8.);
+    let role = add(&mut p, office, [230., 100., 290., 108.], 1, 8.);
+    let name = add(&mut p, "任意", [310., 100., 350., 108.], 1, 8.);
+    p.regions[0].lines.pop();
+    p.regions[0].lines.pop();
+    p.regions[0]
+        .lines
+        .push(Line::text(format!("{office} 任意"), vec![role, name]));
+    add(&mut p, "１ 手続", [50., 120., 150., 128.], 1, 8.);
+    p.native_horizontal_baselines = p
+        .native_bounds
+        .iter()
+        .map(|b| match b {
+            NativeBounds::Glyphs(b) => Some(f64::from(b[1] + b[3]) / 2.),
+            _ => None,
+        })
+        .collect();
+    refresh(&mut p);
+    p
+}
+#[test]
+fn native_instrument_roots_use_own_typography_date_and_office_for_arbitrary_titles() {
+    for title in ["名のない措置", "制度の開始", "審査手続の実施"] {
+        for office in ["任意機関長", "任意担当大臣"] {
+            assert_eq!(
+                cuts(&native_instrument(title, office), &Default::default()),
+                vec![1],
+                "{title}/{office}"
+            );
+        }
+    }
+}
+#[test]
+fn native_instrument_roots_do_not_borrow_a_following_headings_signature() {
+    let mut p = native_instrument("最初の見出し", "任意機関長");
+    let last = add(&mut p, "次の見出し", [50., 75., 220., 84.], 2, 9.);
+    let l = p.regions[0].lines.pop().unwrap();
+    p.regions[0].lines.insert(3, l);
+    p.native_horizontal_baselines.push(Some(79.5));
+    assert_eq!(p.words[last].text, "次の見出し");
+    refresh(&mut p);
+    assert!(cuts(&p, &Default::default()).is_empty());
+}
+
+#[test]
+fn native_instrument_roots_require_their_complete_original_date_and_sentence() {
+    for (id, text) in [
+        (2, "名詞の断片"),
+        (3, "日付不明"),
+        (4, "大臣は本件を述べる。"),
+        (5, "氏名について述べる。"),
+    ] {
+        let mut p = native_instrument("任意の手続", "任意機関長");
+        p.words[id].raw = text.into();
+        p.words[id].text = text.into();
+        for line in &mut p.regions[0].lines {
+            if line.words.contains(&id) {
+                line.text = line
+                    .words
+                    .iter()
+                    .map(|&i| p.words[i].text.as_str())
+                    .collect::<Vec<_>>()
+                    .join(" ");
+            }
+        }
+        refresh(&mut p);
+        assert!(cuts(&p, &Default::default()).is_empty(), "{id}/{text}");
+    }
+}
+#[test]
+fn native_instrument_roots_refuse_missing_or_foreign_source_evidence() {
+    for id in 1..=5 {
+        for kind in 0..4 {
+            let mut p = native_instrument("任意の手続", "任意機関長");
+            match kind {
+                0 => p.native_bounds[id] = NativeBounds::Unknown,
+                1 => p.native_axes[id] = NativeAxis::Compatibility,
+                2 => p.native_content_styles[id] = ContentStyles::Unknown,
+                _ => p.words[id].status = WordStatus::Noise,
+            }
+            assert!(cuts(&p, &Default::default()).is_empty(), "{id}/{kind}");
+        }
+    }
+}
+#[test]
+fn native_instrument_roots_require_a_distinct_original_heading_style() {
+    let mut p = native_instrument("任意の手続", "任意機関長");
+    p.native_styles[1] = p.native_styles[2].clone();
+    p.native_content_styles[1] = p.native_content_styles[2].clone();
+    assert!(cuts(&p, &Default::default()).is_empty());
+}
+#[test]
+fn native_instrument_roots_cannot_take_unrelated_region_role_or_enclosed_material() {
+    let p = native_instrument("任意の手続", "任意機関長");
+    let mut r = PageRules::default();
+    r.enclosures.push([40., 30., 360., 115.]);
+    assert!(cuts(&p, &r).is_empty());
+    let mut p = native_instrument("任意の手続", "任意機関長");
+    p.regions[0].role = Role::Before;
+    assert!(cuts(&p, &Default::default()).is_empty());
+    let mut p = native_instrument("任意の手続", "任意機関長");
+    let tail = p.regions[0].lines.split_off(3);
+    p.regions.push(Region {
+        role: Role::Body,
+        unit: 1,
+        part: 0,
+        lines: tail,
+    });
+    assert!(cuts(&p, &Default::default()).is_empty());
+}
+#[test]
+fn native_instrument_roots_cannot_use_a_quoted_or_mismatched_rendered_heading() {
+    let mut p = native_instrument("任意の手続", "任意機関長");
+    replace(&mut p, 0, "引用「");
+    assert!(cuts(&p, &Default::default()).is_empty());
+    let mut p = native_instrument("任意の手続", "任意機関長");
+    p.regions[0].lines[1].text = "描画と異なる見出し".into();
+    refresh(&mut p);
+    assert!(cuts(&p, &Default::default()).is_empty());
+}
+#[test]
+fn native_instrument_roots_keep_scale_and_translation_independent() {
+    for (scale, dx, dy) in [(0.25, 300., 40.), (3., -120., 90.), (1., 0., 0.)] {
+        let mut p = native_instrument("任意の手続", "任意機関長");
+        let project = |b: Rect| {
+            [
+                b[0] * scale + dx,
+                b[1] * scale + dy,
+                b[2] * scale + dx,
+                b[3] * scale + dy,
+            ]
+        };
+        for w in &mut p.words {
+            let b = project(w.source_box);
+            w.source_box = b;
+            [w.x0, w.y0, w.x1, w.y1] = b;
+        }
+        for b in &mut p.native_bounds {
+            if let NativeBounds::Glyphs(r) = b {
+                *r = project(*r);
+            }
+        }
+        for b in &mut p.native_horizontal_baselines {
+            if let Some(y) = b {
+                *y = *y * f64::from(scale) + f64::from(dy);
+            }
+        }
+        assert_eq!(cuts(&p, &Default::default()), vec![1]);
+    }
+}
+
+#[test]
+fn native_instrument_roots_allow_balanced_inline_definitions_in_their_own_prose() {
+    let mut p = native_instrument("任意の手続", "任意機関長");
+    replace(
+        &mut p,
+        2,
+        "制度（以下「任意」という。）に基づいて本件を定める。",
+    );
+    assert_eq!(cuts(&p, &Default::default()), vec![1]);
+}
+#[test]
+fn native_instrument_roots_allow_a_balanced_definition_across_source_lines() {
+    let mut p = native_instrument("任意の手続", "任意機関長");
+    replace(&mut p, 2, "制度（以下「任");
+    add(
+        &mut p,
+        "意」という。）に基づいて本件を定める。",
+        [50., 70., 350., 78.],
+        1,
+        8.,
+    );
+    let l = p.regions[0].lines.pop().unwrap();
+    p.regions[0].lines.insert(3, l);
+    p.native_horizontal_baselines.push(Some(74.));
+    refresh(&mut p);
+    assert_eq!(cuts(&p, &Default::default()), vec![1]);
+}
+#[test]
+fn native_instrument_roots_cannot_release_an_unclosed_or_malformed_body_quote() {
+    for text in [
+        "引用「本件を定める。",
+        "閉じられていない引用』本件を定める。",
+    ] {
+        let mut p = native_instrument("任意の手続", "任意機関長");
+        replace(&mut p, 2, text);
+        assert!(cuts(&p, &Default::default()).is_empty());
+    }
+}
+
+#[test]
+fn native_instrument_roots_do_not_turn_an_indented_prose_wrap_into_a_heading() {
+    let mut p = native_instrument("任意の手続", "任意機関長");
+    replace(&mut p, 2, "根拠となる制度の番号を示す");
+    // A paragraph's first line can have its own indentation, while subsequent
+    // lines share the source column margin and the same original body style.
+    p.words[2].x0 = 60.;
+    p.words[2].source_box[0] = 60.;
+    if let NativeBounds::Glyphs(b) = &mut p.native_bounds[2] {
+        b[0] = 60.;
+    }
+    add(
+        &mut p,
+        "（以下「任意」という。）によって本件を定める。",
+        [50., 70., 350., 78.],
+        1,
+        8.,
+    );
+    let l = p.regions[0].lines.pop().unwrap();
+    p.regions[0].lines.insert(3, l);
+    p.native_horizontal_baselines.push(Some(74.));
+    refresh(&mut p);
+    assert_eq!(cuts(&p, &Default::default()), vec![1]);
+}
+
+#[test]
+fn native_instrument_roots_include_a_larger_original_category_prefix() {
+    let mut p = native_instrument("任意の手続", "任意機関長");
+    add(&mut p, "任意分類", [80., 25., 260., 35.], 3, 10.);
+    let l = p.regions[0].lines.pop().unwrap();
+    p.regions[0].lines.insert(1, l);
+    p.native_horizontal_baselines.push(Some(30.));
+    refresh(&mut p);
+    assert_eq!(cuts(&p, &Default::default()), vec![1]);
+}
+#[test]
+fn native_instrument_roots_do_not_borrow_another_columns_larger_prefix() {
+    let mut p = native_instrument("任意の手続", "任意機関長");
+    add(&mut p, "別の分類", [400., 25., 550., 35.], 3, 10.);
+    let l = p.regions[0].lines.pop().unwrap();
+    p.regions[0].lines.insert(1, l);
+    p.native_horizontal_baselines.push(Some(30.));
+    refresh(&mut p);
+    assert_eq!(cuts(&p, &Default::default()), vec![2]);
+}
+
+#[test]
+fn native_instrument_roots_keep_source_font_ids_opaque() {
+    let mut p = native_instrument("任意の手続", "任意機関長");
+    for styles in p.native_styles.iter_mut().filter_map(Option::as_mut) {
+        *styles = styles
+            .iter()
+            .map(|&(font, size)| (font ^ 0x105, size))
+            .collect();
+    }
+    for content in &mut p.native_content_styles {
+        if let ContentStyles::Glyphs(styles) = content {
+            *styles = styles
+                .iter()
+                .map(|&(font, size)| (font ^ 0x105, size))
+                .collect();
+        }
+    }
+    assert_eq!(cuts(&p, &Default::default()), vec![1]);
+}
+#[test]
+fn native_instrument_roots_follow_original_word_ownership_after_id_relabeling() {
+    let mut p = native_instrument("任意の手続", "任意機関長");
+    let n = p.words.len();
+    p.words.reverse();
+    for (i, w) in p.words.iter_mut().enumerate() {
+        w.id = i;
+    }
+    p.native_styles.reverse();
+    p.native_content_styles.reverse();
+    p.native_bounds.reverse();
+    p.native_axes.reverse();
+    p.native_horizontal_baselines.reverse();
+    for region in &mut p.regions {
+        for line in &mut region.lines {
+            for id in &mut line.words {
+                *id = n - 1 - *id;
+            }
+        }
+    }
+    assert_eq!(cuts(&p, &Default::default()), vec![1]);
+}
+#[test]
+fn native_instrument_roots_have_no_heading_line_count_budget() {
+    for extra in [1, 7, 40] {
+        let mut p = native_instrument("任意の手続", "任意機関長");
+        let original = p.words.len();
+        let dy = 10. * extra as f32;
+        for id in 2..original {
+            p.words[id].y0 += dy;
+            p.words[id].y1 += dy;
+            p.words[id].source_box[1] += dy;
+            p.words[id].source_box[3] += dy;
+            if let NativeBounds::Glyphs(b) = &mut p.native_bounds[id] {
+                b[1] += dy;
+                b[3] += dy;
+            }
+            if let Some(y) = &mut p.native_horizontal_baselines[id] {
+                *y += f64::from(dy);
+            }
+        }
+        for i in 0..extra {
+            let y = 50. + 10. * i as f32;
+            add(&mut p, "題名の任意の続き", [50., y, 220., y + 9.], 2, 9.);
+            let line = p.regions[0].lines.pop().unwrap();
+            p.regions[0].lines.insert(2 + i, line);
+            p.native_horizontal_baselines.push(Some(f64::from(y) + 4.5));
+        }
+        refresh(&mut p);
+        assert_eq!(cuts(&p, &Default::default()), vec![1]);
+    }
+}
+
+#[test]
+fn native_instrument_roots_do_not_trust_a_legacy_signature_line_without_one_source_baseline() {
+    for baseline in [None, Some(f64::NAN), Some(105.)] {
+        let mut p = native_instrument("任意の手続", "任意機関長");
+        p.native_horizontal_baselines[5] = baseline;
+        assert!(cuts(&p, &Default::default()).is_empty());
+    }
+}
+#[test]
+fn native_instrument_roots_require_the_date_to_have_a_finite_original_baseline() {
+    for baseline in [None, Some(f64::INFINITY)] {
+        let mut p = native_instrument("任意の手続", "任意機関長");
+        p.native_horizontal_baselines[3] = baseline;
+        assert!(cuts(&p, &Default::default()).is_empty());
+    }
+}
+
+#[test]
+fn native_instrument_roots_do_not_join_different_source_date_baselines() {
+    let mut p = native_instrument("任意の手続", "任意機関長");
+    p.words[3].raw = "2026年7月".into();
+    p.words[3].text = "2026年7月".into();
+    p.words[3].x1 = 140.;
+    p.words[3].source_box[2] = 140.;
+    if let NativeBounds::Glyphs(b) = &mut p.native_bounds[3] {
+        b[2] = 140.;
+    }
+    let id = add(&mut p, "1日", [144., 80., 160., 88.], 1, 8.);
+    p.regions[0].lines.pop();
+    p.regions[0].lines[3].words.push(id);
+    p.regions[0].lines[3].text = "2026年7月1日".into();
+    p.native_horizontal_baselines.push(Some(85.));
+    refresh(&mut p);
+    assert!(cuts(&p, &Default::default()).is_empty());
+}

@@ -110,6 +110,7 @@ struct SourceLine<'a> {
     tokens: Option<Vec<String>>,
     bbox: Option<Rect>,
     unquoted: bool,
+    quote_state: crate::amendment_quotes::State,
 }
 fn word_bounds(page: &PageTrace, id: usize) -> Option<Rect> {
     let w = page.words.get(id)?;
@@ -192,6 +193,7 @@ fn source_lines(page: &PageTrace) -> Option<Vec<SourceLine<'_>>> {
             let tokens =
                 (l.table.is_none() && tokens.concat() == compact(&l.text)).then_some(tokens);
             let unquoted = quote_states[lines.len()].empty && !l.text.contains(['「','」','『','』']);
+            let quote_state = quote_states[lines.len()];
             lines.push(SourceLine {
                 line: l,
                 scope,
@@ -200,6 +202,7 @@ fn source_lines(page: &PageTrace) -> Option<Vec<SourceLine<'_>>> {
                 tokens,
                 bbox,
                 unquoted,
+                quote_state,
             });
         }
     }

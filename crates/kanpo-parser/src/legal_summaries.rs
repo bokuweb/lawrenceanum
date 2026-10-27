@@ -94,7 +94,7 @@ fn crosses(rules: &PageRules, b: Rect) -> bool {
         .iter()
         .any(|r| b[0] < r.x && r.x < b[2] && r.y0 < b[3] && b[1] < r.y1)
 }
-fn larger_prefix(
+pub(super) fn larger_prefix(
     page: &PageTrace,
     axis: NativeAxis,
     rules: &PageRules,

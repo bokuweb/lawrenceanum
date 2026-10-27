@@ -384,15 +384,20 @@ fn signed_notice(
     false
 }
 pub(super) fn starts(page: &PageTrace, rules: &PageRules, lines: &[SourceLine<'_>]) -> Vec<usize> {
-    heads(page, rules, lines)
+    let mut starts = heads(page, rules, lines)
         .into_iter()
         .filter_map(|h| {
             let end = fence(page, lines, &h);
             (financial(page, rules, lines, &h, end) || signed_notice(page, rules, lines, &h, end))
                 .then_some(h.first)
         })
-        .collect()
+        .collect::<Vec<_>>();
+    starts.extend(instrument_roots::starts(page, rules, lines));
+    starts
 }
+
+#[path = "native_instrument_roots.rs"]
+mod instrument_roots;
 
 // Geometry of one printed source row, possibly represented by several Lines.
 // Unknown source baselines retain the existing one-Line behavior.
