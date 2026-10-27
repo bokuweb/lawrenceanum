@@ -72,6 +72,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
     let mut table_count = 0usize;
     // 前のページが新旧対照表で終わったか（表の続きのページの判定に使う）。
     let mut prev_table = false;
+    let mut prev_comparison = false;
     let mut prev_comparison_labels=None;
     // 前のページの、改正後・改正前の列の組が横に並ぶ新旧対照表の列の幅。
     let mut prev_pairs: Option<f32> = None;
@@ -87,6 +88,9 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         let ((cols, mut words, rotated, sideways, merged, minus, native_styles, native_bounds, native_content_styles, native_axes, native_rulings, inline_merged, native_flows, projected_flows, cell_origins),advance_bands) = page_words_with_styles_and_bands(page, width, height, rules.get(pi).and_then(|r| r.as_ref()));
         let native_header_words:std::collections::HashSet<_>=crate::comparison_labels::headers(&cols).into_iter().flat_map(|h|h.words).collect();
         let explicit_comparison_label=!native_header_words.is_empty() || !shinkyu_labels(&cols,'後').is_empty() || !shinkyu_labels(&cols,'前').is_empty();
+        // Omitted headers require open scope. Current printed labels remain
+        // independent evidence for the established explicit comparison path.
+        prev_table |= prev_comparison && explicit_comparison_label;
         // 負の金額の印「△」を付ける語の字（組んだ後で行の中の位置を探す）。
         let word_texts: std::collections::HashMap<usize, String> = if minus.is_empty() { Default::default() } else { cols.iter().map(|c| (c.id, c.text.clone())).collect() };
         // 長い区切り罫の右側の横統計表は元の向きで読み、縦本文の段切りから外す。
@@ -540,7 +544,8 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             prev_comparison_labels=match units.last(){Some(Unit::Shinkyu{labels,..})=>*labels,_=>None};
             let text = units.iter().map(Unit::text).filter(|t| !t.is_empty()).collect::<Vec<_>>().join("\n");
             let (doc_text, tables) = doc_text_of(&units, &mut table_count);
-            prev_table = matches!(units.last(), Some(Unit::Shinkyu { .. }));
+            prev_table = crate::legacy_comparison_scope::continues(&units);
+            prev_comparison = matches!(units.last(), Some(Unit::Shinkyu { .. }));
             prev_pairs = pairs_here;
             prev_two_columns = two_columns_here;
             prev_mid = mid_here;
@@ -893,7 +898,8 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         if !sideways && !rotated { if let Some(rules) = rules.get(pi).and_then(|r| r.as_ref()) { crate::notice_boundaries::restore_ruled_corrections(&mut units, &words, &native_styles, &native_content_styles, &native_bounds, rules, &pages); } }
         // Certifying a local field says nothing about the following page. Keep
         // legacy continuation state independent of this late, page-local overlay.
-        let legacy_continuation = matches!(units.last(), Some(Unit::Shinkyu { .. }));
+        let legacy_continuation = crate::legacy_comparison_scope::continues(&units);
+        let legacy_comparison = matches!(units.last(), Some(Unit::Shinkyu { .. }));
         let marker_members = marker_plan
             .and_then(|plan| ruled_marker_bands::apply(&mut units, plan, &inline_merged));
         crate::native_unit_dash::restore(&mut units, &mut words, &native_bounds, &native_axes, &native_styles, rules.get(pi).and_then(|r| r.as_ref()));
@@ -921,6 +927,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             .join("\n");
         let (doc_text, tables) = doc_text_of(&units, &mut table_count);
         prev_table = legacy_continuation;
+        prev_comparison = legacy_comparison;
         prev_pairs = None;
         prev_two_columns = false;
         prev_mid = None;

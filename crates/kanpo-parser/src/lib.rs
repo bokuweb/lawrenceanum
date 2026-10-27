@@ -747,3 +747,5 @@ mod native_caption_scope_tests;
 mod native_compound_caption_tests;
 
 mod native_source_scene;
+
+mod legacy_comparison_scope;

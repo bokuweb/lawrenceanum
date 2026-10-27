@@ -1,0 +1,30 @@
+{
+  "method": "Frozen180 complete pair + source-reviewed standalone299. Preserve all preceding legal article bytes and first3 blocks through the outside enactment provision; remove the phantom comparison/body block and append the independently source-reviewed separate report article. Page299 is a separate printed category/title/prose/date/issuer. Full-issue ownership remains unresolved separately. No new detector or parser used.",
+  "inputs": [
+    {
+      "path": "tests/data/native-comparison-scope/20260731g001720298.pdf",
+      "sha256": "c28c8a8be9636424181e0dc7462f692f5421da28eb0118fe26f497dd5447b5c1"
+    },
+    {
+      "path": "tests/data/native-amount-marks/20260731g001720299.pdf",
+      "sha256": "e2bd5ff45ec1a1ace8e6c3e6246c1f04a12b0e17e353fb3b0c2114cf770f6aa7"
+    },
+    {
+      "path": "tests/data/enclosed-warichu/20260813h017670002.pdf",
+      "sha256": "aa9ca08ca2f5b5637a97f1402818132c1d71bb144770c3c669301d631d5807c0"
+    },
+    {
+      "path": "tests/data/shared-comparison-cell/20260813h017670003.pdf",
+      "sha256": "942339715dc0e1ba430020e8855628cdff65c1e4b58ad60cbe8523e45dfcca7a"
+    }
+  ],
+  "baseline": "baseline-pair180.json",
+  "expected": "expected-pair181.json",
+  "source_analysis": "tests/data/native-amount-marks/expected/20260731g001720299.json",
+  "source_analysis_sha256": "7b98de5b6223442ead7b8eba7b618a3480d66d2865ea5671e8fda41567525b2e",
+  "baseline_Analysis_sha256": "055834daa9b5153865122c7bdd376f57d4f2ecc646859bd56ec4a3d26711f8ac",
+  "expected_Analysis_sha256": "7d51119a4a20dc24e346b24cb775de8e52618e57d0761bf5879611fb94137813",
+  "changed_page": 1,
+  "control": "explicit-current-control180.json",
+  "control_Analysis_sha256": "b7b149844cfc316981098ba66afe093355e2344312591270bec1ac94527054b1"
+}
