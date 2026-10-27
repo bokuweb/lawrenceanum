@@ -522,7 +522,27 @@ mod uniform_image_tests {
 // A strictly decoded, unmasked constant sample tuple has no internal spatial
 // structure. Unknown filters, external alternatives, masks and partial data keep
 // the full image rectangle as an obstacle. No whiteness/brightness threshold.
+// One last program only: bounded entry count; eviction/reordering never changes
+// classification. All source dictionary/context checks precede the cache. Key
+// equality uses exact decrypted encoded bytes, codec, component stride and full
+// expected length, not a digest, page identifier or a known pixel value.
+struct BackgroundProgram {
+    flate: bool,
+    expected: usize,
+    components: usize,
+    encoded: Vec<u8>,
+    uniform: bool,
+}
+static BACKGROUND_PROGRAM_CACHE: std::sync::OnceLock<std::sync::Mutex<Option<BackgroundProgram>>> =
+    std::sync::OnceLock::new();
 fn uniform_background_samples(doc: &crate::Document, r: crate::ObjRef) -> bool {
+    uniform_background_samples_with_cache(doc, r, true)
+}
+fn uniform_background_samples_with_cache(
+    doc: &crate::Document,
+    r: crate::ObjRef,
+    cached: bool,
+) -> bool {
     let obj = doc.resolve(&Object::Ref(r));
     let Some(s) = obj.as_stream() else {
         return false;
@@ -594,13 +614,44 @@ fn uniform_background_samples(doc: &crate::Document, r: crate::ObjRef) -> bool {
     let Some(expected) = w.checked_mul(h).and_then(|v| v.checked_mul(components)) else {
         return false;
     };
-    let Ok(bytes) = doc.decode_stream(s) else {
-        return false;
-    };
-    bytes.len() == expected
-        && bytes
-            .get(..components)
-            .is_some_and(|first| bytes.chunks_exact(components).all(|tuple| tuple == first))
+    let flate = doc.dict_get(d, b"Filter").is_some();
+    if cached {
+        if let Ok(cache) = BACKGROUND_PROGRAM_CACHE
+            .get_or_init(Default::default)
+            .lock()
+        {
+            if let Some(entry) = cache.as_ref() {
+                if entry.flate == flate
+                    && entry.expected == expected
+                    && entry.components == components
+                    && entry.encoded == s.data
+                {
+                    return entry.uniform;
+                }
+            }
+        }
+    }
+    let uniform = doc.decode_stream(s).ok().is_some_and(|bytes| {
+        bytes.len() == expected
+            && bytes
+                .get(..components)
+                .is_some_and(|first| bytes.chunks_exact(components).all(|tuple| tuple == first))
+    });
+    if cached {
+        if let Ok(mut cache) = BACKGROUND_PROGRAM_CACHE
+            .get_or_init(Default::default)
+            .lock()
+        {
+            *cache = Some(BackgroundProgram {
+                flate,
+                expected,
+                components,
+                encoded: s.data.clone(),
+                uniform,
+            });
+        }
+    }
+    uniform
 }
 #[cfg(test)]
 mod completeness_tests {
@@ -865,5 +916,82 @@ mod shading_gap_tests {
             .remove(0);
         assert!(!s.lineage.edges().is_empty());
         assert!(s.lineage.coverage_attribute(s.page()).is_none());
+    }
+}
+
+#[cfg(test)]
+mod background_program_cache_tests {
+    use super::*;
+    #[test]
+    fn repeated_actual_underlay_matches_uncached_classification() {
+        let p = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../kanpo-parser/tests/data/native-table-scopes/20260724g001650702.pdf");
+        let d = crate::Document::load(std::fs::read(p).unwrap()).unwrap();
+        let pages = d.pages();
+        let x = d.dict_get(&pages[0].resources, b"XObject").unwrap();
+        let r = x
+            .as_dict()
+            .unwrap()
+            .get(b"Im0".as_slice())
+            .unwrap()
+            .as_ref()
+            .unwrap();
+        let begin = std::time::Instant::now();
+        for _ in 0..8 {
+            assert!(uniform_background_samples_with_cache(&d, r, false));
+        }
+        let old = begin.elapsed();
+        assert!(uniform_background_samples(&d, r));
+        let begin = std::time::Instant::now();
+        for _ in 0..8 {
+            assert!(uniform_background_samples(&d, r));
+        }
+        eprintln!(
+            "actual702eight_uncached_ms={} cached_ms={}",
+            old.as_secs_f64() * 1000.,
+            begin.elapsed().as_secs_f64() * 1000.
+        );
+    }
+}
+
+#[cfg(test)]
+mod program_identity_contract_tests {
+    use super::*;
+    fn source(k: &str) -> crate::Document {
+        let p = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../kanpo-parser/tests/data/native-background-cache161")
+            .join(format!("{k}161.pdf"));
+        crate::Document::load(std::fs::read(p).unwrap()).unwrap()
+    }
+    #[test]
+    fn exact_program_memoization_keeps_stride_length_codec_mask_and_changed_bytes_separate() {
+        let r = crate::ObjRef { num: 6, gen: 0 };
+        for (name, expected) in [
+            ("rgb", true),
+            ("same-length-gray", false),
+            ("wrong-length", false),
+            ("changed-program", false),
+            ("different-codec", false),
+            ("masked", false),
+        ] {
+            let primer = source("rgb");
+            assert!(uniform_background_samples(&primer, r));
+            let d = source(name);
+            assert_eq!(
+                uniform_background_samples_with_cache(&d, r, false),
+                expected,
+                "uncached {name}"
+            );
+            assert_eq!(
+                uniform_background_samples(&d, r),
+                expected,
+                "cached after identical RGB byte stream {name}"
+            );
+            assert_eq!(
+                uniform_background_samples(&primer, r),
+                true,
+                "a negative cache entry cannot taint the original"
+            );
+        }
     }
 }

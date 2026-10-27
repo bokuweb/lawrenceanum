@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "issue": 227,
+  "stage": "native161",
+  "baseline_local": "4ed5eac6b568150cdf64b4b603693f0bf4f9ae13",
+  "baseline_publication": "d1bb231bdcfe95ca9d8ed6bc10607dcb933f1c4c",
+  "trigger": "Native160 CI cancelled at the existing20minute job timeout; local4022tests and full11992/159/CLI passed. Full-page background program decoding repeated across many source tests. No timeout increase or skipped checks.",
+  "runtime": "Pure one-entry memoization of the existing uniform-background classifier. Every original dictionary/context validation remains before lookup. Exact decrypted encoded bytes, codec, full expected byte count and component stride must all match; no digest-only comparison, page/fixture/font/title/value mapping or known pixel constant. Cache eviction/misses/poisoned locks recompute the original result. Only classification is cached, never a Doc/Word/source assignment.",
+  "tests": {
+    "additional": 2,
+    "actual_original702_eight_classifications_uncached_ms": 1058.901375,
+    "actual_original702_eight_classifications_cached_ms": 0.019333,
+    "timing_scope": "Debug classifier-only illustrative same-process measurement, not a full parser speed claim and not a timing assertion.",
+    "differential_cases": [
+      "Same encoded bytes and total length with different Gray/RGB component stride.",
+      "Same program with incompatible expected dimensions.",
+      "Same bytes with a different validated decoder.",
+      "Changed final sample byte.",
+      "A masked dictionary cannot borrow a positive cache result.",
+      "A negative entry cannot taint the original positive program.",
+      "Actual original full-page image cached/uncached classification agrees."
+    ]
+  },
+  "normal_native": {
+    "terminal": 0,
+    "commands": 2,
+    "integration_targets": 157,
+    "result_groups": 165,
+    "passed": 4024,
+    "failed": 0,
+    "ignored": 0,
+    "source_manifest_sha256": "a658e1dc5b8e780b4d7b8fe054a84aa4a30f7bf4317434fb4ab91147e1b90dc3",
+    "source_and_all_existing_test_inputs_prepost_exact": true,
+    "snapshot_updates_disabled": true
+  },
+  "actual_Cargo_release": {
+    "profile": "actual Cargo release, final W sources",
+    "single_complete_Analysis_exact_private_final": 11992,
+    "whole_complete_Analysis_exact_private_final": 159,
+    "actual_release_PDF_textdump_CLI_native_body_bytes_exact": 11992,
+    "single_duplicate_owner_pages": 0,
+    "CLI_duplicate_word_reports": 0,
+    "all_original_inputs_native_sources_Cargo_and_binaries_prepost_exact": true,
+    "seconds": 228.804948375,
+    "scope": "Full final actual-Cargo release public API Analysis and native CLI over original PDFs; Pure image-program memoization, every complete Analysis and CLI body byte is unchanged160. No independent accuracy claim."
+  },
+  "output_preservation": "Every complete Analysis for all11992single pages and159whole issues exactly equals actual160; native CLI all11992body bytes exactly equal those outputs, duplicateowners/reports0. No old corpus gold, PDF, HTML or snapshot updated.",
+  "runtime_and_test_owned_sha256": {
+    "crates/kanpo-pdf/src/source_lineage.rs": "03daa9295101486103932ff06a60b233fcc9e956d1a7c376b62f32a497c65714",
+    "crates/kanpo-parser/tests/data/native-background-cache161/masked161.pdf": "f028cd41c8edd457f872bf6c55c1910de39610f96a4c9595bfa3cdedeb610572",
+    "crates/kanpo-parser/tests/data/native-background-cache161/same-length-gray161.pdf": "5d3891613213bceb2f34107807482047642c3423cda611b75d897944564775c0",
+    "crates/kanpo-parser/tests/data/native-background-cache161/different-codec161.pdf": "c3208149dcdbcff9d8fde58a650cd72ba44476c1c62a262844ef886b0ba90997",
+    "crates/kanpo-parser/tests/data/native-background-cache161/changed-program161.pdf": "88be2da98f3353a7bcc1acd9c1a39277eb6b91047b6f41209412d3655f9d7450",
+    "crates/kanpo-parser/tests/data/native-background-cache161/rgb161.pdf": "4cddae177a0b3dfc18512ec152c6e50dda59eb288d869d258192e3793eca9cff",
+    "crates/kanpo-parser/tests/data/native-background-cache161/wrong-length161.pdf": "c232bbe5c65b80f04288d1691177ab6fe2cf0f5178877fc5ff53094184fbeda6"
+  },
+  "OCR": "Unchanged explicit opt-in NDLOCR0.0.15 revisionf97e930b8c3e9512f7788f258ef685da26416483; no OCR/model dependency change.",
+  "limits": "Pure execution reuse does not solve remaining notice boundaries, unknown characters, unruled subgrids or all parent/continuation relations. Goal227active; no100percent claim, merge or issue closure."
+}

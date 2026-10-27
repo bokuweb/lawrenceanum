@@ -4897,19 +4897,17 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
 /// `cut` の上（8em 以内）で終わり、下（8em 以内）から始まり、続けると欄見出しの頭になる。
 fn spaced_label_split(cols: &[Col], cut: f32) -> bool {
     let center = |c: &Col| (c.x + c.x1) / 2.0;
-    let single = |c: &&Col| c.text.chars().filter(|ch| !ch.is_whitespace()).count() == 1;
+    let single: Vec<&Col> = cols.iter().filter(|c| c.text.chars().filter(|ch| !ch.is_whitespace()).count() == 1).collect();
     // 上と下の字を続けると欄見出しの頭になるもの（「名」「称」、「所」「在」）だけ。
     const HEADS: [&str; 16] = ["名称", "位置", "所在地", "北緯", "東経", "灯質", "光度", "高さ", "記事", "種類", "番号", "住所", "氏名", "区分", "距離", "周期"];
-    let split = cols
+    let split = single
         .iter()
-        .filter(single)
         .filter(|a| {
             let em = (a.x1 - a.x).max(1.0);
             a.y1 <= cut
                 && cut - a.y1 < em * 8.0
-                && cols.iter().filter(single).any(|b| {
-                    let joined = format!("{}{}", a.text.trim(), b.text.trim());
-                    (center(b) - center(a)).abs() < em * 0.5 && b.y >= cut && b.y - cut < em * 8.0 && HEADS.iter().any(|h| h.starts_with(&joined))
+                && single.iter().any(|b| {
+                    if (center(b) - center(a)).abs() < em * 0.5 && b.y >= cut && b.y - cut < em * 8.0 {let joined=format!("{}{}",a.text.trim(),b.text.trim());HEADS.iter().any(|h|h.starts_with(&joined))}else{false}
                 })
         })
         .count();

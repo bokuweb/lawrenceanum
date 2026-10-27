@@ -418,6 +418,28 @@ fn repair(
     if !cell.words.iter().any(|&id| !records[id].moves.is_empty()) {
         return None;
     }
+    // Every proved edge already requires both source halves in this cell.
+    // Reject cross-cell edges before scanning the full page; this is an exact
+    // necessary condition, not a layout/word/line budget.
+    let candidate_edges = cell
+        .words
+        .iter()
+        .flat_map(|&id| records[id].moves.iter().copied())
+        .collect::<BTreeSet<_>>()
+        .into_iter()
+        .filter(|e| {
+            cell.words
+                .iter()
+                .any(|&id| e.0 <= records[id].first && records[id].after <= e.1)
+                && cell
+                    .words
+                    .iter()
+                    .any(|&id| e.1 <= records[id].first && records[id].after <= e.2)
+        })
+        .collect::<Vec<_>>();
+    if candidate_edges.is_empty() {
+        return None;
+    }
     let outer = [cell.x0, cell.y0, cell.x1, cell.y1];
     if scene.obstacles.iter().any(|b| {
         b[0] < (outer[2] as f64)
@@ -453,7 +475,7 @@ fn repair(
         }
     }
     let mut groups: Vec<BTreeSet<usize>> = vec![];
-    for &edge in &scene.edges {
+    for &edge in &candidate_edges {
         let (mut members, mut parts) = (BTreeSet::new(), [vec![], vec![]]);
         for (id, r) in records.iter().enumerate() {
             if edge.0 < r.after && r.first < edge.2 {
