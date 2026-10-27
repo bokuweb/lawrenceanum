@@ -1,0 +1,751 @@
+{
+  "schema_version": 1,
+  "issue": 227,
+  "stage": "native164",
+  "baseline_local": "b6e7d2f094cda52284a0c0350508a96c62cc9f13",
+  "problem": "Native unframed vertical captions were rejected when a short preface followed the caption or the body ended at the same bottom as the caption. A canonical foreign-company representative signature was not recognized. Original031 had13complete printed notices but11Articles.",
+  "authority": "Retain all existing heading grammar, complete native style/bounds and quote/source inventory checks, complete frames and parent/shared-financial protections. Additional vertical topology requires a nonempty nonterminal body column immediately following the caption, in the same original source region, to its left with its top inside the caption span, with independently known disjoint typography. No date or nominal signature column supplies missing body. The same scope still needs its own original-token dated prefix and subsequent body-style nominal signature, before the next heading fence.",
+  "semantic_role": "Add the canonical nominal role 日本における代表者 to the existing role grammar. Bare role, embedded mentions, generic representative labels and sentences with terminal punctuation are rejected; no company/title/page/value/font-ID dispatch is introduced.",
+  "source_review": {
+    "single_original_pages_viewed": 26,
+    "new_single_boundaries": 32,
+    "additional_whole_boundaries_viewed": 7,
+    "new_whole_boundaries": 39,
+    "changed_whole_issues": 28,
+    "all_source_crops_viewed": true,
+    "method": "Original PDFium page/band pixels. Reviewed caption/body topology, printed distinct procedures, canonical nominal roles, parent enclosures, next-band signature continuations and separate next-page roots. Whole proof includes7 additional starts; pair control0807g178110/111 is unchanged in isolation.",
+    "complete_Analysis_constructed_from_old163": {
+      "single": 26,
+      "whole": 28,
+      "method": "Only source-reviewed cut positions split original Article.text and original paragraph-run characters. All old boundaries, Document.format, every original run character and whitespace and every other Analysis field retained exactly; no current parser Document builder used."
+    },
+    "accuracy_limits": "Nonblind source QA and preservation verification; no independent full-corpus accuracy estimate. Some newly separated articles still contain later unrecognized procedures, for example20260929h017970031, and legal/financial ownership/title continuation work remains. No100percent claim.",
+    "negative_controls": "All initial2753old private parser tests and12new tests passed. A terminal-body negative was found to remove a Line but leave an unowned Used Word; it was corrected and its full remaining ownership is now asserted. A13th empty-normalized-body test failed on v1 before adding the nonempty-body guard. The final actual normal suite and actual release corpus use final v2 sources. Aborted initial164 gates are retained separately and are not passes."
+  },
+  "tests": {
+    "new_unit_controls": 13,
+    "new_public_API_tests": 3,
+    "full_single_Analysis_gold_cases": 26,
+    "full_original_pair_Analysis_gold_cases": 7,
+    "original_PDFs": 35,
+    "normal_native": {
+      "terminal": 0,
+      "commands": 2,
+      "integration_targets": 158,
+      "result_groups": 166,
+      "passed": 4040,
+      "failed": 0,
+      "ignored": 0,
+      "source_manifest_sha256": "f095508eec4a9581d2194287387bbce4588d1c831a568bb2026ff2340863b636",
+      "source_and_all_existing_test_inputs_prepost_exact": true,
+      "snapshot_updates_disabled": true
+    },
+    "red_first": "Original public API expected13 vs11; initial new unit controls4RED; empty-body guard additionally1RED after meaningful terminal-body control refinement.",
+    "original031_publisher_ownership": "13source-published issuers each occur in their own Article, and all compact article text equals the complete native body."
+  },
+  "complete_Analysis_preservation": {
+    "single_total": 11992,
+    "single_changed": 26,
+    "single_unchanged": 11966,
+    "single_source_cuts": 32,
+    "whole_total": 159,
+    "whole_changed": 28,
+    "whole_unchanged": 131,
+    "whole_source_cuts": 39,
+    "source_constructed_single_proof": [
+      {
+        "key": "20260716h017490031",
+        "old_article_character_offsets": {
+          "6": [
+            115
+          ]
+        },
+        "all_complete_Analysis_source_constructed_exact_candidate": true
+      },
+      {
+        "key": "20260721g001610125",
+        "old_article_character_offsets": {
+          "0": [
+            1050
+          ]
+        },
+        "all_complete_Analysis_source_constructed_exact_candidate": true
+      },
+      {
+        "key": "20260721h017510032",
+        "old_article_character_offsets": {
+          "4": [
+            135
+          ]
+        },
+        "all_complete_Analysis_source_constructed_exact_candidate": true
+      },
+      {
+        "key": "20260722h017520032",
+        "old_article_character_offsets": {
+          "2": [
+            175
+          ]
+        },
+        "all_complete_Analysis_source_constructed_exact_candidate": true
+      },
+      {
+        "key": "20260724g001660045",
+        "old_article_character_offsets": {
+          "1": [
+            389
+          ]
+        },
+        "all_complete_Analysis_source_constructed_exact_candidate": true
+      },
+      {
+        "key": "20260724h017540031",
+        "old_article_character_offsets": {
+          "10": [
+            155
+          ]
+        },
+        "all_complete_Analysis_source_constructed_exact_candidate": true
+      },
+      {
+        "key": "20260730h017580032",
+        "old_article_character_offsets": {
+          "0": [
+            151
+          ]
+        },
+        "all_complete_Analysis_source_constructed_exact_candidate": true
+      },
+      {
+        "key": "20260814h017680031",
+        "old_article_character_offsets": {
+          "7": [
+            146
+          ]
+        },
+        "all_complete_Analysis_source_constructed_exact_candidate": true
+      },
+      {
+        "key": "20260820h017720032",
+        "old_article_character_offsets": {
+          "5": [
+            138
+          ]
+        },
+        "all_complete_Analysis_source_constructed_exact_candidate": true
+      },
+      {
+        "key": "20260821h017730032",
+        "old_article_character_offsets": {
+          "1": [
+            340
+          ]
+        },
+        "all_complete_Analysis_source_constructed_exact_candidate": true
+      },
+      {
+        "key": "20260826h017760032",
+        "old_article_character_offsets": {
+          "4": [
+            176
+          ]
+        },
+        "all_complete_Analysis_source_constructed_exact_candidate": true
+      },
+      {
+        "key": "20260831h017790032",
+        "old_article_character_offsets": {
+          "7": [
+            513
+          ]
+        },
+        "all_complete_Analysis_source_constructed_exact_candidate": true
+      },
+      {
+        "key": "20260901h017800032",
+        "old_article_character_offsets": {
+          "3": [
+            136
+          ]
+        },
+        "all_complete_Analysis_source_constructed_exact_candidate": true
+      },
+      {
+        "key": "20260904h017830031",
+        "old_article_character_offsets": {
+          "7": [
+            168
+          ]
+        },
+        "all_complete_Analysis_source_constructed_exact_candidate": true
+      },
+      {
+        "key": "20260914h017890032",
+        "old_article_character_offsets": {
+          "8": [
+            138
+          ]
+        },
+        "all_complete_Analysis_source_constructed_exact_candidate": true
+      },
+      {
+        "key": "20260916h017910032",
+        "old_article_character_offsets": {
+          "10": [
+            130,
+            274
+          ]
+        },
+        "all_complete_Analysis_source_constructed_exact_candidate": true
+      },
+      {
+        "key": "20260917h017920032",
+        "old_article_character_offsets": {
+          "6": [
+            133
+          ]
+        },
+        "all_complete_Analysis_source_constructed_exact_candidate": true
+      },
+      {
+        "key": "20260924h017940032",
+        "old_article_character_offsets": {
+          "6": [
+            138,
+            325
+          ]
+        },
+        "all_complete_Analysis_source_constructed_exact_candidate": true
+      },
+      {
+        "key": "20260929h017970031",
+        "old_article_character_offsets": {
+          "3": [
+            133
+          ]
+        },
+        "all_complete_Analysis_source_constructed_exact_candidate": true
+      },
+      {
+        "key": "20261002h018000032",
+        "old_article_character_offsets": {
+          "7": [
+            153
+          ]
+        },
+        "all_complete_Analysis_source_constructed_exact_candidate": true
+      },
+      {
+        "key": "20261005g002190068",
+        "old_article_character_offsets": {
+          "7": [
+            162
+          ]
+        },
+        "all_complete_Analysis_source_constructed_exact_candidate": true
+      },
+      {
+        "key": "20261006h018020032",
+        "old_article_character_offsets": {
+          "8": [
+            132
+          ]
+        },
+        "all_complete_Analysis_source_constructed_exact_candidate": true
+      },
+      {
+        "key": "20261009h018050031",
+        "old_article_character_offsets": {
+          "14": [
+            139
+          ]
+        },
+        "all_complete_Analysis_source_constructed_exact_candidate": true
+      },
+      {
+        "key": "20261015h018080031",
+        "old_article_character_offsets": {
+          "14": [
+            137,
+            325
+          ]
+        },
+        "all_complete_Analysis_source_constructed_exact_candidate": true
+      },
+      {
+        "key": "20261016h018090031",
+        "old_article_character_offsets": {
+          "5": [
+            217
+          ],
+          "10": [
+            370
+          ]
+        },
+        "all_complete_Analysis_source_constructed_exact_candidate": true
+      },
+      {
+        "key": "20261020h018110031",
+        "old_article_character_offsets": {
+          "12": [
+            148,
+            315,
+            471
+          ]
+        },
+        "all_complete_Analysis_source_constructed_exact_candidate": true
+      }
+    ],
+    "source_constructed_whole_proof": [
+      {
+        "key": "20260716h01749",
+        "old_article_character_offsets": {
+          "54": [
+            115
+          ]
+        },
+        "expected_complete_Analysis_sha256": "a3f14b31dba778f2f391f32fb13391ddc67bb96e710d2b1eaf98c1166e93dc79",
+        "source_cuts": 1,
+        "complete_Analysis_source_constructed_exact": true
+      },
+      {
+        "key": "20260721g00161",
+        "old_article_character_offsets": {
+          "267": [
+            1050
+          ]
+        },
+        "expected_complete_Analysis_sha256": "b8639bacc5f88a3da56a4921dc7dc5bfd5941a7cede9ce24fa3d263ffa10dfd1",
+        "source_cuts": 1,
+        "complete_Analysis_source_constructed_exact": true
+      },
+      {
+        "key": "20260721h01751",
+        "old_article_character_offsets": {
+          "80": [
+            135
+          ]
+        },
+        "expected_complete_Analysis_sha256": "86be3338fdfb899ac48fc6ab0388d490fc49be0c260958dfbfca7145b2dcdb49",
+        "source_cuts": 1,
+        "complete_Analysis_source_constructed_exact": true
+      },
+      {
+        "key": "20260722h01752",
+        "old_article_character_offsets": {
+          "66": [
+            175
+          ]
+        },
+        "expected_complete_Analysis_sha256": "ed631ec0fc7dd379861187228fe396ac1d1d1e998c16766e7cd621577823acde",
+        "source_cuts": 1,
+        "complete_Analysis_source_constructed_exact": true
+      },
+      {
+        "key": "20260724g00166",
+        "old_article_character_offsets": {
+          "93": [
+            389
+          ]
+        },
+        "expected_complete_Analysis_sha256": "cd621d78fbda170e34a04b18363095fb1dfeb8cddbf89b46798548ae7b24c188",
+        "source_cuts": 1,
+        "complete_Analysis_source_constructed_exact": true
+      },
+      {
+        "key": "20260724h01754",
+        "old_article_character_offsets": {
+          "112": [
+            155,
+            316
+          ]
+        },
+        "expected_complete_Analysis_sha256": "c7d55ea1389aa6ed67bb0bedf9670a7cb5b947c75bd44b68ca2248f796fec0e3",
+        "source_cuts": 2,
+        "complete_Analysis_source_constructed_exact": true
+      },
+      {
+        "key": "20260730h01758",
+        "old_article_character_offsets": {
+          "66": [
+            160,
+            311
+          ]
+        },
+        "expected_complete_Analysis_sha256": "8df0c6ae484fbfda1aba142997b7503242d94e454b902ff8c0e5eb9a46ffb41d",
+        "source_cuts": 2,
+        "complete_Analysis_source_constructed_exact": true
+      },
+      {
+        "key": "20260807g00178",
+        "old_article_character_offsets": {
+          "214": [
+            1209
+          ]
+        },
+        "expected_complete_Analysis_sha256": "29503745a7c57318f002cf4e9001c2d5685ce68e05262296fc29dd8e1696fb7b",
+        "source_cuts": 1,
+        "complete_Analysis_source_constructed_exact": true
+      },
+      {
+        "key": "20260814h01768",
+        "old_article_character_offsets": {
+          "114": [
+            146
+          ]
+        },
+        "expected_complete_Analysis_sha256": "604198698d4baeec60e0157ca6558bc0e1ed470ebf624330349d1b390368e66a",
+        "source_cuts": 1,
+        "complete_Analysis_source_constructed_exact": true
+      },
+      {
+        "key": "20260820h01772",
+        "old_article_character_offsets": {
+          "112": [
+            138
+          ]
+        },
+        "expected_complete_Analysis_sha256": "b3c1bb041466cdbbf7f4b78365c60d61dea7c34ad69244a61a87431f50d7b473",
+        "source_cuts": 1,
+        "complete_Analysis_source_constructed_exact": true
+      },
+      {
+        "key": "20260821h01773",
+        "old_article_character_offsets": {
+          "111": [
+            340
+          ]
+        },
+        "expected_complete_Analysis_sha256": "8888950ab19c79acdb6b9f72fd47fa3bb70fa9e9713139cfb8026541e75169fb",
+        "source_cuts": 1,
+        "complete_Analysis_source_constructed_exact": true
+      },
+      {
+        "key": "20260826h01776",
+        "old_article_character_offsets": {
+          "102": [
+            176
+          ]
+        },
+        "expected_complete_Analysis_sha256": "2e096c1557ebc0f2431a0d0ba44d8661afed6cb912a1fe8b7e3bd21b98bd9d50",
+        "source_cuts": 1,
+        "complete_Analysis_source_constructed_exact": true
+      },
+      {
+        "key": "20260831h01779",
+        "old_article_character_offsets": {
+          "102": [
+            513
+          ]
+        },
+        "expected_complete_Analysis_sha256": "2241641e2afd139a0e59d0894450edc48dce1007d0c6824725285df092e5bb7d",
+        "source_cuts": 1,
+        "complete_Analysis_source_constructed_exact": true
+      },
+      {
+        "key": "20260901h01780",
+        "old_article_character_offsets": {
+          "62": [
+            136
+          ]
+        },
+        "expected_complete_Analysis_sha256": "127a0b1543003f641eadfc7679f271553a8800ca2df2268d0f8e8dadde48fa15",
+        "source_cuts": 1,
+        "complete_Analysis_source_constructed_exact": true
+      },
+      {
+        "key": "20260904h01783",
+        "old_article_character_offsets": {
+          "62": [
+            168
+          ]
+        },
+        "expected_complete_Analysis_sha256": "22d62f7ba04abc52702ac4de5d53b96ec737fd043366d912f4789b5675fc6cfe",
+        "source_cuts": 1,
+        "complete_Analysis_source_constructed_exact": true
+      },
+      {
+        "key": "20260914h01789",
+        "old_article_character_offsets": {
+          "102": [
+            138
+          ]
+        },
+        "expected_complete_Analysis_sha256": "9c28e7144aaa1341acd17b7ba4b5bdf12273a608e34886dd37d8ec9439147134",
+        "source_cuts": 1,
+        "complete_Analysis_source_constructed_exact": true
+      },
+      {
+        "key": "20260916h01791",
+        "old_article_character_offsets": {
+          "81": [
+            130,
+            274
+          ]
+        },
+        "expected_complete_Analysis_sha256": "c575c5c7f1269ccf9c712c818878d8185be3c37abc0f0068c2a96969fbc0bbcb",
+        "source_cuts": 2,
+        "complete_Analysis_source_constructed_exact": true
+      },
+      {
+        "key": "20260917h01792",
+        "old_article_character_offsets": {
+          "63": [
+            133
+          ]
+        },
+        "expected_complete_Analysis_sha256": "7a174779185c2f72aa335918dd587e1cf783de8a6252d08ef5d8dd77dba3016a",
+        "source_cuts": 1,
+        "complete_Analysis_source_constructed_exact": true
+      },
+      {
+        "key": "20260924h01794",
+        "old_article_character_offsets": {
+          "93": [
+            138,
+            325
+          ]
+        },
+        "expected_complete_Analysis_sha256": "1f4406e169b6252ebe53976c087801b57a6b584d3670d87a30b95ce693a0910a",
+        "source_cuts": 2,
+        "complete_Analysis_source_constructed_exact": true
+      },
+      {
+        "key": "20260929h01797",
+        "old_article_character_offsets": {
+          "98": [
+            133
+          ]
+        },
+        "expected_complete_Analysis_sha256": "0351c1dda276cce05237d0bf5206f9ec2c0d5bbadae6177a5a82c5cf38718989",
+        "source_cuts": 1,
+        "complete_Analysis_source_constructed_exact": true
+      },
+      {
+        "key": "20261001h01799",
+        "old_article_character_offsets": {
+          "93": [
+            135
+          ]
+        },
+        "expected_complete_Analysis_sha256": "84c1af6d2fce62d05a76f4aa7a0bf9029a3c86dfb4874a03b5a0669afdd550a6",
+        "source_cuts": 1,
+        "complete_Analysis_source_constructed_exact": true
+      },
+      {
+        "key": "20261002h01800",
+        "old_article_character_offsets": {
+          "82": [
+            153
+          ]
+        },
+        "expected_complete_Analysis_sha256": "c66391bcb0c59119bbdcb737d2884955bc25499fbad5c838c7e0fd40318ba41f",
+        "source_cuts": 1,
+        "complete_Analysis_source_constructed_exact": true
+      },
+      {
+        "key": "20261005g00219",
+        "old_article_character_offsets": {
+          "114": [
+            162
+          ]
+        },
+        "expected_complete_Analysis_sha256": "5d0a0a3d9f188db4ff16bd01011dc09896964674b245dce78952e518bfdefe24",
+        "source_cuts": 1,
+        "complete_Analysis_source_constructed_exact": true
+      },
+      {
+        "key": "20261006h01802",
+        "old_article_character_offsets": {
+          "83": [
+            132
+          ]
+        },
+        "expected_complete_Analysis_sha256": "b870d72df4823a1ee2b1afa98731f5bd921ce84571ea3419277aa803f8e13c6c",
+        "source_cuts": 1,
+        "complete_Analysis_source_constructed_exact": true
+      },
+      {
+        "key": "20261009h01805",
+        "old_article_character_offsets": {
+          "90": [
+            139,
+            282
+          ]
+        },
+        "expected_complete_Analysis_sha256": "973ecf4694f15b638f87a98a9878cabaf8c10218d805c2b992f7e39826ee8c1c",
+        "source_cuts": 2,
+        "complete_Analysis_source_constructed_exact": true
+      },
+      {
+        "key": "20261015h01808",
+        "old_article_character_offsets": {
+          "52": [
+            137,
+            325
+          ]
+        },
+        "expected_complete_Analysis_sha256": "f7936c75c0fd59c4531aa4128d6be71ed9db0f0116287d9d32e6b8a28677db03",
+        "source_cuts": 2,
+        "complete_Analysis_source_constructed_exact": true
+      },
+      {
+        "key": "20261016h01809",
+        "old_article_character_offsets": {
+          "81": [
+            217
+          ],
+          "86": [
+            370,
+            536
+          ]
+        },
+        "expected_complete_Analysis_sha256": "8d96a1c6572975e9ccd65e185ea73121c8857c28d25469cf8393ab8db307fc0b",
+        "source_cuts": 3,
+        "complete_Analysis_source_constructed_exact": true
+      },
+      {
+        "key": "20261020h01811",
+        "old_article_character_offsets": {
+          "109": [
+            148,
+            315,
+            471,
+            701
+          ]
+        },
+        "expected_complete_Analysis_sha256": "6af4521e18f97506f5a11ad710d0eaa46ff0234de10a7eec5e7d78b2bb6f5c50",
+        "source_cuts": 4,
+        "complete_Analysis_source_constructed_exact": true
+      }
+    ],
+    "method": "All changed complete Analysis constructed from old163 by only reviewed article splits. Original paragraph-run characters, every whitespace character, Document.format and all existing boundaries remain exact. Every other Analysis field, including pages/words/raw/status/coordinates/body and global format, is exact. No current rendering algorithm or result copying is used to generate expected full Analysis.",
+    "old_test_inputs_preserved": 3358,
+    "old_snapshot_source_corrections": [
+      {
+        "path": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260826h01776__20260826h017760032.pdf.snap",
+        "key": "20260826h017760032",
+        "old_sha256": "4e422bb300cf37a4412dab70ee175ed6375d902742e974486a0538776ca14015",
+        "source_constructed_new_sha256": "931e2f8b58906274a2c3a1b5b1f24fa11bb8c0e4f89a273476d0e1ea75580763",
+        "old_snapshot_renderer_reproduced_exactly": true,
+        "new_from_old163_plus_source_reviewed_article_cuts_only": true
+      },
+      {
+        "path": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260831h01779__20260831h017790032.pdf.snap",
+        "key": "20260831h017790032",
+        "old_sha256": "d93401bb25a417a10aa2f8ad0a12cd3124a580442cd4cbaa9339ea1450c54b01",
+        "source_constructed_new_sha256": "59f39977547b48304f9c37cf953f474eb9398d698b95eb7f16438cfe774957ed",
+        "old_snapshot_renderer_reproduced_exactly": true,
+        "new_from_old163_plus_source_reviewed_article_cuts_only": true
+      },
+      {
+        "path": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260914h01789__20260914h017890032.pdf.snap",
+        "key": "20260914h017890032",
+        "old_sha256": "409d857ea1a3e6a2dfb7442602723d5270ebfb1bde22f1ee068b02634c23ed63",
+        "source_constructed_new_sha256": "19701f0888ab50810ca71fe12efee0c9f275ddfa7ae9b098bc26f863549ebc0c",
+        "old_snapshot_renderer_reproduced_exactly": true,
+        "new_from_old163_plus_source_reviewed_article_cuts_only": true
+      },
+      {
+        "path": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260924h01794__20260924h017940032.pdf.snap",
+        "key": "20260924h017940032",
+        "old_sha256": "c0c90a87c83ccc6c9f6950890d0696086b78c2eccb99aba2816e3b309de92b05",
+        "source_constructed_new_sha256": "6f125bfd9478ce569f28ff1a7cc0deb6bd3969af6c975ba70dcf64a0865df5a0",
+        "old_snapshot_renderer_reproduced_exactly": true,
+        "new_from_old163_plus_source_reviewed_article_cuts_only": true
+      }
+    ],
+    "old_fixture_gold_snapshot_updates": 4
+  },
+  "actual_Cargo_release": {
+    "profile": "actual Cargo release, final W sources",
+    "single_complete_Analysis_exact_private_final": 11992,
+    "whole_complete_Analysis_exact_private_final": 159,
+    "actual_release_PDF_textdump_CLI_native_body_bytes_exact": 11992,
+    "single_duplicate_owner_pages": 0,
+    "CLI_duplicate_word_reports": 0,
+    "all_original_inputs_native_sources_Cargo_and_binaries_prepost_exact": true,
+    "seconds": 187.285659125,
+    "scope": "Full final actual-Cargo release public API Analysis and native CLI over original PDFs; Expected complete Analysis independently constructed from163 plus32 single/39 whole source-reviewed notice cuts; all other fields, prior cuts, Document run characters/whitespace and CLI body bytes preserved. No independent full-corpus accuracy claim."
+  },
+  "owned_candidate_sha256": {
+    "crates/kanpo-parser/src/notice_boundaries.rs": "eb684ae195ea0b0f854e37ee72077d2b4642c0981e51d904faf8b0e44382b19c",
+    "crates/kanpo-parser/src/native_caption_scope_tests.rs": "dfe37ce7fe9ab16d72a94206c673ff415ad101e6a9899072ce13f3bbc8049951",
+    "crates/kanpo-parser/src/lib.rs": "f96ab7373f0c236795d88b4c4c05af3a897e4846f1e75b2a0bd893fe494a96ce",
+    "crates/kanpo-parser/tests/native_caption_scope_fixtures.rs": "b1cac76cebc1ffbf128360e720d4a5af0c552a28ee4cdc61112ac87d27e62064",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20261006h018020032.pdf": "73b058b903390f8d2fc789ff4d2875f6b6ba1f0d73f9317308f8b3cda3bca242",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20261009h018050032.pdf": "8d03f14a5c767bac2ee329973dfe8935889f46d48ba7a6ec6c5a90248eaefa85",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20261020h018110031.json": "11c7bb6dc43bf9bc93fe18bdce14819b11e07b98e46d2485a99fe2b02382cae8",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260722h017520032.json": "55a320302df6cea683340fb6903a9a2b319644317bf315b1f500656739c1607d",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260730h017580032.json": "b1ae4a2d42d5a1ff7b03821a049ad48243ddf617ca696d9cf947628cacb7d34d",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20261009h018050031.pdf": "d0fc05c184e6dbc497576b3606eb0543e798c5d2530f48622d47586ac904fe9d",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260730h017580031--20260730h017580032.json": "2062a06e5a811b8d3753635c512dbeb8a4ff804dbdc5c79537f5156cca5d0677",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20261002h018000032.json": "1bc5973bfa77e6576bee914f3cd518aea4191e65caa949258332dadc39148aa1",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260814h017680031.pdf": "6c3bad86fa5f11a7687b516b2382135a742b5b02fd1265df465865d80b1bbbe2",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260721h017510032.pdf": "bf4ffc4cd74f69f63306816702fcc737e69874d24571a3685d11a6fd10cc0757",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260826h017760032.pdf": "81ac77051773e937f02bc1ae55184c6de353f28746d67bf21b0d77a94d32a12e",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260724h017540031.pdf": "fd439753163ef6cabca14d185571a4a4ea15e26807a129fb0a0b3db83b452d8c",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260924h017940032.pdf": "3d2d064e09a1d40088b08f5cc831399714e67c0657cc0cf0ccff7a9d0b9931cb",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260820h017720032.pdf": "704b5603c7dfde2d768f9518ee11a2d80f0442d06b374b683e28eefe17484477",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260929h017970031.pdf": "0b33ba14efe66ef91c80d332c563719bdf118f9165a0958d7757e07465fae72e",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260826h017760032.json": "25ca89cef4e7a94414d5bd57ed3b04a0e5341128559bdb5b84f65cd8b76f680a",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20261015h018080031.json": "ddf5e69c2aac577da1b84266d1ae298d6ddb4167e4b033985952d7b4c2ab4150",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260724h017540032.pdf": "9e723d8bf67d7c000472b91edaf8c5d58f9ff5b36bf82eb3b7861f9a43e1dd3d",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260722h017520032.pdf": "cf4adfc7d9f3bc45744f432149dcca8293d46384945b6acb4dac7cecc2eb5678",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260716h017490031.json": "2dc353c175565e53272da2eb7e572ab47aad2fb3d7d95c77bdd3311d6d3109fd",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260807g001780110--20260807g001780111.json": "9c4960fdbec51551ef2b2e0b2209e1387e82f6f156536fa9fbb6cae552a888f9",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260929h017970031.json": "af94e6b3f7c6b60860d77076c505dc548ef2b2fda60515eb2b76b860aa74581d",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20261009h018050031--20261009h018050032.json": "af49a74b4f3d469a04ba701d2040e73dc5818bda65c50c705be35da1d33bf6ef",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20261016h018090032.pdf": "ae2c4e63b940fae1b653e276f26289fd453204133884e40662a0a04dd69b0a56",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260901h017800032.json": "62b9d66afe275b7987d2550a2f21befe45439b0b59b291fdead9e6b17363bf3c",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260916h017910032.pdf": "210216528211646ec7fb96a4330c8d5b943c5922de922f318fd732dae5925e70",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20261015h018080031.pdf": "982e5ef17de681676d3f66d0a7a795543d10649a06c2c2628ebde1f966dc544a",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20261016h018090031.pdf": "8b1fe44c7bdf94127e09069321e974a09839348db6069ddd7b8f0f59eb2dfc74",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20261001h017990031.pdf": "0980c3e53b69750cedc76b3f65c1b3e98dc8e358fca48005a117928e0fc18238",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260716h017490031.pdf": "55e0392242ac48c4f1ba352cf12894edcf9a1f68461e0ce04caddc90628b2c5a",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260916h017910032.json": "b9dda0d8f6c577549721efb826238d75412170e853451926262c599a648ff2ea",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260901h017800032.pdf": "8e3bcea3fa041b88ba54ecdf0dd5bd0decf5115eb70f186294d420583a7a854f",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20261002h018000032.pdf": "24f05dc981cc6f684f2a26b5d71f76dc1dd5503b5d4c52e318febf40b00d0488",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260924h017940032.json": "dc9c217cf98d935bcb3f22f16cf92e0ef56798be1dcc4c4340c4ee00e6204009",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20261001h017990031--20261001h017990032.json": "717b41c8352c8eae12cc74f8bc14b10c5554274171002e2182e9bf81251c042b",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20261005g002190068.pdf": "f9b634bf90483ce60668570e5b022db848c6bce02bf13e378ba61a3b90c2cb61",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20261001h017990032.pdf": "ec4ea7cc72fece51e6b3b239f44f480022f431e9473bb001b457b302a1d1ab5b",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260904h017830031.json": "fe18469393f3e6314536e1b1e3d9e3952eaaa8ef29ea0c3f787b72add16e70d4",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20261016h018090031.json": "9441776dd4bced39d2f23c4d216f7aa886f78fcb13111537ae62645612e0272a",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20261009h018050031.json": "bf6ddbb4508dd34c2a06881ce3bc9e8211e5c44019f0e298aef08b0849eba346",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260721g001610125.json": "0c4b7cbc533abbe064a052251eeeae9d6323842b83a1759a0b83b117d894d0d5",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20261005g002190068.json": "f0bfbb1911307859c1078fb805d38590f523b72cb87aac0d54345e8a868c3ad6",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260831h017790032.json": "fa961c898955170d7f98dcffce515671e31308e4fd06e92fb0c7b738b638b300",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260831h017790032.pdf": "baa49aef5e880c2234502a52e7afcf04b25dcc57d61c563fa2c56354f298e0e5",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260814h017680031.json": "2f724b665c52d7e639a5d11247d4a9b94e74106bc528ef38c064cb4a96d5cec3",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260807g001780111.pdf": "13219dfb3ae5c87fed69b3113a8b2964548a55d1c1de4262af3ce48d10ba4dba",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260914h017890032.pdf": "f5665f1fee4b93c8577bad4c3aa3a0ec98f9e754a71f8a9b5ae2d4b4cc049749",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20261016h018090031--20261016h018090032.json": "2a324a319a8f82ed4bffa4e42f0f5968bf41b57c39660c5afb18b8e38a5d47c3",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260724h017540031.json": "acbbb84b780a19d16b0a5583f2151ad23d69905f55d833c5b847ed0e4d495fd7",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260807g001780110.pdf": "1a75c31723f656d7ff3830d4abc501d00279398e99887fd4db382f6acc6471bc",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260724h017540031--20260724h017540032.json": "6b7be177a4d1648d5af87fa3696033e7c6b029be81487942db0158046766b09f",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260724g001660045.pdf": "658e2f00d7dc1c30a344afefa581ff9ff0791799057b0a64ada6065ec1684ac4",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260721g001610125.pdf": "d36d6d93ae06933e46842ba7a3ec28c2c7c9ce9e392699b48cb66a8460663753",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260820h017720032.json": "60c67342b4f5fc7128c81a13be73bc6b0449c9a6296773e895345e10ded99245",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260724g001660045.json": "1f574c64f7a48bccd31d25d791d8268cd5984ec9727ae27e4ae69d3f29ecd844",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260904h017830031.pdf": "bd2a2ef9b0c5469f7e67a81a0318b5b059125f5db89899c64ca89fe1634cb6aa",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/index.json": "a29828ada682fff0dacb9815e7dfca8f58ba870c3405209b65eab879007afffe",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260917h017920032.pdf": "b9d905a91459f86e9069fff49cfe19057461b1cb0cf7c8d5761732e0a597d280",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20261020h018110031.pdf": "198aa956505b2506cfd8cf47a644037784f19922eea34524a0d983c9fe0fc212",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260730h017580032.pdf": "e4400b76602a47dc5aa2e24e9f7acb7a39f2cf6afe8f0e215423a15b36d69b14",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260821h017730032.pdf": "fa71491bda6cce9304f63e7ce4dd995b66ad152ea77c2a94ce8315ec208820a0",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20261020h018110031--20261020h018110032.json": "9381a46de1fc6329e256e95d8b1c294f8dc7896d7951c529824422e17827a832",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260917h017920032.json": "9202c5606ca356cd4da6043823100c9bd9438dba098dd7e9c4004927737e0fab",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260721h017510032.json": "f1dda7c0a42912255b704a7e96038f0556d1df16b042a2367bc8112e1466d142",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260914h017890032.json": "92a5972e5e3337915a3e1e08bb276b7bc3c77f3ad24ca7e448fc250f37eae633",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20261020h018110032.pdf": "ad161cbbc824e18702f85287f0418d3836ed5f38e0db92a3920be3234b689787",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20261006h018020032.json": "bd04155a0d1e0206d3d1dc5229f455176fe62320ac44c19ac6f9d09d6c85b1a1",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260730h017580031.pdf": "7ef10f7bd6c8ab659802d84f60f10a164c1bb85f1cc43d8e527029a707abeb6d",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260821h017730032.json": "897e3e187b0c5b5c6ee8c6be8972f82c4d14ce95c812c9165d1fcbb9f4657d25",
+    "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260826h01776__20260826h017760032.pdf.snap": "931e2f8b58906274a2c3a1b5b1f24fa11bb8c0e4f89a273476d0e1ea75580763",
+    "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260831h01779__20260831h017790032.pdf.snap": "59f39977547b48304f9c37cf953f474eb9398d698b95eb7f16438cfe774957ed",
+    "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260914h01789__20260914h017890032.pdf.snap": "19701f0888ab50810ca71fe12efee0c9f275ddfa7ae9b098bc26f863549ebc0c",
+    "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260924h01794__20260924h017940032.pdf.snap": "6f125bfd9478ce569f28ff1a7cc0deb6bd3969af6c975ba70dcf64a0865df5a0"
+  },
+  "goal_status": "Full227active. Nonblind source QA and regression preservation are not independent full-corpus accuracy or100percent completion. Other notice scopes, unresolved characters and complex tables remain. Image OCR stays explicit opt-in; NDLOCR0.0.15 remains pinned. No new model/OCR dependency, timeout increase, skip, merge, issue closure or source-specific exception."
+}

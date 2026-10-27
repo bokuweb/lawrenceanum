@@ -392,6 +392,7 @@ fn headings_at_source_starts(
         !geometric_starts.is_empty()
             || frames.iter().any(|f| f.first == h.line)
             || vertical_heading(lines, h, lines.len())
+            || typographic_vertical_body(page, lines, h, lines.len())
             || horizontal_scope_heading(page, lines, h)
     });
     out
@@ -400,7 +401,7 @@ fn headings_at_source_starts(
 // personal initials and middle dots remain valid; sentence terminators do not.
 pub(crate) fn signature_office(tail: &str) -> bool {
     !tail.contains(['。', '！', '？', '!', '?']) && [
-        "代表取締役", "取締役", "代表清算人", "清算人", "代表社員", "代表理事", "理事長", "破産管財人",
+        "代表取締役", "取締役", "代表清算人", "清算人", "代表社員", "代表理事", "理事長", "破産管財人", "日本における代表者",
     ].iter().any(|role| tail.strip_prefix(role).is_some_and(|s| !s.is_empty()))
 }
 // Date and signature must be source-token prefixes in this heading's own range.
@@ -473,6 +474,45 @@ fn vertical_heading(lines: &[SourceLine<'_>], h: &Heading, end: usize) -> bool {
         && b[1] >= a[1]
         && b[1] <= a[3]
         && b[3] > a[3]
+}
+// A source-distinct vertical caption may be followed by a short preface or
+// a body column ending at the same baseline. Its own date/signature is still
+// required by witness; typography alone does not authorize a publication.
+// Terminal date/signature columns cannot stand in for the missing body.
+fn typographic_vertical_body(
+    page: &PageTrace,
+    lines: &[SourceLine<'_>],
+    h: &Heading,
+    end: usize,
+) -> bool {
+    let title = &lines[h.line];
+    let Some(next) = lines.get(h.line + 1).filter(|_| h.line + 1 < end) else {
+        return false;
+    };
+    let (Some(a), Some(b), Some(tokens)) = (title.bbox, next.bbox, &next.tokens) else {
+        return false;
+    };
+    if next.scope != title.scope
+        || next.role != Role::Body
+        || !next.unquoted
+        || h.styles.is_empty()
+        || !styles(page, &next.ids).is_some_and(|s| s.is_disjoint(&h.styles))
+        || !(a[3] - a[1] > a[2] - a[0]
+            && b[3] - b[1] > b[2] - b[0]
+            && b[2] < a[0]
+            && b[1] >= a[1]
+            && b[1] <= a[3])
+    {
+        return false;
+    }
+    let mut prefix = String::new();
+    for token in tokens {
+        prefix.push_str(token);
+        if date(&prefix) {
+            return false;
+        }
+    }
+    !prefix.is_empty() && !signature_office(&prefix)
 }
 // Horizontal subheadings may belong to their parent announcement while still
 // fencing its date/signature search. Typography or a writing-direction change
@@ -937,7 +977,9 @@ fn decisions(page: &PageTrace, rules: &PageRules, lines: &[SourceLine<'_>]) -> V
             continue;
         }
         let end = heads.get(n + 1).map_or(lines.len(), |h| h.line);
-        if vertical_heading(lines, h, end) && witness(page, lines, h, end, false) {
+        if (vertical_heading(lines, h, end) || typographic_vertical_body(page, lines, h, end))
+            && witness(page, lines, h, end, false)
+        {
             cuts.insert(h.line);
         }
     }
