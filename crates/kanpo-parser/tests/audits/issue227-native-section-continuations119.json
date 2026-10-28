@@ -1,0 +1,387 @@
+{
+  "status": "validated native119 actualpublic3 implementation; goal227 active",
+  "baseline": {
+    "primary": "ed83718166c66684f689d0fbc02f263b48169b68",
+    "PR237": "e2844ec52a4583237e791398ab1ade35b757ac7b"
+  },
+  "priority": "Native text, original cell flow and role/article ownership. NDLOCR0.0.15/f97e930b8c3e9512f7788f258ef685da26416483 unchanged; image-only OCR automatic integration deferred; no new model.",
+  "problem": "A source-wrapped shared description could already occupy one complete current cell, while parallel ordinal sections still generated unsupported logical rows. A separately wrapped parenthetical numeric value could also be misread as a new section.",
+  "proof": [
+    "Retain complete117/118 original occurrence, ordered current text, native glyph bounds and axes, unique complete physical partition, continuous source stroke, opaque graphic and exact native flow/capacity safeguards.",
+    "The wrapped source field can already be one complete current cell; use the same full native paragraph and original one-physical-row evidence. Real atomic counterpart baselines and scalar/value records still protect independent rows.",
+    "A separately wrapped complete numeric parenthesis is subordinate only to multiple explicit integer-ordinal sections with non-scalar bodies, with every original value glyph strictly inside its own section source margin. Bare numbers, unnumbered labels, equal source margins, atomic counterparts and unknown evidence defer.",
+    "Classify the section head from its exact first native baseline and original occurrence text. Later explanatory text cannot hide a numeric head; the complete head, including ordinal digits and sign-only values, remains subject to the existing scalar test.",
+    "A current wordless cell cannot provide ordinal evidence; use absence directly and retain all old guards. No neighboring glyph, default Word or guessed field is substituted.",
+    "No page/company/body lookup, character/line/section ceiling, model output or arbitrary geometry tolerance is added. Restore before all text and nested document rendering."
+  ],
+  "new_regressions": {
+    "parser_library": 12,
+    "original_full_cell_and_page_API_article_nested_output": 4,
+    "total": 16,
+    "prior_expected_snapshot_or_corpus_updates": 0
+  },
+  "RED_history": {
+    "initial_actual118": "2source regressions fail,77logicalrows8vs5 and91rows7vs5. All original memberships frozen before119 implementation.",
+    "complete_current_field": "1757pass1fail before relaxing the split-fragment-only eligibility;1758allpass after retaining atomic counterpart safeguards.",
+    "numbered_value_continuation": "1763pass2fail before ordinal/indent proof;1765allpass before additional reject counterexamples.",
+    "numeric_heads": "1765pass2fail for sign-only scalar heads and numeric first lines with later explanatory notes;1767allpass after using complete actual first native line.",
+    "additional_originals": "Full corpus discovers2additional tables; complete adopted118 source box memberships independently enclosed, full original images reviewed, all4source tests fail actual118 before public adoption.",
+    "wordless_current_cell": "Actual parser1767pass1fail: index0panic on a legitimate wordless cell. Initial nominal fullcorpus/public gates were already passing. Preserve failed record and hold that version; corrected actual unit1768allpass."
+  },
+  "final_private_unit_tests": 1768,
+  "final_private_source_control_targets": [
+    {
+      "name": "remaining-source",
+      "exit": 0
+    },
+    {
+      "name": "native_paragraph_location_fixtures",
+      "exit": 0
+    },
+    {
+      "name": "native_paragraph_additional_originals",
+      "exit": 0
+    },
+    {
+      "name": "native_paragraph_cell_fixtures",
+      "exit": 0
+    },
+    {
+      "name": "native_paragraph_public_outputs",
+      "exit": 0
+    },
+    {
+      "name": "native_sentence_cell_fixtures",
+      "exit": 0
+    },
+    {
+      "name": "native_sentence_value_controls",
+      "exit": 0
+    }
+  ],
+  "final_private_source_output_and_control_tests": 37,
+  "portable_original_and_output_tests": {
+    "exit": 0,
+    "tests": 4,
+    "all_full_source_oracles_unchanged": true,
+    "public_page_API_article_and_corresponding_nested_Table": true
+  },
+  "original_review": {
+    "verified_all_changed_sources": true,
+    "rows": [
+      {
+        "page": "20261009g002230077",
+        "baseline118_sha256": "6d85a031fc99786fd4641e8a5792bb1d6f8940d5f068ca671f26617f29e78003",
+        "private119v2_sha256": "584ea1bac579a62d70e30bf3d1840030c29f03398e3801a7318d6e82202a432f",
+        "complete_Analysis_equal": false,
+        "Word_attrs_exact": true,
+        "emitted_ID_multiplicity_exact": true,
+        "all_original_physical_cell_memberships_and_internal_order_exact": true,
+        "nonwhite_chars_exact_in_API_and_articles_document": true,
+        "format_exact": true,
+        "changed_tables": 1,
+        "page_API_article_and_nested_Document_table_consistent": true,
+        "article_counts": [
+          2,
+          2
+        ],
+        "original_review": "Root full original nonblind development review, not independent accuracy audit."
+      },
+      {
+        "page": "20261009g002230084",
+        "baseline118_sha256": "1315baf6e5019997204716806085f9cfdd51ddd9a414a94c55203b8a7462832d",
+        "private119v2_sha256": "1b1ccd30027400f5f00a16c896987e2a698fe31436f4c010a972fcfb8e356fba",
+        "complete_Analysis_equal": false,
+        "Word_attrs_exact": true,
+        "emitted_ID_multiplicity_exact": true,
+        "all_original_physical_cell_memberships_and_internal_order_exact": true,
+        "nonwhite_chars_exact_in_API_and_articles_document": true,
+        "format_exact": true,
+        "changed_tables": 1,
+        "page_API_article_and_nested_Document_table_consistent": true,
+        "article_counts": [
+          1,
+          1
+        ],
+        "original_review": "Root full original nonblind development review, not independent accuracy audit."
+      },
+      {
+        "page": "20261009g002230088",
+        "baseline118_sha256": "74f52e0fd86b624625f9b2034ff49b6a15dd8e8d9324734e656bf56d254b62b8",
+        "private119v2_sha256": "b14b26af177eec193e2963937c14c65afe213f56ce2ee2bcd080ea01b80036b9",
+        "complete_Analysis_equal": false,
+        "Word_attrs_exact": true,
+        "emitted_ID_multiplicity_exact": true,
+        "all_original_physical_cell_memberships_and_internal_order_exact": true,
+        "nonwhite_chars_exact_in_API_and_articles_document": true,
+        "format_exact": true,
+        "changed_tables": 1,
+        "page_API_article_and_nested_Document_table_consistent": true,
+        "article_counts": [
+          1,
+          1
+        ],
+        "original_review": "Root full original nonblind development review, not independent accuracy audit."
+      },
+      {
+        "page": "20261009g002230091",
+        "baseline118_sha256": "d98ece35417f381cfb6792d3154fe9cb9da8c933a2d4d84126f9864993a6a532",
+        "private119v2_sha256": "01dfb2060958ee0afa91358f4d53e34b4b3ad90ef5da085512384488c5dac4c2",
+        "complete_Analysis_equal": false,
+        "Word_attrs_exact": true,
+        "emitted_ID_multiplicity_exact": true,
+        "all_original_physical_cell_memberships_and_internal_order_exact": true,
+        "nonwhite_chars_exact_in_API_and_articles_document": true,
+        "format_exact": true,
+        "changed_tables": 1,
+        "page_API_article_and_nested_Document_table_consistent": true,
+        "article_counts": [
+          1,
+          1
+        ],
+        "original_review": "Root full original nonblind development review, not independent accuracy audit."
+      },
+      {
+        "page": "20261016g002280625",
+        "baseline118_sha256": "9a5ab9327167206c0e6ec35987be33238953b24f222083e4b6ff9f6ebb2c9b5b",
+        "private119v2_sha256": "9a5ab9327167206c0e6ec35987be33238953b24f222083e4b6ff9f6ebb2c9b5b",
+        "complete_Analysis_equal": true,
+        "Word_attrs_exact": true,
+        "emitted_ID_multiplicity_exact": true,
+        "all_original_physical_cell_memberships_and_internal_order_exact": true,
+        "nonwhite_chars_exact_in_API_and_articles_document": true,
+        "format_exact": true,
+        "changed_tables": 0,
+        "page_API_article_and_nested_Document_table_consistent": true,
+        "article_counts": [
+          1,
+          1
+        ],
+        "original_review": "Root full original nonblind development review, not independent accuracy audit."
+      },
+      {
+        "page": "20261009g002230086",
+        "baseline118_sha256": "e4b684dc1dc9f02384d86dd6e8cbbe766623fc50222e7b56392ff02badf765f2",
+        "private119v2_sha256": "e4b684dc1dc9f02384d86dd6e8cbbe766623fc50222e7b56392ff02badf765f2",
+        "complete_Analysis_equal": true,
+        "Word_attrs_exact": true,
+        "emitted_ID_multiplicity_exact": true,
+        "all_original_physical_cell_memberships_and_internal_order_exact": true,
+        "nonwhite_chars_exact_in_API_and_articles_document": true,
+        "format_exact": true,
+        "changed_tables": 0,
+        "page_API_article_and_nested_Document_table_consistent": true,
+        "article_counts": [
+          1,
+          1
+        ],
+        "original_review": "Root full original nonblind development review, not independent accuracy audit."
+      },
+      {
+        "page": "20261013g002240055",
+        "baseline118_sha256": "90915db599d587e881cb65353fa5d36de9f9a7c82e4886a6496678830904dcc5",
+        "private119v2_sha256": "90915db599d587e881cb65353fa5d36de9f9a7c82e4886a6496678830904dcc5",
+        "complete_Analysis_equal": true,
+        "Word_attrs_exact": true,
+        "emitted_ID_multiplicity_exact": true,
+        "all_original_physical_cell_memberships_and_internal_order_exact": true,
+        "nonwhite_chars_exact_in_API_and_articles_document": true,
+        "format_exact": true,
+        "changed_tables": 0,
+        "page_API_article_and_nested_Document_table_consistent": true,
+        "article_counts": [
+          1,
+          1
+        ],
+        "original_review": "Root full original nonblind development review, not independent accuracy audit."
+      }
+    ]
+  },
+  "private_nominal_runtime2_single": {
+    "terminal": 0,
+    "pages": 11992,
+    "changed118": [
+      "20261009g002230077",
+      "20261009g002230084",
+      "20261009g002230088",
+      "20261009g002230091"
+    ],
+    "source_inputs_artifacts_prepost_exact": true,
+    "seconds": 218.742723167
+  },
+  "private_nominal_runtime2_whole": {
+    "issues": 159,
+    "pages": 11992,
+    "changed": [
+      "20261009g002230077",
+      "20261009g002230084",
+      "20261009g002230088",
+      "20261009g002230091"
+    ],
+    "source_failures": [],
+    "seconds": 421.798215417,
+    "source_inputs_artifacts_prepost_exact": true
+  },
+  "whole_source_and_article_ownership": {
+    "exit": 0,
+    "pages": 4,
+    "whole_pages": 176,
+    "article_count": 240,
+    "all240_article_text_and_document_nonwhite_material_preserved_individually": true,
+    "all240_document_formats_exact": true,
+    "changed_articles": [
+      35,
+      36
+    ],
+    "rows": [
+      {
+        "page": "20261009g002230077",
+        "frozen_complete_original_table_cells_and_internal_order_exact": true,
+        "all_other_PageTrace_structure_and_roles_exact": true,
+        "original_table_article_indices": [
+          35
+        ],
+        "repaired_table_article_indices": [
+          35
+        ]
+      },
+      {
+        "page": "20261009g002230091",
+        "frozen_complete_original_table_cells_and_internal_order_exact": true,
+        "all_other_PageTrace_structure_and_roles_exact": true,
+        "original_table_article_indices": [
+          36
+        ],
+        "repaired_table_article_indices": [
+          36
+        ]
+      },
+      {
+        "page": "20261009g002230084",
+        "frozen_complete_original_table_cells_and_internal_order_exact": true,
+        "all_other_PageTrace_structure_and_roles_exact": true,
+        "original_table_article_indices": [
+          36
+        ],
+        "repaired_table_article_indices": [
+          36
+        ]
+      },
+      {
+        "page": "20261009g002230088",
+        "frozen_complete_original_table_cells_and_internal_order_exact": true,
+        "all_other_PageTrace_structure_and_roles_exact": true,
+        "original_table_article_indices": [
+          36
+        ],
+        "repaired_table_article_indices": [
+          36
+        ]
+      }
+    ]
+  },
+  "changed_issue": [
+    {
+      "issue": "20261009g00223",
+      "pages": 176,
+      "sha256": "f40b9fcf144f470f82a7c6391e3944e266c7495f272591b23740b1c1151c8a6b",
+      "equal118": false,
+      "changed": [
+        "20261009g002230077",
+        "20261009g002230084",
+        "20261009g002230088",
+        "20261009g002230091"
+      ],
+      "articles": 240,
+      "all_Word_attrs_exact": true,
+      "full_Tables_equal": false,
+      "tables": [
+        395,
+        395
+      ],
+      "articles_before": 240,
+      "nonwhite_chars_equal": true
+    }
+  ],
+  "final_validation_strategy": "Runtime2 complete corpus predictions are immutable. Runtime3 changes only missing-first-Word deferral and adds the Wordless regression; all other production plan bytes match runtime2 exactly after reversing that guard. The final actual public3, with this guard, freshly matches every11992completeAnalysis and every159wholeAnalysis against those independently frozen predictions; actualCLI11992text bytes match current actualAPI. Final native129commands include1768parser tests and the new wordless case. No claim that nominal runtime2 was safe or that runtime3 had a separate redundant private fullcorpus run.",
+  "normal_native_gates": {
+    "terminal": 0,
+    "source_manifest_sha256": "14075507dac98661a944505b764131902828668088a119bc237238747a05444c",
+    "commands": 129,
+    "integration_targets": 120,
+    "passed": 2585,
+    "failed": 0,
+    "ignored": 0,
+    "result_groups": 128,
+    "no_expected_snapshot_updates": true,
+    "all_commands_exit0": true
+  },
+  "final_actual_public_gates": {
+    "all11992_actual_API_complete_Analysis_equal_private2": true,
+    "all159whole11992pages_complete_Analysis_equal_private2": true,
+    "all11992actual_CLI_text_bytes_equal_actual_API": true,
+    "normal_native_gate_result": {
+      "terminal": 0,
+      "source_manifest_sha256": "14075507dac98661a944505b764131902828668088a119bc237238747a05444c",
+      "commands": 129,
+      "integration_targets": 120,
+      "passed": 2585,
+      "failed": 0,
+      "ignored": 0,
+      "result_groups": 128,
+      "no_expected_snapshot_updates": true,
+      "all_commands_exit0": true
+    }
+  },
+  "snapshot_conservation": {
+    "count": 814,
+    "all_bytes_exact_adopted118": true,
+    "all_final_runs_updates_forbidden": true
+  },
+  "held_versions": {
+    "runtime-v1": "Full11992/159corpus and initialsource tests pass; later numeric/sign heads fail2new counterexamples. Not adopted.",
+    "runtime-v2/public-port2": "All nominal public API/CLI/whole and2584native tests pass, but wordless cell counterexample causes a panic. Not adopted. Logs retained.",
+    "runtime-v3/public-port3": "Reject-only missing-source guard plus appended new unit case; final validated version."
+  },
+  "limitations": [
+    "Root nonblind original review; fixed30not rescored, not a population accuracy estimate.",
+    "Four tables reach their independently frozen complete original physical-cell forms. This does not certify all other content on those pages.",
+    "Other native/PUA characters, complex columns, role/article boundaries and image OCR fusion remain;100%not claimed, goal active."
+  ],
+  "evidence": {
+    ".cache/kanpo-227/resume90-local-recovery/native-section-continuations119/source-oracle-before-implementation.json": "228f70d8eb74add382bdcc7bd532100fba0bb9d61ccc34ef44367d4768e329c6",
+    ".cache/kanpo-227/resume90-local-recovery/native-section-continuations119/RED.log": "28c08219432f8251d7c4a63ef24ce92d34418a91da310ef3d520d43b42247b7f",
+    ".cache/kanpo-227/resume90-local-recovery/native-section-continuations119/already-complete-field-RED/RED.log": "487101d5868716d63fc0fa9b4cd464ad21f5eb101acb77bda6e374aacb7783bf",
+    ".cache/kanpo-227/resume90-local-recovery/native-section-continuations119/already-complete-field-v1/GREEN.log": "5f6eb74a4d203b2c1d9f2e3c570dbce456556bdadb410a4d3f65c95bcdf61cff",
+    ".cache/kanpo-227/resume90-local-recovery/native-section-continuations119/numbered-value-continuations-RED/RED.log": "76c6408418d1121cfc6682c80fea71cdc63d7f1016182dcea68942741eb06eb5",
+    ".cache/kanpo-227/resume90-local-recovery/native-section-continuations119/numbered-value-continuations-v1/GREEN.log": "7e3a8a08592849d12a7ea95b77b5316ca294eb0f9db5adb2d37784df47e555d8",
+    ".cache/kanpo-227/resume90-local-recovery/native-section-continuations119/numeric-head-signs-RED2/RED.log": "c3f8d0ca16faefdc7340c129ece7fbf61f518e122f916fc8e7516a11dad78060",
+    ".cache/kanpo-227/resume90-local-recovery/native-section-continuations119/numbered-value-continuations-v2/GREEN.log": "3e496ed1af5fcbdd5436e2c6ca704d0943c264fbc6d3dc4b29157c1b7f2aca83",
+    ".cache/kanpo-227/resume90-local-recovery/native-section-continuations119/wordless-cell-RED/RED.log": "70f041bcee216a46ecefcadfc852e3773c4812cce4b58987a33b431ea676c282",
+    ".cache/kanpo-227/resume90-local-recovery/native-section-continuations119/wordless-cell-v3/GREEN.log": "9205b31bc3ce423a08bf2d75c0c3aa43289be3e4d575849859b2a2a800673297",
+    ".cache/kanpo-227/resume90-local-recovery/native-section-continuations119/wordless-cell-v3/reject-only-delta.json": "a83e6b96b53e387a67a3eebc27b4d4d089962af8d91980d9ac9092bcd697b763",
+    ".cache/kanpo-227/resume90-local-recovery/native-section-continuations119/additional-source-oracle-before-public-adoption.json": "acc120e753f7b1990e52ffb47414634336f482fe9ad228800a321617beeef997",
+    ".cache/kanpo-227/resume90-local-recovery/native-section-continuations119/combined-four-source-oracles.json": "bff5f43bda32a78c917dc4105cc6a8b3f62695f7a275d9a682f9dfb860a21475",
+    ".cache/kanpo-227/resume90-local-recovery/native-section-continuations119/four-source-RED.log": "6ca094b52befc2d1945dae226b4c591f778e50d765a7689d380ed363e3b60e06",
+    ".cache/kanpo-227/resume90-local-recovery/native-section-continuations119/runtime-v2/source-results.json": "bce3258fe5cdeef4b20ce1ed01f01fb13a079dafddd85b3696321b149808b6f8",
+    ".cache/kanpo-227/resume90-local-recovery/native-section-continuations119/runtime-v2/parser-unit-tests.log": "502c2a6a9fe6d6c41118ef5b178390066f0ba3b128ca256c926b2b437a2970b7",
+    ".cache/kanpo-227/resume90-local-recovery/native-section-continuations119/runtime-v2/single/result.json": "08aaf94daea8c8966f6668ee37f819a7f10c099def572c08eb7084ee75120f41",
+    ".cache/kanpo-227/resume90-local-recovery/native-section-continuations119/runtime-v2/whole/result.json": "c769003a5216bf4d10e95b70d73f44274485e47c3d853c1cc97ce66ff2ea231f",
+    ".cache/kanpo-227/resume90-local-recovery/native-section-continuations119/runtime-v2/original-review-strict-final/result.json": "a336161ee251b74fd58fa00cb5d5df56bb49caf7b4f378705cf38a9dacce8641",
+    ".cache/kanpo-227/resume90-local-recovery/native-section-continuations119/runtime-v2/whole-native-paragraph-oracle-result.json": "8ed5a38f9b24a30d7c9cfbd63bcea4d2e3b26673a1265a8bd259ea861158420e",
+    ".cache/kanpo-227/resume90-local-recovery/native-section-continuations119/runtime-v3/source-results.json": "bce3258fe5cdeef4b20ce1ed01f01fb13a079dafddd85b3696321b149808b6f8",
+    ".cache/kanpo-227/resume90-local-recovery/native-section-continuations119/portable/result.json": "de854a69fd7bcca1373e085043ae65cca9420634e5251384fa7e36277ebf01e9",
+    ".cache/kanpo-227/resume90-local-recovery/native-section-continuations119/public-port2/HELD-wordless-cell-counterexample.json": "fa6cdafae9a190f712bf4c571c4873f5c371b0aeb5ec9cd31e6a09756475f5b6",
+    ".cache/kanpo-227/resume90-local-recovery/native-section-continuations119/public-port3/all4-public-gates-result.json": "9262a9f9bdea9b61bce7a2b62bcd592d79296172988b8adc45580dd273cfdd48",
+    ".cache/kanpo-227/resume90-local-recovery/native-section-continuations119/public-port3/native-gates/result119.json": "1988e213b1d01da4579acad4380b1953963a6869b3bab9540e1589d4d8a8c5be",
+    ".cache/kanpo-227/resume90-local-recovery/native-section-continuations119/public-port3/single/result.json": "158407a962d0a4e2a2e5cc2189bdb5cb8474a69d0a8c6b9bbcf70f5d51ea1f90",
+    ".cache/kanpo-227/resume90-local-recovery/native-section-continuations119/public-port3/whole/result.json": "015fa437c04d2ccd53c796defca45830cd0e7ba9197392b9001fe1f7ed28a35f",
+    ".cache/kanpo-227/resume90-local-recovery/native-section-continuations119/public-port3/CLI/result.json": "08000d6868238d06f0b3e55456451926c6d912df8bc77e1dd74e8108ee70e44d"
+  },
+  "source_files_sha256": {
+    "crates/kanpo-parser/src/native_sentence_plan.rs": "85d0ae7ecd2123760dc53babfe1b99eea2451ae7b0c9a4f63d38b1568b236339",
+    "crates/kanpo-parser/src/native_sentence_contracts.rs": "3d84023982e1d9a1425cd8cda229712e05b6567fedcf17a3f475d0a78e019218",
+    "crates/kanpo-parser/tests/native_section_continuation_fixtures.rs": "328db36df96e3d7e3edf9071cdd0e3ec224084332dbc6017278940ded3259cab",
+    "crates/kanpo-parser/tests/data/native-section-continuations/references.json": "bff5f43bda32a78c917dc4105cc6a8b3f62695f7a275d9a682f9dfb860a21475"
+  }
+}

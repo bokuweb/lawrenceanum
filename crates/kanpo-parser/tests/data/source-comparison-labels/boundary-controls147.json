@@ -1,0 +1,65 @@
+[
+  {
+    "source": "20260724h017540002",
+    "url": "https://www.kanpo.go.jp/20260724/20260724h01754/20260724h017540002.pdf",
+    "sha256": "62544860d50b43fdfe4014dc06ccc381c278b48efe92c79558b13f7192d22fb2",
+    "baseline": "native146 frozen complete Analysis, not candidate-generated",
+    "purpose": "joint-heading source ownership exact"
+  },
+  {
+    "source": "20260805g001760048",
+    "url": "https://www.kanpo.go.jp/20260805/20260805g00176/20260805g001760048.pdf",
+    "sha256": "aea29cee167ad72cccb93c759be00b838a00220368805e3e6fa0047c18a2e0ab",
+    "baseline": "native146 frozen complete Analysis, not candidate-generated",
+    "purpose": "joint-heading source ownership exact"
+  },
+  {
+    "source": "20260824g001880052",
+    "url": "https://www.kanpo.go.jp/20260824/20260824g00188/20260824g001880052.pdf",
+    "sha256": "da4d1351d30b92fb1bfb375c17dcd61070a80f017450b1b23fb5417534e05e4b",
+    "baseline": "native146 frozen complete Analysis, not candidate-generated",
+    "purpose": "joint-heading source ownership exact"
+  },
+  {
+    "source": "20260803h017600004",
+    "url": "https://www.kanpo.go.jp/20260803/20260803h01760/20260803h017600004.pdf",
+    "sha256": "53fac07a61e2a22f2805f7f16d1b5a4bf15eb51cdfbf0067f6b6681c167b6dce",
+    "baseline": "native146 frozen complete Analysis, not candidate-generated",
+    "purpose": "preexisting partial marker-stream Document preserved exactly"
+  },
+  {
+    "source": "20260908h017850007",
+    "url": "https://www.kanpo.go.jp/20260908/20260908h01785/20260908h017850007.pdf",
+    "sha256": "c8eecbe28c4e5ba81d3543ccd5d12fe08b392c985bd9cde27aff6c3069ad51c9",
+    "baseline": "native146 frozen complete Analysis, not candidate-generated",
+    "purpose": "preexisting partial marker-stream Document preserved exactly"
+  },
+  {
+    "source": "20260807g001780064",
+    "url": "https://www.kanpo.go.jp/20260807/20260807g00178/20260807g001780064.pdf",
+    "sha256": "34fb9fb192e31197f01fd773a57f80ee384eb143b765e12409b25dd82399dfb1",
+    "baseline": "native146 frozen complete Analysis, not candidate-generated",
+    "purpose": "preexisting partial marker-stream Document preserved exactly"
+  },
+  {
+    "source": "20260803g001740011",
+    "url": "https://www.kanpo.go.jp/20260803/20260803g00174/20260803g001740011.pdf",
+    "sha256": "4616b0e4987cd66b0ec6e06ac367f9526697e6debb69bca8ff46a9453e504da4",
+    "baseline": "native146 frozen complete Analysis",
+    "purpose": "a heading-prefix line with neighboring table content cannot authorize a new boundary"
+  },
+  {
+    "source": "20261005h018010004",
+    "url": "https://www.kanpo.go.jp/20261005/20261005h01801/20261005h018010004.pdf",
+    "sha256": "69e6678f62648e1ffd696621f1c34729b498619185879c13671f8a0cefa0e22e",
+    "baseline": "native146 frozen complete Analysis",
+    "purpose": "repeated ordinary Before-first notices must not be mispaired across record boundaries"
+  },
+  {
+    "source": "20261005h018010005",
+    "url": "https://www.kanpo.go.jp/20261005/20261005h01801/20261005h018010005.pdf",
+    "sha256": "cc325b9eb3b2e4d602d2f97e205b5b4675cabb8306bc71ad94b44b162026c5bf",
+    "baseline": "native146 frozen complete Analysis",
+    "purpose": "repeated ordinary Before-first notices must not be mispaired across record boundaries"
+  }
+]

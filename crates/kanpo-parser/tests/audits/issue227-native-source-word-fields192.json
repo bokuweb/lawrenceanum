@@ -1,0 +1,123 @@
+{
+  "issue": 227,
+  "stage": "native192",
+  "baseline": {
+    "local_root": "4b3d867890fe7e85f69ecf64fffcdcb8685c8b1c",
+    "local_W": "c4b525cefed5bdb6733f39186299619a21e2cfa4",
+    "publication": "66661ccb364cd0e3751322f9b2c9e5c413fb9073",
+    "all5_CI_success": true,
+    "native_counts": [
+      4403,
+      0,
+      0
+    ],
+    "native_job_seconds": 1154
+  },
+  "problem": "The old comparison footer had source words in each field but one legacy plain Line joined both.191 correctly abstained rather than move only part of the old comparison.",
+  "principles": {
+    "geometry": "Retain191 complete native source scene/glyph partition, original occurrence raw/box/axis binding, earlier actual printed root, normalized three-fence footprint, each whole Word native fence support, original cross-cap and all retained/next physical envelopes. No altered source/geometry/unknown-paint fallback.",
+    "word_ranges": "For a mixed plain Line only, require exactly two contiguous field-owned Word groups. Every current Word id/status/owner is bound. The complete ordered nonwhitespace Line stream must equal the concatenation of complete current Word texts, with nonempty unambiguous Word boundaries. Use exact UTF8 slices of the existing line, retain each field internal whitespace and original Word ids; only the interfield whitespace seam leaves the shared line.",
+    "abstention": "Reject unknown/interleaved/missing fields, empty or boundary-whitespace Words, stale/reordered/coordinated multiset-only line text, missing/duplicate/foreign owner, a partial Word across the divider or a physical Table. The existing mixed old-frame/following-body counter continues to reject a shorter partial prefix.",
+    "conservation": "No Word or physical table/cell/merge value changes. The one shared plain Line becomes two source-owned fragments. All other original Lines and unit/part/role/labels outside the certified prefix remain. Global table markers retain their count.",
+    "flow": "Original footer mode is vertical even though its physical axis is Right. Do not lend that mode as a horizontal baseline. Fence/cap support uses complete original physical envelopes, as191 already required. Exact text slicing asserts no new flow mode or glyph position.",
+    "no_new_dispatch": [
+      "page identity",
+      "company/title/body words",
+      "font name",
+      "CID/PUA value",
+      "language/character class",
+      "Japanese character length",
+      "neighbor-line budget",
+      "fixed point tolerance"
+    ],
+    "necessary_semantics": "Only the existing actual field captions and formal publication-heading grammar. No extra model or text dictionary. Existing legacy heuristics elsewhere remain."
+  },
+  "tests": {
+    "new_original_and_source_counter_conservation": 3,
+    "new_text_span_unit": 7,
+    "new_complete_API_counter": 1,
+    "new_total": 11,
+    "role_related_passed": 176,
+    "complete_API_passed": 9,
+    "span_cases": [
+      "Japanese/Latin/Hebrew/Arabic/Cyrillic/Korean/emoji/combining/Unicode byte boundaries",
+      "repeated text with original owners and any word count",
+      "both field orders",
+      "exact original interior whitespace",
+      "reordered/coordinated character multisets and normalization changes",
+      "unknown/interleaved/missing fields",
+      "missing/duplicate/foreign owners",
+      "ambiguous empty/boundary-whitespace words",
+      "physical Table cannot be flattened"
+    ],
+    "current_API": "All four191 success cases remain, the original mixed footer now has independently constructed current192 positive gold, and a new missing-Scene test retains the complete previous abstention. All5 word-reversed and all5 standalone cases remain."
+  },
+  "RED": "Actual original18/19/20 sequence failed the new source-owned-footer test on191. First compile needed an explicit usize for checked_add; no content rule was added. All earlier source negatives pass.",
+  "independent_gold": {
+    "source": "Original full20 reviewed191; exact native Word ids124/97/56/36 and raw/source-box/glyph ranges257..271, actual left/right source fields. Literal source-test annotations;192runtime uses none of these ids/texts/counts. Entire frozen189/unchanged191 source Analysis + unchanged original nested cells/merges and exact old joins. No192 classifier/runtime called.",
+    "whole_baseline_sha256": "8cd2448747491e95efb5281c79f50c0292c28fd909a020c5f56a8b6c00ae8683",
+    "whole_expected_sha256": "1faeacbfb382b137a7fdf6cd41f181346ea95854fb9b6055d72a90a99220293b",
+    "window_baseline_sha256": "8f7565e11bfa1ec742cdee31b03d29d5d27f3ae1f204d000c047d4493a9cd3ae",
+    "window_expected_sha256": "e0cddd5f9073b89e112454060d3d47f02a266363a97b8dadd581d0e2d47b940f",
+    "owner_window": 2,
+    "candidate_read_or_used": false
+  },
+  "current_vs_historical_expectations": {
+    "historical191_baseline_and_expected226_JSON": "Kept byte-identical. The pure191 verifier still replays every historical source gold, including the old abstention.",
+    "current_API": "Optional current_expected_path in the test-data index points only this source case to separate192 complete source gold. This is test fixture routing, never a runtime branch. The previous abstention API becomes a source-proved positive; a missing-Scene full-baseline API counter is added. No case is removed or ignored.",
+    "replay": "Standard Python reconstructs the complete current window from frozen189/unchanged191 Analysis, literal original source Word/text slices, original physical table cells/merges and exact old table joins. No192 detector/parser called. The complete whole273-article expected is independently constructed the same way and exact.",
+    "source_QA": "Original full20 rendered and viewed191; original source words/boxes and glyph ranges inspected again192. Body words/ids/counts occur only in source-test annotations.",
+    "not_a_blind_accuracy_estimate": true
+  },
+  "corpus": {
+    "single_Analysis_exact191": 11992,
+    "whole_issues": 159,
+    "whole_Analysis_exact191": 158,
+    "changed_whole_issues": 1,
+    "changed_pages": [
+      "20261015g002260020"
+    ],
+    "all_original_Word_values_exact": true,
+    "both_original_physical_tables_cells_merges_exact": true,
+    "all_remaining_original_Lines_exact": true,
+    "article_count_unchanged": 273,
+    "complete_whole_independent_gold_exact": true,
+    "duplicate_original_owners": 0,
+    "actual_release_final": {
+      "profile": "actual Cargo release, final W sources",
+      "single_complete_Analysis_exact_private_final": 11992,
+      "whole_complete_Analysis_exact_private_final": 159,
+      "actual_release_PDF_textdump_CLI_native_body_bytes_exact": 11992,
+      "single_duplicate_owner_pages": 0,
+      "CLI_duplicate_word_reports": 0,
+      "all_original_inputs_native_sources_Cargo_and_binaries_prepost_exact": true,
+      "seconds": 231.016876541,
+      "scope": "Source-owned Word ranges:11992singles and158wholeissues exact191; only1role page in1wholeissue changed, complete independent whole226 source gold exact. Both original physical tables and all Wordvalues retained. Historical191 gold remains; current192 completeAPIgold is separate. Finalrelease matches private192-v1 corpus hashes and11992CLI bodies. No overall accuracy claim."
+    }
+  },
+  "normal_final": {
+    "exit_code": 0,
+    "seconds": 800.4611205,
+    "all_sources_and_Cargo_exact": true,
+    "groups": 177,
+    "counts": [
+      4414,
+      0,
+      0
+    ]
+  },
+  "workflow_policy": "No existing historical golden JSON, selected test case, workflow, timeout or OCR default removed/changed. Require all5 exact-head CI after publication.",
+  "CI_at_publication": "Pending. Previous191 all5success, native4403/0/0,1154seconds with original20minute limit.",
+  "remaining": [
+    "Other mixed/table records require their own source certificates;9/9 versus7/7 remains.",
+    "Unknown characters, Latin physical-wrap word-boundary ambiguity, financial and court/estate article ownership remain.",
+    "No full-corpus accuracy or100% completion claim."
+  ],
+  "OCR": {
+    "mode": "explicit opt-in",
+    "package": "NDLOCR",
+    "version": "0.0.15",
+    "revision": "f97e930b8c3e9512f7788f258ef685da26416483",
+    "additional_models": []
+  }
+}

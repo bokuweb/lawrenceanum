@@ -55,7 +55,7 @@ fn all_lines(units: &[Unit]) -> Vec<&Line> {
                 after,
                 before,
                 outside,
-            } => {
+            ..} => {
                 out.extend(preamble);
                 for p in after.iter().chain(before).chain(outside) {
                     out.extend(p);
@@ -75,7 +75,7 @@ fn all_lines_mut(units: &mut [Unit]) -> Vec<&mut Line> {
                 after,
                 before,
                 outside,
-            } => {
+            ..} => {
                 out.extend(preamble);
                 for p in after.iter_mut().chain(before).chain(outside) {
                     out.extend(p);
@@ -311,7 +311,7 @@ mod tests {
     }
     #[test]
     fn shinkyu_parts_preserve_their_separate_owners() {
-        let mut units = vec![Unit::Shinkyu {
+        let mut units = vec![Unit::Shinkyu {labels:None,
             preamble: vec![],
             after: vec![vec![Line::text("Due".into(), vec![0])]],
             before: vec![vec![Line::text("reasons".into(), vec![1])]],
@@ -344,9 +344,9 @@ mod tests {
         }
     }
     #[test]
-    fn supplemental_identity_cid_fallback_to_normal_unicode_still_blocks_quotes() {
-        // A normal-looking fallback from an unknown Identity CID is not proof of its glyph.
-        assert_eq!(crate::normalize::word_text("\u{F4E00}"), "一");
-        assert_eq!(mapped(&w(0, "\u{E20A}Due\u{F4E00}", "Due一")), None);
+    fn unresolved_identity_cid_still_blocks_quotes() {
+        // Neither an unresolved marker nor an old normal-looking CID cast proves the glyph.
+        assert_eq!(crate::normalize::word_text("\u{F4E00}"), "\u{fffd}");
+        for text in ["Due\u{fffd}","Due一"] { assert_eq!(mapped(&w(0, "\u{E20A}Due\u{F4E00}", text)), None); }
     }
 }

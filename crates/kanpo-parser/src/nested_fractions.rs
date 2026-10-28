@@ -22,7 +22,7 @@ pub(crate) fn restore(units: &mut [Unit], words: &[Word], hrules: &[(f32, f32, f
                 after,
                 before,
                 outside,
-            } => {
+            ..} => {
                 record_owners(preamble, &mut owners, &mut next);
                 for lines in after.iter().chain(before.iter()).chain(outside.iter()) {
                     record_owners(lines, &mut owners, &mut next);
@@ -91,7 +91,7 @@ pub(crate) fn restore(units: &mut [Unit], words: &[Word], hrules: &[(f32, f32, f
                 after,
                 before,
                 outside,
-            } => {
+            ..} => {
                 next += owner_count(preamble);
                 for lines in after.iter().chain(before.iter()).chain(outside.iter()) {
                     next += owner_count(lines);

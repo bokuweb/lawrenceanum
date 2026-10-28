@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "issue": 227,
+  "stage": "native162",
+  "baseline_local": "c68fa5cc2a37c67b29fec340848d912307606d32",
+  "runtime": "Derive candidate line-move edges from this existing cell’s member source records and require words in both original halves before scanning the full page. Every edge accepted by the old code already had all overlapping source words in this cell, both parts nonempty and all member records carrying that edge; therefore this exact necessary precondition cannot omit an accepted edge. All complete coverage/ownership/row/paint checks remain unchanged.",
+  "no_new_lexical_geometry_or_size_threshold": true,
+  "tests": "Existing21lineage controls retained; full normal4024/0/0 and every default example pass. No mirrored synthetic test or new source gold needed for a computation-only necessary-condition filter.",
+  "normal_native": {
+    "terminal": 0,
+    "commands": 2,
+    "integration_targets": 157,
+    "result_groups": 165,
+    "passed": 4024,
+    "failed": 0,
+    "ignored": 0,
+    "source_manifest_sha256": "67d4cc88b5956015e3679c7f4fb60fcd2d8d517651ec0b355cb6a57b05958d39",
+    "source_and_all_existing_test_inputs_prepost_exact": true,
+    "snapshot_updates_disabled": true
+  },
+  "actual_Cargo_release": {
+    "profile": "actual Cargo release, final W sources",
+    "single_complete_Analysis_exact_private_final": 11992,
+    "whole_complete_Analysis_exact_private_final": 159,
+    "actual_release_PDF_textdump_CLI_native_body_bytes_exact": 11992,
+    "single_duplicate_owner_pages": 0,
+    "CLI_duplicate_word_reports": 0,
+    "all_original_inputs_native_sources_Cargo_and_binaries_prepost_exact": true,
+    "seconds": 272.243230667,
+    "scope": "Full final actual-Cargo release public API Analysis and native CLI over original PDFs; Exact necessary-condition cell-edge pruning, every complete Analysis and CLI body byte is unchanged161. No independent accuracy claim."
+  },
+  "preservation": "All11992complete single Analysis and159whole Analysis plus11992CLIbody bytes exactly equal actual161; no original data/gold/snapshot update.",
+  "owned_runtime_sha256": {
+    "crates/kanpo-parser/src/native_cell_lineage.rs": "1d43a8cebf1d5b6430d2e011c25b6aa66f787a9d9bfa8918720f82dfadf99b41"
+  },
+  "profile_followup": "A separate2second sampling of the running native archive suite also identified the older vertical::spaced_label_split repeated character-count scans as a hot path. Private163comparison preserves old decisions and measures that next opportunity; no163runtime is included here.",
+  "goal_status": "active; full227objective remains; OCR explicit opt-in NDLOCR0.0.15fixed; no100percent claim, merge or closure."
+}

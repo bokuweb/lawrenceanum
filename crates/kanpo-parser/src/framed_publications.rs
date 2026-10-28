@@ -135,7 +135,7 @@ fn advance_quotes(text: &str, state: &mut Vec<char>) -> Option<()> {
     }
     Some(())
 }
-fn render(page: &PageTrace, table_start: usize) -> (String, String, Vec<Table>) {
+pub(super) fn render(page: &PageTrace, table_start: usize) -> (String, String, Vec<Table>) {
     let lines = page
         .regions
         .iter()
@@ -281,6 +281,7 @@ pub(crate) fn restore_framed_reading_order(pages: &mut [PageTrace], rules: &[Opt
         if outside && quotation.as_ref().is_some_and(Vec::is_empty) {
             if let Some(rules) = rules.get(i).and_then(Option::as_ref) {
                 restore_page(page, rules, table_start);
+                super::horizontal_publications::restore_header_order(page, rules, table_start);
             }
         }
         table_start += page.tables.len();

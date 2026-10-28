@@ -1,0 +1,6 @@
+Original official Kanpo PDF:2026-07-29 special issue169,page92.
+Nonblind review of the printed section heading and its own opposite marker: one original comparison row is separated into a heading row and the existing article row. Previous article45-2 must not own the new section marker. Original opaque tables,all124Words and110usedWord occurrences remain unchanged.
+plain-preface.pdf is a generated native-text paragraph(Source preface.). Combining it with the unchanged original reproduces non-exhaustive notice-boundary claims; it is a regression input,not a reconstructed issue.
+The reviewed145 JSON is a nonblind regression contract,not independent transcription gold.
+20260729g001690092.pdf SHA256 c55f28d2cba9448e743acaa1b222ddcddaf323ec74d5698add7f0fd5cac8a01d
+plain-preface.pdf SHA256 899e33c8eba3c4f606dd03c7cea608029241b2c65b8b46f34ef35cf51249be37

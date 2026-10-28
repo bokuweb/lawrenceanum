@@ -1,0 +1,353 @@
+{
+  "method": "Non-blind PDFium original review of all10 changed pages. Literal old181 AST/trace insertion of21 original source rectangles at source-curated numeric slots. No new detector or Rust parser used in the verifier. Full11992/159 actual release corpus compared independently. Whole9 expected outputs constructed with the same source placements and retained privately. Not a corpus accuracy estimate.",
+  "cases": [
+    {
+      "key": "20260716g001590094",
+      "pdf": "tests/data/native-wrapped-amounts/20260716g001590094.pdf",
+      "PDF_sha256": "00767602289867dfd848e17981402265da7d0b4bbe824c9a588f1dfe7b1429c8",
+      "baseline": "baseline/20260716g001590094.json",
+      "expected": "expected/20260716g001590094.json",
+      "baseline_Analysis_sha256": "a5250f98d1c04ebfc4a77aa75792303d394f2144476808aa3f3d3d7537d08ffa",
+      "expected_Analysis_sha256": "7700e7568e5797e17691465af2c397abe2aa3b0eada4aec5a7ef515e5e52a24d",
+      "new_source_marks": 1,
+      "source_slots": {
+        "tables": [
+          {
+            "region": 0,
+            "line": 17,
+            "row": 8,
+            "col": 2,
+            "word": 3,
+            "raw": "",
+            "source_box": [
+              525.5141,
+              188.3598,
+              533.5141,
+              196.5438
+            ]
+          }
+        ],
+        "rows": []
+      }
+    },
+    {
+      "key": "20260723g001630226",
+      "pdf": "tests/data/native-wrapped-amounts/20260723g001630226.pdf",
+      "PDF_sha256": "57da552e819810fc024b14b1bb8840b9cbf97632747bdb86ee3e0d5fa75a69f2",
+      "baseline": "baseline/20260723g001630226.json",
+      "expected": "expected/20260723g001630226.json",
+      "baseline_Analysis_sha256": "72b2b9370d784dbfc8bc1d292fabcd328154074a9056dc31f5fd54cc5e580c18",
+      "expected_Analysis_sha256": "a216f91669ba70e38f6cfa3717cbfdc4fd43e4224a6dbc1db19aed17e165ae77",
+      "new_source_marks": 1,
+      "source_slots": {
+        "tables": [
+          {
+            "region": 0,
+            "line": 18,
+            "row": 8,
+            "col": 2,
+            "word": 5,
+            "raw": "",
+            "source_box": [
+              525.5141,
+              198.3599,
+              533.5141,
+              206.5439
+            ]
+          }
+        ],
+        "rows": []
+      }
+    },
+    {
+      "key": "20260727g001670084",
+      "pdf": "tests/data/native-wrapped-amounts/20260727g001670084.pdf",
+      "PDF_sha256": "4fb9d8d90efe79cafb219a61685296779812cafebfb2055af019ad98ec06c9ca",
+      "baseline": "baseline/20260727g001670084.json",
+      "expected": "expected/20260727g001670084.json",
+      "baseline_Analysis_sha256": "ad94d129ada5b006d08e4db97d855e604c548b9aeeef408932ec896fbe87af62",
+      "expected_Analysis_sha256": "18b4cb9057c1b75d6b77a6d9a080279ccc766449f8da8faf353682d9bbf6d385",
+      "new_source_marks": 1,
+      "source_slots": {
+        "tables": [
+          {
+            "region": 0,
+            "line": 7,
+            "row": 1,
+            "col": 2,
+            "word": 568,
+            "raw": "",
+            "source_box": [
+              186.5061,
+              139.3598,
+              194.5061,
+              147.5438
+            ]
+          }
+        ],
+        "rows": []
+      }
+    },
+    {
+      "key": "20260730g001710158",
+      "pdf": "tests/data/native-wrapped-amounts/20260730g001710158.pdf",
+      "PDF_sha256": "646b5652edc08d8327f9d77c54493d06186c98458454603d70b6d76b7727c10e",
+      "baseline": "baseline/20260730g001710158.json",
+      "expected": "expected/20260730g001710158.json",
+      "baseline_Analysis_sha256": "437e17ddbb6a64b23d32d3ba1df4ff741a4107720c2f7dfdd6157ec381af94d6",
+      "expected_Analysis_sha256": "e8d6df3db2d5978016cd8b5d0330a15a3b930c4612394496702ff3fcde11e07c",
+      "new_source_marks": 1,
+      "source_slots": {
+        "tables": [
+          {
+            "region": 0,
+            "line": 58,
+            "row": 7,
+            "col": 2,
+            "word": 3,
+            "raw": "",
+            "source_box": [
+              525.52,
+              556.3557,
+              533.52,
+              564.5397
+            ]
+          }
+        ],
+        "rows": []
+      }
+    },
+    {
+      "key": "20260731g001720300",
+      "pdf": "tests/data/native-wrapped-amounts/20260731g001720300.pdf",
+      "PDF_sha256": "ab613a442cf28f81483e488b11d5cc5d796f44c1cac823c69da08cd879c0eea2",
+      "baseline": "baseline/20260731g001720300.json",
+      "expected": "expected/20260731g001720300.json",
+      "baseline_Analysis_sha256": "d054e211bbbe6924c85cd070b4df8286eec8ff38db5bf1dad8f614061a0b68c8",
+      "expected_Analysis_sha256": "b0b0c895ab613f55953ea73436740d6883c9f1fbeada0fdeb4d6cc466d639da3",
+      "new_source_marks": 7,
+      "source_slots": {
+        "tables": [],
+        "rows": [
+          {
+            "source_region": 0,
+            "source_line": 58,
+            "words": [
+              478
+            ],
+            "before_token": [
+              2
+            ]
+          },
+          {
+            "source_region": 0,
+            "source_line": 67,
+            "words": [
+              482
+            ],
+            "before_token": [
+              2
+            ]
+          },
+          {
+            "source_region": 0,
+            "source_line": 9,
+            "words": [
+              1230
+            ],
+            "before_token": [
+              2
+            ]
+          },
+          {
+            "source_region": 0,
+            "source_line": 15,
+            "words": [
+              1233
+            ],
+            "before_token": [
+              1
+            ]
+          },
+          {
+            "source_region": 0,
+            "source_line": 17,
+            "words": [
+              1234
+            ],
+            "before_token": [
+              2
+            ]
+          },
+          {
+            "source_region": 0,
+            "source_line": 35,
+            "words": [
+              1240
+            ],
+            "before_token": [
+              2
+            ]
+          },
+          {
+            "source_region": 0,
+            "source_line": 40,
+            "words": [
+              1243
+            ],
+            "before_token": [
+              2
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "key": "20260731g001720302",
+      "pdf": "tests/data/native-wrapped-amounts/20260731g001720302.pdf",
+      "PDF_sha256": "ccdec955410aef43ea2c6b40ab40e5586af8bbbf76e66cda3e247a56d3bc2b1c",
+      "baseline": "baseline/20260731g001720302.json",
+      "expected": "expected/20260731g001720302.json",
+      "baseline_Analysis_sha256": "23515693944ccc840cee3bcd4b0ddcab3c553111aed8756beeccb99a0a7c07d9",
+      "expected_Analysis_sha256": "87bef6d7cc05d09926d8e21ffa39e35d104aefcec26cf89574e1e3f2e74ed7cc",
+      "new_source_marks": 4,
+      "source_slots": {
+        "tables": [],
+        "rows": [
+          {
+            "source_region": 0,
+            "source_line": 62,
+            "words": [
+              531,
+              395,
+              252,
+              27
+            ],
+            "before_token": [
+              1,
+              1,
+              1,
+              2
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "key": "20260807g001780121",
+      "pdf": "tests/archive/pages/20260807g00178/20260807g001780121.pdf",
+      "PDF_sha256": "6a82d94a612c42a2c93bda9eda4f731e880f0bd6b0fddd4b58dce57676cf84c2",
+      "baseline": "baseline/20260807g001780121.json",
+      "expected": "expected/20260807g001780121.json",
+      "baseline_Analysis_sha256": "1ea271514648a47e05326aa0c54ebccdfb6ee1eb39f93fa42df106cfa7ac8485",
+      "expected_Analysis_sha256": "6a301b40f24deabd28ab373f6e5df5a842e33c4521086c6d431d2dcbd82fd3e6",
+      "new_source_marks": 1,
+      "source_slots": {
+        "tables": [
+          {
+            "region": 0,
+            "line": 17,
+            "row": 4,
+            "col": 1,
+            "word": 0,
+            "raw": "",
+            "source_box": [
+              531.5,
+              138.3597,
+              539.5,
+              146.5437
+            ]
+          }
+        ],
+        "rows": []
+      }
+    },
+    {
+      "key": "20260902g001960131",
+      "pdf": "tests/data/native-wrapped-amounts/20260902g001960131.pdf",
+      "PDF_sha256": "8da3f5cf29b6835fd089b1206d019865a5507ab74db224acbe813ffdc03865f8",
+      "baseline": "baseline/20260902g001960131.json",
+      "expected": "expected/20260902g001960131.json",
+      "baseline_Analysis_sha256": "7268d4ed3800a9e5a35c5d0286a6e238d8029ab1a17d97185f1c3bff4d71df25",
+      "expected_Analysis_sha256": "c3de8fd6226fc9a099a5019ec73cab2ebbbea3a6a3e3951dbd3464ed25f43447",
+      "new_source_marks": 3,
+      "source_slots": {
+        "tables": [],
+        "rows": [
+          {
+            "source_region": 0,
+            "source_line": 34,
+            "words": [
+              434,
+              263,
+              89
+            ],
+            "before_token": [
+              1,
+              2,
+              3
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "key": "20261005g002190073",
+      "pdf": "tests/data/native-wrapped-amounts/20261005g002190073.pdf",
+      "PDF_sha256": "8a14e1ab386700b9114036de0a876f3ec823886ae29a947b3a29e639d63320ad",
+      "baseline": "baseline/20261005g002190073.json",
+      "expected": "expected/20261005g002190073.json",
+      "baseline_Analysis_sha256": "51b374074554253e642ebbe3b887522756a495fbdd7b46e822b2b7706420861e",
+      "expected_Analysis_sha256": "efde698b7f779ad4f93cff2b3e1b7f34bdd4f7daaa871c2331d769550a7ed227",
+      "new_source_marks": 1,
+      "source_slots": {
+        "tables": [
+          {
+            "region": 0,
+            "line": 72,
+            "row": 8,
+            "col": 2,
+            "word": 463,
+            "raw": "",
+            "source_box": [
+              186.5141,
+              750.3599,
+              194.5141,
+              758.5439
+            ]
+          }
+        ],
+        "rows": []
+      }
+    },
+    {
+      "key": "20261014g002250071",
+      "pdf": "tests/data/native-wrapped-amounts/20261014g002250071.pdf",
+      "PDF_sha256": "79c56b8ed72690855b1e11ffe5cc4197a6fbb76e9d2023ef077de2a57f996741",
+      "baseline": "baseline/20261014g002250071.json",
+      "expected": "expected/20261014g002250071.json",
+      "baseline_Analysis_sha256": "8f231ef2c1323ca482742d50f39857c0197ce661d8c0e98147f050a9e24f798a",
+      "expected_Analysis_sha256": "a337b360cdab37f5ff9e70c603062cd712453c03bf2bcbc4b1b6d252b3e28b8a",
+      "new_source_marks": 1,
+      "source_slots": {
+        "tables": [
+          {
+            "region": 0,
+            "line": 32,
+            "row": 9,
+            "col": 2,
+            "word": 332,
+            "raw": "",
+            "source_box": [
+              186.5141,
+              380.3599,
+              194.5141,
+              388.5439
+            ]
+          }
+        ],
+        "rows": []
+      }
+    }
+  ]
+}

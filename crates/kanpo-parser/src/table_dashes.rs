@@ -7,7 +7,7 @@ pub(crate) fn restore_table_dashes(units: &mut [Unit], words: &mut [Word]) {
     for unit in units {
         match unit {
             Unit::Plain(lines) => restore_lines(lines, words),
-            Unit::Shinkyu { preamble, after, before, outside } => {
+            Unit::Shinkyu { preamble, after, before, outside ,..} => {
                 restore_lines(preamble, words);
                 for lines in after.iter_mut().chain(before).chain(outside) {
                     restore_lines(lines, words);
@@ -124,7 +124,7 @@ pub(crate) fn restore_ruled_table_dashes(
     for unit in units.iter_mut() {
         match unit {
             Unit::Plain(lines) => restore(lines, words),
-            Unit::Shinkyu { preamble, after, before, outside } => {
+            Unit::Shinkyu { preamble, after, before, outside ,..} => {
                 restore(preamble, words);
                 for lines in after.iter_mut().chain(before).chain(outside) { restore(lines, words); }
             }
@@ -211,7 +211,7 @@ pub(crate) fn restore_partitioned_table_dashes(units: &mut [Unit], words: &mut [
     for unit in units {
         match unit {
             Unit::Plain(lines) => restore(lines, words),
-            Unit::Shinkyu { preamble, after, before, outside } => {
+            Unit::Shinkyu { preamble, after, before, outside ,..} => {
                 restore(preamble, words);
                 for lines in after.iter_mut().chain(before).chain(outside) {
                     restore(lines, words);
@@ -1037,7 +1037,7 @@ pub(crate) fn restore_existing_physical_table_dashes(units: &mut [Unit], words: 
                 after,
                 before,
                 outside,
-            } => {
+            ..} => {
                 restore(preamble, words);
                 for l in after.iter_mut().chain(before).chain(outside) {
                     restore(l, words);

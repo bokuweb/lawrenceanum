@@ -1,0 +1,302 @@
+{
+  "baseline": "Native192 actual Cargo release public Analysis; source195 changes only article boundaries. Historical179 expected069 remains immutable.",
+  "cases": [
+    {
+      "key": "20260721g001610079",
+      "PDF": "tests/archive/pages/20260721g00161/20260721g001610079.pdf",
+      "PDF_sha256": "cc980fd7a94e4fff7ad9a8af1905b0dfbf76dcf912c692116c2fb347841cff71",
+      "baseline_sha256": "ee5a9f2764888d50b4955e06cd7de4ac16986cbe460794c915faacb9fa4653ed",
+      "expected_sha256": "6e18c95abc871c283bc315f6727da7f47391e497dddbd22c82e64a6919e87570",
+      "source": {
+        "title": "介護福祉士試験委員の公告",
+        "witness": "介護福祉士試験委員の公告\n第39回介護福祉士国家試験の試験委員を次のと",
+        "page_line": 136,
+        "source_words": [
+          135
+        ]
+      }
+    },
+    {
+      "key": "20260729h017570006",
+      "PDF": "tests/data/native-signed-announcements/20260729h017570006.pdf",
+      "PDF_sha256": "6af4a3e0978ab656c107b581315b989caa39bdb8dd6a795c8cf839cfba2002df",
+      "baseline_sha256": "e39ee3285c3298f47304f115aba5c00fa34ace7c9b4ef20f8e38567fbebe8429",
+      "expected_sha256": "d6f85608b01d6433f459d21cec805fa35674aa34324dd5136241c7a5bee51084",
+      "source": {
+        "title": "財部町土地改良区の定款変更\nの認可の公告",
+        "witness": "財部町土地改良区の定款変更\nの認可の公告\n土地改良法（昭和24年法律第195号）第30条第",
+        "page_line": 130,
+        "source_words": [
+          24,
+          25
+        ]
+      }
+    },
+    {
+      "key": "20260807g001780069",
+      "PDF": "tests/archive/pages/20260807g00178/20260807g001780069.pdf",
+      "PDF_sha256": "a2726127dacee34c689dbb050c9ad27c18c9f86dd3a6fcb76dd96575fe7314cc",
+      "baseline_sha256": "1a7ee6fa744808e5ebff9cf1e973999844718845f455a14e48a4aa3c29ab89b6",
+      "expected_sha256": "afe0b65b982f53d22ef8d3f0716f96be174d70fd6746e9b74ae19282d430b95a",
+      "source": {
+        "title": "社会福祉士試験委員の公告",
+        "witness": "社会福祉士試験委員の公告\n第39回社会福祉士国家試験の試験委員を次のと",
+        "page_line": 7,
+        "source_words": [
+          342
+        ]
+      }
+    },
+    {
+      "key": "20260807g001780071",
+      "PDF": "tests/data/native-signed-announcements/20260807g001780071.pdf",
+      "PDF_sha256": "5ae511482c1bd8d608e3dfeaf99292d0f56e82bd7d5d3aadaaa6155dab72f173",
+      "baseline_sha256": "615555daba98a6c46e07a53370aad57eec9263781f3b2a79406f77fd7ec9e88d",
+      "expected_sha256": "8b7ff5d16a80885faf67726daff363c10794fb080d6fcf393088e004d374fa17",
+      "source": {
+        "title": "精神保健福祉士試験委員の公告",
+        "witness": "精神保健福祉士試験委員の公告\n第29回精神保健福祉士国家試験の試験委員を次",
+        "page_line": 54,
+        "source_words": [
+          155
+        ]
+      }
+    },
+    {
+      "key": "20260824h017740007",
+      "PDF": "tests/archive/pages/20260824h01774/20260824h017740007.pdf",
+      "PDF_sha256": "8a9da101ea513fda2a30448189323e2357c5ca7d5666a6c04c09dba1eb113b63",
+      "baseline_sha256": "0cb0d088b060385eb43759aed766678765da426ed923259c8985ed6a362610ea",
+      "expected_sha256": "25431978193507c01d8773e4ce5deee944f3afb1f35275d7de32fd22038589d0",
+      "source": {
+        "title": "潮来市土地改良区の定款変更の認可の公告",
+        "witness": "潮来市土地改良区の定款変更の認可の公告\n土地改良法（昭和24年法律第195号）第30条第",
+        "page_line": 91,
+        "source_words": [
+          17,
+          18
+        ]
+      }
+    },
+    {
+      "key": "20260915h017900008",
+      "PDF": "tests/data/native-signed-announcements/20260915h017900008.pdf",
+      "PDF_sha256": "2e0dd500de9166d957bbac9058647091e03c8ff00d33f85fa2ef55aa351e8df4",
+      "baseline_sha256": "f8b295254e727f2af19e9e1e13f7cb56f23cc05e125f3160ec6f19695c48559b",
+      "expected_sha256": "6a0be0571424b65e8c1ae3de2a961a9d00a69f170fc97ff96c6dd4324ffcde05",
+      "source": {
+        "title": "佐賀東部土地改良区の定款変更の認可の公告",
+        "witness": "佐賀東部土地改良区の定款変更の認可の公告\n土地改良法（昭和24年法律第195号）第30条第",
+        "page_line": 18,
+        "source_words": [
+          12,
+          13
+        ]
+      }
+    },
+    {
+      "key": "20260930g002160004",
+      "PDF": "tests/archive/pages/20260930g00216/20260930g002160004.pdf",
+      "PDF_sha256": "3aa29741f77a92b734a5898b2b1bdecd7256d6be2eba108fce19c0f8985a6997",
+      "baseline_sha256": "51819bcb9a5245d078731db3dde0cda41a78ccc51f8f4c13f7b94d6b3f8a0baa",
+      "expected_sha256": "b827a8983b9040017162703e0b3d0d19d7f7f99ce2908d72820b91b17eec690c",
+      "source": {
+        "title": "三養基土地改良区の定款変更の認可の公告",
+        "witness": "三養基土地改良区の定款変更の認可の公告\n土地改良法（昭和24年法律第195号）第30条第",
+        "page_line": 25,
+        "source_words": [
+          7,
+          8
+        ]
+      }
+    },
+    {
+      "key": "20261008g002220077",
+      "PDF": "tests/data/native-signed-announcements/20261008g002220077.pdf",
+      "PDF_sha256": "5170c3658eac743b02800b4273326699a0bfc0e868211a9db4f5b67e9450f264",
+      "baseline_sha256": "d0ff7b980b985d2b7a2710c4fd71b449172a4322385b4480948fda321a386e85",
+      "expected_sha256": "d689dabb11513a7d70107580ae6def9744a1166358881b39cf12fa60e114f6bb",
+      "source": {
+        "title": "特定空家等の除去命令の公告",
+        "witness": "特定空家等の除去命令の公告\n空家等対策の推進に関する特別措置法（平成26",
+        "page_line": 21,
+        "source_words": [
+          61
+        ]
+      }
+    }
+  ],
+  "unchanged_control": {
+    "key": "20260904g001980021",
+    "PDF": "tests/archive/pages/20260904g00198/20260904g001980021.pdf",
+    "PDF_sha256": "1fc4d90e29cf6cb39606cac3ec2de351e415d50ca2f87c8d01cedb7c2fbf4168",
+    "Analysis_sha256": "401cfd3fd70473dde381df4f247a2fd0a0b6154c4d63fbf7202560a73a906840"
+  },
+  "source": "All8completeoriginalpagesviewed; each published title, own complete prose/date/office and source styles/flow inspected. All8single/7whole expected ASTs constructed from frozen192 plus source-reviewed cuts with no195classifier. No accuracy estimate.",
+  "oracle_repair": "First constructor wrongly stripped retained LF at2opaque-table-adjacent plain Run cuts. Fixed by preserving exact existing Run slices for every case; no runtime change. All15complete source golds exact.",
+  "whole_proofs": [
+    {
+      "kind": "whole",
+      "key": "20260721g00161",
+      "baseline_sha256": "b8639bacc5f88a3da56a4921dc7dc5bfd5941a7cede9ce24fa3d263ffa10dfd1",
+      "expected_sha256": "8e4a937b8a6d59eebd130c13484a0bcf9642cf92478c0496d2ed9e5522010ac4",
+      "cuts": [
+        {
+          "source_page": "20260721g001610079",
+          "owner_before_this_cut": 143,
+          "source": {
+            "title": "介護福祉士試験委員の公告",
+            "witness": "介護福祉士試験委員の公告\n第39回介護福祉士国家試験の試験委員を次のと",
+            "page_line": 136,
+            "source_words": [
+              135
+            ]
+          }
+        }
+      ],
+      "candidate_read_or_used": false
+    },
+    {
+      "kind": "whole",
+      "key": "20260729h01757",
+      "baseline_sha256": "836164cd8a909d9f56d48ed66d30f4e2822a5cf32678c0f086aff3fedc078944",
+      "expected_sha256": "a8372f8246f2269877c9ea8842559aa719dfe891f2e94a5a9752770e8c084608",
+      "cuts": [
+        {
+          "source_page": "20260729h017570006",
+          "owner_before_this_cut": 45,
+          "source": {
+            "title": "財部町土地改良区の定款変更\nの認可の公告",
+            "witness": "財部町土地改良区の定款変更\nの認可の公告\n土地改良法（昭和24年法律第195号）第30条第",
+            "page_line": 130,
+            "source_words": [
+              24,
+              25
+            ]
+          }
+        }
+      ],
+      "candidate_read_or_used": false
+    },
+    {
+      "kind": "whole",
+      "key": "20260807g00178",
+      "baseline_sha256": "cd4b955dcc1b58a6f7de9b4f26ef5967ba915743926337f6cbe96de71c0506c5",
+      "expected_sha256": "d20fa7b386f9e44f651e7858359068803c9def4b5d489746fd1fc43977a6d8f6",
+      "cuts": [
+        {
+          "source_page": "20260807g001780069",
+          "owner_before_this_cut": 116,
+          "source": {
+            "title": "社会福祉士試験委員の公告",
+            "witness": "社会福祉士試験委員の公告\n第39回社会福祉士国家試験の試験委員を次のと",
+            "page_line": 7,
+            "source_words": [
+              342
+            ]
+          }
+        },
+        {
+          "source_page": "20260807g001780071",
+          "owner_before_this_cut": 118,
+          "source": {
+            "title": "精神保健福祉士試験委員の公告",
+            "witness": "精神保健福祉士試験委員の公告\n第29回精神保健福祉士国家試験の試験委員を次",
+            "page_line": 54,
+            "source_words": [
+              155
+            ]
+          }
+        }
+      ],
+      "candidate_read_or_used": false
+    },
+    {
+      "kind": "whole",
+      "key": "20260824h01774",
+      "baseline_sha256": "1a60a1ef9368b48314cdf6e23f0319e83aaa7758d845451c96fd141bdc1bf55a",
+      "expected_sha256": "630f5fc0b628c7db11cc547f729355aeb284314ff5cfa2b9552c2ddff1c9a5cf",
+      "cuts": [
+        {
+          "source_page": "20260824h017740007",
+          "owner_before_this_cut": 35,
+          "source": {
+            "title": "潮来市土地改良区の定款変更の認可の公告",
+            "witness": "潮来市土地改良区の定款変更の認可の公告\n土地改良法（昭和24年法律第195号）第30条第",
+            "page_line": 91,
+            "source_words": [
+              17,
+              18
+            ]
+          }
+        }
+      ],
+      "candidate_read_or_used": false
+    },
+    {
+      "kind": "whole",
+      "key": "20260915h01790",
+      "baseline_sha256": "cc5da5b44d1463caef4c629837546a896d9b8aa4966b61719690bb64990df6dc",
+      "expected_sha256": "aeaa6f5c9a96804bbc9533f60aef644055f8ad9c00c0f6f7230b19ddea2d31d1",
+      "cuts": [
+        {
+          "source_page": "20260915h017900008",
+          "owner_before_this_cut": 36,
+          "source": {
+            "title": "佐賀東部土地改良区の定款変更の認可の公告",
+            "witness": "佐賀東部土地改良区の定款変更の認可の公告\n土地改良法（昭和24年法律第195号）第30条第",
+            "page_line": 18,
+            "source_words": [
+              12,
+              13
+            ]
+          }
+        }
+      ],
+      "candidate_read_or_used": false
+    },
+    {
+      "kind": "whole",
+      "key": "20260930g00216",
+      "baseline_sha256": "c5bdf2dd929281efaca9b707b7b5930dde20097ca754ccd2d9a9492f56a82fd4",
+      "expected_sha256": "4d7d578fa8b52e65885e556bf2e1402ef7c07369d52ad89d65ea55bd27574fde",
+      "cuts": [
+        {
+          "source_page": "20260930g002160004",
+          "owner_before_this_cut": 3,
+          "source": {
+            "title": "三養基土地改良区の定款変更の認可の公告",
+            "witness": "三養基土地改良区の定款変更の認可の公告\n土地改良法（昭和24年法律第195号）第30条第",
+            "page_line": 25,
+            "source_words": [
+              7,
+              8
+            ]
+          }
+        }
+      ],
+      "candidate_read_or_used": false
+    },
+    {
+      "kind": "whole",
+      "key": "20261008g00222",
+      "baseline_sha256": "6d0b31f437d4f24330bab8cd2dd70d4876d06d9a27f50e380fe007aa34b7ed1d",
+      "expected_sha256": "462484e90b805f61d6a7ace5556e481035219cd70b61865ec4b8bf1cf3cfbb1c",
+      "cuts": [
+        {
+          "source_page": "20261008g002220077",
+          "owner_before_this_cut": 13,
+          "source": {
+            "title": "特定空家等の除去命令の公告",
+            "witness": "特定空家等の除去命令の公告\n空家等対策の推進に関する特別措置法（平成26",
+            "page_line": 21,
+            "source_words": [
+              61
+            ]
+          }
+        }
+      ],
+      "candidate_read_or_used": false
+    }
+  ]
+}

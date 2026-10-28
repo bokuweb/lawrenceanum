@@ -1,0 +1,21 @@
+{
+  "page": "20260824g001880038",
+  "pdf_sha256": "12894473e0da7ebca0d9cc4cddfb6b903f4c36e8354520ecb483cf9bed5ba465",
+  "root_nonblind_source_review": "Table note is inside the left edge of a long ruled table; independent next notice is physically left of that ruling.",
+  "note_words": [
+    100,
+    101,
+    102
+  ],
+  "outside_notice_heading_words": [
+    107,
+    104,
+    108
+  ],
+  "invariants": [
+    "note precedes outside heading",
+    "each target source Word owned once",
+    "outside heading is not After or Before"
+  ],
+  "image_sha256": "03cd5a10040625a9971003f50836b8d97a27d14b5230d4ffdbed9d2e4a7a955b"
+}

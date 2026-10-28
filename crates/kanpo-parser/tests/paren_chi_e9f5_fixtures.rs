@@ -6,6 +6,8 @@ fn analyze(p: &[u8]) -> Value {
     legacy_analysis::value(&a)
 }
 const P163: &[u8] = include_bytes!("archive/pages/20260723g00163/20260723g001630002.pdf");
+#[path = "support/legal_summary_expectation.rs"]
+mod legal_summary_expectation;
 const P172: &[u8] = include_bytes!("archive/pages/20260731g00172/20260731g001720008.pdf");
 const P194: &[u8] = include_bytes!("archive/pages/20260831g00194/20260831g001940091.pdf");
 const P160: &[u8] = include_bytes!("archive/pages/20260717g00160/20260717g001600048.pdf");
@@ -214,6 +216,9 @@ fn whole_Analysis_changes_only_three_source_labels_two_statuses_and_two_unique_o
                 "（イ）〜のほか、副首都の整備に係る施",
                 "（イ）〜（チ）のほか、副首都の整備に係る施",
             );
+        }
+        if word == 51 {
+            legal_summary_expectation::separate_original_laws_63_and_64(&mut b);
         }
         assert_eq!(a, b);
     }

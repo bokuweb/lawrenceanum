@@ -28,7 +28,7 @@ fn push(p: &mut PageTrace, text: &str, b: [f32; 4], font: usize) {
     p.text = p.doc_text.clone();
 }
 fn empty() -> PageTrace {
-    PageTrace {native_axes:vec![],native_rulings:vec![],
+    PageTrace {native_comparison_labels:vec![],native_horizontal_baselines:vec![],native_atomic_columns:vec![],native_axes:vec![],native_rulings:vec![],
         width: 600.,
         height: 800.,
         layout: "tiers",
@@ -387,15 +387,12 @@ fn actual_word_emission_reversal_keeps_article_membership_and_all_analysis_field
                 rest = &rest[end..];
             }
             words.reverse();
-            let doc = scraper::Html::parse_document(&p.xhtml);
-            let s = scraper::Selector::parse("page").unwrap();
-            let page = doc.select(&s).next().unwrap();
-            p.xhtml = format!(
-                "<doc><page width=\"{}\" height=\"{}\">{}</page></doc>",
-                page.value().attr("width").unwrap(),
-                page.value().attr("height").unwrap(),
-                words.join("")
-            );
+            // Reverse word emission only. Retain all original page provenance,
+            // including the native glyph count used to bind original ranges.
+            let start=p.xhtml.find("<page ").unwrap();
+            let end=start+p.xhtml[start..].find('>').unwrap();
+            let opening=p.xhtml[start..=end].to_owned();
+            p.xhtml=format!("<doc>{opening}{}</page></doc>",words.join(""));
         }
         let b = crate::analyze_item(&reversed);
         assert_eq!(
@@ -861,4 +858,24 @@ fn outer_frame_fences_do_not_depend_on_name_equivalence_font_ids_or_scale() {
         }
         assert_eq!(cuts(&p, &r), vec![1]);
     }
+}
+
+#[test]
+fn quote_scope127_notice_heading_candidates_require_the_same_original_raw_word_authority() {
+    let mut p=empty();
+    push(&mut p,"第三条中「「旧字句」を「新字句」に改める。",[450.,40.,458.,240.],2);
+    notice(&mut p,400.,"任意の名称","令和八年七月一日");
+    p.words[0].raw.clear();
+    let lines=source_lines(&p).unwrap();
+    assert!(headings(&p,&lines,&[]).is_empty());
+}
+#[test]
+fn quote_scope127_notice_candidates_cannot_ignore_unknown_prior_source_text() {
+    let mut p=empty();
+    push(&mut p,"対応が不明な先行行",[480.,40.,488.,240.],2);
+    push(&mut p,"第三条中「「旧字句」を「新字句」に改める。",[450.,40.,458.,240.],2);
+    notice(&mut p,400.,"任意の名称","令和八年七月一日");
+    p.words[0].text="隠れた引用「".into();
+    let lines=source_lines(&p).unwrap();
+    assert!(headings(&p,&lines,&[]).is_empty());
 }

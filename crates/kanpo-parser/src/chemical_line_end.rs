@@ -4,14 +4,14 @@ fn groups(units: &[Unit]) -> Vec<&Vec<Line>> {
     let mut out=vec![];
     for u in units {match u {
         Unit::Plain(l)=>out.push(l),
-        Unit::Shinkyu{preamble,after,before,outside}=>{out.push(preamble);out.extend(after);out.extend(before);out.extend(outside);}
+        Unit::Shinkyu{preamble,after,before,outside,..}=>{out.push(preamble);out.extend(after);out.extend(before);out.extend(outside);}
     }} out
 }
 fn groups_mut(units: &mut[Unit]) -> Vec<&mut Vec<Line>> {
     let mut out=vec![];
     for u in units {match u {
         Unit::Plain(l)=>out.push(l),
-        Unit::Shinkyu{preamble,after,before,outside}=>{out.push(preamble);out.extend(after);out.extend(before);out.extend(outside);}
+        Unit::Shinkyu{preamble,after,before,outside,..}=>{out.push(preamble);out.extend(after);out.extend(before);out.extend(outside);}
     }} out
 }
 fn katakana_pair(text: &str) -> bool {

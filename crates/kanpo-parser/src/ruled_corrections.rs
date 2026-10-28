@@ -37,7 +37,7 @@ fn unit_lines(u: &Unit) -> Vec<&Line> {
             after,
             before,
             outside,
-        } => preamble
+        ..} => preamble
             .iter()
             .chain(after.iter().flatten())
             .chain(before.iter().flatten())

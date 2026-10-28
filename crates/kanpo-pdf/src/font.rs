@@ -67,6 +67,8 @@ pub struct Font {
     source_charset: OnceLock<Option<Vec<u16>>>,
     source_cid0: bool,
     source_rectangles: OnceLock<Option<std::collections::BTreeMap<u16,[f64;4]>>>,
+    source_compound_envelopes: OnceLock<Option<std::collections::BTreeMap<u16,[f64;4]>>>,
+    source_alias_program: OnceLock<Option<source_alias::Program>>,
 }
 
 /// 文字列中の 1 文字。
@@ -113,6 +115,8 @@ impl Font {
             source_charset: OnceLock::new(),
             source_cid0: false,
             source_rectangles: OnceLock::new(),
+            source_compound_envelopes: OnceLock::new(),
+            source_alias_program: OnceLock::new(),
         };
         if subtype == "Type0" {
             font.composite = true;
@@ -292,6 +296,15 @@ impl Font {
         }
     }
 
+    pub(crate) fn source_codes_complete(&self,bytes:&[u8],decoded:&[CharCode])->bool{
+        let mut cursor=0usize;
+        for c in decoded{
+            let Some(end)=cursor.checked_add(c.len)else{return false;};let Some(part)=bytes.get(cursor..end)else{return false;};
+            if c.len==0||c.len>4||(!self.composite&&c.len!=1)||(self.composite&&!self.encoding.source_codespace_contains(part)){return false;}
+            let code=part.iter().fold(0u32,|a,&b|(a<<8)|b as u32);if code!=c.code{return false;}cursor=end;
+        }cursor==bytes.len()
+    }
+
     pub(crate) fn decode(&self, bytes: &[u8]) -> Vec<CharCode> {
         if !self.composite {
             return bytes
@@ -368,11 +381,28 @@ impl Font {
     /// Geometry from this exact embedded program and actual Identity CID route.
     /// Explicit ToUnicode is neither replaced nor used to infer an outline.
     pub(crate) fn source_rectangle(&self,doc:&Document,c:&CharCode)->Option<[f64;4]> {
-        if !self.composite||!self.source_cid0||!self.identity_encoding||self.vertical{return None;}
+        if self.vertical{return None;}
+        self.source_scene_rectangle(doc,c)
+    }
+    // Scene-only primitive evidence. This does not add vertical rulings or words
+    // to legacy layout; the same exact embedded charset route is required.
+    pub(crate) fn source_scene_rectangle(&self,doc:&Document,c:&CharCode)->Option<[f64;4]> {
+        if !self.composite||!self.source_cid0||!self.identity_encoding{return None;}
         let cid=u16::try_from(c.cid).ok()?;
         self.source_rectangles.get_or_init(||{
             let bytes=doc.decode_stream(self.source_cff.as_ref()?).ok()?;
             crate::cff_aj1::rectangles::rectangles(&bytes)
+        }).as_ref()?.get(&cid).copied()
+    }
+
+    // Compound rectilinear contours supply only opaque scene bounds. They are
+    // never a single filled rectangle, a ruling or a Unicode certificate.
+    pub(crate) fn source_scene_compound_envelope(&self,doc:&Document,c:&CharCode)->Option<[f64;4]>{
+        if !self.composite||!self.source_cid0||!self.identity_encoding{return None;}
+        let cid=u16::try_from(c.cid).ok()?;
+        self.source_compound_envelopes.get_or_init(||{
+            let bytes=doc.decode_stream(self.source_cff.as_ref()?).ok()?;
+            crate::cff_aj1::rectangles::compound_envelopes(&bytes)
         }).as_ref()?.get(&cid).copied()
     }
 
@@ -488,3 +518,11 @@ mod tests {
 #[cfg(test)]
 #[path = "source_aj1_font_tests.rs"]
 mod source_aj1_font_tests;
+
+#[path="source_font_alias.rs"] pub(crate) mod source_alias;
+#[cfg(test)]mod source_code_coverage_tests{
+ use super::*;
+ fn font()->Font{let b=std::fs::read(std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../kanpo-parser/tests/data/native-lineage160/explicit-TD160.pdf")).unwrap();let d=Document::load(b).unwrap();let p=d.pages();let fs=d.dict_get(&p[0].resources,b"Font").unwrap();let f=d.dict_get(fs.as_dict().unwrap(),b"F1").unwrap();Font::load(&d,f.as_dict().unwrap())}
+ #[test]fn complete_source_bytes_are_required_even_when_decoder_has_a_fallback(){let mut f=font();let b=b"abc";assert!(f.source_codes_complete(b,&f.decode(b)));assert!(!f.source_codes_complete(b,&f.decode(&b[..2])));let mut wrong=f.decode(b);wrong[0].code+=1;assert!(!f.source_codes_complete(b,&wrong));f.composite=true;f.encoding=CMap::identity();assert!(f.source_codes_complete(&[0,65],&f.decode(&[0,65])));assert!(!f.source_codes_complete(&[0,65,0],&f.decode(&[0,65,0])));f.encoding=CMap::default();assert!(!f.source_codes_complete(&[0,65],&f.decode(&[0,65])));}
+ #[test]fn original_codespace_ranges_bound_each_byte(){let mut f=font();f.composite=true;f.encoding=CMap::parse(b"1 begincodespacerange <1020> <2030> endcodespacerange");for bytes in [&[0x10,0x20][..],&[0x20,0x30][..]]{assert!(f.source_codes_complete(bytes,&f.decode(bytes)))}for bytes in [&[0x10,0x1f][..],&[0x21,0x20][..],&[0x10][..]]{assert!(!f.source_codes_complete(bytes,&f.decode(bytes)),"{bytes:?}")}}
+}

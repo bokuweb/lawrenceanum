@@ -33,7 +33,19 @@ fn find_table<'a>(a:&'a Analysis,code:&str)->Option<&'a Table>{a.pages.iter().fl
  let mut oldchars:Vec<_>=b["text"].as_str().unwrap().chars().filter(|c|!c.is_whitespace()).collect();let mut newchars:Vec<_>=a.text.chars().filter(|c|!c.is_whitespace()).collect();oldchars.sort();newchars.sort();assert_eq!(oldchars,newchars);
 }
 #[test]fn preceding_page_complete_analysis_control(){let a=actual(include_bytes!("archive/pages/20261020g00230/20261020g002300010.pdf"));let b:serde_json::Value=serde_json::from_str(include_str!("expected/headed_data_columns/20261020g002300010.json")).unwrap();assert_eq!(value(&a),b);}
-#[test]fn following_jis_page_complete_analysis_control(){let a=actual(include_bytes!("archive/pages/20261020g00230/20261020g002300012.pdf"));let b:serde_json::Value=serde_json::from_str(include_str!("expected/headed_data_columns/20261020g002300012.json")).unwrap();assert_eq!(value(&a),b);}
+#[test]fn following_jis_page_keeps_its_reviewed_complete_native_record_rows(){
+ // The historical pre142 reference remains in expected/headed_data_columns.
+ // Source-reviewed native rows now keep wrapped names ahead of their codes.
+ let a=actual(include_bytes!("archive/pages/20261020g00230/20261020g002300012.pdf"));
+ let b:serde_json::Value=serde_json::from_str(include_str!("data/source-trailing-records/20261020g002300012-reviewed142.json")).unwrap();
+ let actual:serde_json::Value=serde_json::from_str(&serde_json::to_string(&a).unwrap()).unwrap();
+ assert_eq!(actual,b);
+ let t=a.pages[0].regions.iter().flat_map(|r|&r.lines).filter_map(|l|l.table.as_ref()).next().unwrap();
+ let name=t.cells.iter().find(|c|c.row==0&&c.col==0).unwrap();
+ let code=t.cells.iter().find(|c|c.row==0&&c.col==1).unwrap();
+ assert_eq!(name.text.chars().filter(|c|!c.is_whitespace()).collect::<String>(),"発泡プラスチック断熱・保温材中のフロン含有率の測定方法－加熱抽出・ガスクロマトグラフ法");
+ assert_eq!(code.text,"Ａ1485");
+}
 
 #[test]fn short_foreign_registration_is_a_different_pending_key_recognition_issue(){
  let pdf=include_bytes!("archive/pages/20260729g00169/20260729g001690181.pdf");

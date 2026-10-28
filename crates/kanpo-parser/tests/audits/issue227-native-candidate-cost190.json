@@ -1,0 +1,65 @@
+{
+  "issue": 227,
+  "stage": "native190",
+  "scope": "Avoid repeated allocation when checking impossible layout candidates, with no classifier change.",
+  "trigger": "Native CI188 reached its unchanged20minute job limit, despite all4345 tests printing successful summaries. This cancelled run is not counted as CI success.",
+  "changes": [
+    "Keep the existing column geometry conjunction; evaluate it before the pure spaced-text predicate. Nonadjacent candidates no longer allocate a Vec<char> or temporary per-character Strings.",
+    "Recognize the exact same existing1..3scalar legacy grammar with at most4 scalar reads. Four reads establish that a fourth scalar is absent; this adds no new grammar length condition.",
+    "For the existing organ-name predicate, test whether a second scalar exists and inspect each scalar directly, preserving the same character classes and suffixes.",
+    "Build concatenated section-label text only after the existing same-column predicate succeeds."
+  ],
+  "equivalence_test": {
+    "file": "src/vertical_candidate_cost_tests.rs",
+    "oracle": "The previous allocating grammar copied independently, used only by tests.",
+    "alphabet": "15 representative Unicode character classes and range boundaries, all5 punctuation forms, ASCII, whitespace and supplementary-plane character.",
+    "exhaustive_short_strings": 54240,
+    "lengths": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "empty_and_long_strings": 4,
+    "modes": 2,
+    "comparisons": 108488,
+    "status": "PASS"
+  },
+  "normal_gate": {
+    "exit_code": 0,
+    "seconds": 585.858264458,
+    "all_sources_and_Cargo_exact": true,
+    "groups": 175,
+    "counts": [
+      4346,
+      0,
+      0
+    ]
+  },
+  "actual_release": {
+    "profile": "actual Cargo release, final W sources",
+    "single_complete_Analysis_exact_private_final": 11992,
+    "whole_complete_Analysis_exact_private_final": 159,
+    "actual_release_PDF_textdump_CLI_native_body_bytes_exact": 11992,
+    "single_duplicate_owner_pages": 0,
+    "CLI_duplicate_word_reports": 0,
+    "all_original_inputs_native_sources_Cargo_and_binaries_prepost_exact": true,
+    "seconds": 171.07928716700002,
+    "scope": "Behavior-preserving candidate evaluation optimization: every complete Analysis and CLI byte exact adopted188 across11992 originals and159 whole issues; no overall accuracy claim."
+  },
+  "inputs_and_expectations": "Every original PDF, all runtime sources/Cargo files and binaries were frozen and checked before and after the gates. Existing expected text, snapshots, corpus and gold files are unchanged.",
+  "source_rules": "No new page/font/character-code/company/title/row-label dispatch, geometric tolerance, character/neighbor budget or output-driven fallback. Existing legacy grammar is preserved; this stage does not claim all legacy rules have been generalized.",
+  "CI": "Pending at publication. Workflow files, selected tests and timeout remain unchanged. Require a successful exact-head run; successful individual tests in a cancelled job are insufficient.",
+  "remaining": "Source role continuation across landscape pages, incomplete record partitions, other financial marks/headings, article ownership and unresolved characters remain. This is nonblind development regression coverage, not an overall accuracy estimate or100% completion.",
+  "OCR": "Unchanged explicit opt-in, NDLOCR0.0.15 atf97e930b8c3e9512f7788f258ef685da26416483; no new model.",
+  "local_focused_performance": {
+    "exit_code": 0,
+    "seconds": 165.772460958,
+    "user_seconds": 161.414278,
+    "system_seconds": 1.150209,
+    "binary_sha256": "32fd87ecaec98a05409bb9829f4d5a144634c06c168b422d962fd885f44d5cb9",
+    "baseline188_archive_pages_seconds": 180.82,
+    "scope": "Focused local debug archive_pages, same source fixtures; background ordinary test gate may affect wall time. CI is the required completion criterion.",
+    "interpretation": "Local elapsed180.82->165.74seconds, about8.3% decrease; background loads differ. CI exact-head completion remains required."
+  }
+}

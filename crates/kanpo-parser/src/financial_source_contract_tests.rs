@@ -795,7 +795,7 @@ fn stacked_publications(
         })
         .collect::<Vec<_>>()
         .join("\n");
-    let page = PageTrace {
+    let page = PageTrace {native_comparison_labels:vec![],native_horizontal_baselines:vec![],native_atomic_columns:vec![],
         width: 800.,
         height: 1000.,
         layout: "tiers",
@@ -1445,3 +1445,6 @@ fn other_font_notes_do_not_make_current_or_unlabelled_names_historical() {
         assert_eq!(f.run(), f.units[0]);
     }
 }
+
+#[path="financial_notice_relation_tests.rs"]
+mod notice_relation_tests;

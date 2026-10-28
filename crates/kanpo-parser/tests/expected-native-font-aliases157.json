@@ -1,0 +1,488 @@
+[
+  {
+    "page": "20260723g001630224",
+    "PDF_sha256": "b26b5589eeff8361fbcfa96d39e3769c88fe063a9af865df8f575829b60d0dbb",
+    "words": [
+      {
+        "id": 754,
+        "raw": "鹿児島県摩川内市青山町5928番地５",
+        "old": "鹿児島県摩川内市青山町5928番地５",
+        "new": "鹿児島県薩摩川内市青山町5928番地５",
+        "old_status": "used",
+        "new_status": "used",
+        "changed_fields": [
+          "text"
+        ],
+        "source_box": [
+          66.75,
+          76.3557,
+          202.75,
+          84.5397
+        ]
+      }
+    ],
+    "fixture": "tests/data/native-font-aliases/20260723g001630224.pdf"
+  },
+  {
+    "page": "20260723g001630235",
+    "PDF_sha256": "94d8a9d6fb5302808d6b4ae1aa344eedfd6293e46a6e46e7e7e3803938fbb6b7",
+    "words": [
+      {
+        "id": 373,
+        "raw": "鹿児島県摩郡さつま町柏原3265番地",
+        "old": "鹿児島県摩郡さつま町柏原3265番地",
+        "new": "鹿児島県薩摩郡さつま町柏原3265番地",
+        "old_status": "used",
+        "new_status": "used",
+        "changed_fields": [
+          "text"
+        ],
+        "source_box": [
+          233.5,
+          261.4649,
+          369.5,
+          269.6489
+        ]
+      },
+      {
+        "id": 650,
+        "raw": "鹿児島県摩郡さつま町久富木950番地",
+        "old": "鹿児島県摩郡さつま町久富木950番地",
+        "new": "鹿児島県薩摩郡さつま町久富木950番地",
+        "old_status": "used",
+        "new_status": "used",
+        "changed_fields": [
+          "text"
+        ],
+        "source_box": [
+          64.5,
+          270.6057,
+          204.5,
+          278.7897
+        ]
+      }
+    ],
+    "fixture": "tests/data/native-font-aliases/20260723g001630235.pdf"
+  },
+  {
+    "page": "20260724g001660099",
+    "PDF_sha256": "db726370f03a098ab708ddbd5e720a302d692d97d6c4b21cda2e76a2f7eb743b",
+    "words": [
+      {
+        "id": 153,
+        "raw": "原富美子",
+        "old": "原富美子",
+        "new": "榊原富美子",
+        "old_status": "used",
+        "new_status": "used",
+        "changed_fields": [
+          "text"
+        ],
+        "source_box": [
+          329.5,
+          642.8597,
+          369.5,
+          651.0437
+        ]
+      },
+      {
+        "id": 447,
+        "raw": "原富美子",
+        "old": "原富美子",
+        "new": "榊原富美子",
+        "old_status": "used",
+        "new_status": "used",
+        "changed_fields": [
+          "text"
+        ],
+        "source_box": [
+          164.5,
+          660.8597,
+          204.5,
+          669.0437
+        ]
+      }
+    ],
+    "fixture": "tests/data/native-font-aliases/20260724g001660099.pdf"
+  },
+  {
+    "page": "20260728g001680084",
+    "PDF_sha256": "11096a4b2aa39da0bede9f1e6088d357b9177abed69d1df8999805fb4f403c43",
+    "words": [
+      {
+        "id": 261,
+        "raw": "兵庫県屋市業平町４番６号",
+        "old": "兵庫県屋市業平町４番６号",
+        "new": "兵庫県芦屋市業平町４番６号",
+        "old_status": "used",
+        "new_status": "used",
+        "changed_fields": [
+          "text"
+        ],
+        "source_box": [
+          265.5,
+          261.4649,
+          369.5,
+          269.6489
+        ]
+      },
+      {
+        "id": 536,
+        "raw": "兵庫県屋市業平町４番６号",
+        "old": "兵庫県屋市業平町４番６号",
+        "new": "兵庫県芦屋市業平町４番６号",
+        "old_status": "used",
+        "new_status": "used",
+        "changed_fields": [
+          "text"
+        ],
+        "source_box": [
+          100.5,
+          268.4649,
+          204.5,
+          276.6489
+        ]
+      }
+    ],
+    "fixture": "tests/data/native-font-aliases/20260728g001680084.pdf"
+  },
+  {
+    "page": "20260729g001700071",
+    "PDF_sha256": "0d5590f462cf8608f0609b936f3aa401556122161e0665ee2525a1ff396a7932",
+    "words": [
+      {
+        "id": 235,
+        "raw": "西",
+        "old": "西",
+        "new": "葛西",
+        "old_status": "used",
+        "new_status": "used",
+        "changed_fields": [
+          "text"
+        ],
+        "source_box": [
+          333.75,
+          290.6097,
+          349.75,
+          298.7937
+        ]
+      }
+    ],
+    "fixture": "tests/data/native-font-aliases/20260729g001700071.pdf"
+  },
+  {
+    "page": "20260814g001820090",
+    "PDF_sha256": "399faf89cbdebe3d599e3e078c2792e4b45579a7f81e0b55e421701ab702ee91",
+    "words": [
+      {
+        "id": 448,
+        "raw": "田",
+        "old": "田",
+        "new": "芦田",
+        "old_status": "used",
+        "new_status": "used",
+        "changed_fields": [
+          "text"
+        ],
+        "source_box": [
+          162.75,
+          281.9669,
+          178.75,
+          290.1509
+        ]
+      }
+    ],
+    "fixture": "tests/data/native-font-aliases/20260814g001820090.pdf"
+  },
+  {
+    "page": "20260821g001870095",
+    "PDF_sha256": "fe4504254110402cf9a214e0c5be8836d8bcc77d4e1821b26d84f06f95fb0f69",
+    "words": [
+      {
+        "id": 318,
+        "raw": "兵庫県屋市業平町５番20401号",
+        "old": "兵庫県屋市業平町５番20－401号",
+        "new": "兵庫県芦屋市業平町５番20－401号",
+        "old_status": "used",
+        "new_status": "used",
+        "changed_fields": [
+          "text"
+        ],
+        "source_box": [
+          249.75,
+          86.6057,
+          373.75,
+          94.7897
+        ]
+      }
+    ],
+    "fixture": "tests/data/native-font-aliases/20260821g001870095.pdf"
+  },
+  {
+    "page": "20260826g001900068",
+    "PDF_sha256": "ab4bde0e7d59ebe19d78ed625cd7dbf94b975dc38bbd4ef47b9037540eae4dad",
+    "words": [
+      {
+        "id": 267,
+        "raw": "兵庫県屋市西山町23番16号",
+        "old": "兵庫県屋市西山町23番16号",
+        "new": "兵庫県芦屋市西山町23番16号",
+        "old_status": "used",
+        "new_status": "used",
+        "changed_fields": [
+          "text"
+        ],
+        "source_box": [
+          265.5,
+          638.6057,
+          369.5,
+          646.7897
+        ]
+      }
+    ],
+    "fixture": "tests/data/native-font-aliases/20260826g001900068.pdf"
+  },
+  {
+    "page": "20260826g001900067",
+    "PDF_sha256": "7d4b7f864790c5627f2f9dc94947672575bea769cfda5e4cfdecccb944a9d4c6",
+    "words": [
+      {
+        "id": 329,
+        "raw": "兵庫県美方郡新温泉町屋451番地",
+        "old": "兵庫県美方郡新温泉町屋451番地",
+        "new": "兵庫県美方郡新温泉町芦屋451番地",
+        "old_status": "used",
+        "new_status": "used",
+        "changed_fields": [
+          "text"
+        ],
+        "source_box": [
+          245.5121,
+          257.8559,
+          369.5121,
+          266.0399
+        ]
+      },
+      {
+        "id": 632,
+        "raw": "兵庫県美方郡新温泉町屋448番地１",
+        "old": "兵庫県美方郡新温泉町屋448番地１",
+        "new": "兵庫県美方郡新温泉町芦屋448番地１",
+        "old_status": "used",
+        "new_status": "used",
+        "changed_fields": [
+          "text"
+        ],
+        "source_box": [
+          72.5,
+          270.3557,
+          204.5,
+          278.5397
+        ]
+      }
+    ],
+    "fixture": "tests/data/native-font-aliases/20260826g001900067.pdf"
+  },
+  {
+    "page": "20260828g001920072",
+    "PDF_sha256": "bad35a6efeda9be2e968240f9b2fdd7f2653e1bc682a54845e4c27535ce83f2c",
+    "words": [
+      {
+        "id": 155,
+        "raw": "口",
+        "old": "口",
+        "new": "樋口",
+        "old_status": "used",
+        "new_status": "used",
+        "changed_fields": [
+          "text"
+        ],
+        "source_box": [
+          329.5,
+          642.8597,
+          345.5,
+          651.0437
+        ]
+      },
+      {
+        "id": 423,
+        "raw": "口",
+        "old": "口",
+        "new": "樋口",
+        "old_status": "used",
+        "new_status": "used",
+        "changed_fields": [
+          "text"
+        ],
+        "source_box": [
+          164.5,
+          667.8597,
+          180.5,
+          676.0437
+        ]
+      }
+    ],
+    "fixture": "tests/data/native-font-aliases/20260828g001920072.pdf"
+  },
+  {
+    "page": "20260907g001990060",
+    "PDF_sha256": "4ce40d4267f22f6c61caa1bb4bf66249da19436593e306c8cd4da2f40cce2de8",
+    "words": [
+      {
+        "id": 665,
+        "raw": "岡山県倉敷市真備町田862番地12",
+        "old": "岡山県倉敷市真備町田862番地12",
+        "new": "岡山県倉敷市真備町箭田862番地12",
+        "old_status": "used",
+        "new_status": "used",
+        "changed_fields": [
+          "text"
+        ],
+        "source_box": [
+          78.75,
+          634.8597,
+          202.75,
+          643.0437
+        ]
+      }
+    ],
+    "fixture": "tests/data/native-font-aliases/20260907g001990060.pdf"
+  },
+  {
+    "page": "20260916g002070074",
+    "PDF_sha256": "caacfd46241c5a4fbc51c4b9e9ee5fb5b1d584685c650927366d8a184f500ce3",
+    "words": [
+      {
+        "id": 412,
+        "raw": "原",
+        "old": "原",
+        "new": "榊原",
+        "old_status": "used",
+        "new_status": "used",
+        "changed_fields": [
+          "text"
+        ],
+        "source_box": [
+          162.75,
+          658.6097,
+          178.75,
+          666.7937
+        ]
+      }
+    ],
+    "fixture": "tests/data/native-font-aliases/20260916g002070074.pdf"
+  },
+  {
+    "page": "20260917g002080090",
+    "PDF_sha256": "729d97bb765459de5ebf554d6f245a9506c0e5f1ad895400543101e33fc0f6c7",
+    "words": [
+      {
+        "id": 408,
+        "raw": "口",
+        "old": "口",
+        "new": "樋口",
+        "old_status": "used",
+        "new_status": "used",
+        "changed_fields": [
+          "text"
+        ],
+        "source_box": [
+          162.75,
+          98.8597,
+          178.75,
+          107.0437
+        ]
+      }
+    ],
+    "fixture": "tests/data/native-font-aliases/20260917g002080090.pdf"
+  },
+  {
+    "page": "20260924g002110114",
+    "PDF_sha256": "956ffc3db71f5f4eeafeff6f5ec566e15c10e78429a3a9fcaba5b07b76284cbc",
+    "words": [
+      {
+        "id": 382,
+        "raw": "埼玉県東松山市弓町二丁目３番２号",
+        "old": "埼玉県東松山市弓町二丁目３番２号",
+        "new": "埼玉県東松山市箭弓町二丁目３番２号",
+        "old_status": "used",
+        "new_status": "used",
+        "changed_fields": [
+          "text"
+        ],
+        "source_box": [
+          233.5,
+          77.4649,
+          369.5,
+          85.6489
+        ]
+      },
+      {
+        "id": 660,
+        "raw": "埼玉県東松山市弓町二丁目３番２号",
+        "old": "埼玉県東松山市弓町二丁目３番２号",
+        "new": "埼玉県東松山市箭弓町二丁目３番２号",
+        "old_status": "used",
+        "new_status": "used",
+        "changed_fields": [
+          "text"
+        ],
+        "source_box": [
+          68.5,
+          90.6057,
+          204.5,
+          98.7897
+        ]
+      }
+    ],
+    "fixture": "tests/data/native-font-aliases/20260924g002110114.pdf"
+  },
+  {
+    "page": "20260925g002120071",
+    "PDF_sha256": "abeacec1712c55cc5cb382f6937e3a50cb6f38c9865ef30403649ae6332d4f88",
+    "words": [
+      {
+        "id": 208,
+        "raw": "原",
+        "old": "原",
+        "new": "榊原",
+        "old_status": "used",
+        "new_status": "used",
+        "changed_fields": [
+          "text"
+        ],
+        "source_box": [
+          333.75,
+          650.8597,
+          349.75,
+          659.0437
+        ]
+      }
+    ],
+    "fixture": "tests/archive/pages/20260925g00212/20260925g002120071.pdf"
+  },
+  {
+    "page": "20260925g002120081",
+    "PDF_sha256": "bd8d1fbecd6e5f0ec7b9e3bff40b47d2ce7922d17b47b6f4564d4871ef257e4c",
+    "words": [
+      {
+        "id": 155,
+        "raw": "西",
+        "old": "西",
+        "new": "葛西",
+        "old_status": "used",
+        "new_status": "used",
+        "changed_fields": [
+          "text"
+        ],
+        "source_box": [
+          329.5,
+          109.5977,
+          345.5,
+          117.7817
+        ]
+      }
+    ],
+    "fixture": "tests/data/native-font-aliases/20260925g002120081.pdf"
+  }
+]

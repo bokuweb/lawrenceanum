@@ -8,11 +8,11 @@ use kanpo_parser::{reconstruct_vertical, segment_articles};
 #[test]
 fn smaller_wrapped_account_with_a_dash_amount_starts_a_new_row() {
     // 令和8年8月7日 号外第178号 p121。エスアイエルの損益計算書は「販売費及び一般管理／費」だけ
-    // 小さい字で2行に組み、その金額「－」は字の層から除かれる。直前の「営業総利益」とは別の科目。
+    // 小さい字で2行に組む。金額「－」も元の描画から戻し、直前の「営業総利益」とは別の科目。
     let pdf = include_bytes!("archive/pages/20260807g00178/20260807g001780121.pdf");
     let pages = kanpo_parser::page_inputs(pdf).unwrap();
     let out = kanpo_parser::analyze_item(&pages).text;
-    assert!(out.contains("営業総利益　1,419,551\n販売費及び一般管理費\n営業利益　1,419,551"), "{out}");
+    assert!(out.contains("営業総利益　1,419,551\n販売費及び一般管理費　－\n営業利益　1,419,551"), "{out}");
     // 末尾の「費」は同じ科目に戻り、数のあるほかの損益計算書でも折り返しを保持する。
     assert!(out.contains("販売費及び一般管理費　19,236"), "{out}");
     assert!(!out.contains("営業総利益販売費"), "{out}");

@@ -19,6 +19,51 @@
 
 use std::path::{Path, PathBuf};
 
+// The original HTML fixtures predate the additive cell-origin/advance-band contracts.
+// Keep their complete existing payload check. A regenerated fixture containing
+// the contract compares every byte, including the new metadata, as before.
+// Original glyph/envelope/font-size contracts are tested in kanpo-pdf.
+fn source_payload(actual: &str, expected: &str) -> String {
+    let mut out = actual.to_owned();
+    for needle in [" data-native-cell-origin=\"", " data-native-advance-band=\"", " data-native-terminal-glyph=\"", " data-native-font-aliases=\"", " data-native-lineage-coverage=\"", " data-native-lineage-obstacles=\"", " data-native-lineage-ink=\"", " data-native-line-moves=\"", " data-native-scene=\"", " data-native-source-occurrence=\""] {
+        if expected.contains(needle) {
+            continue;
+        }
+        while let Some(start) = out.find(needle) {
+            let value = start + needle.len();
+            let end = value + out[value..].find('"').expect("closed source attribute");
+            out.replace_range(start..=end, "");
+        }
+    }
+    out
+}
+
+#[test]
+fn source_metadata_versions_keep_all_existing_payload_checks() {
+    let historical = "<word xmin='10' data-native-axis='right'>a b</word>";
+    let current = historical.replace(
+        "data-native-axis",
+        "data-native-cell-origin=\"2 original envelope and sizes\" data-native-axis",
+    );
+    assert_eq!(source_payload(&current, historical), historical);
+    assert_eq!(
+        source_payload(&current, &current),
+        current,
+        "UPDATE_EXPECT output stays self-consistent"
+    );
+    for changed in [
+        current.replace("a b", "ab"),
+        current.replace("xmin='10'", "xmin='11'"),
+        current.replace("'right'", "'left'"),
+    ] {
+        assert_ne!(
+            source_payload(&changed, historical),
+            historical,
+            "existing text, geometry and source evidence remain checked"
+        );
+    }
+}
+
 fn cases() -> Vec<PathBuf> {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/corpus");
     let mut dirs: Vec<PathBuf> = std::fs::read_dir(&root)
@@ -54,8 +99,12 @@ fn corpus_matches_expected() {
                     let path = dir.join(&file);
                     if update {
                         std::fs::write(&path, actual).unwrap();
-                    } else if std::fs::read_to_string(&path).ok().as_ref() != Some(actual) {
-                        failures.push(format!("{name}/{file} が PDF から作ったものと違う（UPDATE_EXPECT=1 で作り直す）"));
+                    } else {
+                        let expected = std::fs::read_to_string(&path).ok();
+                        let compared = expected.as_deref().map(|e| source_payload(actual, e)).unwrap_or_else(|| actual.to_owned());
+                        if expected.as_deref() != Some(compared.as_str()) {
+                            failures.push(format!("{name}/{file} が PDF から作ったものと違う（UPDATE_EXPECT=1 で作り直す）"));
+                        }
                     }
                 }
                 Some(page)
@@ -168,4 +217,75 @@ fn first_diff(expected: &str, actual: &str) -> String {
         e.get(i).copied().unwrap_or("<EOF>"),
         a.get(i).copied().unwrap_or("<EOF>")
     )
+}
+
+#[test]
+fn additive_band_metadata_does_not_hide_existing_or_current_payload() {
+    let old="<word xmin='10' data-native-axis='right'>a b</word>";
+    let band=old.replace(" data-native-axis", " data-native-advance-band=\"1 original complete origins\" data-native-axis");
+    let both=band.replace(" data-native-axis", " data-native-cell-origin=\"2 original envelope and sizes\" data-native-axis");
+    assert_eq!(source_payload(&band,old),old);
+    assert_eq!(source_payload(&both,old),old);
+    assert_eq!(source_payload(&both,&band),band);
+    assert_eq!(source_payload(&both,&both),both);
+    for changed in [both.replace("a b","ab"),both.replace("xmin='10'","xmin='11'"),both.replace("'right'","'left'"),both.replace("1 original","2 changed"),both.replace("2 original","3 changed")] {
+        assert_ne!(source_payload(&changed,&both),both);
+    }
+}
+
+#[test]
+fn terminal_metadata156_keeps_legacy_bytes_and_checks_every_current_field() {
+ let old="<word xmin='10' data-native-axis='right'>a b</word>";
+ let current=old.replace(" data-native-axis"," data-native-terminal-glyph=\"1 0 2 14 18 20\" data-native-axis");
+ assert_eq!(source_payload(&current,old),old);
+ assert_eq!(source_payload(&current,&current),current);
+ for changed in [current.replace("a b","ab"),current.replace("xmin='10'","xmin='11'"),current.replace("'right'","'left'"),current.replace("1 0 2 14 18 20","1 0 2 15 18 20"),current.replace(" data-native-axis"," data-native-unrecognized=\"changed\" data-native-axis")] {
+  assert_ne!(source_payload(&changed,&current),current);
+ }
+}
+
+#[test]
+fn font_alias_metadata157_keeps_all_legacy_bytes_and_checks_current_evidence(){
+ let old="<word xmin='10' data-native-axis='right'>a b</word>";
+ let current=old.replace(" data-native-axis"," data-native-font-aliases=\"1 0 2 10 20 30 40 0:58495:3:23185\" data-native-axis");
+ assert_eq!(source_payload(&current,old),old);
+ assert_eq!(source_payload(&current,&current),current);
+ for changed in [current.replace("a b","ab"),current.replace("xmin='10'","xmin='11'"),current.replace("'right'","'left'"),current.replace("0:58495:3:23185","0:58496:3:23185"),current.replace("10 20 30 40","11 20 30 40"),current.replace(" data-native-axis"," data-native-unrecognized=\"changed\" data-native-axis")] {assert_ne!(source_payload(&changed,&current),current);}
+}
+
+#[test]
+fn line_move_metadata160_preserves_legacy_payload_and_checks_every_current_field(){
+ let old="<page data-native-glyph-count=\"8\"><word xmin=\"10\" data-native-axis=\"right\">a b</word></page>";
+ let current=old.replace("<page ","<page data-native-lineage-coverage=\"1 8 -\" data-native-lineage-obstacles=\"1 -\" data-native-lineage-ink=\"1 L:0,0,0,8,-1,-1,1,9\" ").replace(" data-native-axis", " data-native-line-moves=\"1 0 3 10 20 30 40 612062 0:3:8\" data-native-axis");
+ assert_eq!(source_payload(&current,old),old);
+ assert_eq!(source_payload(&current,&current),current);
+ for changed in [current.replace("1 8 -","1 9 -"),current.replace("obstacles=\"1 -","obstacles=\"1 1,2,3,4"),current.replace("L:0,0,0,8,-1,-1,1,9","L:0,0,0,8,-2,-1,1,9"),current.replace("0:3:8","0:4:8"),current.replace("612062","612063"),current.replace("a b","ab"),current.replace("xmin=\"10","xmin=\"11"),current.replace(" data-native-axis"," data-native-unrecognized=\"changed\" data-native-axis")]{assert_ne!(source_payload(&changed,&current),current);}
+}
+
+#[test]
+fn native_scene_metadata_preserves_legacy_bytes_and_checks_every_current_field(){
+ let input=kanpo_parser::page_inputs(&std::fs::read(Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/data/native-marker-records/source.pdf")).unwrap()).unwrap();
+ let html=&input[0].xhtml;let document=scraper::Html::parse_document(html);
+ let page=document.select(&scraper::Selector::parse("page").unwrap()).next().unwrap();
+ let packet:serde_json::Value=serde_json::from_str(page.value().attr("data-native-scene").unwrap()).unwrap();
+ let rewrite=|packet:Option<&serde_json::Value>|{
+  let mut output=html.clone();let needle=" data-native-scene=\"";let start=output.find(needle).unwrap();let from=start+needle.len();let end=from+output[from..].find('"').unwrap()+1;
+  let value=packet.map(|v|format!("{needle}{}\"",v.to_string().replace('&',"&amp;").replace('"',"&quot;").replace('<',"&lt;").replace('>',"&gt;"))).unwrap_or_default();output.replace_range(start..end,&value);output
+ };
+ let current=rewrite(Some(&packet));let historical=rewrite(None);
+ assert_eq!(source_payload(&current,&historical),historical);
+ assert_eq!(source_payload(&current,&current),current);
+ for key in packet.as_object().unwrap().keys(){let mut changed=packet.clone();changed[key]=serde_json::Value::Null;assert_ne!(source_payload(&rewrite(Some(&changed)),&current),current,"{key}");}
+ for changed in [current.replacen("<word ","<word data-native-unrecognized=\"changed\" ",1),current.replacen("xmin=\"","xmin=\"1",1),current.replacen("data-native-axis=\"down\"","data-native-axis=\"right\"",1)]{
+  assert_ne!(source_payload(&changed,&historical),historical);
+  assert_ne!(source_payload(&changed,&current),current);
+ }
+}
+
+#[test]
+fn source_occurrence_metadata183_preserves_legacy_bytes_and_checks_every_current_field(){
+ let old="<word xmin='10' data-native-axis='right'>a b</word>";
+ let current=old.replace(" data-native-axis"," data-native-source-occurrence=\"1 3 6 9 19 31 41\" data-native-axis");
+ assert_eq!(source_payload(&current,old),old);assert_eq!(source_payload(&current,&current),current);
+ for changed in [current.replace("1 3 6","2 3 6"),current.replace("1 3 6","1 4 6"),current.replace("1 3 6","1 3 7"),current.replace("9 19 31 41","8 19 31 41"),current.replace("9 19 31 41","9 18 31 41"),current.replace("9 19 31 41","9 19 32 41"),current.replace("9 19 31 41","9 19 31 42"),current.replace("a b","ab"),current.replace("xmin='10'","xmin='11'"),current.replace("'right'","'left'"),current.replace(" data-native-axis"," data-native-unrecognized=\"changed\" data-native-axis")]{assert_ne!(source_payload(&changed,&current),current);}
 }

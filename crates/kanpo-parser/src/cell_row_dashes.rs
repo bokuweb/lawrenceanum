@@ -374,7 +374,7 @@ pub(crate) fn restore_cell_record_dashes(units: &mut [Unit], words: &mut [Word],
                 after,
                 before,
                 outside,
-            } => {
+            ..} => {
                 restore(preamble, words);
                 for lines in after.iter_mut().chain(before).chain(outside) {
                     restore(lines, words);

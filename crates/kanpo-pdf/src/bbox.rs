@@ -106,10 +106,13 @@ pub fn display_boxes(page: &Page, boxes: &[[f64; 4]]) -> Vec<Option<[f64; 4]>> {
 /// （Adobe-Npb1 など）で ToUnicode も無いフォントを読めずに捨てる。官報では傍線などの
 /// 罫線用の字形のフォントがこれにあたる。
 pub fn poppler_readable(font: &FontInfo) -> bool {
-    match font.ordering.as_deref() {
+    readable_ordering(font.ordering.as_deref(),font.has_to_unicode)
+}
+pub(crate) fn readable_ordering(ordering:Option<&str>,has_to_unicode:bool)->bool {
+    match ordering {
         None => true,
         Some("Japan1" | "Japan2" | "GB1" | "CNS1" | "Korea1" | "KR" | "Identity") => true,
-        Some(_) => font.has_to_unicode,
+        Some(_) => has_to_unicode,
     }
 }
 
@@ -319,7 +322,7 @@ fn resolved_aj1_word(page: &Page, word: &Word) -> bool {
 
 /// ページを `pdftotext -bbox-layout` 形式の XHTML にする。語ごとに 1 つの flow・block・line に入れる。
 pub fn bbox_layout(pages: &[Page]) -> String {
-    layout(pages.iter().map(|p| (p,None,None)), false)
+    layout(pages.iter().map(|p| (p,None,None,None,None)), false)
 }
 /// Render only owned original pages with their own source evidence.
 /// There is no external Page argument to which evidence could be transferred.
@@ -333,12 +336,12 @@ pub fn bbox_layout(pages: &[Page]) -> String {
 /// let _ = kanpo_pdf::bbox::bbox_layout_with_aj1_sources(pages, sources);
 /// ```
 pub fn bbox_layout_with_aj1_sources(sources: &[crate::Aj1PageSources]) -> String {
-    layout(sources.iter().map(|s| (s.page(),Some(s.resolved()),None)), false)
+    layout(sources.iter().map(|s| (s.page(),Some(s.resolved()),None,None,None)), false)
 }
 /// Original source font/size identities. These are provenance, not inferred boldness.
 /// Each style is bound to the glyphs of its own emitted word.
 pub fn bbox_layout_with_native_styles(sources: &[crate::Aj1PageSources]) -> String {
-    layout(sources.iter().map(|s| (s.page(), Some(s.resolved()),Some(s.ink_rects()))), true)
+    layout(sources.iter().map(|s| (s.page(), Some(s.resolved()),Some(s.ink_rects()),Some(&s.aliases),Some(&s.lineage))), true)
 }
 fn native_styles(page: &Page, word: &Word) -> Option<String> {
     let mut styles = std::collections::BTreeSet::new();
@@ -411,20 +414,44 @@ fn native_source_axis(page: &Page, word: &Word) -> Option<&'static str> {
     }
     (raw == word.text).then_some(axis).flatten()
 }
-fn layout<'a>(pages: impl IntoIterator<Item=(&'a Page,Option<&'a [Option<char>]>,Option<&'a [Option<[f64;4]>]>)>, emit_styles:bool) -> String {
+// Exact original rightward baseline and first-glyph advance. Font metrics
+// may overlap adjacent lines; no rounding/tolerance merges their baselines.
+pub(crate) fn native_flow_tuple(page:&Page,word:&Word)->Option<[f64;4]>{
+    if native_source_axis(page,word)? != "right" {return None;}
+    let first=page.glyphs.get(*word.glyphs.first()?)?;
+    let last=page.glyphs.get(*word.glyphs.last()?)?;
+    let mut rect=poppler_box(first);
+    let mut previous=None;
+    for &i in &word.glyphs{
+        let g=page.glyphs.get(i)?;
+        let b=poppler_box(g);
+        if !g.spacing.is_finite() || !g.kern.is_finite() || g.y!=first.y || !b.iter().all(|n|n.is_finite()) || b[0]>=b[2] || b[1]>=b[3] || previous.is_some_and(|(x,end)|g.x<x || g.end_x<end){return None;}
+        rect[0]=rect[0].min(b[0]);rect[2]=rect[2].max(b[2]);previous=Some((g.x,g.end_x));
+    }
+    if rect != [word.x_min,word.y_min,word.x_max,word.y_max]{return None;}
+    let flow=[first.x,first.y,last.end_x,first.end_x-first.x];
+    (flow.iter().all(|n|n.is_finite()) && flow[0]<flow[2] && flow[3]>0. && flow[3]<=flow[2]-flow[0] && (last.end_x+last.spacing).is_finite() && (flow[3]+first.kern).is_finite()).then_some(flow)
+}
+fn layout<'a>(pages: impl IntoIterator<Item=(&'a Page,Option<&'a [Option<char>]>,Option<&'a [Option<[f64;4]>]>,Option<&'a crate::font::source_alias::Aliases>,Option<&'a crate::source_lineage::Tape>)>, emit_styles:bool) -> String {
     let mut s = String::from(
         "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\
          <html xmlns=\"http://www.w3.org/1999/xhtml\">\n<head>\n<title></title>\n</head>\n<body>\n<doc>\n",
     );
-    for (page, resolved_source, ink_rects) in pages {
+    for (page, resolved_source, ink_rects, aliases, lineage) in pages {
         // poppler は /Rotate の前の幅・高さを書く。
         let (w, h) = if page.rotate % 180 == 90 {
             (page.height, page.width)
         } else {
             (page.width, page.height)
         };
-        let _ = writeln!(s, "  <page width=\"{w:.6}\" height=\"{h:.6}\">");
-        for word in words(page) {
+        let native_words=words(page);
+        let coverage=if emit_styles{lineage.and_then(|l|l.coverage_attribute(page)).map(|x|format!(" data-native-lineage-coverage=\"{x}\"")).unwrap_or_default()}else{String::new()};
+        let obstacles=if emit_styles{lineage.and_then(|l|l.obstacle_attribute()).map(|x|format!(" data-native-lineage-obstacles=\"{x}\"")).unwrap_or_default()}else{String::new()};
+        let ink=if emit_styles{lineage.and_then(|l|l.ink_attribute()).map(|x|format!(" data-native-lineage-ink=\"{x}\"")).unwrap_or_default()}else{String::new()};
+        let count=if emit_styles{format!(" data-native-glyph-count=\"{}\"",page.glyphs.len())}else{String::new()};
+        let scene=if emit_styles{lineage.and_then(|l|l.scene_attribute(page,&native_words)).map(|x|format!(" data-native-scene=\"{}\"",escape(&x))).unwrap_or_default()}else{String::new()};
+        let _ = writeln!(s, "  <page width=\"{w:.6}\" height=\"{h:.6}\"{count}{coverage}{obstacles}{ink}{scene}>");
+        for word in native_words {
             let attrs = format!(
                 "xMin=\"{:.6}\" yMin=\"{:.6}\" xMax=\"{:.6}\" yMax=\"{:.6}\"",
                 word.x_min, word.y_min, word.x_max, word.y_max
@@ -435,6 +462,22 @@ fn layout<'a>(pages: impl IntoIterator<Item=(&'a Page,Option<&'a [Option<char>]>
             let ruling=if emit_styles {ink_rects.and_then(|r|crate::source_ruling::word_ruling(page,&word,r)).map(|(axis,[x0,y0,x1,y1])|{
                 format!(" data-native-ruling=\"{axis}\" data-native-ink-xmin=\"{x0}\" data-native-ink-ymin=\"{y0}\" data-native-ink-xmax=\"{x1}\" data-native-ink-ymax=\"{y1}\"")
             }).unwrap_or_default()}else{String::new()};
+            let outline=if emit_styles {ink_rects.and_then(|r|crate::source_ruling::word_outline_attribute(page,&word,r))
+                .map(|v|format!(" data-native-outline-rectangle=\"{v}\"")).unwrap_or_default()}else{String::new()};
+            let flow=if emit_styles {native_axis_flow_tuple(page,&word).map(|[start,baseline,end,leading]|{ let trailing=page.glyphs[*word.glyphs.last().unwrap()].spacing; let prefix=page.glyphs[word.glyphs[0]].kern; format!(" data-native-flow-start=\"{start}\" data-native-flow-baseline=\"{baseline}\" data-native-flow-end=\"{end}\" data-native-flow-leading=\"{leading}\" data-native-flow-trailing=\"{trailing}\" data-native-flow-prefix=\"{prefix}\"") }).unwrap_or_default()}else{String::new()};
+            let advance_band = if emit_styles && native_axis_flow_tuple(page, &word).is_none() {
+                native_advance_band::from_word(page, &word)
+                    .map(|band| format!(" data-native-advance-band=\"{}\"", band.attribute()))
+                    .unwrap_or_default()
+            } else { String::new() };
+            let moves=if emit_styles{lineage.and_then(|l|l.word_attribute(page,&word)).map(|s|format!(" data-native-line-moves=\"{s}\"")).unwrap_or_default()}else{String::new()};
+            let alias=if emit_styles{aliases.and_then(|a|a.word_attribute(page,&word)).map(|s|format!(" data-native-font-aliases=\"{s}\"")).unwrap_or_default()}else{String::new()};
+            let terminal=if emit_styles {native_terminal_glyph::from_word(page,&word)
+                .map(|t|format!(" data-native-terminal-glyph=\"{}\"",t.attribute())).unwrap_or_default()}else{String::new()};
+            let range=if emit_styles{native_glyph_range(page,&word).map(|(first,after)|format!(" data-native-flow-first-glyph=\"{first}\" data-native-flow-after-glyph=\"{after}\"")).unwrap_or_default()}else{String::new()};
+            let occurrence=if emit_styles && native_glyph_range(page,&word).is_none(){
+                native_source_occurrence(page,&word).map(|o|format!(" data-native-source-occurrence=\"1 {} {} {} {} {} {}\"",o.first,o.after,o.bounds[0],o.bounds[1],o.bounds[2],o.bounds[3])).unwrap_or_default()
+            }else{String::new()};
             let content = if emit_styles {
                 let value = native_content_styles(page, &word, resolved_source).unwrap_or_else(|| "unknown".into());
                 format!(" data-native-content-styles=\"{value}\"")
@@ -443,10 +486,11 @@ fn layout<'a>(pages: impl IntoIterator<Item=(&'a Page,Option<&'a [Option<char>]>
                 .and_then(|source| crate::source_aj1::word_candidate(page, &word, source))
                 .map(|text| format!(" data-source-aj1-text=\"{}\"", escape(&text)))
                 .unwrap_or_default();
+            let cell_origin=if emit_styles{native_cell_origin::prove(page,&word).map(|o|format!(" data-native-cell-origin=\"2 {} {} {} {} {} {} {} {} {} {} {} {} {} {}\"",o.first,o.after,o.flow[0],o.flow[1],o.flow[2],o.flow[3],o.flow[4],o.flow[5],o.bounds[0],o.bounds[1],o.bounds[2],o.bounds[3],o.sizes[0],o.sizes[1])).unwrap_or_default()}else{String::new()};
             let resolved = if resolved_aj1_word(page, &word) { " data-unicode-aj1=\"1\"" } else { "" };
             let _ = writeln!(
                 s,
-                "    <flow>\n      <block {attrs}>\n        <line {attrs}>\n          <word {attrs}{native}{resolved}{source_attr}{styles}{content}{axis}{ruling}>{}</word>\n        </line>\n      </block>\n    </flow>",
+                "    <flow>\n      <block {attrs}>\n        <line {attrs}>\n          <word {attrs}{native}{resolved}{source_attr}{styles}{content}{axis}{ruling}{flow}{range}{occurrence}{cell_origin}{advance_band}{terminal}{alias}{moves}{outline}>{}</word>\n        </line>\n      </block>\n    </flow>",
                 escape(&word.text)
             );
         }
@@ -672,14 +716,14 @@ mod native_style_tests {
     #[test]
     fn source_style_renderer_only_adds_metadata_to_the_legacy_rendering() {
         let p = page(vec![glyph("同", 10., 0, 8.), glyph("同", 40., 1, 9.)]);
-        let sources = vec![crate::Aj1PageSources { ink_rects:vec![],
+        let sources = vec![crate::Aj1PageSources { lineage:Default::default(), aliases:Default::default(), ink_rects:vec![],
             resolved: vec![None, None],
             original: p.clone(),
         }];
         let old = bbox_layout_with_aj1_sources(&sources);
         let mut new = bbox_layout_with_native_styles(&sources);
         assert_eq!(new.matches(" data-native-styles=\"").count(), 2);
-        for attr in ["data-native-styles", "data-native-content-styles", "data-native-axis", "data-native-ruling", "data-native-ink-xmin", "data-native-ink-ymin", "data-native-ink-xmax", "data-native-ink-ymax"] {
+        for attr in ["data-native-terminal-glyph", "data-native-cell-origin", "data-native-glyph-count", "data-native-flow-first-glyph", "data-native-flow-after-glyph", "data-native-flow-start","data-native-flow-baseline","data-native-flow-end","data-native-flow-leading", "data-native-flow-trailing", "data-native-flow-prefix","data-native-styles", "data-native-content-styles", "data-native-axis", "data-native-ruling", "data-native-ink-xmin", "data-native-ink-ymin", "data-native-ink-xmax", "data-native-ink-ymax"] {
             let needle = format!(" {attr}=\"");
             while let Some(start) = new.find(&needle) {
                 let from = start + needle.len();
@@ -699,3 +743,81 @@ mod native_content_style_tests;
 #[cfg(test)]
 #[path="native_axis_tests.rs"]
 mod native_axis_tests;
+
+#[cfg(test)]
+#[path="native_flow_contracts.rs"]
+mod native_flow_contracts;
+
+fn source_point(axis:&str,x:f64,y:f64)->Option<(f64,f64)>{Some(match axis{"right"=>(x,y),"down"=>(y,-x),"left"=>(-x,-y),"up"=>(-y,x),_=>return None})}
+fn native_axis_flow_tuple(page:&Page,word:&Word)->Option<[f64;4]>{
+    let axis=native_source_axis(page,word)?;
+    if axis=="right"{return native_flow_tuple(page,word);}
+    let first=page.glyphs.get(*word.glyphs.first()?)?;
+    let last=page.glyphs.get(*word.glyphs.last()?)?;
+    let start=source_point(axis,first.x,first.y)?;
+    let end=source_point(axis,last.end_x,last.end_y)?;
+    let lead=source_point(axis,first.end_x,first.end_y)?.0-start.0;
+    let mut rect=poppler_box(first);let mut previous=None;
+    for &id in &word.glyphs{
+        let g=page.glyphs.get(id)?;let b=poppler_box(g);
+        let a=source_point(axis,g.x,g.y)?;let z=source_point(axis,g.end_x,g.end_y)?;
+        if !g.spacing.is_finite()||!g.kern.is_finite()||a.1!=start.1||z.1!=start.1||!b.iter().all(|v|v.is_finite())||b[0]>=b[2]||b[1]>=b[3]||previous.is_some_and(|(x,e)|a.0<x||z.0<e){return None;}
+        rect=[rect[0].min(b[0]),rect[1].min(b[1]),rect[2].max(b[2]),rect[3].max(b[3])];previous=Some((a.0,z.0));
+    }
+    if rect!=[word.x_min,word.y_min,word.x_max,word.y_max]{return None;}
+    let result=[start.0,start.1,end.0,lead];
+    (result.iter().all(|v|v.is_finite())&&start.0<end.0&&lead>0.&&lead<=end.0-start.0&&(end.0+last.spacing).is_finite()&&(lead+first.kern).is_finite()).then_some(result)
+}
+pub(crate) fn native_glyph_range(page:&Page,word:&Word)->Option<(usize,usize)>{
+    native_axis_flow_tuple(page,word)?;
+    let first=*word.glyphs.first()?;let after=word.glyphs.last()?.checked_add(1)?;
+    (after<=page.glyphs.len()&&word.glyphs.iter().enumerate().all(|(i,&id)|first.checked_add(i)==Some(id))).then_some((first,after))
+}
+
+/// Original occurrence identity does not require a common source baseline.
+/// Such words stay opaque obstacles; this supplies no layout-flow certificate.
+pub(crate) struct SourceOccurrence {
+    pub first: usize,
+    pub after: usize,
+    pub bounds: [f64;4],
+}
+pub(crate) fn native_source_occurrence(page:&Page,word:&Word)->Option<SourceOccurrence>{
+    let first=*word.glyphs.first()?;
+    let after=word.glyphs.last()?.checked_add(1)?;
+    if after>page.glyphs.len() || !word.glyphs.iter().enumerate().all(|(i,&id)|first.checked_add(i)==Some(id)){return None}
+    let valid=|b:[f64;4]|b.iter().all(|n|n.is_finite())&&b[0]<b[2]&&b[1]<b[3];
+    let mut projected=poppler_box(page.glyphs.get(first)?);
+    let mut bounds=projected;
+    let mut text=String::new();
+    for &id in &word.glyphs{
+        let g=page.glyphs.get(id)?;let b=poppler_box(g);
+        if !valid(b)||![g.x,g.y,g.end_x,g.end_y].iter().all(|n|n.is_finite()){return None}
+        bounds=[bounds[0].min(b[0]),bounds[1].min(b[1]),bounds[2].max(b[2]),bounds[3].max(b[3])];
+        // Reproduce the existing bbox projection exactly, including its retained
+        // cross-axis extent. Full glyph bounds are retained separately above.
+        if (g.end_x-g.x).abs()>=(g.end_y-g.y).abs(){projected[0]=projected[0].min(b[0]);projected[2]=projected[2].max(b[2]);}
+        else{projected[1]=projected[1].min(b[1]);projected[3]=projected[3].max(b[3]);}
+        text.push_str(&glyph_text(g,&page.fonts));
+    }
+    if text!=word.text || projected!=[word.x_min,word.y_min,word.x_max,word.y_max]{return None}
+    // Include the exact public six-decimal encoding, rather than adding a pt
+    // tolerance when its rounding falls just outside an original glyph bound.
+    let encoded=projected.map(|v|format!("{v:.6}").parse::<f64>().ok()).into_iter().collect::<Option<Vec<_>>>()?;
+    bounds=[bounds[0].min(encoded[0]),bounds[1].min(encoded[1]),bounds[2].max(encoded[2]),bounds[3].max(encoded[3])];
+    valid(bounds).then_some(SourceOccurrence{first,after,bounds})
+}
+#[cfg(test)]
+#[path="native_projected_flow_tests.rs"]
+mod native_projected_flow_tests;
+
+#[path="native_cell_origin.rs"]mod native_cell_origin;
+
+#[path = "native_advance_band.rs"]
+mod native_advance_band;
+
+#[path="native_terminal_glyph.rs"]
+mod native_terminal_glyph;
+
+#[cfg(test)]
+#[path="source_occurrence_tests.rs"]
+mod source_occurrence_tests;

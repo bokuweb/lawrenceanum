@@ -1,0 +1,281 @@
+{
+  "issue": 227,
+  "stage": "native126",
+  "baseline_primary_commit": "a0af4096a1b92fb61ea708b8316798297644bab0",
+  "goal_complete": false,
+  "priority": "Native non-image text/characters/tables/reading order/article ownership; image-only integration remains lower priority.",
+  "change": "Certify original printed category roots from whole source Lines and Word IDs, relative content typography, explicit axis, original glyph bounds and masthead-only ruling geometry. Reuse original notice-boundary repartitioning and preserve all existing material.",
+  "public_behavior": {
+    "new_schema": false,
+    "Article_indices": "Certified splits intentionally change Article indices; PageTrace and all original page/region/line references remain exact.",
+    "raw_segment_articles": "Unchanged. Ordinary prose containing 資料 and the numbered-root lexical contract remain unchanged.",
+    "native_pdf_producer": "Unchanged; original data-wmode=0 glyph-bound behavior retained.",
+    "native_category_grammar": "Existing SECTION_HEADERS and FIELD_HEADERS plus the printed category 資料. No bare word is a split certificate; arbitrary unknown large titles remain unclassified."
+  },
+  "authority": [
+    "Same original Body region, complete unquoted source lines and unique original Word ownership; exact full source/rendered stream mapping.",
+    "Complete finite original glyph bounds and positive known content styles, matching explicit source axes and strictly larger masthead type; different opaque font IDs and font0 are valid.",
+    "Original open parallel ruling strips with common endpoints bracket only the complete masthead. Existing independent-rule/closed-frame fences remain active.",
+    "All intervening material is accounted for, including complete wordless Tables; no value search to substitute repeated text or tables.",
+    "Wrapped category grammar has no new character/line/rule-count/distance cap. The next category cannot lend body evidence.",
+    "No page/company/route/date/expected-body switches and no additional model dependency."
+  ],
+  "tests": {
+    "new": 33,
+    "new_library": 25,
+    "new_original_pdf_controls": 8,
+    "parser_library_passed": 2004,
+    "actual125_original_RED": "Correctly linked adopted125 library fails the source475independent fiscal-root test.",
+    "test_first_contracts": "Before native proof implementation:81pass7fail; after category/wrapped/blank controls:81pass9fail. Final92section-context contracts include all67prior125contracts and25new126contracts.",
+    "coverage": "Four axes, translation/nonuniform scaling, opaque/different fonts including0, variable border counts, arbitrary following body values/length, wrapped labels, blank source rows, unknown styles/glyph bounds/axes, quotation state, closed frames, crossing rules, intervening foreign Words/wordless Tables, source offsets, source emission order/wrapper mutation, no next-category body borrowing.",
+    "direct_harness_correction": "An inherited direct portable command still linked the old private125v5 library. Historical command/log preserved; all extern kanpo_parser paths now explicitly assigned and asserted. Re-ran original RED on actual adopted125 and portable8GREEN on actual public126. Prior125actual Cargo and exact-head CI remain independent valid evidence.",
+    "first_dynamic_native_gate": {
+      "terminal": 1,
+      "source_manifest_sha256": "1de020a8b0537f40345c97871dd3452928cb4afff16ee71663fdd8822d8aae1f",
+      "commands": 136,
+      "integration_targets": 127,
+      "passed": 2867,
+      "failed": 1,
+      "ignored": 0,
+      "result_groups": 135,
+      "no_expected_snapshot_updates": true,
+      "all_commands_exit0": false
+    },
+    "final_all_four_packages_and_examples": {
+      "terminal": 0,
+      "source_manifest_sha256": "41434057d89703aef17a0556c269545b9b777c2a49a7bf040ea0465725004bea",
+      "commands": 136,
+      "integration_targets": 127,
+      "passed": 2868,
+      "failed": 0,
+      "ignored": 0,
+      "result_groups": 135,
+      "no_expected_snapshot_updates": true,
+      "all_commands_exit0": true
+    },
+    "snapshot_count": 814,
+    "intentional_snapshot_expectations": 1,
+    "other_snapshots_unchanged": 813,
+    "old_other_non_Rust_test_inputs_and_expectations_unchanged": true,
+    "no_UPDATE_EXPECT_or_INSTA_UPDATE_always": true
+  },
+  "single11992": {
+    "private": {
+      "terminal": 0,
+      "pages": 11992,
+      "changed_pages": 1,
+      "new_sections": 1,
+      "all_original_non_Article_Analysis_and_Run_material_source_order_styles_LF_spaces_paragraphs_Tables_and_notices_preserved": true,
+      "all_other_complete_Analysis_exact125": true,
+      "source_inputs_runtime_oracles_baselines_prepost_exact": true,
+      "seconds": 194.65512900000002
+    },
+    "actual_public": {
+      "terminal": 0,
+      "pages": 11992,
+      "all_full_Analysis_equals_independent_private126v1": true,
+      "all_original_material_exact_by_private_baseline_audit": true,
+      "source_inputs_runtime_baselines_prepost_exact": true,
+      "seconds": 306.233836542
+    },
+    "changed_page": "20260930g002150475",
+    "change": "One original road container splits from an independent printed fiscal report; do not further split repeated dated road declarations without source authority."
+  },
+  "whole159_11992": {
+    "private": {
+      "issues": 159,
+      "pages": 11992,
+      "changed_issues": 3,
+      "new_sections": 3,
+      "all_original_non_Article_Analysis_and_Run_material_source_order_styles_LF_spaces_paragraphs_Tables_and_notices_preserved": true,
+      "all_other_complete_Analysis_exact125": true,
+      "source_inputs_runtime_oracles_baselines_prepost_exact": true,
+      "seconds": 396.390673209
+    },
+    "actual_public": {
+      "issues": 159,
+      "pages": 11992,
+      "changed_issues": 0,
+      "new_sections": 0,
+      "all_original_non_Article_Analysis_and_Run_material_source_order_styles_LF_spaces_paragraphs_Tables_and_notices_preserved": true,
+      "all_complete_Analysis_exact_independently_verified_private126": true,
+      "source_inputs_runtime_oracles_baselines_prepost_exact": true,
+      "seconds": 388.103154458
+    },
+    "changed_issues_from125": [
+      "20260722h01752",
+      "20260821h01773",
+      "20260831g00193"
+    ],
+    "new_sections": 3,
+    "context_difference": "These3whole-issue source roots differ from the1changed single page; counts are not interchangeable and are not an accuracy score.",
+    "original_target_whole_context_still_held": "20260930g00215includes475, but prior literal opening quote amendment operands on page11and an additional opener on page131remain on the legacy global quote stack. Stage126does not reset quote state. Fiscal report remains attached in this whole-issue context; explicitly not claimed fixed."
+  },
+  "material_verifier": {
+    "non_Article_Analysis": "All fields exact, including all PageTrace/Word/Region/Line/Table attributes and global text/format.",
+    "Article_parts": "Only consecutive exact text partitions; concat with original separators equals each old Article. Other Article fields/notices concatenated in original order.",
+    "original_Document": "Original format retained; consume old Runs in sequence with exact text substrings including LF/spaces and exact style fields. Whole Tables atomic and exact. Original paragraph boundaries retained; splitting an original Paragraph permitted only at new Article boundary.",
+    "negative_controls": "Injected text loss, Run style change and Table loss rejected.",
+    "no_value_search_or_sorted_bag_approximation": true
+  },
+  "CLI11992": {
+    "terminal": 0,
+    "pages": 11992,
+    "changed_baseline125_API_text": [],
+    "source_inputs_CLI_source_bbox_binary_links_prepost_exact": true,
+    "seconds": 225.250580208,
+    "scope": "Actual unchanged textdump --pdf CLI on all11992 original PDFs; expected adopted125 CLI text digests independently frozen; actual public API equality checked separately."
+  },
+  "actual_API_CLI_equality": {
+    "pages": 11992,
+    "actual_API_text_equals_actual_textdump_CLI": true,
+    "API_manifest_sha256": "89e3236c1bccc0db191c8ecac0fc4dc9b91eeadf5cf9a65d09b13665efec5be6",
+    "CLI_manifest_sha256": "2d3b24205f030702624a6f2efc0b225cbb1565290489133ffd31e08e789db352"
+  },
+  "expected_oracles": {
+    "source475_full_Analysis": "Copy adopted125 Analysis and independently split original source regions at printed 資料root. Copy original Run0 around source-reviewed unique anchor, retain every style field, all original whitespace and whole Table Run1. Compare complete Analysis with actual output. Anchor is an independent fixture construction tool, not runtime logic.",
+    "snapshot": {
+      "source_snapshot": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260930g00215__20260930g002150475.pdf.snap",
+      "before_sha256": "4cf859e2197428024db5a5916bd03ba70dc0e995debbf67a2e1aa148f30dc1cf",
+      "expected_sha256": "32dc0d125a965e84f335dd7ebcb06856cbadbb37ce6a48eaa11c441485003595",
+      "rule": "Split original complete first Paragraph Run at original source category root; retain all old text, table, order, styles and global text exactly. Original root Word IDs635/275 and source glyph/ruling proof independently reviewed. New article number1 is only rendering change.",
+      "review": "Root nonblind original475 plus original native source positions; whole-issue context investigated separately.",
+      "no_actual_pending_or_runtime_output_used_to_write_expected": true
+    },
+    "snapshot_adoption": {
+      "only_prior_manifest_change": [
+        "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260930g00215__20260930g002150475.pdf.snap"
+      ],
+      "all_other_813_snapshots_exact125": true,
+      "independent_expected_payload_equals_actual_pending": true,
+      "expected_written_without_accepting_actual_runtime_output": true
+    }
+  },
+  "root_source_pixel_review": {
+    "reviewer": "root",
+    "non_blind_development_source_review": true,
+    "pages": 4,
+    "scope": "Only original printed section root ownership and adjacent source articles, not all body/table correctness or global accuracy. Three changed whole-issue source roots plus the changed single-page source root.",
+    "rows": [
+      {
+        "issue": "20260831g00193",
+        "page": "20260831g001930182",
+        "source_pdf": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-08-31/20260831g00193/20260831g001930182.pdf",
+        "source_sha256": "e1e1aaeaf0ecd69e448897b25be223b0c7b8fab308df02484ad516dd0ef5624f",
+        "page_index": 181,
+        "region": 0,
+        "line": 0,
+        "label": "資料",
+        "following_native_lines": [
+          "国庫歳入歳出状況",
+          "財務省において各省各庁からの報告をとりまとめた令和８年度の令和８年６月末における国庫歳入"
+        ],
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-notice-roots126/source-pixels126/20260831g001930182.pdf.png",
+        "image_sha256": "fd9fb19057a80fa94943b78f44158015a3cdc6da40ec2f4476195d0229cf578e"
+      },
+      {
+        "issue": "20260722h01752",
+        "page": "20260722h017520007",
+        "source_pdf": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-07-22/20260722h01752/20260722h017520007.pdf",
+        "source_sha256": "56b323ace6a6bda8a3ede5889e180aaeea9c54440ed7362cee9159bfd75b036a",
+        "page_index": 6,
+        "region": 0,
+        "line": 0,
+        "label": "資　料",
+        "following_native_lines": [
+          "令和８年５月中国際収支状況（速報）",
+          "項目　５月前"
+        ],
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-notice-roots126/source-pixels126/20260722h017520007.pdf.png",
+        "image_sha256": "e18c72f50cc0943646485b77ba8e5814aabde88d8b5673053b7b00a89381c6b7"
+      },
+      {
+        "issue": "20260821h01773",
+        "page": "20260821h017730007",
+        "source_pdf": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-08-21/20260821h01773/20260821h017730007.pdf",
+        "source_sha256": "b9e504d370dc07c724001c522cab7009c5445ef39beb25751340d7d739e5311b",
+        "page_index": 6,
+        "region": 0,
+        "line": 0,
+        "label": "資　料",
+        "following_native_lines": [
+          "令和８年６月中国際収支状況（速報）",
+          "項目　６月前"
+        ],
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-notice-roots126/source-pixels126/20260821h017730007.pdf.png",
+        "image_sha256": "cb005c397be7936e48d4b7a58dff1f161c5f1ef3b470557e93ee7ac668546768"
+      },
+      {
+        "page": "20260930g002150475",
+        "issue": "20260930g00215",
+        "source_pdf": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-notice-roots126/portable-stage1/data/native-section-roots/20260930g002150475.pdf",
+        "source_sha256": "286ca90cb7ae78e500d3e416b5f52062fcef888d37577241b0895391a41ed192",
+        "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-notice-roots126/source-pixels126/20260930g002150475.pdf.png",
+        "image_sha256": "0558c6ac7d8a979edc6ebb34a605ab318bacaa8d2343f5f55674c139a4e2d4ce",
+        "relationship": "Original right horizontal ruled 資料 masthead and fiscal report belongs apart from left vertical road container; this single-page source root remains held in whole-issue context because unrelated earlier literal quote operands leak global quote state."
+      }
+    ],
+    "findings": "All four originals visibly print independent ruled 資料 category mastheads with smaller report body/title. Preserve whole original road/procedure containers and all financial tables, signs, spaces and Runs. The475source has one printed 関東地方整備局公示 title; two subsequent dated signed road declarations alone do not justify new roots. Repeated titles/values/signatures are not runtime switches. Whole215target still held by global quote state; stage127 source RED prepared separately.",
+    "fixed30_rescored": false,
+    "global_accuracy_estimate": false
+  },
+  "next_source_RED": {
+    "stage": "native127",
+    "original_pair": [
+      "20260930g002150011",
+      "20260930g002150475"
+    ],
+    "failed_on_actual_public126": true,
+    "runtime_change_not_adopted": true,
+    "rule_required": "General amendment operand grammar must distinguish literal opening quote replacement from a genuine continuing quotation. No page/count/category/typography-only reset."
+  },
+  "OCR": {
+    "engine": "NDLOCR",
+    "version": "0.0.15",
+    "commit": "f97e930b8c3e9512f7788f258ef685da26416483",
+    "normal_analysis_integration": false,
+    "additional_models": false
+  },
+  "evidence_directory": ".cache/kanpo-227/resume90-local-recovery/native-notice-roots126",
+  "artifacts": {
+    ".cache/kanpo-227/resume90-local-recovery/native-notice-roots126/original-source-root-RED126.log": "64e24e05edd1070bb097c0130417c229d1ad50bede797599e0d73a84b18b32d1",
+    ".cache/kanpo-227/resume90-local-recovery/native-notice-roots126/source-root-provenance126.json": "0fb6a064283c85d9d7beec63df0dfa08995051a0995f75ee9d96d095752eb7fe",
+    ".cache/kanpo-227/resume90-local-recovery/native-notice-roots126/direct-harness-correction126.json": "5941793c47942556364b967d306ccaee6c089b947172978cecabf896b5b05b0a",
+    ".cache/kanpo-227/resume90-local-recovery/native-notice-roots126/private-v1/unit-RED126-source-root.log": "ca2816ae74920a9738159b0131c045bedcd495163a4418d68bb3e9e6d499b090",
+    ".cache/kanpo-227/resume90-local-recovery/native-notice-roots126/private-v1/unit-RED126-categorical-root-contracts.log": "535deeb9576521e56323e9095db180d39967413347de2c52c3938470266bb6d6",
+    ".cache/kanpo-227/resume90-local-recovery/native-notice-roots126/private-v1/unit-GREEN126-all92.log": "cbc6f2b4c0212e0bf32bebc7607c49fcc7ebdeed84341dacace43ca0f2585be4",
+    ".cache/kanpo-227/resume90-local-recovery/native-notice-roots126/private-v1/unit-full2004.log": "d5d507fddc9afabf1e92b6f500c74db9d715073044ceb82a2731e35a8788c9d5",
+    ".cache/kanpo-227/resume90-local-recovery/native-notice-roots126/private-v1/original-result126.log": "483d490a777f3bab378f124105a65a4a6bd8d1b3ce479c06c2da24300d3bb5ed",
+    ".cache/kanpo-227/resume90-local-recovery/native-notice-roots126/private-v1/original-material-preservation126.json": "bcfb078d852a0cbca8a1bbb30bcaef04c53d3e1defd8a05cab1ec1c2ea0cc823",
+    ".cache/kanpo-227/resume90-local-recovery/native-notice-roots126/private-v1/single/result.json": "ae8a40e88fe0da12b0908e62aaacf5e81f9cab7f16e1e2edcdf434756e53ddb5",
+    ".cache/kanpo-227/resume90-local-recovery/native-notice-roots126/private-v1/whole/result.json": "e186fe6c4188c3be408907a2d7025f5f7488210ac01f3c5e40430e9b11e9a5f0",
+    ".cache/kanpo-227/resume90-local-recovery/native-notice-roots126/public-port1/build-result.json": "d0353345f447156752d863e74479a9f5ba776439ea427e28484532fd6148bcaa",
+    ".cache/kanpo-227/resume90-local-recovery/native-notice-roots126/public-port1/portable.log": "8cb05eb1a0ffcb317b0db06ee056ac542ff82ddfe7d705ffabc312e64fbd412b",
+    ".cache/kanpo-227/resume90-local-recovery/native-notice-roots126/public-port1/single/result.json": "2f6b0f9fa17f4ea6bfeb434846efe76020ce6a210da636db8cc15278b2e86be3",
+    ".cache/kanpo-227/resume90-local-recovery/native-notice-roots126/public-port1/whole/result.json": "98ee6ee23293611e3f61dd7f2c6de008f7383e04bdc0ade6188f23d13c08b53d",
+    ".cache/kanpo-227/resume90-local-recovery/native-notice-roots126/public-port1/CLI/result.json": "325f9c0ecdf0a88ae170dcfcf14847e809d5dbca1494764fffb402950b543222",
+    ".cache/kanpo-227/resume90-local-recovery/native-notice-roots126/public-port1/API-CLI-exact126.json": "514271a2651034ccd60b8178f95014e4e4e63929e2cc171d84279f6824cc2d59",
+    ".cache/kanpo-227/resume90-local-recovery/native-notice-roots126/public-port1/native-gates1/result126.json": "990f87e7a80aa5c9aa16b9103891c352c0eaede8c06a4981c36dd441d8de1750",
+    ".cache/kanpo-227/resume90-local-recovery/native-notice-roots126/public-port1/native-gates2/result126.json": "8975f30dbe8abb0ab58c7976997b2599b9a39a72edfe0f7f27f0e8072b59d3de",
+    ".cache/kanpo-227/resume90-local-recovery/native-notice-roots126/public-port1/native-gates2/source-manifest126.json": "41434057d89703aef17a0556c269545b9b777c2a49a7bf040ea0465725004bea",
+    ".cache/kanpo-227/resume90-local-recovery/native-notice-roots126/snapshot-oracle126.json": "44920a2067149d8cf959be92c0cc4ff27f5deb8fa551f2d9f811c9fd0d8dd785",
+    ".cache/kanpo-227/resume90-local-recovery/native-notice-roots126/snapshot-adoption126.json": "b8d203d75e180cd56e6647b3e5be71b73bc37654fccb473217e56928b99fdce4",
+    ".cache/kanpo-227/resume90-local-recovery/native-notice-roots126/source-pixels126/root-review126.json": "c7df2dfd7047b9ba66094224f3213790b904a851a55d0256e2f26bc45f0140c7",
+    ".cache/kanpo-227/resume90-local-recovery/native-notice-roots126/verify-material126.py": "505455c82703806cb93acec35b9c4fb9ab31a303d14b037767343e77d9693d04",
+    ".cache/kanpo-227/resume90-local-recovery/native-notice-roots126/whole215-quote-provenance126.json": "03101b93a3c46448e461506f2d81c8259c1668f90602f74394796601b09ae48e",
+    ".cache/kanpo-227/resume90-local-recovery/native-quote-operands127/plan127.json": "c141f865d0cc096881a4d853dc9ea07715f41f65132fc269f81968d4ee19fc88",
+    ".cache/kanpo-227/resume90-local-recovery/native-quote-operands127/RED-build-command.json": "2bc7bfda3c31d87d09e0113c0977612082b13a4fb21492c902ea3f1a33602487",
+    ".cache/kanpo-227/resume90-local-recovery/native-quote-operands127/source-RED127.log": "1c1746dcc80480087b63d50ccebaf28c24a758d8a6dbe69866ab59eda83fd9db",
+    ".cache/kanpo-227/resume90-local-recovery/native-quote-operands127/source-pair127.json": "6bd778f28ebd33b2fb2f02dc564829a38183660cbc52eae02041be914352b43c",
+    ".cache/kanpo-227/resume90-local-recovery/native-quote-operands127/expected-fiscal-root127.json": "bb840bec0e693fe0021d942c747475027959b947972cdbc50ea4d5ce6cab693c",
+    ".cache/kanpo-227/resume90-local-recovery/native-quote-operands127/preceding-ordinary-context-control127.json": "934bd92904f3aacfb1ea8e8a4d84c0466f9fc9e39a37ce8061c00705946c75a8",
+    ".cache/kanpo-227/resume90-local-recovery/native-quote-operands127/root-original011-review127.json": "ab9b4b86f9a999122c82d929cc7adbf91112a465b267c048ad4839570ef33899"
+  },
+  "limits": [
+    "Native known-category ruling/typography/source evidence required; unruled, unknown, quoted, interrupted and competing domains remain unchanged.",
+    "Whole215source475still held by unrelated prior global quote state; regression saved for127.",
+    "This repairs section-root ownership, not every independent procedure or every fiscal table cell.",
+    "Complex table/column/notice ownership and character-code/PUA restoration remain.",
+    "Nonblind root4source-image development review; no fixed30rescore or global accuracy estimate;100%not achieved."
+  ]
+}

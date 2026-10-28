@@ -32,6 +32,7 @@
 
 use anyhow::Result;
 mod notice_boundaries;
+mod native_quote_scopes;
 mod company_document_parts;
 mod facility_continuations;
 mod framed_band_continuations;
@@ -54,6 +55,8 @@ mod reference_markers;
 
 mod cell_row_dashes;
 mod financial_enclosures;
+mod section_context;
+pub mod notice_sources;
 pub mod format;
 mod fractions;
 pub mod grid;
@@ -84,6 +87,7 @@ pub mod vertical;
 
 pub use format::detect_format_of;
 pub use model::{Block, Document, Run, ShinkyuRow};
+pub use comparison_labels::ComparisonLabels;
 pub use normalize::normalize_text;
 pub use segment::segment_articles;
 pub use vertical::reconstruct_vertical;
@@ -122,6 +126,9 @@ pub struct Analysis {
 pub struct ArticleAnalysis {
     pub text: String,
     pub document: Document,
+    /// Independently signed notices and their proven source statement references.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub notices: Vec<notice_sources::NoticeScope>,
 }
 
 /// `pdftotext -bbox-layout` の XHTML を解析し、本文・記事・構造化結果に加えて、各語が
@@ -143,22 +150,37 @@ pub fn analyze_with_rules(xhtml: &str, rules: &[Option<lines::PageRules>]) -> An
     };
     let text = join(&|p| p.text.as_str());
     let doc_text = join(&|p| p.doc_text.as_str());
-    let tables: Vec<trace::Table> = pages.iter().flat_map(|p| p.tables.iter().cloned()).collect();
+    let table_scopes=native_table_scopes::Scopes::for_pages(&pages,rules);
+    let tables=table_scopes.tables();
     let mut segments = segment_articles(&doc_text);
     wrapped_notice_titles::repair_wrapped_notice_titles(&mut segments, &pages);
     financial_enclosures::repair_segments(&mut segments,&pages,rules);
-    let groups=notice_boundaries::groups(&segments,&doc_text,&pages,rules);
+    let quote_scopes=native_quote_scopes::Scopes::for_pages(xhtml,&pages,rules);
+    let groups=if quote_scopes.is_empty(){notice_boundaries::groups(&segments,&doc_text,&pages,rules)}
+        else{notice_boundaries::groups_with_scopes(&segments,&doc_text,&pages,rules,&quote_scopes)};
+    let certificates=notice_sources::certificates(&pages,rules);
     let mut articles=Vec::new();
+    let mut article_sources=Vec::new();
     for (segment,parts)in segments.into_iter().zip(groups){
-        let original=Document::from_text_with_tables(&segment,&tables);
+        let original=Document::from_source_text_with_tables(&segment,&table_scopes);
         if parts.len()>1 {
-            let desired:Vec<_>=parts.iter().map(|p|Document::from_text_with_tables(&p.text,&tables)).collect();
-            if let Some(documents)=company_document_parts::repartition(&original,&desired){
-                articles.extend(parts.into_iter().zip(documents).map(|(p,document)|ArticleAnalysis{text:render_table_markers(&p.text,&tables),document}));continue;
+            let desired:Vec<_>=parts.iter().map(|p|Document::from_source_text_with_tables(&p.text,&table_scopes)).collect();
+            let documents=company_document_parts::repartition(&original,&desired)
+                .or_else(||source_article_parts::documents_with_scopes(&original,&segment,&parts,&pages,&desired,&table_scopes));
+            if let Some(documents)=documents{
+                for (p,document) in parts.into_iter().zip(documents) {
+                    let notices=notice_sources::for_sources(&certificates,p.sources.iter().copied());
+                    article_sources.push(section_context::OwnedSources::from_partial_claims(&p.text,p.sources));
+                    articles.push(ArticleAnalysis{text:render_table_markers(&p.text,&tables),document,notices});
+                }continue;
             }
         }
-        articles.push(ArticleAnalysis{text:render_table_markers(&segment,&tables),document:original});
+        let sources=parts.into_iter().flat_map(|p|p.sources).collect::<Vec<_>>();
+        let notices=notice_sources::for_sources(&certificates,sources.iter().copied());
+        article_sources.push(section_context::OwnedSources::from_partial_claims(&segment,sources));
+        articles.push(ArticleAnalysis{text:render_table_markers(&segment,&tables),document:original,notices});
     }
+    section_context::repair(&mut articles,&mut article_sources,&pages,rules);
     Analysis {
         format: format::detect_format(&text),
         pages,
@@ -438,7 +460,7 @@ fn attach_bessho_tables(doc: &mut Document, rules: &lines::PageRules, xhtml: &st
     // Document の 別表行（after が「別表」で始まる行）に、読み順で順番に割り当てる。
     let (mut ai, mut bi) = (0usize, 0usize);
     for block in &mut doc.blocks {
-        let model::Block::Shinkyu { rows } = block else { continue };
+        let model::Block::Shinkyu { rows ,..} = block else { continue };
         for row in rows.iter_mut() {
             let is_bessho = |runs: &[Run]| runs.first().map(|r| model::starts_with_spaced(&r.text, "別表")).unwrap_or(false);
             // 既に別表が付いている行（前のページで充填済み）は飛ばす。
@@ -481,7 +503,7 @@ mod tests {
     use super::*;
 
     fn arts(texts: &[&str]) -> Vec<ArticleAnalysis> {
-        texts.iter().map(|t| ArticleAnalysis { text: t.to_string(), document: model::Document::from_text(t),
+        texts.iter().map(|t| ArticleAnalysis { text: t.to_string(), document: model::Document::from_text(t), notices:vec![],
             }).collect()
     }
 
@@ -615,6 +637,7 @@ mod legal_role_original_tests;
 mod closed_frame_continuation_original_tests;
 
 mod native_word_axes;
+mod native_role_continuation;
 
 #[cfg(test)]
 mod financial_original_source_tests;
@@ -625,3 +648,109 @@ mod native_word_rulings;
 
 #[cfg(test)]
 mod source_frame_fences_original_tests;
+
+#[cfg(test)]
+mod enclosed_warichu_original_tests;
+
+#[cfg(test)]
+mod composed_inline_pipeline_tests;
+
+#[cfg(test)]
+mod frame_boundary_original_tests;
+
+#[cfg(test)]
+mod frame_projection_counterfactual_tests;
+
+#[cfg(test)]
+mod source_table_border_original_tests;
+
+#[cfg(test)]
+mod source_auxiliary_original_tests;
+
+#[cfg(test)]
+mod source_shared_note_original_tests;
+
+#[cfg(test)]
+mod source_numeric_sign_original_tests;
+
+#[cfg(test)]
+mod ruled_marker_original_tests;
+
+#[cfg(test)]
+mod ruled_marker_existing_layout_tests;
+
+mod native_unit_dash;
+mod native_word_outlines;
+mod native_amount_marks;
+
+#[cfg(test)]
+mod source_unit_dash_original_tests;
+
+#[cfg(test)]
+mod orthogonal_gutters_original_tests;
+
+mod ruled_cell_flow;
+
+#[cfg(test)]
+mod native_role_contracts;
+#[cfg(test)]
+mod native_role_caption_contracts;
+
+mod native_sentence_cells;
+
+#[cfg(test)]
+mod native_sentence_contracts;
+
+mod native_word_flow;
+mod native_advance_band;
+
+mod native_paragraph_scope;
+
+mod amendment_quotes;
+
+mod native_column_flow;
+
+mod quoted_references;
+
+mod partial_rule_columns;
+
+#[cfg(test)] mod partial_rule_column_tests;
+
+mod native_grid_fragments;
+
+mod native_atomic_column;
+
+mod native_caption_tiers;
+
+mod native_parallel_edits;
+
+mod native_cell_text;
+
+mod native_cell_origin;
+
+
+mod comparison_labels;
+
+mod source_article_parts;
+
+mod native_numeric_frames;
+
+mod native_terminal_glyph;
+
+mod source_font_alias;
+
+mod native_table_scopes;
+
+mod native_cell_lineage;
+
+#[cfg(test)]
+mod native_caption_scope_tests;
+
+#[cfg(test)]
+mod native_compound_caption_tests;
+
+mod native_source_scene;
+
+mod legacy_comparison_scope;
+
+mod native_wrapped_amounts;

@@ -1,0 +1,524 @@
+{
+  "issue": 227,
+  "native_baseline": 149,
+  "stage": "native150",
+  "scope": "Independent native source-column authority for judicial record boundaries. Native-only; no OCR/model changes.",
+  "baseline_local": "0dafd0481ac46dfbbebdcb81b4a7dc016032654e",
+  "baseline_publication": "b045858395bf5ba9857146046d7ecda2a8bb4da4",
+  "source_diagnosis": "Centered nominal court signatures, addresses wider than the signature, flush body/header margins and adjacent-column continuations without a repeated category caption are valid source layouts. A signature right edge alone is not the column right edge.",
+  "rules": [
+    "Keep the existing formal case-identifier and nominal court-signature grammar, complete native font-role/word evidence, quotation/body-role/enclosure authority and strict legacy unruled-layout proof. No new content dispatch string is added.",
+    "An independent column certificate uses full original vertical separators spanning all used native baselines, complete finite original glyph bounds/directions/baselines, a unique containing adjacent rail pair and no original used word crossing its walls. Unknown/compatibility evidence declines.",
+    "A proven column can hold a centered or left-aligned signature and a wider following address. The body may align with its header but cannot precede the header source margin. Original signature/header/body order and disjoint native font roles still apply.",
+    "A column transition without a repeated caption requires adjacent original columns, the old signature at the final source baseline of its column and the new header/caption at the first source baseline of the next. Intervening or unknown native words decline.",
+    "Larger source captions retain the existing font/size hierarchy, ordering, baseline and separator/enclosure proofs. Original column edges, when independently proven, supply their physical right boundary.",
+    "All PageTrace/material remains exact; old articles are split in place into exact contiguous native text partitions. No old article boundary may be crossed or merged."
+  ],
+  "no_new_dispatch": [
+    "page ID",
+    "company/person/case-number values",
+    "court location names",
+    "font names",
+    "fixed pt tolerance",
+    "fragment length",
+    "neighboring row budget"
+  ],
+  "TDD": {
+    "new_unit_controls": 15,
+    "initial_10_controls_against149": {
+      "passed": 6,
+      "intended_failures": 4
+    },
+    "private_all_units_passed": 2554,
+    "normal_Cargo_focused_controls": {
+      "passed": 15,
+      "failed": 0,
+      "prior_filtered": 2544
+    },
+    "new_original_PDF_API_tests": 6,
+    "original_PDF_fixtures": 7,
+    "public_TDD_against149": {
+      "passed": 0,
+      "intended_failures": 6
+    },
+    "candidate_private_API_tests": {
+      "passed": 6,
+      "failed": 0
+    },
+    "source_test_transcription_correction": {
+      "scope": "Test transcription correction only. No runtime/source decoding change.",
+      "page": "20261007h018030023",
+      "original_zoom_verified": "株式会社プランナー商事",
+      "initial_mistranscription": "株式会社シンシアー商事",
+      "proof": "source-images150/20261007h018030023-bottom-right.png"
+    },
+    "negative_authority_controls": [
+      "incomplete walls",
+      "source rectangle crossing a wall",
+      "missing baselines",
+      "unknown unrelated native bounds",
+      "an unrelated used word crossing the wall",
+      "quoted case",
+      "comparison role",
+      "existing enclosure",
+      "shared font roles",
+      "previous footer not terminal",
+      "next header not first",
+      "body preceding header margin",
+      "scale and translation"
+    ],
+    "normal_Cargo_parser_unit_total": 2559
+  },
+  "singletons": {
+    "pages": 11992,
+    "changed": 48,
+    "complete_Analysis_equal149": 11944,
+    "all_sources_inputs_binaries_prepost_exact": true
+  },
+  "whole_issues": {
+    "issues": 159,
+    "changed": 42,
+    "complete_Analysis_equal149": 117,
+    "all_sources_inputs_binaries_prepost_exact": true,
+    "old_articles_in_changed_issues": 3675,
+    "new_articles": 3771,
+    "additional_boundaries": 96,
+    "unrelated_complete_ArticleAnalysis_exact": 3618
+  },
+  "single_contracts": {
+    "mode": "single",
+    "changed_items": 48,
+    "failed_items": 0,
+    "failures": [],
+    "old_articles": 151,
+    "new_articles": 247,
+    "unrelated_ArticleAnalysis_exact": 91,
+    "scope": "Private150 material/partition checks only. Not original-image or publication approval. Strict failures require investigation; no baseline updates."
+  },
+  "whole_contracts": {
+    "mode": "whole",
+    "changed_items": 42,
+    "failed_items": 0,
+    "failures": [],
+    "old_articles": 3675,
+    "new_articles": 3771,
+    "unrelated_ArticleAnalysis_exact": 3618,
+    "scope": "Private150 material/partition checks only. Not original-image or publication approval. Strict failures require investigation; no baseline updates."
+  },
+  "preservation": [
+    "All11992 singleton/159 whole-issue PageTraces, original Word payload/status/geometry/ownership/roles/tables and complete native body bytes remain exact.",
+    "Every old Article.text is reconstructed byte-exactly by an in-place contiguous sequence of new Article.text values joined by the original LF. Every new article participates exactly once, with no crossing of an old article boundary.",
+    "Every Document character/style and ASCII/fullwidth space, all opaque original Document tables/order and prior notice/source graphs are preserved; only LF/container boundaries are normalized for character/style checking.",
+    "Unsplit ArticleAnalysis objects remain completely equal, including3618 unrelated articles in changed whole issues and91 on changed singleton pages.",
+    "All old JSON/TSV/PDF anchors and all prior court unit test code remain. The reusable styled-Document test normalizer only gains crate visibility."
+  ],
+  "source_review": {
+    "reviewed": [
+      {
+        "page": "20260716h017490025",
+        "source": ".cache/kanpo-archive/2026-07-16/20260716h01749/20260716h017490025.pdf",
+        "sha256": "78e80b25bb4abd653f4c84acb288e4de68066d7aa475bb6fca163783787d69ad",
+        "status": "Full original page viewed and proposed native case boundaries/closing signatures/column continuations compared. Implementing-agent nonblind targeted review, not full-page independent accuracy grading.",
+        "native_article_partition": [
+          {
+            "old_article": 0,
+            "new_range": [
+              0,
+              2
+            ],
+            "new_article_count": 2
+          },
+          {
+            "old_article": 1,
+            "new_range": [
+              2,
+              4
+            ],
+            "new_article_count": 2
+          }
+        ]
+      },
+      {
+        "page": "20260724h017540018",
+        "source": ".cache/kanpo-archive/2026-07-24/20260724h01754/20260724h017540018.pdf",
+        "sha256": "c4d37a95eedbf77aa94fc43d9bbafe6a10283fed73f65990a786eebcbf901aa2",
+        "status": "Full original page viewed and proposed native case boundaries/closing signatures/column continuations compared. Implementing-agent nonblind targeted review, not full-page independent accuracy grading.",
+        "native_article_partition": [
+          {
+            "old_article": 3,
+            "new_range": [
+              3,
+              6
+            ],
+            "new_article_count": 3
+          }
+        ]
+      },
+      {
+        "page": "20260807h017640023",
+        "source": ".cache/kanpo-archive/2026-08-07/20260807h01764/20260807h017640023.pdf",
+        "sha256": "74de0fa1dcb89723dafeee6c7116f51b599a638ebf51924176696189b51a8b5e",
+        "status": "Full original page viewed and proposed native case boundaries/closing signatures/column continuations compared. Implementing-agent nonblind targeted review, not full-page independent accuracy grading.",
+        "native_article_partition": [
+          {
+            "old_article": 1,
+            "new_range": [
+              1,
+              4
+            ],
+            "new_article_count": 3
+          },
+          {
+            "old_article": 2,
+            "new_range": [
+              4,
+              6
+            ],
+            "new_article_count": 2
+          }
+        ]
+      },
+      {
+        "page": "20260831h017790021",
+        "source": ".cache/kanpo-archive/2026-08-31/20260831h01779/20260831h017790021.pdf",
+        "sha256": "c71b8bc2dda1c0b401bfc9cf10e806e50e54c55a2202caecb2541ad561c3f30f",
+        "status": "Full original page viewed and proposed native case boundaries/closing signatures/column continuations compared. Implementing-agent nonblind targeted review, not full-page independent accuracy grading.",
+        "native_article_partition": [
+          {
+            "old_article": 0,
+            "new_range": [
+              0,
+              6
+            ],
+            "new_article_count": 6
+          }
+        ]
+      },
+      {
+        "page": "20260909h017860024",
+        "source": ".cache/kanpo-archive/2026-09-09/20260909h01786/20260909h017860024.pdf",
+        "sha256": "307c355049bc7de9e4ebeed3feca6c2080c11a4257e41a1c0bddf1dbdcede2e2",
+        "status": "Full original page viewed and proposed native case boundaries/closing signatures/column continuations compared. Implementing-agent nonblind targeted review, not full-page independent accuracy grading.",
+        "native_article_partition": [
+          {
+            "old_article": 1,
+            "new_range": [
+              1,
+              4
+            ],
+            "new_article_count": 3
+          },
+          {
+            "old_article": 4,
+            "new_range": [
+              6,
+              8
+            ],
+            "new_article_count": 2
+          },
+          {
+            "old_article": 5,
+            "new_range": [
+              8,
+              11
+            ],
+            "new_article_count": 3
+          }
+        ]
+      },
+      {
+        "page": "20260925h017950020",
+        "source": ".cache/kanpo-archive/2026-09-25/20260925h01795/20260925h017950020.pdf",
+        "sha256": "52f5449111906f9b34553b4c9586db4023d56bc915c465e735ab4ff7d9a054ef",
+        "status": "Full original page viewed and proposed native case boundaries/closing signatures/column continuations compared. Implementing-agent nonblind targeted review, not full-page independent accuracy grading.",
+        "native_article_partition": [
+          {
+            "old_article": 1,
+            "new_range": [
+              1,
+              3
+            ],
+            "new_article_count": 2
+          },
+          {
+            "old_article": 4,
+            "new_range": [
+              5,
+              8
+            ],
+            "new_article_count": 3
+          }
+        ]
+      },
+      {
+        "page": "20260929h017970020",
+        "source": ".cache/kanpo-archive/2026-09-29/20260929h01797/20260929h017970020.pdf",
+        "sha256": "74d4358364f6407cb2c7885bd8c25eef020a2ea4f1be4a0acec2d97d9caf2659",
+        "status": "Full original page viewed and proposed native case boundaries/closing signatures/column continuations compared. Implementing-agent nonblind targeted review, not full-page independent accuracy grading.",
+        "native_article_partition": [
+          {
+            "old_article": 0,
+            "new_range": [
+              0,
+              2
+            ],
+            "new_article_count": 2
+          }
+        ]
+      },
+      {
+        "page": "20261007h018030023",
+        "source": ".cache/kanpo-archive/2026-10-07/20261007h01803/20261007h018030023.pdf",
+        "sha256": "8d2fd0e7313b812a15e5342e650406a8ed9316eb145a16a87c3b7eb85fe96cd2",
+        "status": "Full original page viewed and proposed native case boundaries/closing signatures/column continuations compared. Implementing-agent nonblind targeted review, not full-page independent accuracy grading.",
+        "native_article_partition": [
+          {
+            "old_article": 1,
+            "new_range": [
+              1,
+              6
+            ],
+            "new_article_count": 5
+          }
+        ]
+      },
+      {
+        "page": "20261016h018090024",
+        "source": ".cache/kanpo-archive/2026-10-16/20261016h01809/20261016h018090024.pdf",
+        "sha256": "8084d997b9eb4f10c9794ebbbe9483c667a20dbd02fd4b946d4d3cf6f6d5c845",
+        "status": "Full original page viewed and proposed native case boundaries/closing signatures/column continuations compared. Implementing-agent nonblind targeted review, not full-page independent accuracy grading.",
+        "native_article_partition": [
+          {
+            "old_article": 1,
+            "new_range": [
+              1,
+              7
+            ],
+            "new_article_count": 6
+          }
+        ]
+      },
+      {
+        "page": "20261020h018110017",
+        "source": ".cache/kanpo-archive/2026-10-20/20261020h01811/20261020h018110017.pdf",
+        "sha256": "b229a189c736e066b961f83ff8537ac63ae7716508b5e0357db22c38c6469413",
+        "status": "Full original page viewed and proposed native case boundaries/closing signatures/column continuations compared. Implementing-agent nonblind targeted review, not full-page independent accuracy grading.",
+        "native_article_partition": [
+          {
+            "old_article": 1,
+            "new_range": [
+              1,
+              6
+            ],
+            "new_article_count": 5
+          }
+        ]
+      },
+      {
+        "page": "20260814h017680025",
+        "source": ".cache/kanpo-archive/2026-08-14/20260814h01768/20260814h017680025.pdf",
+        "sha256": "cea203c55dad698e398a251a5872423e154483896bb81b8ac19c5d0dd57caf35",
+        "status": "Full original viewed; proposed new case boundaries/closing signatures/column continuations and existing category/caption ownership checked. Implementing-agent nonblind targeted review; not full-page independent accuracy gold."
+      },
+      {
+        "page": "20260817h017690018",
+        "source": ".cache/kanpo-archive/2026-08-17/20260817h01769/20260817h017690018.pdf",
+        "sha256": "3ee960096ea06e8c74fcce81ecef8099fd5540fc9d15cb0e99443f368988789f",
+        "status": "Full original viewed; proposed new case boundaries/closing signatures/column continuations and existing category/caption ownership checked. Implementing-agent nonblind targeted review; not full-page independent accuracy gold."
+      },
+      {
+        "page": "20260820h017720021",
+        "source": ".cache/kanpo-archive/2026-08-20/20260820h01772/20260820h017720021.pdf",
+        "sha256": "df834ca0dabde16265bd4acdae06dbfeca96ba265d368a3682c963ce6a9d694f",
+        "status": "Full original viewed; proposed new case boundaries/closing signatures/column continuations and existing category/caption ownership checked. Implementing-agent nonblind targeted review; not full-page independent accuracy gold."
+      },
+      {
+        "page": "20260826h017760023",
+        "source": ".cache/kanpo-archive/2026-08-26/20260826h01776/20260826h017760023.pdf",
+        "sha256": "12f490132e46988607157bde4af8ccca97df0d852867ec55e8ec3f4c12ad629c",
+        "status": "Full original viewed; proposed new case boundaries/closing signatures/column continuations and existing category/caption ownership checked. Implementing-agent nonblind targeted review; not full-page independent accuracy gold."
+      },
+      {
+        "page": "20260901h017800020",
+        "source": ".cache/kanpo-archive/2026-09-01/20260901h01780/20260901h017800020.pdf",
+        "sha256": "fcc1ca15454edd1c4d4bd223b425ebc94f5a771aba0d2a65c94ba0909b9c89df",
+        "status": "Full original viewed; proposed new case boundaries/closing signatures/column continuations and existing category/caption ownership checked. Implementing-agent nonblind targeted review; not full-page independent accuracy gold."
+      },
+      {
+        "page": "20260903h017820028",
+        "source": ".cache/kanpo-archive/2026-09-03/20260903h01782/20260903h017820028.pdf",
+        "sha256": "a1b0372a02b7b344da22a137a116ab33f849d1fa0fea3a4fe8e3907f0b583666",
+        "status": "Full original viewed; proposed new case boundaries/closing signatures/column continuations and existing category/caption ownership checked. Implementing-agent nonblind targeted review; not full-page independent accuracy gold."
+      },
+      {
+        "page": "20260904h017830021",
+        "source": ".cache/kanpo-archive/2026-09-04/20260904h01783/20260904h017830021.pdf",
+        "sha256": "a9ea1b658822269896d8d77c716874e64ace51a601329c7b6a29a6c4ebe98fc0",
+        "status": "Full original viewed; proposed new case boundaries/closing signatures/column continuations and existing category/caption ownership checked. Implementing-agent nonblind targeted review; not full-page independent accuracy gold."
+      },
+      {
+        "page": "20260907h017840027",
+        "source": ".cache/kanpo-archive/2026-09-07/20260907h01784/20260907h017840027.pdf",
+        "sha256": "08c33ae0fd95cf3584c6f0d02228bfa1630bfac12841728d0f94e92ec26a4bd5",
+        "status": "Full original viewed; proposed new case boundaries/closing signatures/column continuations and existing category/caption ownership checked. Implementing-agent nonblind targeted review; not full-page independent accuracy gold."
+      },
+      {
+        "page": "20260910h017870019",
+        "source": ".cache/kanpo-archive/2026-09-10/20260910h01787/20260910h017870019.pdf",
+        "sha256": "eeca29353dc1417e8ea300f073e2602f8dd8df16eddf5d919e6e89570b3b9ed8",
+        "status": "Full original viewed; proposed new case boundaries/closing signatures/column continuations and existing category/caption ownership checked. Implementing-agent nonblind targeted review; not full-page independent accuracy gold."
+      },
+      {
+        "page": "20260911h017880022",
+        "source": ".cache/kanpo-archive/2026-09-11/20260911h01788/20260911h017880022.pdf",
+        "sha256": "17333f2a9fe93ceaf681667c1bb8594108e441271ad8c4fedb5f9efe941e2e7e",
+        "status": "Full original viewed; proposed new case boundaries/closing signatures/column continuations and existing category/caption ownership checked. Implementing-agent nonblind targeted review; not full-page independent accuracy gold."
+      },
+      {
+        "page": "20260914h017890021",
+        "source": ".cache/kanpo-archive/2026-09-14/20260914h01789/20260914h017890021.pdf",
+        "sha256": "72e9401ec0bf859a4f2abe5339cc4a4221b26669704772fc22e18ab5cabffac9",
+        "status": "Full original viewed; proposed new case boundaries/closing signatures/column continuations and existing category/caption ownership checked. Implementing-agent nonblind targeted review; not full-page independent accuracy gold."
+      },
+      {
+        "page": "20260916h017910021",
+        "source": ".cache/kanpo-archive/2026-09-16/20260916h01791/20260916h017910021.pdf",
+        "sha256": "96c7cecbea48ea3d61606ea5312d7e0dad8f1c34dfd6046451fdf1fbee23fe24",
+        "status": "Full original viewed; proposed new case boundaries/closing signatures/column continuations and existing category/caption ownership checked. Implementing-agent nonblind targeted review; not full-page independent accuracy gold."
+      },
+      {
+        "page": "20260924h017940021",
+        "source": ".cache/kanpo-archive/2026-09-24/20260924h01794/20260924h017940021.pdf",
+        "sha256": "2c4f2432772dd06f8f3920e9d48be9679fda6ad9ecaec239aa78a288ab78ac79",
+        "status": "Full original viewed; proposed new case boundaries/closing signatures/column continuations and existing category/caption ownership checked. Implementing-agent nonblind targeted review; not full-page independent accuracy gold."
+      },
+      {
+        "page": "20260928h017960017",
+        "source": ".cache/kanpo-archive/2026-09-28/20260928h01796/20260928h017960017.pdf",
+        "sha256": "b7101c5d4a27ac868c83e0cade3dddb85cf464775eca2193e09148cdf52b092c",
+        "status": "Full original viewed; proposed new case boundaries/closing signatures/column continuations and existing category/caption ownership checked. Implementing-agent nonblind targeted review; not full-page independent accuracy gold."
+      },
+      {
+        "page": "20261002h018000023",
+        "source": ".cache/kanpo-archive/2026-10-02/20261002h01800/20261002h018000023.pdf",
+        "sha256": "9d5bd945af0202f1413b6b33ea6fabbe63c23c97f4bb36f7e5bdbe089edb411e",
+        "status": "Full original viewed; proposed new case boundaries/closing signatures/column continuations and existing category/caption ownership checked. Implementing-agent nonblind targeted review; not full-page independent accuracy gold."
+      },
+      {
+        "page": "20261006h018020023",
+        "source": ".cache/kanpo-archive/2026-10-06/20261006h01802/20261006h018020023.pdf",
+        "sha256": "1d1bfce212fa42769451d2c733b786c1aebb476d51aa44135a25e005efabbab8",
+        "status": "Full original viewed; proposed new case boundaries/closing signatures/column continuations and existing category/caption ownership checked. Implementing-agent nonblind targeted review; not full-page independent accuracy gold."
+      },
+      {
+        "page": "20261013h018060019",
+        "source": ".cache/kanpo-archive/2026-10-13/20261013h01806/20261013h018060019.pdf",
+        "sha256": "910fec3cc60fe8a5b4c8263bcc2b7d6044eb1414c18b6375f4ab7bf920c91b49",
+        "status": "Full original viewed; proposed new case boundaries/closing signatures/column continuations and existing category/caption ownership checked. Implementing-agent nonblind targeted review; not full-page independent accuracy gold."
+      },
+      {
+        "page": "20261014h018070022",
+        "source": ".cache/kanpo-archive/2026-10-14/20261014h01807/20261014h018070022.pdf",
+        "sha256": "5c3b4226e5138d0cf8a56ec818da52ef7abcc145c45fed82e8be2dc231bc8ecd",
+        "status": "Full original viewed; proposed new case boundaries/closing signatures/column continuations and existing category/caption ownership checked. Implementing-agent nonblind targeted review; not full-page independent accuracy gold."
+      },
+      {
+        "page": "20261019h018100022",
+        "source": ".cache/kanpo-archive/2026-10-19/20261019h01810/20261019h018100022.pdf",
+        "sha256": "638ac78199040f9aa889a510dd297b88851e1a1528d78eddb37ddb60496ee8ee",
+        "status": "Full original viewed; proposed new case boundaries/closing signatures/column continuations and existing category/caption ownership checked. Implementing-agent nonblind targeted review; not full-page independent accuracy gold."
+      },
+      {
+        "page": "20261020h018110016",
+        "source": ".cache/kanpo-archive/2026-10-20/20261020h01811/20261020h018110016.pdf",
+        "sha256": "e8d7a729748fc917fa5a50dbd7fbe9f69fdd9092927435ed02ab90c13f74b492",
+        "status": "Full original viewed; proposed new case boundaries/closing signatures/column continuations and existing category/caption ownership checked. Implementing-agent nonblind targeted review; not full-page independent accuracy gold."
+      }
+    ],
+    "images_or_outlined_bodies": "Unrecovered image/outline-only bodies and stray native-only category headings remain residuals. No OCR or guessed person/company restoration.",
+    "claims": "Targeted source-boundary correspondence on30originals, including all23legacyfreeze cases plus the preceding original of the2pagewitness. All48changes separately pass material/partition checks. No blind accuracy percentage.",
+    "additional_models": "none",
+    "remaining_fused_example": "20260916h017910021: the Kyoto26 and Tottori1002 cases still share a later article; their unproved boundary is not counted as repaired."
+  },
+  "actual_Cargo_CLI": {
+    "original_PDFs": 55,
+    "actual_Cargo_library_full_Analysis_equal_private_v2": 55,
+    "actual_Cargo_PDF_textdump": 55,
+    "actual_Cargo_XHTML_textdump": 55,
+    "actual_Cargo_text_example": 55,
+    "actual_Cargo_structured_docjson_singletons": 55,
+    "actual_Cargo_consecutive_three_page_docjson": 1,
+    "duplicate_word_reports": 0,
+    "source_and_binaries_prepost_exact": true,
+    "scope": "Actual Cargo debug examples on all48 changed originals plus7 controls. Not full11992 CLI or release-mode validation."
+  },
+  "runtime_source_equivalence": {
+    "court_runtime_rustfmt_code_exact_excluding_reworded_comment": true,
+    "other_source_files_byte_exact": 238,
+    "unit_structure": "The10new controls move unchanged into a separate child module;5more authority negatives added for normalCargo validation. All prior court tests remain unchanged.",
+    "private_runtime_sha256": "22d16fd33452d0df7a8fef107a823bd8cb5ed43214f0971602d0420fb52c35cc",
+    "public_runtime_sha256": "76d7170fb48e8741d6cb1ad4a9032fcdce13d6031917da1e47e73efbb6d56f04"
+  },
+  "limits": [
+    "Implementing-agent nonblind targeted10-original boundary review and material invariants; not independent full-page accuracy gold or a new accuracy percentage. Not all48 changed images are independently graded.",
+    "Image/outline-only bodies and unrelated native-only category headings attached to adjacent readable content remain residuals. They are not counted as recovered. No guessed name/glyph restitution.",
+    "The fixed30-page139 audit retains its original138 grades.",
+    "Unproven/unruled columns, complex financial amount lanes/hierarchy, encoding/PUA and other article/table ownership issues remain.",
+    "ActualCargo55 debug originals and consecutive3-page output are checked; not full11992 CLI or release validation.",
+    "20260916h017910021 still places Kyoto26 and Tottori1002 in one article. A diagnostic-only151probe shows the next body line lacks the current evidence certificate; not counted as resolved."
+  ],
+  "OCR": {
+    "mode": "explicit opt-in only; unused",
+    "NDLOCR_version": "0.0.15",
+    "rev": "f97e930b8c3e9512f7788f258ef685da26416483"
+  },
+  "additional_models": "none",
+  "overall_goal_complete": false,
+  "native_gate": {
+    "terminal": 0,
+    "commands": 2,
+    "integration_targets": 149,
+    "result_groups": 157,
+    "passed": 3657,
+    "failed": 0,
+    "ignored": 0,
+    "source_manifest_sha256": "d10bc251bef37b24716c2ac1eddf3ae40e4353d4d767697f9faee5388c924f44",
+    "source_and_all_existing_test_inputs_prepost_exact": true,
+    "snapshot_updates_disabled": true
+  },
+  "snapshots": {
+    "existing": 814,
+    "changed": 0,
+    "all814_byte_exact": true
+  },
+  "legacy_regression_freezes": {
+    "initial_full_gate": {
+      "passed": 3632,
+      "failed": 25,
+      "targets": [
+        "native_atomic_column_fixtures",
+        "native_court_category_fixtures"
+      ],
+      "reason": "Old132/133 complete-Analysis freezes still encode the previous fused articles. All independent source-caption/category witnesses pass before their exactJSON assertions."
+    },
+    "review": "All23 affected legacy singleton originals plus the preceding original of the consecutive2page witness were viewed; total30 targeted originals with initial10.",
+    "old_JSON_TSV_PDF_snapshots": "all retained byte-exact; no expectation auto-updates",
+    "approved_projection": "One new fixture freezes24 source-reviewed ArticleAnalysis arrays. Expected Analysis is reconstructed from the old complete JSON by replacing only articles, after a strict exact native/material/in-place-partition contract; actual must match that fixed complete expected value. Unlisted inputs still require the unchanged old complete Analysis.",
+    "independent_caption_category_witnesses": "original132/133 files and assertions unchanged",
+    "affected_and_new_targets": "59passed/0failed/0ignored after projection append",
+    "runtime_after_failed_gate": "unchanged; no corpus/CLI rerun needed for this test-only transition"
+  },
+  "runtime_source_sha256": "76d7170fb48e8741d6cb1ad4a9032fcdce13d6031917da1e47e73efbb6d56f04",
+  "evidence_files_sha256": {
+    "runtime-source-equivalence150.json": "c02282a1e373c306732d10902e9b5640659c7ad7a94dcf1a6f8ac6cd5f349eda",
+    "single-contracts150.json": "8d545fefde8db69ac7cf137b038832b42049f5c0881a4479c2f1baf2a3d1539c",
+    "whole-contracts150.json": "5408194c182f061e26f4cb5ae0174c8e77e6859f28412238fab998ecaccb16e0",
+    "source-reviews150.json": "87055fe952283ed1a752aaa8ab45bc2c4c3f91e490b5600acb0dfa1db60db98f",
+    "post-failed-gate-test-only-transition150.json": "d5ecf368e8223bd0ad4c1af3b7f7ca55fe4237396d429cf7d61bbea0849f9bee",
+    "reviewed-legacy-and-source-tests150.log": "0a3d6d75a597a274eb9ea17437578e896f27a4f9be130d6150935c91aa0b463c",
+    "native-gates-final-v2-150/result150.json": "4ea1eda2c0917c972b6460a044535c60274c547fcadd118825bb141b1b254b01",
+    "actual-CLI-result150.json": "4075f37cc39a20c4923d0b0ed8795b635bea5bc8dfcae3eb0bbf206eebde9e0a",
+    "public-tests/tests-final-149.log": "7d5ebdba58e1152897d46d6b688205718be643fd6bf44964f3bce459a8bfec87",
+    "public-tests/tests-final-150.log": "65993e297e3e2247fc1783a72440e6e5829a8f51c51fa986317a3c0c4ade7727"
+  }
+}

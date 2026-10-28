@@ -1,3 +1,5 @@
+#[path = "support/reviewed_comparison_boundaries.rs"]
+mod reviewed_comparison_boundaries;
 #[path = "support/legacy_analysis.rs"]
 mod legacy_analysis;
 use kanpo_parser::{Analysis,trace::{Role,WordStatus}};
@@ -33,9 +35,20 @@ let mut chars:Vec<_>=a.text.chars().collect();let mut before:Vec<_>=old["text"].
 }
 #[test]fn all_fourteen_source_words_bind_to_the_original_vertical_glyphs_once(){let a=actual(PDF0);let native=kanpo_pdf::extract_pages(PDF0).unwrap();let mut seen=std::collections::BTreeSet::new();let mut total=0;for id in SOURCE_IDS{let w=&a.pages[0].words[id];let gs:Vec<_>=native[0].glyphs.iter().enumerate().filter(|(_,g)|{let b=g.bbox;let x=(b[0]+b[2])*0.5;let y=(b[1]+b[3])*0.5;x>=w.x0 as f64-0.01&&x<w.x1 as f64+0.01&&y>=w.y0 as f64-0.01&&y<w.y1 as f64+0.01}).collect();assert_eq!(gs.iter().map(|(_,g)|g.text.as_str()).collect::<String>(),w.raw);for(i,g)in gs{assert!(seen.insert(i));assert!(g.vertical);assert!((g.size-8.).abs()<0.001);total+=1;}}assert_eq!(total,226);}
 #[test]fn preceding_page_has_its_own_paired_change_bands(){let a=actual(PDF1);let old:serde_json::Value=serde_json::from_str(BASE1).unwrap();assert_eq!(canonical(&a),old);}
-#[test]fn following_page_has_separate_notices(){let a=actual(PDF2);let old:serde_json::Value=serde_json::from_str(BASE2).unwrap();assert_eq!(canonical(&a),old);}
+#[test]fn following_page_has_separate_notices(){let a=actual(PDF2);let old:serde_json::Value=serde_json::from_str(BASE2).unwrap();assert_eq!(canonical(&a),reviewed_comparison_boundaries::preceding_supplement(old));}
 #[test]fn full_height_frame_finishes_before_next_article(){let a=actual(PDF3);let old:serde_json::Value=serde_json::from_str(BASE3).unwrap();assert_eq!(canonical(&a),old);}
-#[test]fn another_change_frame_stays_inside_its_own_notice(){let a=actual(PDF4);let old:serde_json::Value=serde_json::from_str(BASE4).unwrap();assert_eq!(canonical(&a),old);}
+#[test]fn another_change_frame_stays_inside_its_own_notice(){
+ let a=actual(PDF4);let old:serde_json::Value=serde_json::from_str(BASE4).unwrap();let now=canonical(&a);
+ let reviewed:serde_json::Value=serde_json::from_str(include_str!("expected/framed_after_continuation/20260902g001960024-reviewed147.analysis.json")).unwrap();
+ assert_eq!(now,reviewed,"complete independently source-reviewed Analysis");
+ for i in [0,1]{assert_eq!(now["articles"][i],old["articles"][i]);}
+ let mut words=old["pages"][0]["words"].clone();
+ for id in 65..=70{assert_eq!(words[id]["status"],"used");words[id]["status"]="header_label".into();}
+ assert_eq!(now["pages"][0]["words"],words,"only the six printed change-label Words acquire header status");
+ let tables=|v:&serde_json::Value|v["pages"][0]["regions"].as_array().unwrap().iter().flat_map(|r|r["lines"].as_array().unwrap()).filter_map(|l|l.get("table").cloned()).collect::<Vec<_>>();
+ assert_eq!(tables(&now),tables(&old),"all original native cells, geometry, and Word IDs survive exactly");
+ assert_eq!(now["text"],old["text"].as_str().unwrap().replace("二変更した事項","二　変更した事項"));
+}
 
 #[test]fn structured_after_cell_contains_all_twelve_columns_and_no_continuation_paragraph(){
  let a=actual(PDF0);let v=canonical(&a);let blocks=v["articles"][1]["document"]["blocks"].as_array().unwrap();let changes:Vec<_>=blocks.iter().filter(|b|b["kind"]=="shinkyu").collect();assert_eq!(changes.len(),1);let rows=changes[0]["rows"].as_array().unwrap();assert_eq!(rows.len(),1);

@@ -118,7 +118,7 @@ fn cell_geometry_word_ids_and_render_remain() {
 fn shinkyu_text_not_rewritten() {
     let (w, b) = fixture();
     let l = line();
-    let mut u = vec![Unit::Shinkyu {
+    let mut u = vec![Unit::Shinkyu {labels:None,
         preamble: vec![],
         after: vec![vec![l.clone()]],
         before: vec![],

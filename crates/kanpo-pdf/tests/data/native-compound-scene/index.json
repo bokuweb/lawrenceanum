@@ -1,0 +1,76 @@
+{
+  "renderer": "PDFium complete originals25/26/27 reviewed",
+  "outline_source": "Original exact embedded Npb1 CFF, Type2 two implicit closed rectangular contours; opacity only, no character or ruling inference.",
+  "contours": [
+    [
+      408,
+      -122,
+      468,
+      882
+    ],
+    [
+      530,
+      -122,
+      590,
+      882
+    ]
+  ],
+  "envelope": [
+    408,
+    -122,
+    590,
+    882
+  ],
+  "expected_opaque_original_ids": [
+    {
+      "PDF": "20260828g001920025.pdf",
+      "ids": [
+        472,
+        631,
+        632,
+        633,
+        634,
+        635,
+        1081,
+        1082,
+        1083,
+        1084,
+        1085,
+        1092,
+        1093,
+        1094,
+        1095,
+        1096,
+        1167,
+        1168,
+        1169,
+        1170,
+        1171,
+        1178,
+        1179,
+        1180,
+        1181,
+        1182
+      ]
+    },
+    {
+      "PDF": "20260828g001920026.pdf",
+      "ids": [
+        7,
+        8,
+        9,
+        10,
+        11
+      ]
+    }
+  ],
+  "sources": {
+    "20260828g001920025.pdf": "c51685aef69e41cc8624b2b8f34651e6fc773f9631edd889210d9d79f24b0ca2",
+    "20260828g001920026.pdf": "81be6a73affb5bb9369a8c6b15194841f43c71db4fc18dea4cb555c1b312bb3f",
+    "original.cff": "50cb5c65ddfd6a4f8ca0251a0e2a2c669ee173246acea9b3ed70109bf7e3d28b"
+  },
+  "specs": [
+    "https://partners.adobe.com/public/developer/en/font/5177.Type2.pdf",
+    "https://adobe-type-tools.github.io/font-tech-notes/pdfs/5176.CFF.pdf"
+  ]
+}

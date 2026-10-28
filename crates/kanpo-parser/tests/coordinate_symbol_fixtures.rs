@@ -114,7 +114,7 @@ fn airport_coordinate_letters_and_unheaded_decimal_minutes_remain_unchanged() {
     );
 }
 #[test]
-fn unreconstructed_columns_stay_exact_while_the_ruled_continuation_restores() {
+fn all_original_coordinate_frames_restore_with_the_existing_table_unchanged() {
     let pdf = include_bytes!("archive/pages/20260728h01756/20260728h017560005.pdf");
     let out = kanpo_parser::analyze_item(&kanpo_parser::page_inputs(pdf).unwrap());
     assert_eq!(
@@ -124,10 +124,56 @@ fn unreconstructed_columns_stay_exact_while_the_ruled_continuation_restores() {
         )
         .trim_end()
     );
-    let before = include_str!("archive/expected-coordinate-symbols/20260728h017560005.txt");
-    let unchanged_columns = before.split("\n99　").next().unwrap();
-    assert!(out.text.starts_with(unchanged_columns));
-    assert!(out.text.contains("99　34°43′47.4662″　136°25′45.7983″"));
+    let original: serde_json::Value = serde_json::from_str(include_str!(
+        "archive/expected-coordinate-joined/20260728h017560005-original-control.json"
+    ))
+    .unwrap();
+    let words = original["words"].as_array().unwrap();
+    assert_eq!(out.pages[0].words.len(), words.len());
+    let mut restored = 0;
+    for (word, before) in out.pages[0].words.iter().zip(words) {
+        let mut expected = before.clone();
+        if before["status"] == "empty" {
+            if let Some(symbol) = match word.raw.as_str() {
+                "\u{EA6F}" => Some("°"),
+                "\u{EA6D}" => Some("′"),
+                "\u{EA6E}" => Some("″"),
+                _ => None,
+            } {
+                expected["text"] = serde_json::Value::String(symbol.into());
+                expected["status"] = serde_json::Value::String("used".into());
+                restored += 1;
+            }
+        }
+        let actual: serde_json::Value =
+            serde_json::from_str(&serde_json::to_string(word).unwrap()).unwrap();
+        assert_eq!(actual, expected);
+    }
+    assert_eq!(restored,87*6,"Only the original six angle glyphs in each of the formerly interleaved records are restored");
+    let tables: Vec<_> = out.pages[0]
+        .regions
+        .iter()
+        .flat_map(|r| &r.lines)
+        .filter_map(|l| l.table.as_ref())
+        .map(legacy_analysis::value)
+        .collect();
+    assert_eq!(tables, original["full_tables"].as_array().unwrap().clone());
+    for symbol in ['°', '′', '″'] {
+        assert_eq!(out.text.matches(symbol).count(), 116 * 2);
+    }
+    let mut seen = std::collections::HashSet::new();
+    for line in out.pages[0].regions.iter().flat_map(|r| &r.lines) {
+        for &id in line.words.iter().chain(
+            line.table
+                .iter()
+                .flat_map(|t| t.cells.iter().flat_map(|c| &c.words)),
+        ) {
+            assert!(
+                seen.insert(id),
+                "A source occurrence must not be attached to multiple records"
+            );
+        }
+    }
 }
 #[test]
 fn rotated_trace_retains_exact_numeric_geometry_and_native_suffix_owners() {
@@ -138,7 +184,12 @@ fn rotated_trace_retains_exact_numeric_geometry_and_native_suffix_owners() {
         include_str!("archive/expected-coordinate-symbols/20260717h017500006.txt").trim_end()
     );
     let trace: serde_json::Value = legacy_analysis::value(&out.pages[0]);
-    let expected: serde_json::Value = serde_json::from_str(include_str!("archive/expected-coordinate-rotated/20260717h017500006-page.json")).unwrap();
+    let expected: serde_json::Value = serde_json::from_str(include_str!(
+        "archive/expected-coordinate-rotated/20260717h017500006-page.json"
+    ))
+    .unwrap();
     assert_eq!(trace, expected);
-    for symbol in ['°', '′', '″'] { assert_eq!(out.text.matches(symbol).count(), 46); }
+    for symbol in ['°', '′', '″'] {
+        assert_eq!(out.text.matches(symbol).count(), 46);
+    }
 }

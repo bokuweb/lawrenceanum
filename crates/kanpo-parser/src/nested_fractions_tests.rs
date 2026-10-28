@@ -150,7 +150,7 @@ fn an_unrelated_shinkyu_owner_before_the_table_keeps_owner_enumeration() {
     let (mut u, w, b) = fixture();
     u.insert(
         0,
-        Unit::Shinkyu {
+        Unit::Shinkyu {labels:None,
             preamble: vec![Line::text("独立記事".into(), vec![999])],
             after: vec![],
             before: vec![],
@@ -165,7 +165,7 @@ fn an_unrelated_shinkyu_owner_before_the_table_keeps_owner_enumeration() {
 fn source_also_owned_by_shinkyu_is_ambiguous() {
     let (mut u, w, b) = fixture();
     let old = first(&u).clone();
-    u.push(Unit::Shinkyu {
+    u.push(Unit::Shinkyu {labels:None,
         preamble: vec![],
         after: vec![vec![Line::text("D＋E".into(), vec![20])]],
         before: vec![],
@@ -182,7 +182,7 @@ fn a_shinkyu_table_itself_is_out_of_scope() {
         panic!()
     };
     let old = l[0].clone();
-    let mut units = vec![Unit::Shinkyu {
+    let mut units = vec![Unit::Shinkyu {labels:None,
         preamble: l,
         after: vec![],
         before: vec![],

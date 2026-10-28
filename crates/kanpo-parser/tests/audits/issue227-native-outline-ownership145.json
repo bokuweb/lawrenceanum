@@ -1,0 +1,480 @@
+{
+  "issue": 227,
+  "stage": 111,
+  "native_change": 145,
+  "native_baseline": 144,
+  "source_baseline_primary": "13e6d545c7dcf30b4aade6c94c1ede6455c717fa",
+  "source_baseline_publication": "b1737f97ef1e5c82ec3605eed68a78ce20ef2a86",
+  "scope": "Implementing-agent nonblind original comparison-row associations on2 PDFs, also checked in176/184-page issue contexts. Regression contracts, not independent full-page transcription gold or overall100%.",
+  "problem": "A new legal section and the first following article share one typed comparison row, while the section own opposite change marker belongs to the previous article. Native PageTrace/text were already unchanged; correct the structured Document ownership.",
+  "source_review": {
+    "pages": [
+      {
+        "source": "20260729g001690092",
+        "native_Words": 124,
+        "used_Words_once": 110,
+        "pdf": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-07-29/20260729g00169/20260729g001690092.pdf",
+        "pdf_sha256": "c55f28d2cba9448e743acaa1b222ddcddaf323ec74d5698add7f0fd5cac8a01d",
+        "complete_original_viewed": true,
+        "nonblind": true
+      },
+      {
+        "source": "20260918g002090059",
+        "native_Words": 107,
+        "used_Words_once": 93,
+        "pdf": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-09-18/20260918g00209/20260918g002090059.pdf",
+        "pdf_sha256": "aabf8723345d39afc67726d60e7a28c8ad53481ebb4dfc9ce69a4312c6f4d1d8",
+        "complete_original_viewed": true,
+        "nonblind": true
+      }
+    ],
+    "native_Words": 231,
+    "used_Words_owned_once": 203,
+    "whole_originals_viewed": 2,
+    "independent_gold": false
+  },
+  "production_rules": [
+    "Existing general legal outline/article declaration grammar; standard standalone legal change symbols. No new page/title/issuer/article-number literals, distance tolerance, character-length, wrap-count or row-count ceilings.",
+    "Complete original native glyph rectangles and explicit source advance axes; one unique opposite printed column in the same physical page/unit/part, independently for the outline and next structural anchor. Intersect source rectangles, never round distinct origins into one baseline.",
+    "Native glyph rectangles and legacy Word.source_box projections are separate contracts. Native data stay zipped to their original occurrence. A constant projection correction is never inferred.",
+    "Keep the existing strict global source-stream ownership verifier. A separately validated complete source page can certify its complete printed units even when unrelated pages fail global validation. Require unique raw native-unit/Article membership and complete unique After/Before atom windows; no partial unit or conflicting owner.",
+    "notice_boundaries::Part.sources lists positive claims from recoverable pages and can be non-exhaustive. An explicit partial-claims constructor distinguishes it from a declared complete inventory. Only independently certified native units may extend partial claims. Unknown Word IDs, duplicate claims and conflicting owners decline. Legacy ownership-verifier behavior is unchanged.",
+    "Copy original Run slices, all character attributes, ASCII/U+3000 spaces and entire opaque tables. Only legacy LF at newly explicit cell edges is removed. Repeated marker spellings are bound by source columns and complete source streams, not text lookup alone."
+  ],
+  "TDD": {
+    "new_generic_controls": 33,
+    "new_public_original_API_tests": 9,
+    "parser_unit_total": 2357,
+    "original_September_API_before144": {
+      "passed": 1,
+      "failed": 5
+    },
+    "original_September_API_after": {
+      "passed": 6,
+      "failed": 0
+    },
+    "minimal_prose_plus_July_original_before_intermediate_V9": {
+      "passed": 2,
+      "failed": 1
+    },
+    "same_public_API_after": {
+      "passed": 3,
+      "failed": 0
+    },
+    "generic_RED_then_GREEN": true,
+    "actual_complete176_and184_page_contexts_checked": true,
+    "controls": [
+      "renamed/renumbered declarations",
+      "64 native title wraps",
+      "captioned/uncaptioned articles",
+      "nested legal levels and distinct markers",
+      "both comparison sides",
+      "all4 advance axes plus scaling/translation",
+      "known versus unknown native bounds/axes",
+      "complete versus partial Word claims",
+      "unknown extra IDs and duplicates",
+      "foreign Article claims or cuts through complete units",
+      "identical marker text with different source columns",
+      "complete opaque tables and per-character Run styles",
+      "unrelated invalid source page versus independent complete unit"
+    ]
+  },
+  "native4": {
+    "terminal": 0,
+    "source_manifest_sha256": "7d8a903bc4a577d5a5b885560c8d41150cb410641486460aa5fa3529667dbe05",
+    "commands": 154,
+    "integration_targets": 145,
+    "passed": 3394,
+    "failed": 0,
+    "ignored": 0,
+    "result_groups": 153,
+    "no_expected_snapshot_updates": true,
+    "all_commands_exit0": true
+  },
+  "full_cohort_and_Document_verification": {
+    "single": {
+      "cohort": {
+        "mode": "single",
+        "items": 11992,
+        "changed": 2,
+        "changed_PageTrace_pages": 0,
+        "all_changed_items_PageTrace_exact": true,
+        "all_changed_items_full_text_exact": true,
+        "all_changed_items_Article_metadata_exact": true,
+        "source_inputs_reference_sources_binaries_prepost_exact": true,
+        "seconds": 490.337461833
+      },
+      "ordered_original_PDF_feed_exact": true,
+      "reviewed_changes": {
+        "20260729g001690092": [
+          {
+            "Article": 0,
+            "block": 0,
+            "native_sources": [
+              "20260729g001690092"
+            ],
+            "old_rows": 5,
+            "new_rows": 6
+          }
+        ],
+        "20260918g002090059": [
+          {
+            "Article": 0,
+            "block": 0,
+            "native_sources": [
+              "20260918g002090059"
+            ],
+            "old_rows": 6,
+            "new_rows": 7
+          }
+        ]
+      }
+    },
+    "whole": {
+      "cohort": {
+        "mode": "whole",
+        "items": 159,
+        "changed": 2,
+        "changed_PageTrace_pages": 0,
+        "all_changed_items_PageTrace_exact": true,
+        "all_changed_items_full_text_exact": true,
+        "all_changed_items_Article_metadata_exact": true,
+        "source_inputs_reference_sources_binaries_prepost_exact": true,
+        "seconds": 775.90441675
+      },
+      "ordered_original_PDF_feed_exact": true,
+      "reviewed_changes": {
+        "20260729g00169": [
+          {
+            "Article": 35,
+            "block": 13,
+            "native_sources": [
+              "20260729g001690092"
+            ],
+            "old_rows": 43,
+            "new_rows": 44
+          }
+        ],
+        "20260918g00209": [
+          {
+            "Article": 32,
+            "block": 1,
+            "native_sources": [
+              "20260918g002090059"
+            ],
+            "old_rows": 72,
+            "new_rows": 73
+          }
+        ]
+      }
+    },
+    "complete_Article_owners_in_changed_issues": 93,
+    "controlled_corruptions_rejected": [
+      {
+        "mode": "single",
+        "source": "20260729g001690092",
+        "corruption": "native Word position"
+      },
+      {
+        "mode": "single",
+        "source": "20260729g001690092",
+        "corruption": "native Word occurrence"
+      },
+      {
+        "mode": "single",
+        "source": "20260729g001690092",
+        "corruption": "Article owner text"
+      },
+      {
+        "mode": "single",
+        "source": "20260729g001690092",
+        "corruption": "full text"
+      },
+      {
+        "mode": "single",
+        "source": "20260729g001690092",
+        "corruption": "new header payload"
+      },
+      {
+        "mode": "single",
+        "source": "20260729g001690092",
+        "corruption": "header character style"
+      },
+      {
+        "mode": "single",
+        "source": "20260729g001690092",
+        "corruption": "source U+3000 whitespace"
+      },
+      {
+        "mode": "single",
+        "source": "20260729g001690092",
+        "corruption": "duplicated change marker"
+      },
+      {
+        "mode": "single",
+        "source": "20260729g001690092",
+        "corruption": "unrelated original row"
+      },
+      {
+        "mode": "single",
+        "source": "20260729g001690092",
+        "corruption": "same characters but wrong marker owner"
+      },
+      {
+        "mode": "single",
+        "source": "20260729g001690092",
+        "corruption": "duplicate complete Article"
+      },
+      {
+        "mode": "single",
+        "source": "20260729g001690092",
+        "corruption": "opaque table contents"
+      },
+      {
+        "mode": "single",
+        "source": "20260918g002090059",
+        "corruption": "native Word position"
+      },
+      {
+        "mode": "single",
+        "source": "20260918g002090059",
+        "corruption": "native Word occurrence"
+      },
+      {
+        "mode": "single",
+        "source": "20260918g002090059",
+        "corruption": "Article owner text"
+      },
+      {
+        "mode": "single",
+        "source": "20260918g002090059",
+        "corruption": "full text"
+      },
+      {
+        "mode": "single",
+        "source": "20260918g002090059",
+        "corruption": "new header payload"
+      },
+      {
+        "mode": "single",
+        "source": "20260918g002090059",
+        "corruption": "header character style"
+      },
+      {
+        "mode": "single",
+        "source": "20260918g002090059",
+        "corruption": "source U+3000 whitespace"
+      },
+      {
+        "mode": "single",
+        "source": "20260918g002090059",
+        "corruption": "duplicated change marker"
+      },
+      {
+        "mode": "single",
+        "source": "20260918g002090059",
+        "corruption": "unrelated original row"
+      },
+      {
+        "mode": "single",
+        "source": "20260918g002090059",
+        "corruption": "same characters but wrong marker owner"
+      },
+      {
+        "mode": "single",
+        "source": "20260918g002090059",
+        "corruption": "duplicate complete Article"
+      },
+      {
+        "mode": "whole",
+        "source": "20260729g00169",
+        "corruption": "native Word position"
+      },
+      {
+        "mode": "whole",
+        "source": "20260729g00169",
+        "corruption": "native Word occurrence"
+      },
+      {
+        "mode": "whole",
+        "source": "20260729g00169",
+        "corruption": "Article owner text"
+      },
+      {
+        "mode": "whole",
+        "source": "20260729g00169",
+        "corruption": "full text"
+      },
+      {
+        "mode": "whole",
+        "source": "20260729g00169",
+        "corruption": "new header payload"
+      },
+      {
+        "mode": "whole",
+        "source": "20260729g00169",
+        "corruption": "header character style"
+      },
+      {
+        "mode": "whole",
+        "source": "20260729g00169",
+        "corruption": "source U+3000 whitespace"
+      },
+      {
+        "mode": "whole",
+        "source": "20260729g00169",
+        "corruption": "duplicated change marker"
+      },
+      {
+        "mode": "whole",
+        "source": "20260729g00169",
+        "corruption": "unrelated original row"
+      },
+      {
+        "mode": "whole",
+        "source": "20260729g00169",
+        "corruption": "same characters but wrong marker owner"
+      },
+      {
+        "mode": "whole",
+        "source": "20260729g00169",
+        "corruption": "duplicate complete Article"
+      },
+      {
+        "mode": "whole",
+        "source": "20260729g00169",
+        "corruption": "opaque table contents"
+      },
+      {
+        "mode": "whole",
+        "source": "20260918g00209",
+        "corruption": "native Word position"
+      },
+      {
+        "mode": "whole",
+        "source": "20260918g00209",
+        "corruption": "native Word occurrence"
+      },
+      {
+        "mode": "whole",
+        "source": "20260918g00209",
+        "corruption": "Article owner text"
+      },
+      {
+        "mode": "whole",
+        "source": "20260918g00209",
+        "corruption": "full text"
+      },
+      {
+        "mode": "whole",
+        "source": "20260918g00209",
+        "corruption": "new header payload"
+      },
+      {
+        "mode": "whole",
+        "source": "20260918g00209",
+        "corruption": "header character style"
+      },
+      {
+        "mode": "whole",
+        "source": "20260918g00209",
+        "corruption": "source U+3000 whitespace"
+      },
+      {
+        "mode": "whole",
+        "source": "20260918g00209",
+        "corruption": "duplicated change marker"
+      },
+      {
+        "mode": "whole",
+        "source": "20260918g00209",
+        "corruption": "unrelated original row"
+      },
+      {
+        "mode": "whole",
+        "source": "20260918g00209",
+        "corruption": "same characters but wrong marker owner"
+      },
+      {
+        "mode": "whole",
+        "source": "20260918g00209",
+        "corruption": "duplicate complete Article"
+      },
+      {
+        "mode": "whole",
+        "source": "20260918g00209",
+        "corruption": "opaque table contents"
+      }
+    ],
+    "controlled_corruptions_rejected_total": 47,
+    "review_scope": "Implementing agent nonblind original row associations; every changed row is an explicit reviewed source contract. Not independent transcription gold or overall accuracy."
+  },
+  "actual_CLI": {
+    "actual_Cargo_debug_native_PDFs": 3,
+    "actual_Cargo_debug_source_XHTML_textdump": 3,
+    "actual_Cargo_debug_text_example": 3,
+    "scope": "2repaired originals and1synthetic native-text preface;otheroriginalpage2 onlyinstructured mixture",
+    "actual_Cargo_docjson_groups": [
+      [
+        "20260729g001690092"
+      ],
+      [
+        "20260918g002090059"
+      ],
+      [
+        "plain-preface",
+        "20260729g001690092"
+      ],
+      [
+        "20260918g002090002",
+        "20260918g002090059"
+      ]
+    ],
+    "all_structured_Documents_exact_frozen_API": true,
+    "every_complete_text_exact_frozen_optimized_API": true,
+    "all_source_bytes_prepost_exact": true,
+    "word_duplicates_on_two_repaired_sources_and_preface": 0,
+    "full11992_CLI_run": false,
+    "release_CLI_run": false
+  },
+  "preservation": {
+    "all11992_single_PageTrace_and_full_text_exact": true,
+    "all159_whole_PageTrace_and_full_text_exact": true,
+    "other11990_single_complete_Analysis_exact": true,
+    "other157_whole_complete_Analysis_exact": true,
+    "all_Article_counts_text_and_notices_exact": true,
+    "changed_issues_Article_count_before_after": [
+      93,
+      93
+    ],
+    "all_other_blocks_and_rows_exact": true,
+    "role_character_styles_and_spaces_exact_except_cell_edge_LF": true,
+    "all_opaque_table_contents_attributes_and_order_exact": true,
+    "old_tracked_test_files_unchanged": 3022,
+    "all814_snapshots_and_all_old_JSON_TSV_oracles_unchanged": true
+  },
+  "rejected_assumptions": [
+    "Initial synthetic test incorrectly required native glyph bounds equal the legacy projection; original vertical-font evidence disproved that invariant. Preserved the old test/logs, added distinct-contract positive and separate invalid-rectangle negatives; production does not infer a fixed shift.",
+    "A single-page prototype passed3 source tests but failed176-page context because unrelated source pages prevented global ownership recovery. Added source-unit certification with negative ownership controls; did not weaken the global verifier.",
+    "A later prototype fixed both singles but still failed184-page context. Actual source and typed opaque tables/windows matched. Diagnostic showed340 partial Word claims and110 valid target-unit Words absent from that list. Added explicit evidence kind and real minimal prose+original PDF regression; no table normalization or title exception."
+  ],
+  "fixed30_source_review139_scores_unchanged_native138_history": true,
+  "OCR": {
+    "explicit_opt_in": true,
+    "automatic_native_OCR": false,
+    "engine": "NDLOCR",
+    "version": "0.0.15",
+    "commit": "f97e930b8c3e9512f7788f258ef685da26416483",
+    "new_inferences": 0,
+    "image_only_and_hybrid_default_regressions_passed": 2
+  },
+  "additional_models": false,
+  "remaining": [
+    "July29 whole issue following new-article bodies and multiple change markers remain combined in an existing row; only the independent section row is repaired here",
+    "frequency before/after tables and footnotes",
+    "independent procedures/publications",
+    "multiple amount columns/subtotals",
+    "unresolved character codes/PUA and other layout/ownership"
+  ],
+  "goal227_complete": false
+}

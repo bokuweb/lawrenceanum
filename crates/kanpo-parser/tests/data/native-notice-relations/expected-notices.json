@@ -1,0 +1,98 @@
+[
+  {
+    "source": [
+      {
+        "page": 0,
+        "region": 0,
+        "start_line": 0,
+        "end_line": 18
+      }
+    ],
+    "financial_statements": [
+      {
+        "source": [
+          {
+            "page": 0,
+            "region": 0,
+            "start_line": 18,
+            "end_line": 26
+          }
+        ]
+      },
+      {
+        "source": [
+          {
+            "page": 0,
+            "region": 0,
+            "start_line": 26,
+            "end_line": 34
+          }
+        ]
+      },
+      {
+        "source": [
+          {
+            "page": 0,
+            "region": 0,
+            "start_line": 34,
+            "end_line": 42
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "source": [
+      {
+        "page": 0,
+        "region": 0,
+        "start_line": 42,
+        "end_line": 58
+      }
+    ],
+    "financial_statements": [
+      {
+        "source": [
+          {
+            "page": 0,
+            "region": 0,
+            "start_line": 80,
+            "end_line": 87
+          }
+        ]
+      },
+      {
+        "source": [
+          {
+            "page": 0,
+            "region": 0,
+            "start_line": 87,
+            "end_line": 95
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "source": [
+      {
+        "page": 0,
+        "region": 0,
+        "start_line": 58,
+        "end_line": 80
+      }
+    ],
+    "financial_statements": [
+      {
+        "source": [
+          {
+            "page": 0,
+            "region": 0,
+            "start_line": 87,
+            "end_line": 95
+          }
+        ]
+      }
+    ]
+  }
+]

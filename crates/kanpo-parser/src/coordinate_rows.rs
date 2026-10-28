@@ -1,4 +1,5 @@
-//! Recover printed angle suffixes in complete, unheaded, physically ruled rows.
+//! Recover printed angle suffixes in complete physically ruled coordinate rows.
+//! An optional source-owned textual header prefix is retained byte-for-byte.
 //! No semantic headings are inferred; every numeric Word and six original glyphs
 //! must have one demonstrable final row/cell owner before a grid is edited.
 use crate::{
@@ -33,7 +34,7 @@ fn visit(units: &[Unit], mut f: impl FnMut(usize, &Line)) {
                 after,
                 before,
                 outside,
-            } => {
+            ..} => {
                 for l in preamble {
                     f(k, l);
                     k += 1;
@@ -63,7 +64,7 @@ fn visit_mut(units: &mut [Unit], mut f: impl FnMut(usize, &mut Line)) {
                 after,
                 before,
                 outside,
-            } => {
+            ..} => {
                 for l in preamble {
                     f(k, l);
                     k += 1;
@@ -145,7 +146,8 @@ pub(crate) fn restore_coordinate_rows(
                 after,
                 before,
                 outside,
-            } => Unit::Shinkyu {
+                labels,
+            } => Unit::Shinkyu {labels:*labels,
                 preamble: preamble.clone(),
                 after: after.clone(),
                 before: before.clone(),
@@ -180,7 +182,8 @@ pub(crate) fn restore_coordinate_rows(
                 x1: v.y1,
             })
             .collect(),
-        enclosures: vec![], short_fraction_bars: vec![],
+        enclosures: vec![],
+        short_fraction_bars: vec![],
     });
     crate::coordinate_symbols::restore_coordinate_symbols(&mut rotated, &mut rotated_words);
     restore_horizontal_coordinate_rows(
@@ -356,6 +359,23 @@ fn restore_horizontal_coordinate_rows(
         }
     });
 }
+// Header wording is not a coordinate classifier. Every header field must be
+// nonempty source-owned text, and the following body still has to satisfy all
+// paired-coordinate, original-glyph and consecutive-point proofs. A damaged
+// numeric record cannot become a header because its coordinate fields contain
+// empty symbol occurrences rather than complete owned textual labels.
+fn owned_text_header(columns: &[Vec<&Word>], counts: &[usize]) -> bool {
+    columns.iter().all(|column| {
+        !column.is_empty()
+            && column
+                .iter()
+                .all(|w| w.status == WordStatus::Used && !w.text.is_empty() && counts[w.id] == 1)
+            && column
+                .iter()
+                .flat_map(|w| w.text.chars())
+                .any(char::is_alphabetic)
+    })
+}
 fn plan_grid(
     g: &Grid,
     words: &[Word],
@@ -374,6 +394,8 @@ fn plan_grid(
     let mut changes = vec![];
     let mut previous = None;
     let mut common_table = None;
+    let mut header_rows = 0;
+    let mut body_rows = 0;
     for row in 0..rows {
         let mut columns: Vec<Vec<&Word>> = vec![vec![], vec![], vec![]];
         for w in words {
@@ -395,6 +417,11 @@ fn plan_grid(
         for c in &mut columns {
             c.sort_by(|a, b| a.x0.total_cmp(&b.x0));
         }
+        if previous.is_none() && owned_text_header(&columns, counts) {
+            header_rows += 1;
+            continue;
+        }
+        body_rows += 1;
         if columns[0].len() != 1 || columns[1].len() != 8 || columns[2].len() != 8 {
             return None;
         }
@@ -555,6 +582,11 @@ fn plan_grid(
                 symbols: syms,
             });
         }
+    }
+    // A textual prefix alone cannot identify a coordinate table. At least two
+    // complete body records are needed to witness the consecutive-point rule.
+    if header_rows > 0 && body_rows < 2 {
+        return None;
     }
     if changes
         .iter()
@@ -1059,4 +1091,6 @@ mod tests {
             }
         }
     }
+
+    include!("coordinate_header_tests.rs");
 }

@@ -1,0 +1,20 @@
+{
+  "source_original": "20260731g001720011.pdf",
+  "source_review": "PDFium original pages11 and22. Complete original glyph ranges, capacity wraps, short last line, next equal indent and original geometric fences. Page22 next column consists of two source Word primitives with original tracking; border paint does not reduce authored capacity. Runtime has no page, row, font identity, title or character-count budget.",
+  "old_Analysis": "Frozen actual183 release over three and four original PDFs; pages, text and all Word fields retained.",
+  "expected_construction": "verify_expected.py uses old183 and already independently source-constructed181 pair articles; no187parser/detector called.",
+  "source_sha256": "668788858e27f01dc4a27bca02fe5e0ab244d8337ca5b5e1600e0be78bbc691b",
+  "files": {
+    "20260731g001720011.pdf": "668788858e27f01dc4a27bca02fe5e0ab244d8337ca5b5e1600e0be78bbc691b",
+    "20260731g001720022.pdf": "c1d74a5cd2211cce827d7c995c41ee7e10724ab0dcb0db26e0d2fb3443baeb7f",
+    "baseline-four183.json": "450ec20a9144885feaf0fc9b3ba78ddc67e70c43a556d4a0046f459fc4e82233",
+    "baseline-three183.json": "2278acf692bc5375e44425d4b4115c2e5e08f4b6daacd2ffaeadfd5c239d47bd",
+    "expected-four187.json": "976ccde43f00ddc323109f3248761e7ccd959619ac2c21033829d980fb7d41f3",
+    "expected-three187.json": "9037371df8100402b6fc55d164ae8d4deee31231b801a964bf8148b9e6405e5c",
+    "verify_expected.py": "1a172dcef635d54721b0c136dd29fba5370c7910ef6138a672d04f2eeb9e5c77"
+  },
+  "source_originals": {
+    "20260731g001720011.pdf": "668788858e27f01dc4a27bca02fe5e0ab244d8337ca5b5e1600e0be78bbc691b",
+    "20260731g001720022.pdf": "c1d74a5cd2211cce827d7c995c41ee7e10724ab0dcb0db26e0d2fb3443baeb7f"
+  }
+}

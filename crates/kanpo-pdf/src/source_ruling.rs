@@ -84,6 +84,58 @@ pub(crate) fn word_ruling(
         union?,
     ))
 }
+// A single painted rectangle or a complete connected chain has the same
+// geometric authority. The legacy ruling classifier still requires a chain.
+// This separate word certificate does not turn a short value mark into a rule.
+pub(crate) fn word_outline_attribute(
+    page: &Page,
+    word: &Word,
+    rects: &[Option<Rect>],
+) -> Option<String> {
+    let (first, after) = crate::bbox::native_glyph_range(page, word)?;
+    crate::bbox::native_flow_tuple(page, word)?;
+    if rects.len() != page.glyphs.len()
+        || page.glyphs[first..after].iter().any(|g| g.invisible)
+        || page.glyphs[first..after]
+            .iter()
+            .map(|g| crate::bbox::glyph_text(g, &page.fonts))
+            .collect::<String>()
+            != word.text
+    {
+        return None;
+    }
+    let ink = if after == first + 1 {
+        rects[first]?
+    } else {
+        word_ruling(page, word, rects)?.1
+    };
+    let legacy = [word.x_min, word.y_min, word.x_max, word.y_max];
+    if legacy.iter().chain(&ink).any(|n| !n.is_finite())
+        || legacy[0] >= legacy[2]
+        || legacy[1] >= legacy[3]
+        || ink[0] >= ink[2]
+        || ink[1] >= ink[3]
+        || ink[0] < legacy[0]
+        || ink[1] < legacy[1]
+        || ink[2] > legacy[2]
+        || ink[3] > legacy[3]
+    {
+        return None;
+    }
+    let raw = word
+        .text
+        .as_bytes()
+        .iter()
+        .map(|b| format!("{b:02x}"))
+        .collect::<String>();
+    let numbers = legacy
+        .into_iter()
+        .chain(ink)
+        .map(|n| n.to_string())
+        .collect::<Vec<_>>()
+        .join(" ");
+    Some(format!("1 {first} {after} {raw} {numbers}"))
+}
 #[cfg(test)]
 #[path = "source_ruling_tests.rs"]
 mod tests;

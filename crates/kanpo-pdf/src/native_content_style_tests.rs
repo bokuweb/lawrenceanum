@@ -2,7 +2,7 @@ use super::native_style_tests::{glyph, page};
 use super::*;
 fn render(p: Page) -> String {
     let n = p.glyphs.len();
-    bbox_layout_with_native_styles(&[crate::Aj1PageSources { ink_rects:vec![],
+    bbox_layout_with_native_styles(&[crate::Aj1PageSources { lineage:Default::default(), aliases:Default::default(), ink_rects:vec![],
         original: p,
         resolved: vec![None; n],
     }])
@@ -42,13 +42,13 @@ fn unknown_private_character_class_is_explicitly_unknown() {
 fn adding_source_class_evidence_does_not_change_legacy_xhtml_or_native_page() {
     let p = page(vec![glyph("任", 10., 0, 8.), glyph("（", 18., 1, 8.)]);
     let before = serde_json::to_value(&p).unwrap();
-    let sources = vec![crate::Aj1PageSources { ink_rects:vec![],
+    let sources = vec![crate::Aj1PageSources { lineage:Default::default(), aliases:Default::default(), ink_rects:vec![],
         original: p.clone(),
         resolved: vec![None; 2],
     }];
     let old = bbox_layout_with_aj1_sources(&sources);
     let mut new = bbox_layout_with_native_styles(&sources);
-    for attr in ["data-native-styles", "data-native-content-styles", "data-native-axis"] {
+    for attr in ["data-native-terminal-glyph", "data-native-cell-origin", "data-native-glyph-count", "data-native-flow-first-glyph", "data-native-flow-after-glyph", "data-native-flow-start", "data-native-flow-baseline", "data-native-flow-end", "data-native-flow-leading", "data-native-flow-trailing", "data-native-flow-prefix", "data-native-styles", "data-native-content-styles", "data-native-axis"] {
         let needle = format!(" {attr}=\"");
         while let Some(start) = new.find(&needle) {
             let from = start + needle.len();

@@ -1,0 +1,146 @@
+{
+  "scope": "Source-reviewed original physical cell/row relationships. Page IDs, text and selected source Word IDs are test data only; no production lookup. Review is nonblind development, not accuracy estimate.",
+  "source_manifest": [
+    {
+      "page": "20260731g001720178",
+      "source_archive": ".cache/kanpo-archive/2026-07-31/20260731g00172/20260731g001720178.pdf",
+      "sha256": "5e65e89a836c783860a2dba880a72e25d50c6ed1ea04495b9c8ad557dbd9c01a"
+    },
+    {
+      "page": "20260731g001720180",
+      "source_archive": ".cache/kanpo-archive/2026-07-31/20260731g00172/20260731g001720180.pdf",
+      "sha256": "3466945e73a55f1a52956c3a69c10ea8baf6b3e2e782d22d7340a9994e5f4349"
+    },
+    {
+      "page": "20260908h017850006",
+      "source_archive": ".cache/kanpo-archive/2026-09-08/20260908h01785/20260908h017850006.pdf",
+      "sha256": "573a75bccbf9c0354574ab6d62fcaab3c5140c69e00bb9a166d2ee68d26c392f"
+    },
+    {
+      "page": "20260908h017850007",
+      "source_archive": ".cache/kanpo-archive/2026-09-08/20260908h01785/20260908h017850007.pdf",
+      "sha256": "c8eecbe28c4e5ba81d3543ccd5d12fe08b392c985bd9cde27aff6c3069ad51c9"
+    },
+    {
+      "page": "20260916g002060274",
+      "source_archive": ".cache/kanpo-archive/2026-09-16/20260916g00206/20260916g002060274.pdf",
+      "sha256": "be2890dc447aadcc672526a0f4fc47ba0dc42a9ae65f94857228bc42153e768f"
+    },
+    {
+      "page": "20260930g002160061",
+      "source_archive": ".cache/kanpo-archive/2026-09-30/20260930g00216/20260930g002160061.pdf",
+      "sha256": "ab504815bbda18cc1f17b463a7f53277dc22144309683a15a4823e0575ba2847"
+    },
+    {
+      "page": "20260930g002150344",
+      "source_archive": ".cache/kanpo-archive/2026-09-30/20260930g00215/20260930g002150344.pdf",
+      "sha256": "d7008e209fa8286cb715d988f93db615b2018b798d4a003d3df37b7d07a01723"
+    },
+    {
+      "page": "20260716g001590046",
+      "source_archive": ".cache/kanpo-archive/2026-07-16/20260716g00159/20260716g001590046.pdf",
+      "sha256": "36cde675f693e5a65583984518a09ea0caca58b0cdd49bdea523bd0e2c97035a"
+    },
+    {
+      "page": "20261019h018100002",
+      "source_archive": ".cache/kanpo-archive/2026-10-19/20261019h01810/20261019h018100002.pdf",
+      "sha256": "1a72a77aa35d07ea555bf9c00a97611d6f6ed296973265fcbc2c6da84f43cba4"
+    },
+    {
+      "page": "20261019h018100001",
+      "source_archive": ".cache/kanpo-archive/2026-10-19/20261019h01810/20261019h018100001.pdf",
+      "sha256": "97423bc74e5aa0c703c9c6c7f8d89679c1c5fd8dd3201a846db7bb508ba33ecd"
+    }
+  ],
+  "orders": {
+    "20260731g001720178": [
+      [
+        87,
+        59,
+        60,
+        5,
+        61,
+        6
+      ]
+    ],
+    "20260731g001720180": [
+      [
+        51,
+        52,
+        22,
+        53,
+        23
+      ]
+    ],
+    "20260908h017850006": [
+      [
+        82,
+        85,
+        63,
+        60,
+        58
+      ],
+      [
+        27,
+        30,
+        6,
+        3,
+        1
+      ]
+    ],
+    "20260908h017850007": [
+      [
+        834,
+        835,
+        820,
+        836,
+        837,
+        818
+      ],
+      [
+        792,
+        793,
+        775,
+        794,
+        795,
+        773
+      ]
+    ],
+    "20260916g002060274": [
+      [
+        86,
+        81,
+        77,
+        71,
+        74
+      ],
+      [
+        27,
+        21,
+        16,
+        5,
+        7
+      ]
+    ],
+    "20260930g002160061": [
+      [
+        94,
+        154,
+        91,
+        90,
+        89,
+        148,
+        85,
+        152,
+        86
+      ]
+    ]
+  },
+  "coordinate_source_oracle_correction": "Original coordinate-number-only oracle omitted printed angle symbols. Both complete17-occurrence assertions include all6 original symbol glyphs and full coordinate text. OldRED and correction history retained in private115 receipts.",
+  "context_regression": {
+    "page": "20261019h018100002",
+    "previous_page": "20261019h018100001",
+    "first2_PageTrace_exact_full32_proven": true,
+    "required_source_record": "Same complete17occurrence point/latitude/longitude source record as standalone; no adjacent comparison prose membership."
+  }
+}

@@ -1,0 +1,178 @@
+{
+  "issue": 227,
+  "native_baseline": 147,
+  "stage": "native148",
+  "scope": "Recover source row/cell structure from a certified single terminal numeric column in a printed native frame. Native reading/ownership only; no OCR or language model.",
+  "baseline_local": "fd99e8e2e18e5f11904457e458460073fd598b67",
+  "baseline_publication": "ce2d1f521cda2f51a30e8f2bd8c7f96147f47286",
+  "rules": [
+    "Two original vertical rails share exact endpoints after endpoint-exact joining, and a full original top rule proves the physical frame. An interior vertical rail keeps the existing grid authority.",
+    "Every numeric source line in the whole frame must certify a common sole amount rail and a common empty x interval between label and value. A valid local two-column fragment cannot authorize a parent with several amount lanes.",
+    "Every interpreted word has a complete original rightward horizontal flow/baseline and one existing owner. Existing comparison roles, typed grids including opaque grids, unpaired/unsupported numeric rows or orphan native words decline the frame.",
+    "A complete nonnumeric label and formal numeric field remain on their original source row. Unicode signs, decimal notation and three-digit comma groups are notation grammar, not page/company/value cases.",
+    "Consecutive complete source rows become two-cell rows only when the original full line bytes and prior word order are preserved. No source text is invented.",
+    "A detached sign requires its unique printed source Word, original baseline and position before its own amount. The original noise-to-used status is updated by the ordinary owner marking."
+  ],
+  "no_new_dispatch": [
+    "page ID",
+    "company/title/account wording",
+    "amount/frequency values",
+    "font names",
+    "fixed Japanese fragment length",
+    "neighboring line budgets",
+    "fixed pt tolerance"
+  ],
+  "tdd": {
+    "new_unit_controls": 32,
+    "parser_unit_total": 2528,
+    "units_all_passed": true,
+    "original_PDF_public_tests": 10,
+    "original_PDF_fixture_count": 10,
+    "actual_renderer_tests": 5,
+    "public_TDD_before_fixture_link_and_support_refactor": {
+      "old147_positive_failures": 5,
+      "old147_unchanged_controls_passed": 4,
+      "candidate_all9_passed": true
+    },
+    "source_coordinate_codec_correction": "Initial public test preparation compared direct to_value f32-as-f64 coordinates with wire JSON. Those initial logs are not TDD proof. Corrected tests use the normal serde JSON wire roundtrip; old147 then passes4 negative controls and fails5 intended positives. No runtime change or golden update was used for that codec correction.",
+    "additional_Rust_fixture_link": "The exact native CF Document fixture is checked against the backend API and rendered by the actual shared React component.",
+    "adversarial_controls": [
+      "multi-amount row elsewhere in parent frame",
+      "different rails in separated row groups",
+      "unsupported later numeric row",
+      "unpaired numeric row",
+      "orphan native word outside the local fragment",
+      "opaque/existing grids",
+      "missing native baselines",
+      "source word duplication/second owners",
+      "crossing/intervening words",
+      "source word/material mismatch",
+      "closed bottom crossing",
+      "ambiguous/wrong-row detached signs",
+      "scale/translation and arbitrary labels"
+    ]
+  },
+  "rejected_prototype": {
+    "V1_status": "NOT ADOPTED",
+    "reason": "Partial two-column fragments do not prove the column structure of a larger multi-amount source frame. Character/coordinate/style invariants alone were insufficient.",
+    "source_counterexamples": [
+      "20260717g001600100",
+      "20260731g001730066",
+      "20261016g002280002"
+    ],
+    "V1_changed_pages": 322,
+    "final_changed_pages": 120,
+    "fix": "Whole-frame unique numeric rail, complete numeric row witnesses, complete owned native-word inventory, existing grid/role authority. All three original counterexamples remain completely equal to147.",
+    "V3_vs_V2": "All11992 complete Analysis hashes are identical; V3 adds orphan-word and opaque-grid safety guards."
+  },
+  "singletons": {
+    "pages": 11992,
+    "changed": 120,
+    "complete_Analysis_equal147": 11872,
+    "source_inputs_sources_binaries_prepost_exact": true
+  },
+  "whole_issues": {
+    "issues": 159,
+    "changed": 11,
+    "complete_Analysis_equal147": 148,
+    "source_inputs_sources_binaries_prepost_exact": true,
+    "additional_tables": 139,
+    "additional_rows": 1048,
+    "printed_sign_words_newly_owned": 303
+  },
+  "preservation": [
+    "Complete native page text and all Article.text bytes are unchanged.",
+    "All original Word fields including raw/text/ID/source/display coordinates are unchanged except303 confirmed sign statuses noise->used.",
+    "All prior source word occurrences and their order/multiplicity remain, with only uniquely bound new sign owners. No new missing or duplicate owners. Existing unrelated line/table/role/unit/part information remains exact.",
+    "Every promoted table renders the complete original contiguous primitive row bytes, with one label and one numeric cell, retaining prior word order.",
+    "All Document characters/styles and ASCII/fullwidth spaces are preserved; LF and the new table containers are normalized for this check.",
+    "All notices and financial-statement source streams preserve prior word occurrences, opaque nodes, ownership/scopes and references after removing only the newly bound sign IDs.",
+    "Both original140 shared-publication JSON files remain. Two reviewed148 JSON views are appended and checked through the source projection contract before the normal complete-Analysis regression and original independent-title boundaries."
+  ],
+  "source_review": {
+    "reviewer": "Implementing agent; nonblind",
+    "full_original_pages_viewed": [
+      "20260825g001890074",
+      "20260717g001600100",
+      "20260731g001730066",
+      "20261016g002280002",
+      "20260803g001740089",
+      "20260803g001740091",
+      "20260810g001790106",
+      "20260820g001860077",
+      "20260825g001890070",
+      "20260825g001890072",
+      "20261016g002280006",
+      "20261016g002280031",
+      "20261016g002280473"
+    ],
+    "changed_archive_snapshot_pages": [
+      "20261016g002280006",
+      "20261016g002280031",
+      "20261016g002280473"
+    ],
+    "new_snapshot_rows_compared": 50,
+    "all120_page_images_independently_graded": false,
+    "all120_changed_pages_machine_source_contracts": true,
+    "all11_changed_issues_machine_source_and_notice_contracts": true,
+    "accuracy_percentage_claim": false
+  },
+  "snapshots": {
+    "existing": 814,
+    "updated_after_source_review": 3,
+    "other811_exact": true,
+    "old_JSON_TSV_PDF_overwrites": false
+  },
+  "native_gate": {
+    "terminal": 0,
+    "commands": 2,
+    "integration_targets": 148,
+    "result_groups": 156,
+    "passed": 3616,
+    "failed": 0,
+    "ignored": 0,
+    "source_manifest_sha256": "75842243c7dc59782af7dd385d598f9c62d9eb6f037b80b5e435025f8afd4a12",
+    "source_and_all_existing_test_inputs_prepost_exact": true,
+    "snapshot_updates_disabled": true
+  },
+  "actual_Cargo_CLI": {
+    "original_PDFs": 127,
+    "actual_Cargo_library_full_Analysis_equal_private_v3": 127,
+    "actual_Cargo_PDF_textdump": 127,
+    "actual_Cargo_XHTML_textdump": 127,
+    "actual_Cargo_text_example": 127,
+    "actual_Cargo_structured_docjson_singletons": 127,
+    "actual_Cargo_consecutive_three_page_docjson": 1,
+    "duplicate_word_reports": 0,
+    "source_and_binaries_prepost_exact": true,
+    "scope": "Actual Cargo debug examples on all120 changed originals plus7 controls. Not full11992 CLI or release-mode validation."
+  },
+  "renderer": {
+    "actual_component_SSR": 5,
+    "source_CF_tables": 3,
+    "source_CF_rows": 67,
+    "source_amount_label_associations_verified": true,
+    "CI_entry": "Existing playwright.kanpo.config.ts server command invokes test:amend-document before the WASM build; no workflow changes."
+  },
+  "limits": [
+    "Physical frames with no complete native top rule and other open/continued frames remain conservative. This is not a complete logical multi-page table reconstruction.",
+    "Several amount columns, implicit hierarchy, wrapped/numbered labels and other uncertain ownership/geometry remain unresolved.",
+    "Source code/PUA and outlined or image-only characters remain. No lexical restitution was inserted.",
+    "The historical fixed30 source-review139 grades remain the native138 record; no fresh blind or full-corpus accuracy estimate is claimed."
+  ],
+  "OCR": {
+    "opt_in": true,
+    "automatic": false,
+    "engine": "NDLOCR",
+    "version": "0.0.15",
+    "revision": "f97e930b8c3e9512f7788f258ef685da26416483",
+    "new_inferences": 0
+  },
+  "additional_models": false,
+  "overall_goal_complete": false,
+  "runtime_source_sha256": {
+    "crates/kanpo-parser/src/lib.rs": "cfd2c20c396da4bef5efa8cc87db7539c0635a0268a582843fea8c0bf26f3fbb",
+    "crates/kanpo-parser/src/vertical.rs": "0635fddbd8ab2c4002f8649e5cc84cd0585800f98c4058bdc7a98bb64e5a4463",
+    "crates/kanpo-parser/src/native_numeric_frames.rs": "76386edc3d97f76277efb2f19bc5a3b327e1712c51ab32bbdccee28a59a01d7c"
+  }
+}

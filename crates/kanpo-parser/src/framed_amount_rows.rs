@@ -119,7 +119,7 @@ pub(crate) fn restore(units: &mut [Unit], words: &[Word], rules: &PageRules) {
                     after,
                     before,
                     outside,
-                } => {
+                ..} => {
                     all.extend(preamble);
                     for p in after.iter().chain(before).chain(outside) {
                         all.extend(p);

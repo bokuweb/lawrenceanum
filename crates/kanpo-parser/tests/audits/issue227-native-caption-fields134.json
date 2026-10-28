@@ -1,0 +1,106 @@
+{
+  "issue": 227,
+  "stage": "native134",
+  "goal_complete": false,
+  "previous_primary": "3fc43d42d7429a609b8f2db00a17c2ca74adafd0",
+  "previous_public": "febbc2f90ed1c8b221d92cb30127609b42ebd781",
+  "priority": "Non-image native text and structure first. NDLOCR0.0.15 remains opt-in fixed at f97e930b8c3e9512f7788f258ef685da26416483; no automatic OCR or extra model.",
+  "problem": "Native 改正後/改正前 captions split over tiers lost their fields. Restoring the native panel also exposed a long cell tail previously marked outside and a chapter prefix incorrectly joined to a preceding article.",
+  "rule": [
+    "Original adjacent caption walls, exactly joined horizontal source rails and the two caption cells prove field ownership. Require original glyph geometry, known native axes, original caption text/styles and exact occurrence/column bindings. No tier-count cap, body similarity, wording, page/company/value key or point-distance tolerance.",
+    "A bearing may extend past an open rail endpoint only with the same original bound vertical path inside the cell and no intervening original glyph or closed wall. Native Col geometry may be reprojected; public Word records remain exact.",
+    "Numbered 編/章/節/款/目 declarations start new scope. A wrapped chapter prefix can join its following article only while joining adjacent Shinkyu blocks; standalone valid rows, typed tables, Runs/styles and chapter references are preserved."
+  ],
+  "new_regressions": {
+    "unit": 24,
+    "original_cases": 10,
+    "total": 34,
+    "original_native133": {
+      "passed": 0,
+      "failed": 10
+    },
+    "original_native134": {
+      "passed": 10,
+      "failed": 0
+    },
+    "library": {
+      "passed": 2195,
+      "failed": 0,
+      "ignored": 0
+    }
+  },
+  "corpus": {
+    "single": {
+      "mode": "single",
+      "items": 11992,
+      "changed": 3,
+      "changed_physical_pages": 2,
+      "source_inputs_oracles_binaries_prepost_exact": true,
+      "source_Word_text_raw_ID_geometry_changed_items": [],
+      "seconds": 511.97948458300004
+    },
+    "whole": {
+      "mode": "whole",
+      "items": 159,
+      "changed": 7,
+      "changed_physical_pages": 2,
+      "source_inputs_oracles_binaries_prepost_exact": true,
+      "source_Word_text_raw_ID_geometry_changed_items": [],
+      "seconds": 1004.363008959
+    },
+    "unchanged_complete_Analysis": {
+      "single": 11989,
+      "whole": 152
+    },
+    "changed_physical_native_pages": 2,
+    "reviewed_source_boundary_pages": 9
+  },
+  "preservation": [
+    "All original Word raw/text/IDs/status/coordinates remain exact, as do ordered source IDs within every existing Line. Nine Lines gain one U3000 after a numbered source Word, backed by original baseline/end/leading gaps. Do not claim all Line text/whitespace is verbatim.",
+    "Article counts remain exact; all changed articles retain styled non-whitespace document character material, typed/nested tables and signed notice scopes. Previously bound chapter/following-article anchors are retained.",
+    "G206 whole Article75 preserves all99 old Shinkyu rows verbatim and adds one field row. Every other96Article payload is exact. Its3379 trackable native source refs and exact local byte slices of unchanged unbound legacy pages retain ownership.",
+    "Not every legacy private source stream can be bound to the complete issue. For G171 model-only changes, upstream Analysis/Article payloads are exact and ordered field/style streams preserved. For G196 native Page3, the complete old/new rendered source page is unique in the same Article5, Article.text changes by exactly that page replacement, and every other150Article payload is exact. This is a source-delta proof, not a claim of complete issue-wide Word tracing.",
+    "Readonly observers must match normal Analysis before metadata is used; final source scripts/binaries/analyses are frozen pre/post.24 corruption cases include actual v9 chapter regression, hidden changed source, opaque slice owner shift, complete native-page loss/duplication and unrelated article edits."
+  ],
+  "source_review": "Author nonblind inspection of changed original PDF boundaries. Reviewed full Analysis goldens are regression freezes, not independent complete-page truth.",
+  "native_required": {
+    "terminal": 0,
+    "source_manifest_sha256": "94b9a4948869b4dd62610104d0033b351d2f57375d3fec9a3f2c1b060d462855",
+    "commands": 144,
+    "integration_targets": 135,
+    "passed": 3157,
+    "failed": 0,
+    "ignored": 0,
+    "result_groups": 143,
+    "no_expected_snapshot_updates": true,
+    "all_commands_exit0": true
+  },
+  "prior_tests": "All previously frozen native test/fixture/snapshot bytes remain exact, including814existing snapshots; updates prohibited.",
+  "limits": [
+    "Image body text is not recovered by this native caption repair.",
+    "Headerless G206 continuation pages including56 and48, other complex tables/columns, native character-code/PUA restoration, and other ownership boundaries remain.",
+    "The fixed30 audit145 is not fully graded. No overall accuracy percentage or100% completion is asserted.",
+    "Exact evaluated private-v15 Rust sources were adopted and tested with normal Cargo. This does not claim an additional root-binary or CLI exhaustive rerun."
+  ],
+  "witnesses": "../data/native-caption-fields/source-witnesses134.json",
+  "artifact_hashes": {
+    ".cache/kanpo-227/resume90-local-recovery/native-headerless-context134/final-source-material-single134.json": "197491d1b742a84803a689b3e1ccb66e28bb859ff0047eef0ffd8376f310efe2",
+    ".cache/kanpo-227/resume90-local-recovery/native-headerless-context134/final-source-material-whole134.json": "0794245a52d0ad165202855d9b647adf2cd829b3c24b244da658fefc02016921",
+    ".cache/kanpo-227/resume90-local-recovery/native-headerless-context134/final-guard-calibration134.json": "9ca83a376fca72c53efc368aa94ca6c6aedd55fdb5816a7d2b7bd4a56f836422",
+    ".cache/kanpo-227/resume90-local-recovery/native-headerless-context134/final-verified-guards134.json": "46421f940d9899b19f5c1849d0a1d7079c76204e8f92a72bc6e9883bcb98862b",
+    ".cache/kanpo-227/resume90-local-recovery/native-headerless-context134/final-guard-prefreeze134.json": "2c74f9968d3774e79c71fb9c09a806245e97e003e91d7224232bffbd09e803f0",
+    ".cache/kanpo-227/resume90-local-recovery/native-headerless-context134/private-v15/impact-single/result.json": "8ebd6d32f2f592ed40e24989a9adc345d88be1a652ebc24ddcbb3efad9649734",
+    ".cache/kanpo-227/resume90-local-recovery/native-headerless-context134/private-v15/impact-whole/result.json": "7d176ca0ce7a32313a3f64d572a73b9ab37c67eb2898987bbb395fd1aee0015c",
+    ".cache/kanpo-227/resume90-local-recovery/native-headerless-context134/private-v15/impact-single/all-canonical-Analysis-hashes.json": "39c25a0f1ffdd01548191156cb4bd6b1572b9699535c31671c6cfbd73957173e",
+    ".cache/kanpo-227/resume90-local-recovery/native-headerless-context134/private-v15/impact-whole/all-canonical-Analysis-hashes.json": "b769251ab2ec14926f2cf64e7633b0209256c2d7e6af2e5807232333e7635235",
+    ".cache/kanpo-227/resume90-local-recovery/native-headerless-context134/private-v15/unit-all134.log": "5fb56c8c22e23aa5b73121a1dd2bdc2f2ab85ce5efa19d64f200f1addb5594c6",
+    ".cache/kanpo-227/resume90-local-recovery/native-headerless-context134/port1/originals133.log": "cd0fc139c9281f8a0b23ed832b54882d7e9139cd6dfce8021a6d49193a5ac84d",
+    ".cache/kanpo-227/resume90-local-recovery/native-headerless-context134/port1/originals134.log": "5d176865cc2e12892fe11588dd981ae4ad332465f3f8aaf9702ab210675af3aa",
+    ".cache/kanpo-227/resume90-local-recovery/native-headerless-context134/port1/native-gates1/result134.json": "7cc5036dc4405cbb45fa7deaa8c23b274b24d6773ffd145fa4c1bc61262dd6f7",
+    ".cache/kanpo-227/resume90-local-recovery/native-headerless-context134/port1/native-gates1/source-manifest134.json": "94b9a4948869b4dd62610104d0033b351d2f57375d3fec9a3f2c1b060d462855",
+    ".cache/kanpo-227/resume90-local-recovery/native-headerless-context134/port1/immutable-prior-tests134.json": "1a413916cb5bd65595839eae208ba5b946df2c0fdf4b231da391e77f98fd3213",
+    ".cache/kanpo-227/resume90-local-recovery/native-headerless-context134/guard_final134.py": "041a5a1ce7097976637f9f0c432e5adf626786409c23513a6123b7ead5e86ded",
+    ".cache/kanpo-227/resume90-local-recovery/native-headerless-context134/calibrate-final134.py": "f5d252df7ce4808052447383ab914920b03c637358d344536b594b7b86d061fc",
+    ".cache/kanpo-227/resume90-local-recovery/native-headerless-context134/probe134-v2.py": "324f4804529bca81a6d42b244274acef46b254445610c3a20c792779cd875a59"
+  }
+}

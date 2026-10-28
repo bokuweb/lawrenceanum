@@ -1,0 +1,215 @@
+{
+  "scope": "Additional original discovered by complete11992comparison of runtime2. Root full image reviewed: both classification6 and12 have two enumerated locations and one shared area description in each single ruled row. Runtime2 fixes6 but leaves12 split; target is complete source flow for BOTH, not accepting only already improved subset. All12 physical memberships independently checked from full Used Word.source_box enclosure before any tracking/TJ or numeric-section-head implementation.",
+  "rows": 6,
+  "cols": 3,
+  "cells": [
+    {
+      "row": 0,
+      "col": 0,
+      "colspan": 1,
+      "source_box": [
+        438.75,
+        105.5,
+        462.75,
+        161.0
+      ],
+      "words": [
+        75
+      ]
+    },
+    {
+      "row": 0,
+      "col": 1,
+      "colspan": 1,
+      "source_box": [
+        462.75,
+        105.5,
+        582.75,
+        161.0
+      ],
+      "words": [
+        56,
+        57,
+        58,
+        59
+      ]
+    },
+    {
+      "row": 0,
+      "col": 2,
+      "colspan": 1,
+      "source_box": [
+        582.75,
+        105.5,
+        766.75,
+        161.0
+      ],
+      "words": [
+        2
+      ]
+    },
+    {
+      "row": 1,
+      "col": 0,
+      "colspan": 3,
+      "source_box": [
+        438.75,
+        161.0,
+        766.75,
+        179.0
+      ],
+      "words": [
+        77,
+        42
+      ]
+    },
+    {
+      "row": 2,
+      "col": 0,
+      "colspan": 1,
+      "source_box": [
+        438.75,
+        179.0,
+        462.75,
+        234.5
+      ],
+      "words": [
+        69
+      ]
+    },
+    {
+      "row": 2,
+      "col": 1,
+      "colspan": 1,
+      "source_box": [
+        462.75,
+        179.0,
+        582.75,
+        234.5
+      ],
+      "words": [
+        60,
+        43,
+        50,
+        34,
+        26,
+        20,
+        61,
+        44,
+        51,
+        35,
+        27,
+        21
+      ]
+    },
+    {
+      "row": 2,
+      "col": 2,
+      "colspan": 1,
+      "source_box": [
+        582.75,
+        179.0,
+        766.75,
+        234.5
+      ],
+      "words": [
+        10,
+        11,
+        12,
+        13
+      ]
+    },
+    {
+      "row": 3,
+      "col": 0,
+      "colspan": 3,
+      "source_box": [
+        438.75,
+        234.5,
+        766.75,
+        252.5
+      ],
+      "words": [
+        73,
+        40
+      ]
+    },
+    {
+      "row": 4,
+      "col": 0,
+      "colspan": 1,
+      "source_box": [
+        438.75,
+        252.5,
+        462.75,
+        308.0
+      ],
+      "words": [
+        68
+      ]
+    },
+    {
+      "row": 4,
+      "col": 1,
+      "colspan": 1,
+      "source_box": [
+        462.75,
+        252.5,
+        582.75,
+        308.0
+      ],
+      "words": [
+        54,
+        41,
+        48,
+        30,
+        24,
+        18,
+        55,
+        39,
+        49,
+        33,
+        25,
+        19
+      ]
+    },
+    {
+      "row": 4,
+      "col": 2,
+      "colspan": 1,
+      "source_box": [
+        582.75,
+        252.5,
+        766.75,
+        308.0
+      ],
+      "words": [
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    {
+      "row": 5,
+      "col": 0,
+      "colspan": 3,
+      "source_box": [
+        438.75,
+        308.0,
+        766.75,
+        326.0
+      ],
+      "words": [
+        74,
+        38
+      ]
+    }
+  ],
+  "anchor": 10,
+  "files": {
+    ".cache/kanpo-archive/2026-10-09/20261009g00223/20261009g002230086.pdf": "e1918dd6d5649914c477394c361c5434ae7e5ee71c3559652190fa179b6161e1",
+    ".cache/kanpo-archive/2026-10-09/20261009g00223/20261009g002230085.pdf": "f6b03adcf267348668377fd4593da2475ef53f2439636ed8210e6a68cd8705ed",
+    ".cache/kanpo-227/resume90-local-recovery/native-paragraph-cells118/source-review/20261009g002230086.pdf.png": "782d61c4f926b9b55a6eaa0f518d685e3ec1f97357d6319e64f1e6c3283178af"
+  }
+}

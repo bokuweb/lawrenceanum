@@ -1,0 +1,111 @@
+{
+  "issue": 227,
+  "stage": "native187",
+  "problem": "Literal quote fragments inside earlier enacted amendment paragraphs poison document-wide quotation state and suppress the independent report boundary hundreds of pages later.",
+  "principle": {
+    "source_scope": "Original contiguous source glyph ranges, unchanged raw/source boxes/styles/axes, exact native tracking and em envelopes. Complete geometric native fences, full capacity wraps, short final line and next equal indent bound a paragraph within one original region. Any count of contiguous Word primitives may form one source column.",
+    "paint": "Complete original border paint may extend into its geometric frame without reducing authored text capacity. Interior, partial, unclassified or opaque paint remains a veto; images/fills checked across the complete frame, including blank tracking gaps. Existing table Scene.clear and generic unobstructed behavior unchanged.",
+    "grammar": "Bounded literal replacement/insertion clauses, whole-object/heading replacement prefixes, equal quote-stack actions and enumerated insertion anchors. A completed quoted operation may have a quote-free source-bounded suffix. All competing ends retained. Forward DAG/work stack and iterative prefixes have no clause budget.",
+    "no_reset": "Scopes bind exact row text and eligibility. Unknown outer context and existing invalid quote states are never reset. Empty source rows retain exclusive endpoints; a missing scene, incomplete paragraph or mismatched source proof retains legacy abstention.",
+    "no_new_dispatch": [
+      "source page identifiers",
+      "title/company wording",
+      "font names or CID/PUA values",
+      "character/neighbor-row budgets",
+      "fixed pt allowances"
+    ],
+    "existing_rules_not_all_generalized": true
+  },
+  "tests": {
+    "source_geometry_unit": 25,
+    "literal_grammar_unit_added": 25,
+    "original_complete_API": 5,
+    "new_total": 55,
+    "normal": {
+      "exit_code": 0,
+      "seconds": 860.9750750000001,
+      "all_sources_and_Cargo_exact": true,
+      "groups": 174,
+      "counts": [
+        4322,
+        0,
+        0
+      ]
+    },
+    "default_examples": {
+      "exit_code": 0,
+      "seconds": 85.993318542,
+      "all_native_sources_and_Cargo_exact": true
+    },
+    "first_failures": [
+      "Original three-page report boundary",
+      "Original four-page heading replacement and multi-Word witness",
+      "Missing nearest source fence must not borrow page/header fence",
+      "Two-column source paragraph must not have an implicit three-column requirement",
+      "Short glyph advance must not substitute for a complete source em envelope",
+      "Empty row at exclusive paragraph end must not borrow a later operand",
+      "Complete border paint is distinct from an interior or partial stroke"
+    ],
+    "counterexamples": "Tracking/prefix/baseline/style/range/region changes, opaque material in blank source gaps, unknown source glyphs, absent source scene, paint, changed raw/style/axes, incomplete paragraphs/outer quotes, ambiguous ends, word-node reversal. Primitive counts2/3/17/65, scale/translation and4097 whole-heading prefixes."
+  },
+  "source_review": {
+    "renderer": "PDFium full original pages; non-blind developer QA",
+    "originals": {
+      "20260731g001720011.pdf": "668788858e27f01dc4a27bca02fe5e0ab244d8337ca5b5e1600e0be78bbc691b",
+      "20260731g001720022.pdf": "c1d74a5cd2211cce827d7c995c41ee7e10724ab0dcb0db26e0d2fb3443baeb7f"
+    },
+    "prior_source_reviewed_report": "20260731g001720299; independent printed category/title/prose/date/issuer from native181",
+    "public_gold": "verify_expected.py constructs complete three/four-page expected Analysis from frozen183 baseline and independently source-constructed181 pair article split; no187 parser/classifier. All page/text fields and first two articles exact.",
+    "whole_gold": {
+      "expected_equals_complete_actual": true,
+      "construction": "Independent166-article182 source-reviewed gold plus183 source-curated rectangle restorations; pure old-AST transforms, no187 detector",
+      "pages": 304,
+      "articles": 166,
+      "placement_pages": [
+        {
+          "page": 299,
+          "key": "20260731g001720300"
+        },
+        {
+          "page": 301,
+          "key": "20260731g001720302"
+        }
+      ],
+      "expected_sha256": "413cdb93b6b2b1cb339cb15529ea8457c6c910c9b64ff2951e8e583978dbbaa5"
+    }
+  },
+  "census": {
+    "status": "All changed original cuts source-reviewed and complete independently constructed gold verified; final native normal/examples/actual-release/CLI gates passed.",
+    "single_complete_Analysis": 11992,
+    "changed_single": [],
+    "whole_complete_Analysis": 159,
+    "changed_whole": 1,
+    "changed_whole_pages": 0,
+    "all_original_sources_PDFs_binaries_prepost_exact": true,
+    "seconds": 206.771243292
+  },
+  "actual_release_final": {
+    "profile": "actual Cargo release, final W sources",
+    "single_complete_Analysis_exact_private_final": 11992,
+    "whole_complete_Analysis_exact_private_final": 159,
+    "actual_release_PDF_textdump_CLI_native_body_bytes_exact": 11992,
+    "single_duplicate_owner_pages": 0,
+    "CLI_duplicate_word_reports": 0,
+    "all_original_inputs_native_sources_Cargo_and_binaries_prepost_exact": true,
+    "seconds": 290.546140083,
+    "scope": "Actual final Cargo release over11992 original PDFs and159 complete issues. Complete source-constructed166-article gold for304-page issue172. All11992singles and158otherwholes exact183. Source original Word/page/text inventory exact; one independent report boundary restored. No OCR/models or overall accuracy claim."
+  },
+  "old_expected_files_changed": 0,
+  "OCR": {
+    "explicit_opt_in": true,
+    "NDLOCR": "0.0.15",
+    "revision": "f97e930b8c3e9512f7788f258ef685da26416483"
+  },
+  "new_models": [],
+  "limitations": [
+    "Non-blind development QA and preservation checks, not corpus-wide independent accuracy estimate or100%.",
+    "Unlabelled paired records remain7/7 vs original9/9.",
+    "Headerless landscape comparison continuation, other financial headings/missing bars, committee/court ownership and unknown characters remain.",
+    "Unproven source paragraphs retain previous quotation behavior."
+  ]
+}

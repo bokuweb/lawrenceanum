@@ -1,0 +1,165 @@
+{
+  "issue": 227,
+  "native_baseline": 150,
+  "stage": "native151",
+  "scope": "Complete original-glyph following-body typography with unknown semantic character-class metadata. One source-proved article boundary; no Unicode restitution.",
+  "baseline_local": "7f686e1655e69c38c4565de1367b83744c99fa26",
+  "baseline_publication": "fe8e76403337e933d6d8afb50464ae83d42ab02a",
+  "rules": [
+    "Existing complete semantic glyph evidence stays primary; case headers, court signatures and display categories keep that strict proof.",
+    "Only a following ordinary Body line with unknown content-class metadata may independently use complete nonempty finite positive original glyph font evidence for every owned word, finite native glyph bounds, rightward source axes and one exact common owned horizontal baseline.",
+    "All source tokens must match the complete rendered line and include visible alphanumeric body material. Missing/compatibility provenance, contradictory known content evidence, borrowed/empty glyph fonts, separate native baselines, quotes, comparison scopes, enclosures and ambiguous font roles decline.",
+    "Existing native-column and unruled-layout scope certificates and case/court notation grammar remain unchanged. No opaque character is decoded or restored."
+  ],
+  "no_new_dispatch": "No page/company/person/case-value/font-name/CID/PUA-code runtime dispatch, arbitrary point tolerances, fixed character lengths or neighboring-row budgets. U+E40D appears only in original source tests and diagnostics.",
+  "tdd": {
+    "new_unit_controls": 17,
+    "final17_against150": {
+      "passed": 14,
+      "failed": 3
+    },
+    "candidate_all_parser_units": {
+      "passed": 2576,
+      "failed": 0
+    },
+    "new_original_API_controls": 2,
+    "against150": {
+      "passed": 0,
+      "failed": 2
+    },
+    "against151": {
+      "passed": 2,
+      "failed": 0
+    },
+    "additional_adversarial_RED": "A source word with empty font evidence was initially rescued by another body word. A failing regression was recorded and the final rule requires nonempty complete fonts independently for every word.",
+    "existing_category_control": "For ordinary following body only, unknown semantic class plus complete fonts/baseline is now a positive; removing its all-glyph fonts still rejects. Unknown header/court/caption and every other original negative remain strict."
+  },
+  "source_review": {
+    "page": "20260916h017910021",
+    "original_PDF_sha256": "96c7cecbea48ea3d61606ea5312d7e0dad8f1c34dfd6046451fdf1fbee23fe24",
+    "reviewer": "Implementing agent, nonblind original full-page review",
+    "finding": "The original third column has separately styled Kyoto26 and Tottori1002 cases closed by distinct court signatures;150placed both in one article.151adds one independently owned article boundary.",
+    "baseline_articles": 7,
+    "candidate_articles": 8,
+    "real_consecutive_three_page_articles": [
+      7,
+      8
+    ],
+    "opaque_glyph": "U+E40D remains byte-exact in original raw; normalized visible text still omits the undecoded scalar. No character recovery is claimed. Identity CID23071 has explicit ToUnicode and no owned AJ1 candidate; no guessed mapping is added.",
+    "independent_accuracy_gold": false
+  },
+  "legacy_regression_freezes": {
+    "focused_before_projection": {
+      "passed": 54,
+      "failed": 1
+    },
+    "old132_133_150_JSON": "Retained; append one fixed151ArticleAnalysis array for the reviewed source. Expected fullAnalysis is reconstructed in150->151steps, each with exact source/material/in-place-partition checks; actual must equal the fixed value. Unlisted sources still require exact historicalAnalysis."
+  },
+  "limits": [
+    "Targeted nonblind source-boundary correspondence and material invariants; not independent full-page gold or an accuracy percentage.",
+    "The unknown original glyph is not restored. Image/outlined bodies, stray headings, other unproved court boundaries, financial multi-amount columns/hierarchy and other table/owner/encoding issues remain.",
+    "The fixed30-page139audit keeps its original138grades; no100%claim."
+  ],
+  "OCR": {
+    "mode": "explicit opt-in only; unused",
+    "NDLOCR_version": "0.0.15",
+    "rev": "f97e930b8c3e9512f7788f258ef685da26416483"
+  },
+  "additional_models": "none",
+  "overall_goal_complete": false,
+  "singletons": {
+    "mode": "single",
+    "items": 11992,
+    "changed": 1,
+    "inputs_sources_binaries_exact": true,
+    "seconds": 287.674170541,
+    "scope": "Private151 original-body typography prototype impact only. Not adopted or published."
+  },
+  "whole_issues": {
+    "mode": "whole",
+    "items": 159,
+    "changed": 1,
+    "inputs_sources_binaries_exact": true,
+    "seconds": 563.583091584,
+    "scope": "Private151 original-body typography prototype impact only. Not adopted or published."
+  },
+  "preservation": {
+    "single": {
+      "mode": "single",
+      "changed_items": 1,
+      "failed_items": 0,
+      "failures": [],
+      "old_articles": 7,
+      "new_articles": 8,
+      "unrelated_ArticleAnalysis_exact": 6,
+      "scope": "Private151 material/partition checks only. Not original-image or publication approval. Strict failures require investigation; no baseline updates."
+    },
+    "whole": {
+      "mode": "whole",
+      "changed_items": 1,
+      "failed_items": 0,
+      "failures": [],
+      "old_articles": 82,
+      "new_articles": 83,
+      "unrelated_ArticleAnalysis_exact": 81,
+      "scope": "Private151 material/partition checks only. Not original-image or publication approval. Strict failures require investigation; no baseline updates."
+    }
+  },
+  "native_gate": {
+    "terminal": 0,
+    "commands": 2,
+    "integration_targets": 150,
+    "result_groups": 158,
+    "passed": 3676,
+    "failed": 0,
+    "ignored": 0,
+    "source_manifest_sha256": "51d5c7881bab53fc8d1ea3a316e5fb95d548c702d29fb6d346427ceae38017a4",
+    "source_and_all_existing_test_inputs_prepost_exact": true,
+    "snapshot_updates_disabled": true
+  },
+  "actual_Cargo_CLI": {
+    "original_PDFs": 10,
+    "actual_Cargo_library_full_Analysis_equal_private_v2": 10,
+    "actual_Cargo_PDF_textdump": 10,
+    "actual_Cargo_XHTML_textdump": 10,
+    "actual_Cargo_text_example": 10,
+    "actual_Cargo_structured_docjson_singletons": 10,
+    "actual_Cargo_consecutive_three_page_docjson": 1,
+    "duplicate_word_reports": 0,
+    "source_and_binaries_prepost_exact": true,
+    "scope": "Actual Cargo debug examples on every151changed original plus9 layout/source controls. Not full11992 CLI or release-mode validation."
+  },
+  "old_anchors_and_foreign": {
+    "all_prior_JSON_TSV_PDF_snapshots_byte_exact": 2831,
+    "existing_snapshots": 814,
+    "snapshot_changes": 0,
+    "all23_foreign_primary_files_exact": true,
+    "scope": "Before151documentation/commit; private corpus/runtime is frozen separately."
+  },
+  "runtime_source_equivalence": {
+    "all_private_corpus_src_files": 242,
+    "byte_exact": 240,
+    "rustfmt_code_exact": [
+      "court_records.rs",
+      "court_body_style_tests151.rs"
+    ],
+    "private_runtime_sha256": "fda18c85ba1e9f7ab5cae1bdf55e4ae15800ff7a3f07686ce0eea1c20f1b839b",
+    "public_runtime_sha256": "1e784a76fd4225fa3590b4d42671d122d004f6ace6b5d540fcbc99d2b50e69e7",
+    "all_other_runtime_source_files_exact": true,
+    "source_PDF_API": "Final17controls old15014pass/3fail; candidate2576pass. Both actualAPItests old1500pass/2fail,candidate2pass."
+  },
+  "evidence_files_sha256": {
+    "single-contracts151.json": "39a8d6f7e657ff482c5ccffc8fd453bac1aad2e10d5b892c0d48041c54ee6d73",
+    "whole-contracts151.json": "93b4486f78e25742929849400825572f6564f605197c5c161f34738a6fa18700",
+    "native-gates-final151/result151.json": "35cfac8e6802d70ddcac99d1b09b4081f19fbdc0476fd0b556dceee069b8413c",
+    "actual-CLI-result151.json": "51bacbd2cabf4a76d38dd331140fb586306728c183c55f74d7f20557e211a839",
+    "runtime-source-equivalence151.json": "c7dcef3fa5e1bafced5774134d964453548aa945f7ff8a9a04d489d271de787d",
+    "old-anchors-and-foreign151.json": "71486a2c1cb17a162cb7691d36ec9ecd67e499e88d421bd1364db7b4129062b1",
+    "unit-baseline150/against150-final17-RED151.log": "99743cf8796e9bff00295e1d20e5ef35b41563ab35ed61be216b5a4842449e7b",
+    "private-v2/empty-word-RED151.log": "14e23769a8b25c5e6c47e6d4bba4bb3579553a1757fd0ef8e9270daadcec3c05",
+    "private-v2/all-unit151.log": "0f951be31409a8457778b37adaf7443fb5fd4c86f4157faaf5378d67bad76563",
+    "public-tests/tests-against150.log": "9240f4ceec1669a43ede7d1199df9b63a009e5c35fe64c950a4a3697607b877a",
+    "public-tests/tests-against151.log": "8b78045a5082335cdfabad468d97d45434cc985d0618cee8eafd934929edcaf7",
+    "focused-before-projection151.log": "b33f78181569de3ff8a4e48ec35902527abbe4d1ac28b0c5cd61d2af80546ac4"
+  }
+}

@@ -1,3 +1,5 @@
+#[path = "support/expected_notice_sources.rs"]
+mod expected_notice_sources;
 #[path = "support/legacy_analysis.rs"]
 mod legacy_analysis;
 #[path = "support/expected_article_partitions.rs"]
@@ -43,6 +45,7 @@ fn page_20260806g001770082() {
         e,
         include_str!("expected-native-article-partitions/20260806g001770082.json"),
     );
+    let e = expected_notice_sources::with_notices(e, include_str!("expected-notice-sources/20260806g001770082.json"));
     assert!(
         a == e,
         "whole Analysis must preserve every other source Word/owner/Article/Doc"
@@ -128,6 +131,7 @@ fn page_20260806g001770081() {
         b,
         include_str!("expected-native-article-partitions/20260806g001770081.json"),
     );
+    let b = expected_notice_sources::with_notices(b, include_str!("expected-notice-sources/20260806g001770081.json"));
     assert_eq!(a, b);
 }
 
@@ -164,6 +168,7 @@ fn merger_full_analysis_native_name_and_source_proven_flow() {
         e,
         include_str!("expected-native-article-partitions/20260730g001710163.json"),
     );
+    let e = expected_notice_sources::with_notices(e, include_str!("expected-notice-sources/20260730g001710163.json"));
     assert!(a==e,"full Analysis must equal source-derived 19-line rotation; all 8 tables/other frames/Article+Doc exact");
 }
 

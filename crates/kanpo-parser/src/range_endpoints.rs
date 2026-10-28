@@ -49,7 +49,7 @@ fn lines(units: &[Unit]) -> Vec<&Line> {
                 after,
                 before,
                 outside,
-            } => {
+            ..} => {
                 out.extend(preamble);
                 for ls in after.iter().chain(before).chain(outside) {
                     out.extend(ls);
@@ -69,7 +69,7 @@ fn lines_mut(units: &mut [Unit]) -> Vec<&mut Line> {
                 after,
                 before,
                 outside,
-            } => {
+            ..} => {
                 out.extend(preamble);
                 for ls in after.iter_mut().chain(before).chain(outside) {
                     out.extend(ls);
@@ -410,7 +410,7 @@ mod tests {
         let Unit::Plain(ls) = u.into_iter().next().unwrap() else {
             panic!()
         };
-        let mut u = vec![Unit::Shinkyu {
+        let mut u = vec![Unit::Shinkyu {labels:None,
             preamble: vec![],
             after: vec![ls],
             before: vec![],

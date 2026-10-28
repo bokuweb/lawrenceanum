@@ -1,0 +1,288 @@
+{
+  "issue": 227,
+  "stage": 109,
+  "native_change": 142,
+  "native_baseline": 141,
+  "scope": "Implementing agent nonblind original native lane/row/wrap associations on11 catalogue pages. Regression contracts, not independent wholepage gold, encoding accuracy or overall100%.",
+  "source_baseline_primary": "40fbcccba06943b8faa11273ba95466d883b9b47",
+  "source_baseline_publication": "ed3c2b6ff04e83d83cfe077e837f44a0d6e1aca5",
+  "production_rules": [
+    "Unchanged original Word IDs/text/status/display and native Glyph bounds; explicit rightward native axis. No compatibility/inferred bounds.",
+    "Repeated two-field components inside complete original column rulings; complete own horizontal source-flow anchors in trailing alphanumeric identifiers.",
+    "No token-length, hyphen-count, wrap-count or panel-count ceilings. Two-or-more anchors define repetition. More disconnected lanes, crossing source words or ambiguous anchors decline.",
+    "Rules cover original source baselines. Complete label flows use mutual native glyph-row containment. Mixed-font labels without one flow require exactly one explicit anchor baseline inside their complete glyph union; missing key flow still declines.",
+    "One logical name field is joined across physical wraps without inserting field separators; original complete Word identities and cell ownership are retained."
+  ],
+  "no_new_page_title_issuer_or_code_literal_dispatch": true,
+  "no_new_fixed_point_tolerances": true,
+  "legacy_fallback_preserved": true,
+  "all_legacy_heuristics_removed_claimed": false,
+  "TDD": {
+    "new_generic_controls": 16,
+    "new_public_original_API_tests": 7,
+    "old141_actual_source_tests": {
+      "passed": 0,
+      "failed": 4,
+      "ignored": 0
+    },
+    "rejected_prototype": "V6 inserted fullwidth spaces at name wraps; existingcorrect p23TSV bodymatched141 exactly andfailed newfulltext regression underV6. Newunit andneworiginal test RED thenGREEN. V7/V8joinwraps; p17/p23 entireArticles/Documents remainexact141. No oracle was retargeted to accept this regression.",
+    "controls": "Native metadata missing/malformed/unknown/foreign, duplicate/changed Word occurrences, missing/short fences, horizontal rulings, crossing fields, ambiguous extra lanes, unanchored/unlabelled records, arbitrary long codes/wraps/panelcounts, projectionorder, scale/translation, mixed fonts, unequal source origins and physical wraps."
+  },
+  "native4": {
+    "terminal": 0,
+    "source_manifest_sha256": "c5f1fb121a5d55cbc387f181e1365693ad2b5cbe35548a8a0225bf95ec4bf0b1",
+    "commands": 151,
+    "integration_targets": 142,
+    "passed": 3307,
+    "failed": 0,
+    "ignored": 0,
+    "result_groups": 150,
+    "no_expected_snapshot_updates": true,
+    "all_commands_exit0": true
+  },
+  "single_cohort": {
+    "mode": "single",
+    "items": 11992,
+    "changed": 11,
+    "changed_PageTrace_pages": 11,
+    "all_changed_items_PageTrace_exact": false,
+    "all_changed_items_full_text_exact": false,
+    "source_inputs_reference_sources_binaries_prepost_exact": true,
+    "source_Word_fields_changed_items": [],
+    "seconds": 418.09848574999995
+  },
+  "whole_cohort": {
+    "mode": "whole",
+    "items": 159,
+    "changed": 1,
+    "changed_PageTrace_pages": 11,
+    "all_changed_items_PageTrace_exact": false,
+    "all_changed_items_full_text_exact": false,
+    "source_inputs_reference_sources_binaries_prepost_exact": true,
+    "source_Word_fields_changed_items": [],
+    "seconds": 798.278828417
+  },
+  "source_review": {
+    "pages": [
+      {
+        "page": "20261020g002300012",
+        "panel_rows": [
+          44,
+          40
+        ],
+        "native_Words": 194,
+        "used_Words": 180,
+        "full_text_exact_native141": false,
+        "all_original_Word_fields_and_unique_source_occurrences_exact": true,
+        "reviewed_row_cell_membership_exact": true,
+        "independent_frozen_renderer_raw_and_f32_bounds_match": true,
+        "original_PDF_sha256": "bea3ae435bf9262ea25391bf101ac83c5bbf1724f7e6c84237b75894c336fbd8"
+      },
+      {
+        "page": "20261020g002300013",
+        "panel_rows": [
+          40,
+          46
+        ],
+        "native_Words": 199,
+        "used_Words": 185,
+        "full_text_exact_native141": false,
+        "all_original_Word_fields_and_unique_source_occurrences_exact": true,
+        "reviewed_row_cell_membership_exact": true,
+        "independent_frozen_renderer_raw_and_f32_bounds_match": true,
+        "original_PDF_sha256": "9cfd3b78f1507089d9c3cea6214d671828e2abb83b9eab105c6250924a0bff39"
+      },
+      {
+        "page": "20261020g002300014",
+        "panel_rows": [
+          43,
+          35
+        ],
+        "native_Words": 195,
+        "used_Words": 181,
+        "full_text_exact_native141": false,
+        "all_original_Word_fields_and_unique_source_occurrences_exact": true,
+        "reviewed_row_cell_membership_exact": true,
+        "independent_frozen_renderer_raw_and_f32_bounds_match": true,
+        "original_PDF_sha256": "955b8149ffecf0619311f5a43b3913c57f1b1bf1abe098f24cb3788039d99431"
+      },
+      {
+        "page": "20261020g002300015",
+        "panel_rows": [
+          40,
+          37
+        ],
+        "native_Words": 190,
+        "used_Words": 176,
+        "full_text_exact_native141": false,
+        "all_original_Word_fields_and_unique_source_occurrences_exact": true,
+        "reviewed_row_cell_membership_exact": true,
+        "independent_frozen_renderer_raw_and_f32_bounds_match": true,
+        "original_PDF_sha256": "19535fb77a6a5d253e6b78ae09dfab6290b4d9dd5695e0ac6b342d7f3d545276"
+      },
+      {
+        "page": "20261020g002300016",
+        "panel_rows": [
+          37,
+          45
+        ],
+        "native_Words": 194,
+        "used_Words": 180,
+        "full_text_exact_native141": false,
+        "all_original_Word_fields_and_unique_source_occurrences_exact": true,
+        "reviewed_row_cell_membership_exact": true,
+        "independent_frozen_renderer_raw_and_f32_bounds_match": true,
+        "original_PDF_sha256": "93a39c35d1e31138d693106e5aa9ffb44649642c68fffdf81d782225185c13b8"
+      },
+      {
+        "page": "20261020g002300017",
+        "panel_rows": [
+          47,
+          47
+        ],
+        "native_Words": 202,
+        "used_Words": 188,
+        "full_text_exact_native141": true,
+        "all_original_Word_fields_and_unique_source_occurrences_exact": true,
+        "reviewed_row_cell_membership_exact": true,
+        "independent_frozen_renderer_raw_and_f32_bounds_match": true,
+        "original_PDF_sha256": "eaa866dc7aed9e5df57c428211dfb31f36e65ea529981b8b2703d46834de762d"
+      },
+      {
+        "page": "20261020g002300018",
+        "panel_rows": [
+          42,
+          44
+        ],
+        "native_Words": 201,
+        "used_Words": 187,
+        "full_text_exact_native141": false,
+        "all_original_Word_fields_and_unique_source_occurrences_exact": true,
+        "reviewed_row_cell_membership_exact": true,
+        "independent_frozen_renderer_raw_and_f32_bounds_match": true,
+        "original_PDF_sha256": "c1afd857be41f47f15fe8a35a8bd8b985889668a7ba2add5940cc300b5bed51c"
+      },
+      {
+        "page": "20261020g002300019",
+        "panel_rows": [
+          45,
+          41
+        ],
+        "native_Words": 197,
+        "used_Words": 183,
+        "full_text_exact_native141": false,
+        "all_original_Word_fields_and_unique_source_occurrences_exact": true,
+        "reviewed_row_cell_membership_exact": true,
+        "independent_frozen_renderer_raw_and_f32_bounds_match": true,
+        "original_PDF_sha256": "ae238bae0434e57736bd533f9cd82882718f29fdc3b65d81e992030d5612e7dc"
+      },
+      {
+        "page": "20261020g002300020",
+        "panel_rows": [
+          40,
+          47
+        ],
+        "native_Words": 196,
+        "used_Words": 182,
+        "full_text_exact_native141": false,
+        "all_original_Word_fields_and_unique_source_occurrences_exact": true,
+        "reviewed_row_cell_membership_exact": true,
+        "independent_frozen_renderer_raw_and_f32_bounds_match": true,
+        "original_PDF_sha256": "3f1586cb28d66986607e52cb1898e755136ff06d147e885d9e45036cee98e3e3"
+      },
+      {
+        "page": "20261020g002300022",
+        "panel_rows": [
+          43,
+          39
+        ],
+        "native_Words": 200,
+        "used_Words": 186,
+        "full_text_exact_native141": false,
+        "all_original_Word_fields_and_unique_source_occurrences_exact": true,
+        "reviewed_row_cell_membership_exact": true,
+        "independent_frozen_renderer_raw_and_f32_bounds_match": true,
+        "original_PDF_sha256": "3f3200042a2eef125259beb1caab80737f576071fbe276b61b2fde84f58189c0"
+      },
+      {
+        "page": "20261020g002300023",
+        "panel_rows": [
+          46,
+          44
+        ],
+        "native_Words": 198,
+        "used_Words": 184,
+        "full_text_exact_native141": true,
+        "all_original_Word_fields_and_unique_source_occurrences_exact": true,
+        "reviewed_row_cell_membership_exact": true,
+        "independent_frozen_renderer_raw_and_f32_bounds_match": true,
+        "original_PDF_sha256": "532057dcddfc3cbad5f18086a3960524e5572cbfea6375faa6daaa460b2a8260"
+      }
+    ],
+    "total_native_words": 2166,
+    "total_used_Words_owned_once": 2012,
+    "total_name_code_rows": 932,
+    "whole_originals_viewed": 11,
+    "reviewer": "Implementing agent; nonblind",
+    "independent_gold": false
+  },
+  "preservation": {
+    "source_Word_fields_all_exact": true,
+    "other11981_single_complete_Analysis_exact": true,
+    "other158_whole_complete_Analysis_exact": true,
+    "all_changed_whole_PageTraces_exact_reviewed_single_before_after": true,
+    "whole_Article_count_before_after": [
+      248,
+      248
+    ],
+    "complete_Article_owners_and_other_article_text_exact": true,
+    "Document_character_style_permutation_exact_whitespace_excluded": true,
+    "Document_unmerged_plain_two_column_table_containers_normalized_to_row_atoms": true,
+    "all_Document_row_cells_order_values_and_style_exact_reviewed_records": true,
+    "controlled_corruptions_rejected": 88,
+    "native_source_inputs_sources_binaries_prepost_exact": true
+  },
+  "actual_CLI": {
+    "actual_Cargo_debug_native_PDFs": 11,
+    "actual_Cargo_debug_source_XHTML_textdump": 11,
+    "actual_Cargo_debug_text_example": 11,
+    "every_complete_text_exact_frozen_optimized_API": true,
+    "all_source_bytes_prepost_exact": true,
+    "word_duplicates": 0,
+    "full11992_CLI_run": false,
+    "release_CLI_run": false
+  },
+  "historical_references": {
+    "old_JSONs_retained": true,
+    "existing_p12_control_retargets_to_reviewed142_full_Analysis": true,
+    "snapshots": 814,
+    "source_reviewed_snapshot_updates": [
+      "20261020g002300012 (84typedrecordrows)"
+    ],
+    "other813_snapshot_bytes_exact": true,
+    "p17_p23_snapshots_exact": true,
+    "old_p12_snapshot_recoverable": "native141 baseline Git tree, plus private prior-snapshots copy; no automatic snapshot acceptance"
+  },
+  "remaining": {
+    "same_catalogue_page21": "20261020g002300021 still interleaves wrapped names. Original R6211-12 Word has complete native Glyph bounds/rightaxis but no own complete flow; content styles unknown. All3new private originaltests fail. Do not add a page/code exception or blanket missing-flow allowance; investigate original glyph paint metadata.",
+    "new_section_marker": "20260918g002090059 three new private original tests fail: new section marker is attached to priorArticle32 and section+firstArticle shareone row. Original columns investigated; no runtime143 change.",
+    "other": [
+      "change-before/after frequency tables and footnotes",
+      "independent procedures and publications",
+      "multiple amount columns and subtotals",
+      "unresolved character codes/PUA and other layout/ownership"
+    ]
+  },
+  "fixed30_source_review139_scores_unchanged_native138_history": true,
+  "OCR": {
+    "explicit_opt_in": true,
+    "automatic_native_OCR": false,
+    "engine": "NDLOCR",
+    "version": "0.0.15",
+    "commit": "f97e930b8c3e9512f7788f258ef685da26416483",
+    "new_inferences": 0,
+    "image_only_and_hybrid_default_regression_tests_passed": 2
+  },
+  "additional_models": false,
+  "goal227_complete": false
+}

@@ -1,0 +1,179 @@
+{
+  "issue": 227,
+  "stage": "native181",
+  "scope": "Closed legacy comparison scope after source outside content; preserve current explicit comparison path independently. Native frame continuation unchanged.",
+  "principle": {
+    "rule": "Carry legacy headerless inference only if the final comparison has no outside visible text, source Word occurrences or Table. Empty placeholders may continue. Current printed comparison headers keep the existing explicit path.",
+    "no_new_special_cases": [
+      "report title",
+      "company/issuer name",
+      "page identifier",
+      "font name",
+      "CID/PUA value",
+      "fixed pt tolerance",
+      "character or neighbor-row budget"
+    ],
+    "existing_rules_not_all_generalized": true
+  },
+  "tests": {
+    "new_unit": 5,
+    "new_original_API": 4,
+    "normal": {
+      "exit_code": 0,
+      "seconds": 412.02722041699997,
+      "all_sources_and_Cargo_exact": true,
+      "groups": 172,
+      "counts": [
+        4209,
+        0,
+        0
+      ]
+    },
+    "first_diagnostic": {
+      "exit_code": 101,
+      "seconds": 610.740809833,
+      "all_sources_and_Cargo_exact": true,
+      "groups": 172,
+      "counts": [
+        4208,
+        1,
+        0
+      ]
+    },
+    "gold_correction": {
+      "cause": "The original gold constructor incorrectly retained the full-issue unresolved legal/report merge in a two-page input. Source review establishes the report as a separate article; complete old preceding articles/blocks and reviewed standalone report are preserved literally. No production changes.",
+      "source_constructed_complete_pair_equals_candidate": true,
+      "pair_articles_before": 2,
+      "pair_articles_expected": 3,
+      "whole_articles_before_and_expected": 165,
+      "old_wrong_pair_gold_retained": "source-constructed181/pair-expected.json",
+      "expected_sha256": "7d51119a4a20dc24e346b24cb775de8e52618e57d0761bf5879611fb94137813"
+    },
+    "regression_caught": "v1 altered original plant table Latin word spaces. v2 restores current printed-header evidence and preserves complete original control Analysis.",
+    "original_control": "20260813h017670002/003 complete original Analysis exact180; source PDFium image reviewed.",
+    "pre_failure_logs": "Original scope/API RED, explicit-current control RED, initial complete pair gold failure retained privately. No blanket update or assertion exclusion."
+  },
+  "source_review": {
+    "original_PDFs": [
+      {
+        "path": "tests/data/native-comparison-scope/20260731g001720298.pdf",
+        "sha256": "c28c8a8be9636424181e0dc7462f692f5421da28eb0118fe26f497dd5447b5c1"
+      },
+      {
+        "path": "tests/data/native-amount-marks/20260731g001720299.pdf",
+        "sha256": "e2bd5ff45ec1a1ace8e6c3e6246c1f04a12b0e17e353fb3b0c2114cf770f6aa7"
+      },
+      {
+        "path": "tests/data/enclosed-warichu/20260813h017670002.pdf",
+        "sha256": "aa9ca08ca2f5b5637a97f1402818132c1d71bb144770c3c669301d631d5807c0"
+      },
+      {
+        "path": "tests/data/shared-comparison-cell/20260813h017670003.pdf",
+        "sha256": "942339715dc0e1ba430020e8855628cdff65c1e4b58ad60cbe8523e45dfcca7a"
+      }
+    ],
+    "review": "Original PDFium pages298/299: legal comparison ends with outside enactment provision; following separate financial report has own category/title, full prose, date and issuer. Plant table page3 confirms Latin word gaps.",
+    "data_index": "../data/native-comparison-scope/index.json"
+  },
+  "independent_gold": {
+    "public_pair": {
+      "method": "Frozen180 complete pair + source-reviewed standalone299. Preserve all preceding legal article bytes and first3 blocks through the outside enactment provision; remove the phantom comparison/body block and append the independently source-reviewed separate report article. Page299 is a separate printed category/title/prose/date/issuer. Full-issue ownership remains unresolved separately. No new detector or parser used.",
+      "inputs": [
+        {
+          "path": "tests/data/native-comparison-scope/20260731g001720298.pdf",
+          "sha256": "c28c8a8be9636424181e0dc7462f692f5421da28eb0118fe26f497dd5447b5c1"
+        },
+        {
+          "path": "tests/data/native-amount-marks/20260731g001720299.pdf",
+          "sha256": "e2bd5ff45ec1a1ace8e6c3e6246c1f04a12b0e17e353fb3b0c2114cf770f6aa7"
+        },
+        {
+          "path": "tests/data/enclosed-warichu/20260813h017670002.pdf",
+          "sha256": "aa9ca08ca2f5b5637a97f1402818132c1d71bb144770c3c669301d631d5807c0"
+        },
+        {
+          "path": "tests/data/shared-comparison-cell/20260813h017670003.pdf",
+          "sha256": "942339715dc0e1ba430020e8855628cdff65c1e4b58ad60cbe8523e45dfcca7a"
+        }
+      ],
+      "baseline": "baseline-pair180.json",
+      "expected": "expected-pair181.json",
+      "source_analysis": "tests/data/native-amount-marks/expected/20260731g001720299.json",
+      "source_analysis_sha256": "7b98de5b6223442ead7b8eba7b618a3480d66d2865ea5671e8fda41567525b2e",
+      "baseline_Analysis_sha256": "055834daa9b5153865122c7bdd376f57d4f2ecc646859bd56ec4a3d26711f8ac",
+      "expected_Analysis_sha256": "7d51119a4a20dc24e346b24cb775de8e52618e57d0761bf5879611fb94137813",
+      "changed_page": 1,
+      "control": "explicit-current-control180.json",
+      "control_Analysis_sha256": "b7b149844cfc316981098ba66afe093355e2344312591270bec1ac94527054b1"
+    },
+    "method": "Pure Python literal old AST prefix plus independently source-reviewed standalone report; no parser invocation. Full whole172 expected retains unresolved article merge and restores report order by literal old AST restoration.",
+    "whole": {
+      "whole172_complete_expected_equals_candidate_v1": true,
+      "whole_expected_sha256": "76b8eb1de785efbd8a3a870a558e481dbe1fd1768ab022e58b1166a1fe920d2b",
+      "method": "Frozen180 full Analysis, source-reviewed standalone original299 native page/document, literal removal of its phantom comparison block and restoration of ordinary report order. Prior actual comparison copied exactly; no parser/new classifier used. Report article ownership remains an explicit separate defect.",
+      "whole172_complete_expected_equals_candidate_v2": true,
+      "v2_unchanged_single_Analysis": 11992,
+      "v2_unchanged_whole_Analysis": 158,
+      "explicit_current_control_exact180": true
+    }
+  },
+  "impact_vs180": {
+    "unchanged_complete_single_Analysis": 11992,
+    "unchanged_complete_whole_Analysis": 158,
+    "changed_whole": 1,
+    "changed_original_page": "20260731g001720299",
+    "detail": {
+      "key": "20260731g00172",
+      "sha256": "76b8eb1de785efbd8a3a870a558e481dbe1fd1768ab022e58b1166a1fe920d2b",
+      "pages": 304,
+      "changed_pages": [
+        {
+          "index": 298,
+          "source_key": "20260731g001720299",
+          "old_roles": [
+            "after",
+            "before",
+            "body"
+          ],
+          "new_roles": [
+            "body"
+          ],
+          "all_Word_values_exact": true,
+          "Word_count_exact": true,
+          "source_raw_ID_box_exact": true,
+          "changed_Word_fields": {},
+          "duplicate_original_owners": 0
+        }
+      ],
+      "old_articles": 165,
+      "new_articles": 165,
+      "opaque_old_table_inventory_exact": true
+    },
+    "all_Word_values_exact": true,
+    "duplicate_word_owners": 0,
+    "opaque_tables_exact": true,
+    "old_gold_snapshots_changed": 0
+  },
+  "verification": {
+    "actual_Cargo_release_and_CLI": {
+      "profile": "actual Cargo release, final W sources",
+      "single_complete_Analysis_exact_private_final": 11992,
+      "whole_complete_Analysis_exact_private_final": 159,
+      "actual_release_PDF_textdump_CLI_native_body_bytes_exact": 11992,
+      "single_duplicate_owner_pages": 0,
+      "CLI_duplicate_word_reports": 0,
+      "all_original_inputs_native_sources_Cargo_and_binaries_prepost_exact": true,
+      "seconds": 219.156759958,
+      "scope": "Complete Analysis equals frozen181-v2: every single and158 whole issues exact180; whole172 page299 restored to independently source-reviewed ordinary report, all Word values exact, duplicate owners0, all opaque tables retained. Full whole172 expected constructed by literal original-AST restoration; full-issue report article ownership remains unresolved. No full-corpus accuracy claim."
+    },
+    "default_examples": {
+      "exit_code": 0,
+      "seconds": 2.1694522089999997,
+      "all_native_sources_and_Cargo_exact": true
+    },
+    "release_source_manifest_sha256": "fd90db64cee3475becf5c34f0cb23a5a5bd94b32e2fc2941e749489cd99c10eb",
+    "normal_source_and_fixture_manifest_sha256": "ecf2ca1ac35ca8139252a334dd3a89634c373f847e381faa928196416b5bfa8e",
+    "CI": "Exact published-head workflows tracked separately on draftPR237; local success alone does not assert CI success."
+  },
+  "limitations": "Not100%. Pair report separates correctly; whole172 report still belongs to prior legal article. Full-issue quote diagnostic locates uncertain state inherited from original legal replacement fragments on page11; do not erase genuine quote protection. Other financial headers/bars, paired9/9 versus7/7 records, headerless landscape roles, committee/court ownership and unknown characters remain. Images lower priority; OCR explicit opt-in, NDLOCR0.0.15 f97e930b8c3e9512f7788f258ef685da26416483. No models introduced."
+}

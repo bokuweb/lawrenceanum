@@ -1,0 +1,1511 @@
+{
+  "issue": 227,
+  "stage": 112,
+  "native": 146,
+  "status": "adopted locally, publication pending; goal active, not100%",
+  "problem": "Inserted legal articles and internal outline headings share legacy Shinkyu cells and repeated opposite symbols are assigned to a preceding article or section. Whole-issue contexts require more source evidence than isolated pages.",
+  "source_rule": "Existing outline/article grammar, native glyph rectangles/axes and unique reciprocal opposite printed column. A preceding fragment must contain a legal article declaration, completed prose sentence or opaque table. Complete source raw Article/unit ownership and exact typed role stream positions are required; original Runs/styles/spaces and complete tables are copied.",
+  "scope_rule": "Every source page/unit is independently complete and valid. Chains require exact raw adjacency, physical unit/page order, unique Article membership, valid nonconflicting Word/table claims. Full-chain source frames are preferred. If an unrelated typed fragment disagrees, complete contiguous subframes must still bind uniquely on BOTH full role atom streams. No partial unit, unknown Word, duplicate claim, gap, reversed order or foreign owner can supply authority.",
+  "no_document_specific_dispatch": true,
+  "no_fixed_distance_character_wrap_neighbor_count_cutoffs_added": true,
+  "native_gates": {
+    "terminal": 0,
+    "source_manifest_sha256": "ea6e4fdf37741532616c746f04019db326084094ee41e551af09931a37b29ef5",
+    "commands": 155,
+    "integration_targets": 146,
+    "passed": 3449,
+    "failed": 0,
+    "ignored": 0,
+    "result_groups": 154,
+    "no_expected_snapshot_updates": true,
+    "all_commands_exit0": true
+  },
+  "old_snapshots": 814,
+  "old_tracked_test_inputs_unchanged": 3022,
+  "new_unit_regressions": 30,
+  "new_real_API_regressions": 25,
+  "legacy_control": "Both original99 JSON references remain unchanged. The cfg(test)-only control separately checks every old native/Article field, per-role character/style/space/opaque-table material exceptLF, then full source-reviewed146 Analysis.",
+  "cohort_proof": {
+    "candidate": "private-v8",
+    "single_items": 11992,
+    "whole_items": 159,
+    "changed_single": 20,
+    "changed_whole": 6,
+    "all_PageTrace_full_text_Article_metadata_exact": true,
+    "reviewed_originals": 21,
+    "review_scope": "root nonblind source row/marker/caption/table association; not character-accuracy gold",
+    "explicit_row_partition_contracts": 33,
+    "whole_new_boundaries": 45,
+    "controlled_corruptions_rejected": 38,
+    "corruptions": [
+      {
+        "mode": "single",
+        "key": "20260724g001650782",
+        "kind": "native Word position"
+      },
+      {
+        "mode": "single",
+        "key": "20260724g001650782",
+        "kind": "native Word inventory"
+      },
+      {
+        "mode": "single",
+        "key": "20260724g001650782",
+        "kind": "Article owner text"
+      },
+      {
+        "mode": "single",
+        "key": "20260724g001650782",
+        "kind": "full native text"
+      },
+      {
+        "mode": "single",
+        "key": "20260724g001650782",
+        "kind": "Document format"
+      },
+      {
+        "mode": "single",
+        "key": "20260724g001650782",
+        "kind": "character style"
+      },
+      {
+        "mode": "single",
+        "key": "20260724g001650782",
+        "kind": "ASCII/ideographic spaces"
+      },
+      {
+        "mode": "single",
+        "key": "20260724g001650782",
+        "kind": "same characters in wrong marker owner"
+      },
+      {
+        "mode": "single",
+        "key": "20260729g001690094",
+        "kind": "native Word position"
+      },
+      {
+        "mode": "single",
+        "key": "20260729g001690094",
+        "kind": "native Word inventory"
+      },
+      {
+        "mode": "single",
+        "key": "20260729g001690094",
+        "kind": "Article owner text"
+      },
+      {
+        "mode": "single",
+        "key": "20260729g001690094",
+        "kind": "full native text"
+      },
+      {
+        "mode": "single",
+        "key": "20260729g001690094",
+        "kind": "Document format"
+      },
+      {
+        "mode": "single",
+        "key": "20260729g001690094",
+        "kind": "character style"
+      },
+      {
+        "mode": "single",
+        "key": "20260729g001690094",
+        "kind": "ASCII/ideographic spaces"
+      },
+      {
+        "mode": "single",
+        "key": "20260729g001690094",
+        "kind": "same characters in wrong marker owner"
+      },
+      {
+        "mode": "single",
+        "key": "20260729g001690094",
+        "kind": "opaque table shape"
+      },
+      {
+        "mode": "single",
+        "key": "20260729g001690094",
+        "kind": "opaque table row order"
+      },
+      {
+        "mode": "whole",
+        "key": "20260729g00169",
+        "kind": "native Word position"
+      },
+      {
+        "mode": "whole",
+        "key": "20260729g00169",
+        "kind": "native Word inventory"
+      },
+      {
+        "mode": "whole",
+        "key": "20260729g00169",
+        "kind": "Article owner text"
+      },
+      {
+        "mode": "whole",
+        "key": "20260729g00169",
+        "kind": "full native text"
+      },
+      {
+        "mode": "whole",
+        "key": "20260729g00169",
+        "kind": "Document format"
+      },
+      {
+        "mode": "whole",
+        "key": "20260729g00169",
+        "kind": "character style"
+      },
+      {
+        "mode": "whole",
+        "key": "20260729g00169",
+        "kind": "ASCII/ideographic spaces"
+      },
+      {
+        "mode": "whole",
+        "key": "20260729g00169",
+        "kind": "same characters in wrong marker owner"
+      },
+      {
+        "mode": "whole",
+        "key": "20260729g00169",
+        "kind": "opaque table shape"
+      },
+      {
+        "mode": "whole",
+        "key": "20260729g00169",
+        "kind": "opaque table row order"
+      },
+      {
+        "mode": "whole",
+        "key": "20260918g00209",
+        "kind": "native Word position"
+      },
+      {
+        "mode": "whole",
+        "key": "20260918g00209",
+        "kind": "native Word inventory"
+      },
+      {
+        "mode": "whole",
+        "key": "20260918g00209",
+        "kind": "Article owner text"
+      },
+      {
+        "mode": "whole",
+        "key": "20260918g00209",
+        "kind": "full native text"
+      },
+      {
+        "mode": "whole",
+        "key": "20260918g00209",
+        "kind": "Document format"
+      },
+      {
+        "mode": "whole",
+        "key": "20260918g00209",
+        "kind": "character style"
+      },
+      {
+        "mode": "whole",
+        "key": "20260918g00209",
+        "kind": "ASCII/ideographic spaces"
+      },
+      {
+        "mode": "whole",
+        "key": "20260918g00209",
+        "kind": "same characters in wrong marker owner"
+      },
+      {
+        "mode": "whole",
+        "key": "20260918g00209",
+        "kind": "opaque table shape"
+      },
+      {
+        "mode": "whole",
+        "key": "20260918g00209",
+        "kind": "opaque table row order"
+      }
+    ],
+    "verified": [
+      {
+        "mode": "single",
+        "key": "20260724g001650782",
+        "row_partitions": 1,
+        "Articles": 1
+      },
+      {
+        "mode": "single",
+        "key": "20260729g001690093",
+        "row_partitions": 1,
+        "Articles": 1
+      },
+      {
+        "mode": "single",
+        "key": "20260729g001690094",
+        "row_partitions": 1,
+        "Articles": 1
+      },
+      {
+        "mode": "single",
+        "key": "20260729g001690096",
+        "row_partitions": 1,
+        "Articles": 1
+      },
+      {
+        "mode": "single",
+        "key": "20260729g001690098",
+        "row_partitions": 1,
+        "Articles": 1
+      },
+      {
+        "mode": "single",
+        "key": "20260729g001690174",
+        "row_partitions": 1,
+        "Articles": 1
+      },
+      {
+        "mode": "single",
+        "key": "20260729g001690175",
+        "row_partitions": 1,
+        "Articles": 1
+      },
+      {
+        "mode": "single",
+        "key": "20260731g001720088",
+        "row_partitions": 1,
+        "Articles": 1
+      },
+      {
+        "mode": "single",
+        "key": "20260731g001720089",
+        "row_partitions": 1,
+        "Articles": 1
+      },
+      {
+        "mode": "single",
+        "key": "20260814h017680003",
+        "row_partitions": 1,
+        "Articles": 3
+      },
+      {
+        "mode": "single",
+        "key": "20260918g002090061",
+        "row_partitions": 1,
+        "Articles": 1
+      },
+      {
+        "mode": "single",
+        "key": "20260930g002150051",
+        "row_partitions": 1,
+        "Articles": 1
+      },
+      {
+        "mode": "single",
+        "key": "20260930g002150090",
+        "row_partitions": 1,
+        "Articles": 1
+      },
+      {
+        "mode": "single",
+        "key": "20260930g002150091",
+        "row_partitions": 1,
+        "Articles": 1
+      },
+      {
+        "mode": "single",
+        "key": "20260930g002150092",
+        "row_partitions": 1,
+        "Articles": 1
+      },
+      {
+        "mode": "single",
+        "key": "20260930g002150100",
+        "row_partitions": 1,
+        "Articles": 1
+      },
+      {
+        "mode": "single",
+        "key": "20260930g002150153",
+        "row_partitions": 1,
+        "Articles": 1
+      },
+      {
+        "mode": "single",
+        "key": "20260930g002150154",
+        "row_partitions": 1,
+        "Articles": 1
+      },
+      {
+        "mode": "single",
+        "key": "20260930g002150155",
+        "row_partitions": 1,
+        "Articles": 1
+      },
+      {
+        "mode": "single",
+        "key": "20260930g002150361",
+        "row_partitions": 1,
+        "Articles": 2
+      },
+      {
+        "mode": "whole",
+        "key": "20260724g00165",
+        "row_partitions": 1,
+        "Articles": 5
+      },
+      {
+        "mode": "whole",
+        "key": "20260729g00169",
+        "row_partitions": 3,
+        "Articles": 46
+      },
+      {
+        "mode": "whole",
+        "key": "20260731g00172",
+        "row_partitions": 1,
+        "Articles": 165
+      },
+      {
+        "mode": "whole",
+        "key": "20260814h01768",
+        "row_partitions": 1,
+        "Articles": 128
+      },
+      {
+        "mode": "whole",
+        "key": "20260918g00209",
+        "row_partitions": 1,
+        "Articles": 47
+      },
+      {
+        "mode": "whole",
+        "key": "20260930g00215",
+        "row_partitions": 6,
+        "Articles": 201
+      }
+    ],
+    "all_source_and_inputs_prepost_exact": true,
+    "goal227_complete": false
+  },
+  "source_word_contract": {
+    "original_pages": 21,
+    "original_Words": 1911,
+    "used_once": 1429,
+    "details": [
+      {
+        "source": "20260724g001650782",
+        "original_Words": 251,
+        "used_once": 63
+      },
+      {
+        "source": "20260729g001690093",
+        "original_Words": 82,
+        "used_once": 68
+      },
+      {
+        "source": "20260729g001690094",
+        "original_Words": 72,
+        "used_once": 58
+      },
+      {
+        "source": "20260729g001690096",
+        "original_Words": 72,
+        "used_once": 58
+      },
+      {
+        "source": "20260729g001690098",
+        "original_Words": 79,
+        "used_once": 65
+      },
+      {
+        "source": "20260729g001690174",
+        "original_Words": 67,
+        "used_once": 53
+      },
+      {
+        "source": "20260729g001690175",
+        "original_Words": 57,
+        "used_once": 43
+      },
+      {
+        "source": "20260731g001720088",
+        "original_Words": 111,
+        "used_once": 97
+      },
+      {
+        "source": "20260731g001720089",
+        "original_Words": 116,
+        "used_once": 102
+      },
+      {
+        "source": "20260814h017680003",
+        "original_Words": 159,
+        "used_once": 139
+      },
+      {
+        "source": "20260918g002090061",
+        "original_Words": 71,
+        "used_once": 57
+      },
+      {
+        "source": "20260930g002150051",
+        "original_Words": 66,
+        "used_once": 52
+      },
+      {
+        "source": "20260930g002150090",
+        "original_Words": 78,
+        "used_once": 64
+      },
+      {
+        "source": "20260930g002150091",
+        "original_Words": 75,
+        "used_once": 61
+      },
+      {
+        "source": "20260930g002150092",
+        "original_Words": 68,
+        "used_once": 54
+      },
+      {
+        "source": "20260930g002150100",
+        "original_Words": 77,
+        "used_once": 63
+      },
+      {
+        "source": "20260930g002150153",
+        "original_Words": 69,
+        "used_once": 55
+      },
+      {
+        "source": "20260930g002150154",
+        "original_Words": 68,
+        "used_once": 54
+      },
+      {
+        "source": "20260930g002150155",
+        "original_Words": 76,
+        "used_once": 62
+      },
+      {
+        "source": "20260930g002150361",
+        "original_Words": 114,
+        "used_once": 92
+      },
+      {
+        "source": "20260930g002150398",
+        "original_Words": 83,
+        "used_once": 69
+      }
+    ],
+    "whole_Article_owners_retained": 592,
+    "whole_Articles_with_Document_changes": 10
+  },
+  "sources": [
+    {
+      "source": "20260724g001650782",
+      "PDF": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-07-24/20260724g00165/20260724g001650782.pdf",
+      "sha256": "6e91780d705dc2dfa0ae4b9a7719125bab49a58ec872719ef0f04a32c9473c86",
+      "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-article-marker-ownership146/source-review146/20260724g001650782.png",
+      "new_article_headings": [
+        [
+          "（各地方公共団体に交付すべき軽自動車税減収補塡特例交付金の算定方法）",
+          "第四条の四　法第三条の四第二項の総務省令で定める各市町村の軽自動車税減収見込額は、軽自動車税の環境性能割（旧地方税法第四百四十二条第一号に規定する環境性能割をいう。）の廃止による当該年度の五月末現在における市町村の軽自動車税減収見込額として総務大臣が調査した額（次項において「軽自動車税減収見込額」という。）とする。"
+        ],
+        [
+          "（各地方公共団体に交付すべき地方揮発油譲与税減収補塡特例交付金の算定方法）",
+          "第四条の五　法第三条の五第二項の総務省令で定める各都道府県及び各市町村の地方揮発油譲与税減収見込額は、都道府県にあっては第一号に定める額とし、指定市にあっては第一号及び第二号に定める額の合算額とし、指定市以外の市町村にあっては第二号に定める額とする。"
+        ]
+      ],
+      "reviewer": "root",
+      "blind": false,
+      "review_scope": "new row boundaries, complete original printed insertion markers, captions, neighboring continuation, opaque tables",
+      "V3_review": "article boundaries agree with original; full character accuracy not scored",
+      "independent_gold": false,
+      "notes": "Original has separate article4-4 and4-5 insertion columns and two 〔新設〕 markers. Original baseline99 combines both and preceding continuation in one row. New3row reference justified by original; retain baseline99 unchanged."
+    },
+    {
+      "source": "20260729g001690093",
+      "PDF": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-07-29/20260729g00169/20260729g001690093.pdf",
+      "sha256": "a3250d1b443e0ae0d4668d82b2f38fffe6ca0e5508a58eacca10a16049642b59",
+      "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-article-marker-ownership146/source-review146/20260729g001690093.png",
+      "new_article_headings": [
+        [
+          "（欠格条項）",
+          "第五十一条の十一　次の各号のいずれかに該当する者は、登録を受けることができない。"
+        ],
+        [
+          "（登録基準）",
+          "第五十一条の十二　所轄都道府県労働局長等は、第五十一条の十の規定により登録を申請した者が次に掲げる要件の全てに適合しているときは、その登録をしなければならない。"
+        ]
+      ],
+      "reviewer": "root",
+      "blind": false,
+      "review_scope": "new row boundaries, complete original printed insertion markers, captions, neighboring continuation, opaque tables",
+      "V3_review": "article boundaries agree with original; full character accuracy not scored",
+      "independent_gold": false
+    },
+    {
+      "source": "20260729g001690094",
+      "PDF": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-07-29/20260729g00169/20260729g001690094.pdf",
+      "sha256": "458c2148fb6ee0902bd81651a9636d38ca1e014aba647b1c1bbbd2f15b9f2160",
+      "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-article-marker-ownership146/source-review146/20260729g001690094.png",
+      "new_article_headings": [
+        [
+          "（登録の更新）",
+          "第五十一条の十三　登録は、五年ごとにその更新を受けなければ、その期間の経過によつて、その効力を失う。"
+        ]
+      ],
+      "reviewer": "root",
+      "blind": false,
+      "review_scope": "new row boundaries, complete original printed insertion markers, captions, neighboring continuation, opaque tables",
+      "V3_review": "article boundaries agree with original; full character accuracy not scored",
+      "independent_gold": false,
+      "notes": "Original table belongs continuing article51-12; article51-13 owns its own lower insertion marker. New2row reference justified by original; retain baseline99 unchanged."
+    },
+    {
+      "source": "20260729g001690096",
+      "PDF": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-07-29/20260729g00169/20260729g001690096.pdf",
+      "sha256": "f4921f4de2c1fca6e7c5284b528a25772915d0768f332ce6aea4abd90f16508f",
+      "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-article-marker-ownership146/source-review146/20260729g001690096.png",
+      "new_article_headings": [
+        [
+          "（業務の休廃止の届出）",
+          "第五十一条の十七　登録サンプリング補助者講習機関は、サンプリング補助者講習の業務の全部又は一部を休止し、又は廃止しようとするときは、あらかじめ、サンプリング補助者講習業務休廃止届出書（様式第十五号の十三）を所轄都道府県労働局長等に届け出なければならない。"
+        ],
+        [
+          "（財務諸表等の備置き及び閲覧等）",
+          "第五十一条の十八　登録サンプリング補助者講習機関は、毎事業年度経過後三月以内に、その事業年度の財務諸表等を作成し、五年間事務所に備えて置かなければならない。"
+        ],
+        [
+          "（適合命令）",
+          "第五十一条の十九　所轄都道府県労働局長等は、登録サンプリング補助者講習機関が第五十一条の十二第一項各号のいずれかに適合しなくなつたと認めるときは、その登録サンプリング補助者講習機関に対し、これらの規定に適合するため必要な措置をとるべきことを命ずることができる。"
+        ]
+      ],
+      "reviewer": "root",
+      "blind": false,
+      "review_scope": "new row boundaries, complete original printed insertion markers, captions, neighboring continuation, opaque tables",
+      "V3_review": "article boundaries agree with original; full character accuracy not scored",
+      "independent_gold": false
+    },
+    {
+      "source": "20260729g001690098",
+      "PDF": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-07-29/20260729g00169/20260729g001690098.pdf",
+      "sha256": "c509bc017f44ad223e90b9ec26b6bec8a9bb94a85e48e2f2ae91a72ec15cc8cb",
+      "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-article-marker-ownership146/source-review146/20260729g001690098.png",
+      "new_article_headings": [
+        [
+          "（公示）",
+          "第五十一条の二十五　所轄都道府県労働局長等は、次の表の上欄に掲げる場合には、同表の下欄に掲げる事項をインターネットの利用その他の適切な方法により公示しなければならない。"
+        ]
+      ],
+      "reviewer": "root",
+      "blind": false,
+      "review_scope": "new row boundaries, complete original printed insertion markers, captions, neighboring continuation, opaque tables",
+      "V3_review": "article boundaries agree with original; full character accuracy not scored",
+      "independent_gold": false
+    },
+    {
+      "source": "20260729g001690174",
+      "PDF": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-07-29/20260729g00169/20260729g001690174.pdf",
+      "sha256": "2252e41b25fa07e7bae03a2d4c120dfbc769fb23f8ceaf5e7470422a0203dd8a",
+      "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-article-marker-ownership146/source-review146/20260729g001690174.png",
+      "new_article_headings": [
+        [
+          "第七十条の五　法第八十四条の規定により高額療養費（令第十四条の三第四項又は第五項の規定により支給される高額療養費に限る。以下この条において同じ。）の支給を受けようとする被保険者（令第十四条の三第四項及び第五項に規定する者をいう。以下この条において「申請者」という。）は、次に掲げる事項を記載した申請書を後期高齢者医療広域連合（次条第一項第五号に掲げる後期高齢者医療広域連合に該当する場合に限る。以下この条において同じ。）に提出しなければならない。",
+          "一　被保険者番号"
+        ]
+      ],
+      "reviewer": "root",
+      "blind": false,
+      "review_scope": "new row boundaries, complete original printed insertion markers, captions, neighboring continuation, opaque tables",
+      "V3_review": "article boundaries agree with original; full character accuracy not scored",
+      "independent_gold": false
+    },
+    {
+      "source": "20260729g001690175",
+      "PDF": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-07-29/20260729g00169/20260729g001690175.pdf",
+      "sha256": "c0b5aa74b8c1195841dc683ebfc9fa72a8d3e530441b595c42d6991e41a36aad",
+      "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-article-marker-ownership146/source-review146/20260729g001690175.png",
+      "new_article_headings": [
+        [
+          "（令第十四条の三の年間の高額療養費の支給及び証明書の交付申請等）",
+          "第七十条の六　法第八十四条の規定により高額療養費（令第十四条の三第三項から第五項までの規定により支給される高額療養費に限る。以下この条において同じ。）の支給を受けようとする被保険者（令第十四条の三第三項、第四項及び第五項に規定する者をいう。以下この条において「申請者」という。）は、次に掲げる事項を記載した申請書を後期高齢者医療広域連合（第五号に掲げる後期高齢者医療広域連合に該当する場合を除く。以下この条において同じ。）に提出しなければならない。ただし、第三項第四号に掲げる額が零である場合にあっては、この限りでない。"
+        ]
+      ],
+      "reviewer": "root",
+      "blind": false,
+      "review_scope": "new row boundaries, complete original printed insertion markers, captions, neighboring continuation, opaque tables",
+      "V3_review": "article boundaries agree with original; full character accuracy not scored",
+      "independent_gold": false
+    },
+    {
+      "source": "20260731g001720088",
+      "PDF": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-07-31/20260731g00172/20260731g001720088.pdf",
+      "sha256": "9c5d0d174e739c3d6577da65715f6ee9465e9087f9839ef3088702a3cb706998",
+      "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-article-marker-ownership146/source-review146/20260731g001720088.png",
+      "new_article_headings": [
+        [
+          "（特定生産性向上設備等の確認）",
+          "第六条の二　経済産業大臣は、前条の規定により確認申請書の提出を受けた場合において、速やかに第六条の四各号に掲げる基準に照らしてその内容を審査し、法第二条第二十項の確認をするときは、様式第二による確認書を申請者に交付するものとする。"
+        ],
+        [
+          "（変更の確認）",
+          "第六条の三　法第二条第二十項の確認を受けた者は、当該確認に係る特定生産性向上設備等投資計画を変更しようとするときは、様式第四による変更確認申請書（以下この条において「変更確認申請書」という。）を、経済産業大臣に提出しなければならない。"
+        ],
+        [
+          "（特定生産性向上設備等の確認の基準）",
+          "第六条の四　法第二条第二十項の経済産業省令で定める基準は、次の各号のいずれにも該当することとする。"
+        ]
+      ],
+      "reviewer": "root",
+      "blind": false,
+      "review_scope": "new row boundaries, complete original printed insertion markers, captions, neighboring continuation, opaque tables",
+      "V3_review": "article boundaries agree with original; full character accuracy not scored",
+      "independent_gold": false,
+      "notes": "Two printed tier parts; article6-2/6-3 in first and6-4 in second each have own native marker."
+    },
+    {
+      "source": "20260731g001720089",
+      "PDF": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-07-31/20260731g00172/20260731g001720089.pdf",
+      "sha256": "6b10a32946c013dc86e3667a9ab8b8ab8c9e7da4869ad1e2d13feda88e323c8f",
+      "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-article-marker-ownership146/source-review146/20260731g001720089.png",
+      "new_article_headings": [
+        [
+          "（確認の取消し）",
+          "第六条の五　経済産業大臣は、法第二条第二十項の確認を受けた事業者が当該確認に係る特定生産性向上設備等投資計画の目的を変更したとき又は当該確認を受けた事業者の責めに帰すべき事由により取得等をした特定生産性向上設備等が前条各号に掲げる基準に適合しないこととなったときは、当該確認を取り消すことができる。"
+        ],
+        [
+          "（生産性の向上に資する設備等の導入の状況に関する調査）",
+          "第六条の六　経済産業大臣は、法第百四十五条の二の規定に基づき、毎年度、次に掲げる事項について調査を行うことができる。"
+        ],
+        [
+          "（特定生産性向上設備等の導入の状況に関する事項の証明の申請）",
+          "第六条の七　特定生産性向上設備等導入事業者は、前条第一項第一号に掲げる特定生産性向上設備等の導入の状況について、導入をした特定生産性向上設備等が、第六条の"
+        ]
+      ],
+      "reviewer": "root",
+      "blind": false,
+      "review_scope": "new row boundaries, complete original printed insertion markers, captions, neighboring continuation, opaque tables",
+      "V3_review": "article boundaries agree with original; full character accuracy not scored",
+      "independent_gold": false,
+      "notes": "Two printed tier parts; article6-5 first and6-6/6-7 second each have own marker."
+    },
+    {
+      "source": "20260814h017680003",
+      "PDF": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-08-14/20260814h01768/20260814h017680003.pdf",
+      "sha256": "9f34f51407881758eee64f10b11fdb18212e83e0ad9e3d396ba3a63f7f7475a2",
+      "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-article-marker-ownership146/source-review146/20260814h017680003.png",
+      "new_article_headings": [
+        [
+          "（資金の貸付け）",
+          "第九条の二　法第二十八条の四十第一項第五号の三の規定による資金の貸付けは、当該資金の貸付けを受けようとする法第二十八条の五十第一項に規定する認定整備等事業者（以下単に「認定整備等事業者」という。）からの請求により行うものとする。"
+        ],
+        [
+          "（広域系統整備計画の評価）",
+          "第十七条の二　推進機関は、電気事業の広域的運営を推進するために特に必要な電線路その他の変電用、送電用及び配電用の電気工作物の整備及び更新の円滑かつ経済的な実施を確保するため、広域系統整備計画の"
+        ]
+      ],
+      "reviewer": "root",
+      "blind": false,
+      "review_scope": "new row boundaries, complete original printed insertion markers, captions, neighboring continuation, opaque tables",
+      "V3_review": "article boundaries agree with original; full character accuracy not scored",
+      "independent_gold": false,
+      "notes": "First Article only: article9-2 and17-2 marker columns; preserve other notices/new-old tables on lower part of page."
+    },
+    {
+      "source": "20260918g002090061",
+      "PDF": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-09-18/20260918g00209/20260918g002090061.pdf",
+      "sha256": "3f053a2a1b8d5e1ee8be71fa07005a61732b3bc4d0c999dbb7db9dc905314012",
+      "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-article-marker-ownership146/source-review146/20260918g002090061.png",
+      "new_article_headings": [
+        [
+          "（法第二十六条の四第四項の国土交通省令で定める道路管理者の意見を聴く必要がない場合）",
+          "第三十二条の九　法第二十六条の四第四項ただし書の国土交通省令で定める道路管理者の意見を聴く必要がない場合については、道路管理者の意見聴取に関する省令第五条の規定を準用する。"
+        ],
+        [
+          "（海上運送利便確保実施計画の記載事項）",
+          "第三十二条の十　法第二十六条の七第二項第八号の国土交通省令で定める事項は、地域公共交通計画に海上運送利便確保事業に関連して実施される事業が定められている場合には、当該事業に関する事項とする。"
+        ],
+        [
+          "（法第二十六条の七第四項の国土交通省令で定める者）",
+          "第三十二条の十一　法第二十六条の七第四項の国土交通省令で定める者は、次に掲げる者とする。"
+        ]
+      ],
+      "reviewer": "root",
+      "blind": false,
+      "review_scope": "new row boundaries, complete original printed insertion markers, captions, neighboring continuation, opaque tables",
+      "V3_review": "article boundaries agree with original; full character accuracy not scored",
+      "independent_gold": false,
+      "notes": "V3 leaves 第八節 with article32-9 and two markers; extend the same native structural-boundary rule to internal outline anchors. Do not adopt incomplete V3 as final.",
+      "correction": "Native line and original confirm 第八節 海上運送利便確保事業; earlier review-note numeral was mistranscribed. No source or runtime text altered."
+    },
+    {
+      "source": "20260930g002150051",
+      "PDF": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-09-30/20260930g00215/20260930g002150051.pdf",
+      "sha256": "923df9a9b551892d38d5cc7db7dc5948004c52394fcc5db22b16e706ee2497c0",
+      "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-article-marker-ownership146/source-review146/20260930g002150051.png",
+      "new_article_headings": [
+        [
+          "（令附則第三十五条の四第一項の申出）",
+          "第四十五条　令附則第三十五条の四第一項の申出は、同項に規定する申出基準日を記載した申出書を特定組合（同項に規定する特定組合をいう。附則第四十七条及び第四十八条において同じ。）に提出することによつて行うものとする。"
+        ],
+        [
+          "（令附則第三十五条の四第五項の申出）",
+          "第四十六条　令附則第三十五条の四第五項の申出は、当該特定地方独立行政法人が当該申出を行う時点において地方公務員等共済組合法施行令及び被用者年金制度の一元化等を図るための厚生年金保険法等の一部を改正する法律及び地方公務員等共済組合法及び被用者年金制度の一元化等を図るための厚生年金保険法等の一部を改正する法律の一部を改正する法律の施行に伴う地方公務員等共済組合法による長期給付等に関する経過措置に関する政令の一部を改正する政令（令和四年政令第二百六十六号）附則第三条第四項の申出をすることができる場合は、当該申出と同時に行わなければならない。"
+        ],
+        [
+          "（一定期間経過後の負担金調整額の変更が生じうる申出等に関する届出）",
+          "第四十七条　令附則第三十五条の四第一項の規定の適用を受けている又は受けていた特定地方独立行政法人は、これらの規定の適用を受けている又は受けていた期間における第百六十四条の"
+        ],
+        [
+          "（組合員資格の同月得喪に係る届出）",
+          "第四十八条　令附則第三十五条の四第一項の規定の適用を受けている又は受けていた特定地方独立行政法人は、同項の規定の適用を受けている又は受けていた期間において、当該特定地方独立行政法人に使用される短時間組合員（令附則第三十五条の三に規定する短時間組合員をいう。）が、組合員の資格を取得した月にその資格を喪失したときは、当該組合員の氏名及び組合員等記号・番号を記載した届出書を特定組合に提出しなければならない。"
+        ],
+        [
+          "第四十九条　附則第四十条及び第四十一条並びに附則第四十四条から前条までの規定は、令附則",
+          "第五条及び第三十五条の六において令附則第四条並びに第三十五条の四、第三十五条の五及び"
+        ]
+      ],
+      "reviewer": "root",
+      "blind": false,
+      "review_scope": "new row boundaries, complete original printed insertion markers, captions, neighboring continuation, opaque tables",
+      "V3_review": "article boundaries agree with original; full character accuracy not scored",
+      "independent_gold": false
+    },
+    {
+      "source": "20260930g002150090",
+      "PDF": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-09-30/20260930g00215/20260930g002150090.pdf",
+      "sha256": "c4a0e27e2e633d07fda18ef348e29c914645810c850d7c5daf09b903e8b4c899",
+      "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-article-marker-ownership146/source-review146/20260930g002150090.png",
+      "new_article_headings": [
+        [
+          "（特定医薬品の製造販売業者の遵守事項）",
+          "第九十八条の十の四　法第十八条の二の三第一項の特定医薬品の製造販売業者が遵守すべき事項は、次のとおりとする。"
+        ],
+        [
+          "（特定医薬品の製造販売業者の法令遵守体制）",
+          "第九十八条の十の五　特定医薬品の製造販売業者は、次に掲げるところにより、法第十八条の二の四第一項各号に掲げる措置を講じなければならない。"
+        ]
+      ],
+      "reviewer": "root",
+      "blind": false,
+      "review_scope": "new row boundaries, complete original printed insertion markers, captions, neighboring continuation, opaque tables",
+      "V3_review": "article boundaries agree with original; full character accuracy not scored",
+      "independent_gold": false
+    },
+    {
+      "source": "20260930g002150091",
+      "PDF": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-09-30/20260930g00215/20260930g002150091.pdf",
+      "sha256": "9a2139418dc61a0cbba85fbefa7fd7ba716716d291974defb1d6066b394b0cd0",
+      "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-article-marker-ownership146/source-review146/20260930g002150091.png",
+      "new_article_headings": [
+        [
+          "（医薬部外品等総括製造販売責任者の基準）",
+          "第九十八条の十一　医薬部外品の品質保証（法第十八条の二の五第一項に規定する医薬部外品又は化粧品の品質保証のうち、医薬部外品の品質保証をいう。）及び製造販売後安全管理の統括を行う者に係る法第十八条の二の五第一項の厚生労働省令で定める基準は、次の各号のいずれかに該当する者であることとする。"
+        ]
+      ],
+      "reviewer": "root",
+      "blind": false,
+      "review_scope": "new row boundaries, complete original printed insertion markers, captions, neighboring continuation, opaque tables",
+      "V3_review": "article boundaries agree with original; full character accuracy not scored",
+      "independent_gold": false
+    },
+    {
+      "source": "20260930g002150092",
+      "PDF": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-09-30/20260930g00215/20260930g002150092.pdf",
+      "sha256": "5c22c08663cec297895b237c8561808aafbf5f33d430653242e2ddf32b11ee82",
+      "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-article-marker-ownership146/source-review146/20260930g002150092.png",
+      "new_article_headings": [
+        [
+          "（医薬部外品等総括製造販売責任者の業務及び遵守事項）",
+          "第九十八条の十二　法第十八条の二の五第四項の医薬部外品等総括製造販売責任者が行う医薬部外品又は化粧品の品質保証（法第十八条の二の五第一項に規定する医薬部外品又は化粧品の品質保証をいう。次項において同じ。）及び製造販売後安全管理の統括のために必要な業務は、次のとおりとする。"
+        ],
+        [
+          "（製造、試験等に関する記録）",
+          "第九十八条の十三　医薬部外品又は化粧品の製造所の医薬部外品等責任技術者は、製造及び試験に関する記録その他当該製造所の管理に関する記録を作成し、かつ、これを三年間（当該記録に係る医薬部外品又は化粧品に関して有効期間の記載が義務付けられている場合には、その有効期間に一年を加算した期間）保管しなければならない。ただし、この省令の他の規定又は薬事に関する他の法令の規定により、記録の作成及びその保管が義務付けられている場合には、この限りでない。"
+        ]
+      ],
+      "reviewer": "root",
+      "blind": false,
+      "review_scope": "new row boundaries, complete original printed insertion markers, captions, neighboring continuation, opaque tables",
+      "V3_review": "article boundaries agree with original; full character accuracy not scored",
+      "independent_gold": false
+    },
+    {
+      "source": "20260930g002150100",
+      "PDF": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-09-30/20260930g00215/20260930g002150100.pdf",
+      "sha256": "f7497c13396639c1d7302e8e04263a0408b84e7904bafbb1f31a80fb043d2d55",
+      "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-article-marker-ownership146/source-review146/20260930g002150100.png",
+      "new_article_headings": [
+        [
+          "（体外診断用医薬品の性能等再評価に係る公示の方法）",
+          "第百十四条の四十五の二の二　法第二十三条の二の十の二第一項の規定による公示は、官報に掲載する方法により行うものとする。"
+        ],
+        [
+          "（性能等再評価において評価する事項）",
+          "第百十四条の四十五の二の三　法第二十三条の二の十の二第一項の厚生労働省令で定める事項は、法第二十三条の二の五の承認に係る性能及び品質とする。"
+        ],
+        [
+          "（性能等に関する情報等の報告）",
+          "第百十四条の四十五の二の四　法第二十三条の二の十の二第七項の厚生労働省令で定める体外診断用医薬品は、同条第一項の規定による厚生労働大臣の指定に係る体外診断用医薬品その他厚生労働大臣が薬事審議会の意見を聴いて指定する体外診断用医薬品とする。"
+        ],
+        [
+          "（機構に対する性能等再評価に係る確認又は調査の申請）",
+          "第百十四条の四十五の二の五　法第二十三条の二の十の三第一項において準用する法第二十三条の二の七第一項の規定により機構に法第二十三条の二の十の二第二項の規定による確認又は同条第五項の規定による調査（以下この項及び次条において「体外診断用医薬品確認等」という。）を行わせることとしたときは、令第三十七条の三十四に規定する体外診断用医薬品に係る法第二十三条の二の十の二第一項の性能等再評価の申請者は、機構に当該体外診断用医薬品確認等の申請をしなければならない。"
+        ],
+        [
+          "（機構による性能等再評価に係る体外診断用医薬品確認等の結果の通知）",
+          "第百十四条の四十五の二の六　法第二十三条の二の十の三第一項において準用する法第二十三条の二の七第六項の規定により厚生労働大臣に対して行う体外診断用医薬品確認等の結果の通知は、様式第三十七による通知書によつて行うものとする。"
+        ]
+      ],
+      "reviewer": "root",
+      "blind": false,
+      "review_scope": "new row boundaries, complete original printed insertion markers, captions, neighboring continuation, opaque tables",
+      "V3_review": "article boundaries agree with original; full character accuracy not scored",
+      "independent_gold": false
+    },
+    {
+      "source": "20260930g002150153",
+      "PDF": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-09-30/20260930g00215/20260930g002150153.pdf",
+      "sha256": "6ef32f8ce48d274805cc561df9c4dbff88872dfdd9a6d59a8c7e2fe8b987d1b1",
+      "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-article-marker-ownership146/source-review146/20260930g002150153.png",
+      "new_article_headings": [
+        [
+          "（文書及び記録の管理）",
+          "第二十条の四　医薬部外品の製造販売業者は、この章に規定する文書及び記録については、次に掲げる事項に従い管理しなければならない。"
+        ],
+        [
+          "（準用）",
+          "第二十条の五　医薬部外品の品質管理の基準については、第三条、第五条から第九条まで（第七条第六号ハ及びニを除く。）、第十一条から第十五条（第三号ハを除く。）までの規定を準用する。"
+        ]
+      ],
+      "reviewer": "root",
+      "blind": false,
+      "review_scope": "new row boundaries, complete original printed insertion markers, captions, neighboring continuation, opaque tables",
+      "V3_review": "article boundaries agree with original; full character accuracy not scored",
+      "independent_gold": false
+    },
+    {
+      "source": "20260930g002150154",
+      "PDF": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-09-30/20260930g00215/20260930g002150154.pdf",
+      "sha256": "d2584e1daeb30228dc05e0e2d698660202383eb132f9edebe8699ad670d263ba",
+      "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-article-marker-ownership146/source-review146/20260930g002150154.png",
+      "new_article_headings": [
+        [
+          "（再生医療等製品総括製造販売責任者の業務）",
+          "第二十一条　再生医療等製品の製造販売業者は、次に掲げる業務を法第二十三条の三十四第二項に規定する再生医療等製品総括製造販売責任者（以下「再生医療等製品総括製造販売責任者」という。）に行わせなければならない。"
+        ],
+        [
+          "（品質管理業務に係る組織及び職員）",
+          "第二十一条の二　再生医療等製品の製造販売業者は、品質管理業務を適正かつ円滑に遂行しうる能力を有する人員を十分に有しなければならない。"
+        ]
+      ],
+      "reviewer": "root",
+      "blind": false,
+      "review_scope": "new row boundaries, complete original printed insertion markers, captions, neighboring continuation, opaque tables",
+      "V3_review": "article boundaries agree with original; full character accuracy not scored",
+      "independent_gold": false
+    },
+    {
+      "source": "20260930g002150155",
+      "PDF": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-09-30/20260930g00215/20260930g002150155.pdf",
+      "sha256": "9db7c2650e96bc1a22983281ec30bc83688aea6e7adff18fdaea37f8f2766e38",
+      "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-article-marker-ownership146/source-review146/20260930g002150155.png",
+      "new_article_headings": [
+        [
+          "（適正な製造管理及び品質管理の確保）",
+          "第二十一条の三　再生医療等製品の製造販売業者は、第二十一条の四において準用する第五条に規定する品質標準書及び第二十一条の四において準用する第六条第一項に規定する品質管理業務手順書（以下この条において「品質管理業務手順書等」という。）に基づき、品質保証部門のあらかじめ指定した者に、次に掲げる業務を行わせなければならない。"
+        ]
+      ],
+      "reviewer": "root",
+      "blind": false,
+      "review_scope": "new row boundaries, complete original printed insertion markers, captions, neighboring continuation, opaque tables",
+      "V3_review": "article boundaries agree with original; full character accuracy not scored",
+      "independent_gold": false
+    },
+    {
+      "source": "20260930g002150361",
+      "PDF": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-09-30/20260930g00215/20260930g002150361.pdf",
+      "sha256": "d8af275077db9a3f6b78f2f838b1a9018120bb93a8552cb240b7abd2b39f8ddd",
+      "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-article-marker-ownership146/source-review146/20260930g002150361.png",
+      "new_article_headings": [
+        [
+          "第六条　規則第二十七条の二第一項第四号に規定する経済産業大臣が定める額は、第五条ただし書に規定する期間にあっては百円とし、当該期間以外の期間にあっては三百円とする。"
+        ]
+      ],
+      "reviewer": "root",
+      "blind": false,
+      "review_scope": "new row boundaries, complete original printed insertion markers, captions, neighboring continuation, opaque tables",
+      "V3_review": "article boundaries agree with original; full character accuracy not scored",
+      "independent_gold": false,
+      "notes": "Article6 owns insertion marker; preceding supplemental-money opaque table and other notice preserved."
+    },
+    {
+      "source": "20260930g002150398",
+      "PDF": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-09-30/20260930g00215/20260930g002150398.pdf",
+      "sha256": "5e1cd44457b2ba4afc80dbaef90b4db8b3c3264aa5f7d2348e8b94c69e02829b",
+      "reviewer": "root",
+      "blind": false,
+      "independent_gold": false,
+      "review_scope": "whole-only row boundaries51-7眠気警報装置 and51-8脇見警報装置 each own aligned printed新設; preceding continuation2/3略 preserved; single-page Analysis remains exact145",
+      "image": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-article-marker-ownership146/source-review146/20260930g002150398.png"
+    }
+  ],
+  "row_contract_digest": "f6f734a925f03878a1bd132a176ac86c7c89349c650af39b24122ae100cd32ff",
+  "whole_boundary_map": [
+    {
+      "issue": "20260724g00165",
+      "boundaries": [
+        {
+          "Article": 4,
+          "block": 1,
+          "old_row": 3,
+          "source": "20260724g001650782",
+          "previously_reviewed": true,
+          "header": "（各地方公共団体に交付すべき軽自動車税減収補塡特例交付金の算定方法）",
+          "before": "〔新設〕"
+        },
+        {
+          "Article": 4,
+          "block": 1,
+          "old_row": 3,
+          "source": "20260724g001650782",
+          "previously_reviewed": true,
+          "header": "（各地方公共団体に交付すべき地方揮発油譲与税減収補塡特例交付金の算定方法）",
+          "before": "〔新設〕"
+        }
+      ]
+    },
+    {
+      "issue": "20260729g00169",
+      "boundaries": [
+        {
+          "Article": 35,
+          "block": 13,
+          "old_row": 27,
+          "source": "20260729g001690093",
+          "previously_reviewed": true,
+          "header": "（欠格条項）",
+          "before": "（新設）"
+        },
+        {
+          "Article": 35,
+          "block": 13,
+          "old_row": 27,
+          "source": "20260729g001690093",
+          "previously_reviewed": true,
+          "header": "（登録基準）",
+          "before": "（新設）"
+        },
+        {
+          "Article": 35,
+          "block": 13,
+          "old_row": 27,
+          "source": "20260729g001690094",
+          "previously_reviewed": true,
+          "header": "（登録の更新）",
+          "before": "（新設）"
+        },
+        {
+          "Article": 35,
+          "block": 13,
+          "old_row": 30,
+          "source": "20260729g001690096",
+          "previously_reviewed": true,
+          "header": "（業務の休廃止の届出）",
+          "before": "（新設）"
+        },
+        {
+          "Article": 35,
+          "block": 13,
+          "old_row": 30,
+          "source": "20260729g001690096",
+          "previously_reviewed": true,
+          "header": "（財務諸表等の備置き及び閲覧等）",
+          "before": "（新設）"
+        },
+        {
+          "Article": 35,
+          "block": 13,
+          "old_row": 30,
+          "source": "20260729g001690096",
+          "previously_reviewed": true,
+          "header": "（適合命令）",
+          "before": "（新設）"
+        },
+        {
+          "Article": 36,
+          "block": 11,
+          "old_row": 9,
+          "source": "20260729g001690174",
+          "previously_reviewed": true,
+          "header": "第七十条の五　法第八十四条の規定により高額療養費（令第十四条の三第四項又は第五項の規定により支給される高額療養費に限る。以下この条において同じ。）の支給を受けようとする被保険者（令第十四条の三第四項及び第五項に規定する者をいう。以下この条において「申請者」という。）は、次に掲げる事項を記載した申請書を後期高齢者医療広域連合（次条第一項第五号に掲げる後期高齢者医療広域連合に該当する場合に限る。以下この条において同じ。）に提出しなければならない。",
+          "before": "（新設）"
+        },
+        {
+          "Article": 36,
+          "block": 11,
+          "old_row": 9,
+          "source": "20260729g001690175",
+          "previously_reviewed": true,
+          "header": "（令第十四条の三の年間の高額療養費の支給及び証明書の交付申請等）",
+          "before": "（新設）"
+        }
+      ]
+    },
+    {
+      "issue": "20260731g00172",
+      "boundaries": [
+        {
+          "Article": 110,
+          "block": 3,
+          "old_row": 0,
+          "source": "20260731g001720088",
+          "previously_reviewed": true,
+          "header": "（特定生産性向上設備等の確認）",
+          "before": "（新設）"
+        },
+        {
+          "Article": 110,
+          "block": 3,
+          "old_row": 0,
+          "source": "20260731g001720088",
+          "previously_reviewed": true,
+          "header": "（変更の確認）",
+          "before": "（新設）"
+        },
+        {
+          "Article": 110,
+          "block": 3,
+          "old_row": 0,
+          "source": "20260731g001720088",
+          "previously_reviewed": true,
+          "header": "（特定生産性向上設備等の確認の基準）",
+          "before": "（新設）"
+        },
+        {
+          "Article": 110,
+          "block": 3,
+          "old_row": 0,
+          "source": "20260731g001720089",
+          "previously_reviewed": true,
+          "header": "（確認の取消し）",
+          "before": "（新設）"
+        },
+        {
+          "Article": 110,
+          "block": 3,
+          "old_row": 0,
+          "source": "20260731g001720089",
+          "previously_reviewed": true,
+          "header": "（生産性の向上に資する設備等の導入の状況に関する調査）",
+          "before": "（新設）"
+        },
+        {
+          "Article": 110,
+          "block": 3,
+          "old_row": 0,
+          "source": "20260731g001720089",
+          "previously_reviewed": true,
+          "header": "（特定生産性向上設備等の導入の状況に関する事項の証明の申請）",
+          "before": "（新設）"
+        }
+      ]
+    },
+    {
+      "issue": "20260814h01768",
+      "boundaries": [
+        {
+          "Article": 30,
+          "block": 1,
+          "old_row": 0,
+          "source": "20260814h017680003",
+          "previously_reviewed": true,
+          "header": "（資金の貸付け）",
+          "before": "（新設）"
+        },
+        {
+          "Article": 30,
+          "block": 1,
+          "old_row": 0,
+          "source": "20260814h017680003",
+          "previously_reviewed": true,
+          "header": "（広域系統整備計画の評価）",
+          "before": "（新設）"
+        }
+      ]
+    },
+    {
+      "issue": "20260918g00209",
+      "boundaries": [
+        {
+          "Article": 32,
+          "block": 1,
+          "old_row": 36,
+          "source": "20260918g002090061",
+          "previously_reviewed": true,
+          "header": "（法第二十六条の四第四項の国土交通省令で定める道路管理者の意見を聴く必要がない場合）",
+          "before": "（新設）"
+        },
+        {
+          "Article": 32,
+          "block": 1,
+          "old_row": 36,
+          "source": "20260918g002090061",
+          "previously_reviewed": true,
+          "header": "第八節　海上運送利便確保事業",
+          "before": "（新設）"
+        },
+        {
+          "Article": 32,
+          "block": 1,
+          "old_row": 36,
+          "source": "20260918g002090061",
+          "previously_reviewed": true,
+          "header": "（海上運送利便確保実施計画の記載事項）",
+          "before": "（新設）"
+        },
+        {
+          "Article": 32,
+          "block": 1,
+          "old_row": 36,
+          "source": "20260918g002090061",
+          "previously_reviewed": true,
+          "header": "（法第二十六条の七第四項の国土交通省令で定める者）",
+          "before": "（新設）"
+        }
+      ]
+    },
+    {
+      "issue": "20260930g00215",
+      "boundaries": [
+        {
+          "Article": 125,
+          "block": 1,
+          "old_row": 17,
+          "source": "20260930g002150051",
+          "previously_reviewed": true,
+          "header": "（令附則第三十五条の四第一項の申出）",
+          "before": "〔新設〕"
+        },
+        {
+          "Article": 125,
+          "block": 1,
+          "old_row": 17,
+          "source": "20260930g002150051",
+          "previously_reviewed": true,
+          "header": "（令附則第三十五条の四第五項の申出）",
+          "before": "〔新設〕"
+        },
+        {
+          "Article": 125,
+          "block": 1,
+          "old_row": 17,
+          "source": "20260930g002150051",
+          "previously_reviewed": true,
+          "header": "（一定期間経過後の負担金調整額の変更が生じうる申出等に関する届出）",
+          "before": "〔新設〕"
+        },
+        {
+          "Article": 125,
+          "block": 1,
+          "old_row": 17,
+          "source": "20260930g002150051",
+          "previously_reviewed": true,
+          "header": "（組合員資格の同月得喪に係る届出）",
+          "before": "〔新設〕"
+        },
+        {
+          "Article": 125,
+          "block": 1,
+          "old_row": 17,
+          "source": "20260930g002150051",
+          "previously_reviewed": true,
+          "header": "第四十九条　附則第四十条及び第四十一条並びに附則第四十四条から前条までの規定は、令附則",
+          "before": "〔新設〕"
+        },
+        {
+          "Article": 138,
+          "block": 1,
+          "old_row": 56,
+          "source": "20260930g002150090",
+          "previously_reviewed": true,
+          "header": "（特定医薬品の製造販売業者の遵守事項）",
+          "before": "（新設）"
+        },
+        {
+          "Article": 138,
+          "block": 1,
+          "old_row": 56,
+          "source": "20260930g002150090",
+          "previously_reviewed": true,
+          "header": "（特定医薬品の製造販売業者の法令遵守体制）",
+          "before": "（新設）"
+        },
+        {
+          "Article": 138,
+          "block": 1,
+          "old_row": 56,
+          "source": "20260930g002150091",
+          "previously_reviewed": true,
+          "header": "（医薬部外品等総括製造販売責任者の基準）",
+          "before": "（新設）"
+        },
+        {
+          "Article": 138,
+          "block": 1,
+          "old_row": 56,
+          "source": "20260930g002150092",
+          "previously_reviewed": true,
+          "header": "（医薬部外品等総括製造販売責任者の業務及び遵守事項）",
+          "before": "（新設）"
+        },
+        {
+          "Article": 138,
+          "block": 1,
+          "old_row": 56,
+          "source": "20260930g002150092",
+          "previously_reviewed": true,
+          "header": "（製造、試験等に関する記録）",
+          "before": "（新設）"
+        },
+        {
+          "Article": 138,
+          "block": 3,
+          "old_row": 17,
+          "source": "20260930g002150100",
+          "previously_reviewed": true,
+          "header": "（体外診断用医薬品の性能等再評価に係る公示の方法）",
+          "before": "（新設）"
+        },
+        {
+          "Article": 138,
+          "block": 3,
+          "old_row": 17,
+          "source": "20260930g002150100",
+          "previously_reviewed": true,
+          "header": "（性能等再評価において評価する事項）",
+          "before": "（新設）"
+        },
+        {
+          "Article": 138,
+          "block": 3,
+          "old_row": 17,
+          "source": "20260930g002150100",
+          "previously_reviewed": true,
+          "header": "（性能等に関する情報等の報告）",
+          "before": "（新設）"
+        },
+        {
+          "Article": 138,
+          "block": 3,
+          "old_row": 17,
+          "source": "20260930g002150100",
+          "previously_reviewed": true,
+          "header": "（機構に対する性能等再評価に係る確認又は調査の申請）",
+          "before": "（新設）"
+        },
+        {
+          "Article": 138,
+          "block": 3,
+          "old_row": 17,
+          "source": "20260930g002150100",
+          "previously_reviewed": true,
+          "header": "（機構による性能等再評価に係る体外診断用医薬品確認等の結果の通知）",
+          "before": "（新設）"
+        },
+        {
+          "Article": 138,
+          "block": 9,
+          "old_row": 36,
+          "source": "20260930g002150153",
+          "previously_reviewed": true,
+          "header": "（文書及び記録の管理）",
+          "before": "（新設）"
+        },
+        {
+          "Article": 138,
+          "block": 9,
+          "old_row": 36,
+          "source": "20260930g002150153",
+          "previously_reviewed": true,
+          "header": "（準用）",
+          "before": "（新設）"
+        },
+        {
+          "Article": 138,
+          "block": 9,
+          "old_row": 36,
+          "source": "20260930g002150154",
+          "previously_reviewed": true,
+          "header": "（再生医療等製品総括製造販売責任者の業務）",
+          "before": "（新設）"
+        },
+        {
+          "Article": 138,
+          "block": 9,
+          "old_row": 36,
+          "source": "20260930g002150154",
+          "previously_reviewed": true,
+          "header": "（品質管理業務に係る組織及び職員）",
+          "before": "（新設）"
+        },
+        {
+          "Article": 138,
+          "block": 9,
+          "old_row": 36,
+          "source": "20260930g002150155",
+          "previously_reviewed": true,
+          "header": "（適正な製造管理及び品質管理の確保）",
+          "before": "（新設）"
+        },
+        {
+          "Article": 168,
+          "block": 1,
+          "old_row": 4,
+          "source": "20260930g002150361",
+          "previously_reviewed": true,
+          "header": "第六条　規則第二十七条の二第一項第四号に規定する経済産業大臣が定める額は、第五条ただし書に規定する期間にあっては百円とし、当該期間以外の期間にあっては三百円とする。",
+          "before": "（新設）"
+        },
+        {
+          "Article": 169,
+          "block": 5,
+          "old_row": 9,
+          "source": "20260930g002150398",
+          "previously_reviewed": true,
+          "header": "（眠気警報装置）",
+          "before": "（新設）"
+        },
+        {
+          "Article": 169,
+          "block": 5,
+          "old_row": 9,
+          "source": "20260930g002150398",
+          "previously_reviewed": true,
+          "header": "（脇見警報装置）",
+          "before": "（新設）"
+        }
+      ]
+    }
+  ],
+  "actual_CLI": {
+    "actual_Cargo_debug_native_PDFs": 21,
+    "actual_Cargo_debug_source_XHTML_textdump": 21,
+    "actual_Cargo_debug_text_example": 21,
+    "scope": "20 changed originals +398 whole-context source control;92 and unrelated2 in structured mixtures only",
+    "actual_Cargo_docjson_groups": [
+      [
+        "20260724g001650782"
+      ],
+      [
+        "20260729g001690093"
+      ],
+      [
+        "20260729g001690094"
+      ],
+      [
+        "20260729g001690096"
+      ],
+      [
+        "20260729g001690098"
+      ],
+      [
+        "20260729g001690174"
+      ],
+      [
+        "20260729g001690175"
+      ],
+      [
+        "20260731g001720088"
+      ],
+      [
+        "20260731g001720089"
+      ],
+      [
+        "20260814h017680003"
+      ],
+      [
+        "20260918g002090061"
+      ],
+      [
+        "20260930g002150051"
+      ],
+      [
+        "20260930g002150090"
+      ],
+      [
+        "20260930g002150091"
+      ],
+      [
+        "20260930g002150092"
+      ],
+      [
+        "20260930g002150100"
+      ],
+      [
+        "20260930g002150153"
+      ],
+      [
+        "20260930g002150154"
+      ],
+      [
+        "20260930g002150155"
+      ],
+      [
+        "20260930g002150361"
+      ],
+      [
+        "20260930g002150398"
+      ],
+      [
+        "source92",
+        "20260729g001690093",
+        "20260729g001690094"
+      ],
+      [
+        "unrelated2",
+        "source92",
+        "20260729g001690093",
+        "20260729g001690094"
+      ],
+      [
+        "20260731g001720088",
+        "20260731g001720089"
+      ],
+      [
+        "20260918g002090061",
+        "20260930g002150398"
+      ]
+    ],
+    "all_structured_Documents_exact_frozen_API": true,
+    "every_complete_text_exact_frozen_optimized_API": true,
+    "all_source_bytes_prepost_exact": true,
+    "word_duplicates_on21_originals": 0,
+    "full11992_CLI_run": false,
+    "release_CLI_run": false
+  },
+  "TDD": {
+    "original_before145": "initial original93,94 and92-94:0pass3fail",
+    "unit_initial": "4positive failures/8negative passes before runtime; V2 changed2existing negatives; V3 preceding-body proof fixed them without changing expectations",
+    "internal_outline_and_repeated_scope": "V4:26pass3fail ->V5:62related tests green, minimum4native-page mixture green; actual184-page target stillRED",
+    "unrelated_typed_frame": "Actual native chain83..99 complete but both maximal role streams failed unique typed binding due an unrelated earlier discrepancy. V7 independent-window testRED (3rows instead of5); V8 related63tests and actual184-page targetGREEN",
+    "public_Cargo_baseline145": "Corrected JSON-roundtrip comparison1pass24fail. First draft used to_value with f32-to-f64 representation mismatch; corrected test encoding, no runtime or expected JSON changed. Initial false-positive log retained privately.",
+    "normal_final": "3449passed0failed0ignored; no snapshot update"
+  },
+  "frozen_candidate": "private-v8 optimized source and binary, both full cohorts pre/post hashes checked. Actual production files are recorded rustfmt rendering of that source; only additional src change is a cfg(test)-only legacy oracle control. Normal all4native Cargo gates and actual CLI use final Root source.",
+  "review_limits": "Root nonblind original boundary/marker/caption/table review of21pages, not independent character accuracy or a global accuracy estimate. Fixed30-page139 audit remains native138 history.",
+  "remaining": [
+    "frequency before/after tables",
+    "independent procedure and article membership",
+    "multiple monetary columns",
+    "character encodings and PUA",
+    "other native layout and ownership cases"
+  ],
+  "OCR": "Explicit separate CLI opt-in, NDLOCR0.0.15 f97e930b8c3e9512f7788f258ef685da26416483 fixed; no automatic OCR or model inference",
+  "goal227_complete": false
+}

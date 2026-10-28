@@ -1,0 +1,190 @@
+{
+  "issue": 227,
+  "iteration": "OCRsource100",
+  "status": "qualitative pilot held from canonical integration; manual source-heading reference corrected in OCRsource105",
+  "frozen_before_inference": {
+    "timestamp": "2026-10-23T12:50:33.213992+00:00",
+    "original": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-archive/2026-10-07/20261007g00221/20261007g002210047.pdf",
+    "original_sha256": "c118100a1bc86c58428cdf96d146e547e0960e9f4630f9a69add2165e19fed65",
+    "source_render_sha256": "bc0214df959022082891eaf606116fb913129cf73e5fc34879d3125fd8f9f359",
+    "native_text_sha256": "d48a5f408a837e10586e28712fd39960b377e1c32a78345c3ce2401f25966774",
+    "selected_source_headings_before_OCR": [
+      "相続債権者受遺者への請求申出の催告",
+      "所在不明株主の株式の競売又は売却に係る異議申述の公告"
+    ],
+    "reviewer": "root original-image nonblind development review; selected from fresh98 omissions before this OCR run",
+    "scope": "Qualitative pilot of two source headings missing from native output. Not full-page OCR truth, coverage/accuracy evaluation or canonical article integration. Expected wording is an evaluation oracle, never a runtime condition.",
+    "code_sha256": {
+      "tools/kanpo-ocr/ndlocr.cjs": "3d9505dd16bf379b467b2f7574c5e6447415c0ce0ae929cc9cacb00f30336a36",
+      "tools/kanpo-ocr/sidecar.test.cjs": "b18427cdc8f13397ac0a2602ec70a8c9bc53d9496177457b273d6df7c66494d4",
+      "tools/kanpo-ocr/placement.test.cjs": "e37c533b8cc1be481731873ceed571b8a7a33e0b54f00b33b53d6a455c6c09cc",
+      "tools/kanpo-ocr/pdf-cli.cjs": "717eff9eba0df21957cf6c513fb4a8dbd897da01db9c8ceb68a94502662fb83c",
+      "tools/kanpo-ocr/placement.cjs": "bc4f7d7ac8c8ede9053e8301926d1270d4da62eb1a54687d8ea7685c4d69652c",
+      "tools/kanpo-ocr/project-cli.cjs": "5d1ef6564cc8fad548e17721b75afd2daac1cd740d621007b930502f33086f00",
+      "tools/kanpo-ocr/layout-profile.test.cjs": "ada3bdfe9095e62f49fff3a2bd1eb96da57294b1a4065dcc631d43187a13f24a",
+      "tools/kanpo-ocr/sidecar.cjs": "8b793f88223d8f0dc3f85ef0cdc7355012245c6e6b286d62af0cec1a164677cc",
+      "tools/kanpo-ocr/ndlocr-build.cjs": "59cea9f3f4839422a1c251751d390af5ed6b7404f85e64aa772ea9634eeeef5f",
+      "tools/kanpo-ocr/pdf-cli.test.cjs": "117b2091a359536731611cfb625128c15b7886d9eaa9d953e8cd9d69224e697f",
+      "tools/kanpo-ocr/pdf-binding.cjs": "5652b731abba7d3811d62b06b7fcd02742d6f50a7f866ba10d159ea25e99cc7a",
+      "tools/kanpo-ocr/ndlocr-build.test.cjs": "22f7ae9a5c9be8afc65c83538171ff8ba63ca75db3c6af1b7c08a5a06d55c18f",
+      "tools/kanpo-ocr/ndlocr-regions.cjs": "dae58fb6616d1e3715c9664ab5ec5624511131d99214be9af41181192e077d9c",
+      "tools/kanpo-ocr/engine.cjs": "bdf62971d33de46a6cf9deff332bec1b2c1db8c2dfa78485b53ef840af8a67ff",
+      "tools/kanpo-ocr/pdf-partition.test.cjs": "d22f1f05a0a3db69967e6ce2ab8d73f0971626d77501e9ab6340a8216a0fb78e",
+      "tools/kanpo-ocr/pdf-binding.test.cjs": "ed96c40af5e187c6204ce8af84a69e193f60cf7109093af0ecfa2d7d7c0e5ec9",
+      "tools/kanpo-ocr/ndlocr.test.cjs": "0051c2e2ae93e11f05ace492de2191c7f38322dbe33db8751855d65027e56fc5",
+      "tools/kanpo-ocr/partition.cjs": "fb8abd364fb421378aa801fbd4ad6d2ef3afdecbade5e6716278be3c034b402a",
+      "tools/kanpo-ocr/engine.test.cjs": "2b99a765aff2df57db51849f7820696b05ee00d81a4e0d416541c7930c0e4ff2",
+      "tools/kanpo-ocr/partition.test.cjs": "adea731335d380b81e236569a794646a3130c9f27fc7d38ba1632a9660a0001d",
+      "tools/kanpo-ocr/cli.cjs": "40e9b0835fbf02e3b3ed182cf2fb6efce369fde95c29c1c94bf358dc6c9a3615",
+      "tools/kanpo-ocr/ndlocr-regions.test.cjs": "fc906f6c1285153d7a95cbb7ae82a92f0b36602b17a65d44abb1aeef2064b182"
+    }
+  },
+  "result": {
+    "engine": {
+      "package": "ndlocr-lite-rs",
+      "binary": "/Users/bokuweb/Library/Caches/mbx/targets/v1/94d83282ed2e94b9c1c993ce534f658c42c61ae5a65235653883be27020cf792/release/ndlocr-lite-rs",
+      "version": "0.0.15",
+      "commit": "f97e930b8c3e9512f7788f258ef685da26416483",
+      "build_receipt_sha256": "35ef99edfae583264cefabb32863f9c4a4e944f5e803feab45c5780f38f71b19",
+      "build_receipt_path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/ndlocr-regions96/recovered-0.0.15-build.json",
+      "sha256": "27ae23d8d8a40d294e75140f44881fecddc7a18cac60efae2d6fb5169f30c105"
+    },
+    "source_headings_before_inference": [
+      {
+        "source_heading": "相続債権者受遺者への請求申出の催告",
+        "native_present": false,
+        "OCR_present": true
+      },
+      {
+        "source_heading": "所在不明株主の株式の競売又は売却に係る異議申述の公告",
+        "native_present": false,
+        "OCR_present": false
+      }
+    ],
+    "regions": 96,
+    "vertical_regions": 96,
+    "raw_nonwhitespace_characters": 1448,
+    "all_region_fields_preserved": true,
+    "invalid_projections": [],
+    "source_and_code_prepost_verified": true,
+    "recognized_txt_sha256": "7dad78d8c276a0a04164870dc70221872384ce98be2c414a757ca6f33ecab167",
+    "trace_sha256": "3c4219571e961a3e6ff88588ef35847f756f6fa0b23476cbbc717a4339fdadf8",
+    "projected_sha256": "87f535dfb1746e9f9d111f78f923b051dc32e6e687abdf69c7f7ecbfc70fe570",
+    "scope": "Qualitative pilot of two source headings missing from native output. Not full-page OCR truth, coverage/accuracy evaluation or canonical article integration. Expected wording is an evaluation oracle, never a runtime condition.",
+    "visibility": "unverified",
+    "body_coverage_verified": false,
+    "canonical_integration": false
+  },
+  "execution": {
+    "engine": {
+      "package": "ndlocr-lite-rs",
+      "binary": "/Users/bokuweb/Library/Caches/mbx/targets/v1/94d83282ed2e94b9c1c993ce534f658c42c61ae5a65235653883be27020cf792/release/ndlocr-lite-rs",
+      "version": "0.0.15",
+      "commit": "f97e930b8c3e9512f7788f258ef685da26416483",
+      "build_receipt_sha256": "35ef99edfae583264cefabb32863f9c4a4e944f5e803feab45c5780f38f71b19",
+      "build_receipt_path": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/ndlocr-regions96/recovered-0.0.15-build.json",
+      "sha256": "27ae23d8d8a40d294e75140f44881fecddc7a18cac60efae2d6fb5169f30c105"
+    },
+    "models": [
+      {
+        "path": "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models/deim-s-1024x1024.onnx",
+        "sha256": "c156ce0c4e704bc3bf7e4016d0a87b949cffa8b3724f4b4cc696b8284c3c7373",
+        "bytes": 40256763
+      },
+      {
+        "path": "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models/parseq-ndl-24x768-100-tiny-153epoch-tegaki3-r8data-202604.onnx",
+        "sha256": "06462b0dbd5b0b8508545c8c3d485cf20dbf4ffa652fe145e69c9e7457080602",
+        "bytes": 42588187
+      },
+      {
+        "path": "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models/parseq-ndl-24x256-30-tiny-189epoch-tegaki3-r8data-202604.onnx",
+        "sha256": "9e651bae4c1a4d5254da1127e86e82e21ef62d5339b37e62d4a3d3d30831772d",
+        "bytes": 36457393
+      },
+      {
+        "path": "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models/parseq-ndl-24x384-50-tiny-300epoch-tegaki3-r8data-202604.onnx",
+        "sha256": "49cea9db4552f19eb05c8ee202fcf74714977749b2f4c9376b127fde41b07a99",
+        "bytes": 37808553
+      },
+      {
+        "path": "/Users/bokuweb/ghq/github.com/bokuweb/ndlocr-lite-rs/models/NDLmoji.yaml",
+        "sha256": "f6ad5a2de444b495155866af811cf1a98309dcae3225db802767ea531a2dc529",
+        "bytes": 42434
+      }
+    ],
+    "canvas": {
+      "pixel_width": 2480,
+      "pixel_height": 3509,
+      "width_points": 595,
+      "height_points": 842,
+      "dpi": 300
+    },
+    "thresholds": {
+      "detection": 0.25,
+      "line": 0.3
+    },
+    "structure_rules": false,
+    "dictionary": null,
+    "normalization": null,
+    "recognition_requests": 1,
+    "retries": 0,
+    "regions_requested": true
+  },
+  "review": {
+    "finding": "96verticalregions recover image-body text absent from native. Raw reading_order interleaves independent inheritance notices and the stockholder notice. Some recognition errors remain, including 受遣者 in place of printed 受遺者. The earlier に係る→に伴う claim was a manual source-reference error: the original prints に伴う, correctly recognized by NDLOCR; see correction105.",
+    "heading_presence_limit": "A heading appearing somewhere is not occurrence-level recall; repeated inheritance titles were not exhaustively aligned. No heading accuracy percentage is reported.",
+    "next_evidence_needed": [
+      "Source geometry and pixels must separate independent notice reading flows without text/result-conditioned branching.",
+      "Vertical direction must be explicit; existing native-gutters-ltr assumes horizontal writing and cannot be reused as if vertical.",
+      "Word/glyph/paragraph hierarchy, visibility, native duplication and article ownership remain unverified."
+    ],
+    "not_done": [
+      "automatic canonical append",
+      "text correction to expected wording",
+      "model/threshold switching after inspecting results",
+      "accuracy or coverage certification"
+    ],
+    "historical_finding_before105_correction": "96verticalregions recover image-body text absent from native. Raw reading_order interleaves independent inheritance notices and the stockholder notice. Recognition errors remain, including に伴う in place of printed に係る and 受遣者 in place of 受遺者."
+  },
+  "evidence": {
+    "prefreeze100.json": {
+      "path": ".cache/kanpo-227/ndlocr-hybrid-source100/prefreeze100.json",
+      "sha256": "e35a4a4c143d93411427ff61b075f93a0d7a9c322f906f65efc6a2c743a7f68a"
+    },
+    "pilot-result100.json": {
+      "path": ".cache/kanpo-227/ndlocr-hybrid-source100/pilot-result100.json",
+      "sha256": "78bbd8b66b25313f73d98db78441acfb5ad1024ef2be375c78cc4f01ec404cef"
+    },
+    "result/terminal.json": {
+      "path": ".cache/kanpo-227/ndlocr-hybrid-source100/result/terminal.json",
+      "sha256": "f28cbe1f52030b55c05bbcf305f66daa2505e2fc03a6c99ebab5d680befda5b8"
+    },
+    "result/run-inputs.json": {
+      "path": ".cache/kanpo-227/ndlocr-hybrid-source100/result/run-inputs.json",
+      "sha256": "a6afd81b79bb23a41a044ecc20019c7876da9a637a58cf0fc80f4b666dabd2a6"
+    },
+    "result/page0-draw0-ocr/inputs.json": {
+      "path": ".cache/kanpo-227/ndlocr-hybrid-source100/result/page0-draw0-ocr/inputs.json",
+      "sha256": "9eef6c5668405b36f6e7392bb29d2bacfa61829b9f5516c818664e720d50306c"
+    },
+    "result/page0-draw0-ocr/recognized.txt": {
+      "path": ".cache/kanpo-227/ndlocr-hybrid-source100/result/page0-draw0-ocr/recognized.txt",
+      "sha256": "7dad78d8c276a0a04164870dc70221872384ce98be2c414a757ca6f33ecab167"
+    },
+    "result/page0-draw0-ocr/trace.json": {
+      "path": ".cache/kanpo-227/ndlocr-hybrid-source100/result/page0-draw0-ocr/trace.json",
+      "sha256": "3c4219571e961a3e6ff88588ef35847f756f6fa0b23476cbbc717a4339fdadf8"
+    },
+    "result/page0-draw0-projected.json": {
+      "path": ".cache/kanpo-227/ndlocr-hybrid-source100/result/page0-draw0-projected.json",
+      "sha256": "87f535dfb1746e9f9d111f78f923b051dc32e6e687abdf69c7f7ecbfc70fe570"
+    }
+  },
+  "source_reference_correction": {
+    "audit": "issue227-ndlocr-source-heading-correction105.json",
+    "wrong_original_reference": "に係る",
+    "printed_and_correct_NDLOCR_output": "に伴う",
+    "original_preinference_reference_and_raw_files_preserved": true,
+    "scope": "The source100 second heading presence=false came from a wrong manual source reference and is superseded. No whole-page/occurrence-level recognition score."
+  }
+}

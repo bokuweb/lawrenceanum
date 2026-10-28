@@ -172,6 +172,8 @@ struct Interp<'a> {
     /// Source candidates stay adjacent to the original emitted CharCode.
     /// Legacy extraction does not allocate or decode source evidence.
     source_resolved: Option<Vec<Option<char>>>,
+    source_lineage: Option<crate::source_lineage::Capture>,
+    source_alias_keys:Option<Vec<Option<crate::font::source_alias::FontGlyph>>>,
     source_rects:Option<Vec<Option<[f64;4]>>>,
     ink_viewport:[f64;4],
     image_draws: Option<Vec<crate::source_images::ImageDraw>>,
@@ -193,15 +195,15 @@ pub fn extract_page(doc: &Document, page: &PageRef) -> Page {
     interpret_page(doc, page, false, false).0
 }
 pub(crate) fn extract_page_source_aj1(doc: &Document, page: &PageRef) -> crate::Aj1PageSources {
-    let (page, resolved, ink_rects, _, _) = interpret_page(doc, page, true, false);
-    crate::source_aj1::Aj1PageSources { original: page, resolved, ink_rects }
+    let (page, resolved, ink_rects, aliases, lineage, _, _) = interpret_page(doc, page, true, false);
+    crate::source_aj1::Aj1PageSources { lineage, original: page, resolved, ink_rects, aliases }
 }
 
 pub(crate) fn extract_page_source_images(doc:&Document,page:&PageRef)->crate::source_images::XObjectPageSources{
- let(original,resolved,ink_rects,draws,gaps)=interpret_page(doc,page,true,true);
- crate::source_images::XObjectPageSources{native:crate::source_aj1::Aj1PageSources{original,resolved,ink_rects},crop:page.crop_box,draws,gaps,document_digest:[0;32],media:page.media_box}
+ let(original,resolved,ink_rects,aliases,lineage,draws,gaps)=interpret_page(doc,page,true,true);
+ crate::source_images::XObjectPageSources{native:crate::source_aj1::Aj1PageSources{lineage,original,resolved,ink_rects,aliases},crop:page.crop_box,draws,gaps,document_digest:[0;32],media:page.media_box}
 }
-fn interpret_page(doc: &Document, page: &PageRef, source: bool, image_sources:bool) -> (Page, Vec<Option<char>>,Vec<Option<[f64;4]>>,Vec<crate::source_images::ImageDraw>,Vec<crate::source_images::CaptureGap>) {
+fn interpret_page(doc: &Document, page: &PageRef, source: bool, image_sources:bool) -> (Page, Vec<Option<char>>,Vec<Option<[f64;4]>>,crate::font::source_alias::Aliases,crate::source_lineage::Tape,Vec<crate::source_images::ImageDraw>,Vec<crate::source_images::CaptureGap>) {
     let [x0, y0, x1, y1] = page.crop_box;
     let device = match page.rotate {
         90 => Matrix([0.0, 1.0, 1.0, 0.0, -y0, -x0]),
@@ -239,6 +241,8 @@ fn interpret_page(doc: &Document, page: &PageRef, source: bool, image_sources:bo
         font_ids: HashMap::new(),
         glyphs: Vec::new(),
         source_resolved: source.then(Vec::new),
+        source_lineage:source.then(Default::default),
+        source_alias_keys:source.then(Vec::new),
         source_rects:source.then(Vec::new),
         ink_viewport:[0.,0.,width,height],
         image_draws: image_sources.then(Vec::new),
@@ -258,6 +262,8 @@ fn interpret_page(doc: &Document, page: &PageRef, source: bool, image_sources:bo
 
     if image_sources && (!(width.is_finite()&&height.is_finite()&&width>0.&&height>0.)||!device.0.iter().all(|v|v.is_finite())){it.gs.source_geometry_complete=false;it.image_gap(crate::source_images::GapKind::InvalidPageGeometry,b"");}
     it.run(&content, &page.resources);
+    let lineage=it.source_lineage.take().map(|c|c.finish(doc)).unwrap_or_default();
+    let aliases=it.source_alias_keys.take().map(|keys|crate::font::source_alias::Aliases::capture(&it.glyphs,&keys)).unwrap_or_default();
     let resolved = it.source_resolved.take().unwrap_or_default();
     let ink_rects=it.source_rects.take().unwrap_or_default();
     let image_draws=it.image_draws.take().unwrap_or_default();
@@ -282,6 +288,8 @@ fn interpret_page(doc: &Document, page: &PageRef, source: bool, image_sources:bo
     },
         resolved,
         ink_rects,
+        aliases,
+        lineage,
         image_draws,
         image_gaps,
     )
@@ -312,6 +320,7 @@ impl Interp<'_> {
                 Ok(o) => operands.push(o),
                 Err(op) => {
                     if op == b"BI" {
+                        if let Some(c)=self.source_lineage.as_mut(){c.reset();c.incomplete();}
                         self.image_gap(crate::source_images::GapKind::InlineImage,b"");
                         if !operands.is_empty()
                             || !crate::inline_image::skip_raw(&mut parser, self.doc, resources)
@@ -333,7 +342,10 @@ impl Interp<'_> {
     }
 
     fn op(&mut self, op: &[u8], o: &[Object], resources: &Dict) {
+        let lineage_first=self.glyphs.len();
+        if !matches!(op,b"TD"|b"Td"|b"T*"|b"Tj"|b"TJ"){if let Some(c)=self.source_lineage.as_mut(){c.reset();}}
         self.observe_ink_op(op,o,resources);
+        if !self.gs.ink_geometry_complete||op==b"sh"{if let Some(c)=self.source_lineage.as_mut(){c.incomplete();}}
         let n = |i: usize| Self::num(o, i);
         match op {
             b"q" => self.stack.push(self.gs.clone()),
@@ -481,6 +493,18 @@ impl Interp<'_> {
             }
             _ => {}
         }
+        if self.source_lineage.is_some(){
+            let state=self.lineage_state();
+            if let Some(c)=self.source_lineage.as_mut(){c.observe(op,o,lineage_first,&self.glyphs,state);}
+        }
+
+    }
+
+    fn lineage_state(&self)->Option<crate::source_lineage::State>{
+        let font=self.gs.font?;if self.fonts.get(font)?.vertical||self.gs.font_size<=0.||self.gs.h_scale<=0.{return None;}
+        let g=&self.gs;let mut values=[0.;16];values[..6].copy_from_slice(&[g.font_size,g.char_spacing,g.word_spacing,g.h_scale,g.rise,g.render as f64]);values[6..12].copy_from_slice(&g.ctm.0);values[12..].copy_from_slice(&self.tm.0[..4]);
+        let(x,y)=self.tlm.then(&g.ctm).then(&self.device).apply(0.,0.);
+        Some(crate::source_lineage::State{font,values,origin:[x,y],leading:g.leading})
     }
 
     fn next_line(&mut self, tx: f64, ty: f64) {
@@ -519,12 +543,14 @@ impl Interp<'_> {
 
     fn show(&mut self, bytes: &[u8]) {
         let (Some(font_id), Some(font)) = (self.gs.font, self.cur_font()) else {
-            return;
+            if !bytes.is_empty(){if let Some(c)=self.source_lineage.as_mut(){c.incomplete();}}return;
         };
         let gs = &self.gs;
         let fs = gs.font_size;
         let ctm_dev = gs.ctm.then(&self.device);
-        for c in font.decode(bytes) {
+        let decoded=font.decode(bytes);
+        if !font.source_codes_complete(bytes,&decoded){if let Some(c)=self.source_lineage.as_mut(){c.incomplete();}}
+        for c in decoded {
             let trm = Matrix([fs * gs.h_scale, 0.0, 0.0, fs, 0.0, gs.rise])
                 .then(&self.tm)
                 .then(&ctm_dev);
@@ -554,10 +580,27 @@ impl Interp<'_> {
             let (end_x, end_y) = trm.apply(own.0, own.1);
             // text space の長さをページ座標の長さに（字の大きさの比で）直す。
             let to_pt = if fs.abs() > 1e-9 { size / fs.abs() } else { 0.0 };
-            let spacing = extra * to_pt * if font.vertical { -1.0 } else { gs.h_scale };
-            let kern = std::mem::take(&mut self.pending_kern) * to_pt * if font.vertical { -1.0 } else { gs.h_scale };
+            let pending_kern = std::mem::take(&mut self.pending_kern);
+            let legacy_spacing = extra * to_pt * if font.vertical { -1.0 } else { gs.h_scale };
+            let legacy_kern = pending_kern * to_pt * if font.vertical { -1.0 } else { gs.h_scale };
+            // Tc/Tw and TJ are text-space translations. Project their actual
+            // linear transform onto the glyph's forward axis; the em-height
+            // norm is not the advance scale under nonuniform/mirrored text.
+            let [ma,mb,mc,md,_,_] = trm.0;
+            let forward = (ma*own.0+mc*own.1,mb*own.0+md*own.1);
+            let [ma,mb,mc,md,_,_] = self.tm.then(&ctm_dev).0;
+            let step = |amount:f64,legacy:f64| {
+                let (tx,ty)=if font.vertical {(0.,amount)} else {(amount*gs.h_scale,0.)};
+                let delta=(ma*tx+mc*ty,mb*tx+md*ty);
+                forward_scalar(forward,delta).map(|v|if v==legacy {legacy} else {v}).unwrap_or(legacy)
+            };
+            let spacing = step(extra,legacy_spacing);
+            let kern = step(pending_kern,legacy_kern);
             let bbox = bounds(&trm, bbox_pts);
             let ink_rect=if self.source_rects.is_some(){self.capture_ink_rectangle(&font,&c,&trm)}else{None};
+            let scene_rect=if self.source_lineage.is_some(){if font.vertical&&!crate::bbox::readable_ordering(font.ordering.as_deref(),font.has_to_unicode){self.capture_scene_rectangle(&font,&c,&trm)}else{ink_rect}}else{None};
+            let compound=if self.source_lineage.is_some()&&scene_rect.is_none(){self.capture_scene_compound_envelope(&font,&c,&trm)}else{None};
+            if let Some(tape)=self.source_lineage.as_mut(){tape.scene_rectangle(self.glyphs.len(),scene_rect);tape.scene_compound_obstacle(self.glyphs.len(),compound);}
             self.tm = advance.then(&self.tm);
             self.glyphs.push(Glyph {
                 text: font.unicode(&c),
@@ -577,6 +620,7 @@ impl Interp<'_> {
                 show: self.show_count,
             });
             if let Some(rects)=&mut self.source_rects{rects.push(ink_rect);}
+            if let Some(keys)=&mut self.source_alias_keys{keys.push(font.source_alias_key(self.doc,&c));}
             if let Some(resolved) = &mut self.source_resolved {
                 resolved.push(font.source_aj1_fallback(self.doc, &c));
             }
@@ -611,6 +655,10 @@ impl Interp<'_> {
             return;
         }
         let line_width = self.gs.line_width * self.gs.ctm.scale();
+        let [a,b,c,d,_,_]=self.gs.ctm.0;
+        let conformal=a*a+b*b==c*c+d*d&&a*c+b*d==0.;
+        if let Some(c)=self.source_lineage.as_mut(){c.paint(&subpaths,stroke,fill,line_width,conformal);}
+
         self.paths.push(PathItem {
             subpaths,
             stroke,
@@ -644,6 +692,7 @@ impl Interp<'_> {
     }
 
     fn image_gap(&mut self,kind:crate::source_images::GapKind,name:&[u8]){
+        if let Some(c)=self.source_lineage.as_mut(){c.incomplete();}
         if let Some(gaps)=self.image_gaps.as_mut(){gaps.push(crate::source_images::CaptureGap{kind,resource_name:name.to_vec(),form_path:self.forms.clone()});}
     }
     fn do_xobject(&mut self,resources:&Dict,name:&[u8]){
@@ -657,6 +706,23 @@ impl Interp<'_> {
         let Some(stream)=obj.as_stream()else{self.image_gap(GapKind::UnknownXObject,name);return;};
         let subtype=self.doc.dict_get(&stream.dict,b"Subtype");
         if subtype.as_ref().and_then(Object::as_name)!=Some(b"Form"){
+            if self.source_lineage.is_some(){
+                if subtype.as_ref().and_then(Object::as_name)==Some(b"Image")
+                    &&crate::source_images::dimension(self.doc.dict_get(&stream.dict,b"Width")).is_some()
+                    &&crate::source_images::dimension(self.doc.dict_get(&stream.dict,b"Height")).is_some()
+                    &&self.gs.ink_geometry_complete&&self.gs.source_geometry_complete {
+                    // The full transformed unit square is an upper bound even
+                    // with clipping/masks. Never shrink it to a guessed visible box.
+                    let quad=[[0.,0.],[1.,0.],[1.,1.],[0.,1.]].map(|[x,y]|self.to_page(x,y));
+                    let b=[quad.iter().map(|p|p[0]).fold(f64::INFINITY,f64::min),quad.iter().map(|p|p[1]).fold(f64::INFINITY,f64::min),quad.iter().map(|p|p[0]).fold(f64::NEG_INFINITY,f64::max),quad.iter().map(|p|p[1]).fold(f64::NEG_INFINITY,f64::max)];
+                    let [x0,y0,x1,y1]=self.ink_viewport;
+                    let corners=[[x0,y0],[x1,y0],[x1,y1],[x0,y1]];
+                    let background=self.glyphs.is_empty()&&self.paths.is_empty()&&self.path.is_empty()&&self.current.is_none()
+                        &&self.gs.clip.is_none()&&self.gs.source_clips.as_ref().is_some_and(Vec::is_empty)&&self.source_pending_clip.is_none()
+                        &&corners.iter().all(|corner|quad.iter().filter(|point|*point==corner).count()==1);
+                    if let Some(c)=self.source_lineage.as_mut(){c.image(b,r.filter(|_|background));}
+                }else if let Some(c)=self.source_lineage.as_mut(){c.incomplete();}
+            }
             if self.image_draws.is_some(){
                 if subtype.as_ref().and_then(Object::as_name)==Some(b"Image"){
                     let width=crate::source_images::dimension(self.doc.dict_get(&stream.dict,b"Width"));
@@ -673,6 +739,7 @@ impl Interp<'_> {
             }
             return;
         }
+        if let Some(c)=self.source_lineage.as_mut(){c.incomplete();}
         let Ok(content)=self.doc.decode_stream(stream)else{self.image_gap(GapKind::FormDecodeFailure,name);return;};
         let resource_value=self.doc.dict_get(&stream.dict,b"Resources");
         let invalid_resources=resource_value.as_ref().is_some_and(|r|!matches!(r,Object::Dict(_)));
@@ -751,3 +818,15 @@ fn skip_inline_image(parser: &mut Parser) {
 }
 
 #[path="source_ruling_context.rs"]mod ruling_context;
+
+// Exact axes avoid norm rounding; oblique text uses its actual forward unit
+// vector. Zero/unknown source advances retain the legacy value at the caller.
+fn forward_scalar((x,y):(f64,f64),(dx,dy):(f64,f64))->Option<f64>{
+    if ![x,y,dx,dy].iter().all(|v|v.is_finite()){return None;}
+    let v=match(x,y){
+        (x,0.)if x>0.=>dx,(x,0.)if x<0.=>-dx,
+        (0.,y)if y>0.=>dy,(0.,y)if y<0.=>-dy,
+        _=>{let length=x.hypot(y);if !length.is_finite()||length<=0.{return None;}x/length*dx+y/length*dy}
+    };
+    v.is_finite().then_some(v)
+}

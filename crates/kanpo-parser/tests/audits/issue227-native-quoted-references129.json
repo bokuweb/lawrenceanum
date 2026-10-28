@@ -1,0 +1,170 @@
+{
+  "issue": 227,
+  "stage": "native129",
+  "goal_complete": false,
+  "priority": "Nonimage native text/characters/structure/ownership first; image/outline-only lower priority.",
+  "baseline": {
+    "primary": "8b4831abc514d14b4f78c620b1fd75cbc1cb1b8c",
+    "publication": "8cb8cc8e5308c6aa828283a7c65286961772a40f"
+  },
+  "change_scope": "Only semantic Document Run LF inside a complete leaf quotation that is a bare numbered article/paragraph/item reference. No physical source text, Word, PageTrace, Article/notice ownership, formats or structures changed.",
+  "rule": [
+    "Explicit numbered hierarchy and numeric branches, strictly descending条/項/号. No specificordinal/page/company/expectedtext/length/columnfill/count/distance cutoff.",
+    "Original untrimmed input supplies evidence; rendering retains its existing boundary trim policy.",
+    "Only separator character positions inserted between input elements can authorize joining; embedded LF has unknown provenance and cannot authorize another boundary.",
+    "Whole quoted token must match; prose, same/reversedlevels, ambiguous numeral LF, spaces, blanklines, missing/mismatched candidate quotes and table markers hold.",
+    "This does not return or reset a global quote scope. Native quote/article scope remains verified128exact. A prior-page closer does not invalidate a later independently complete leaf token."
+  ],
+  "regressions_added": {
+    "reference_contracts": 23,
+    "boundary_provenance_helper": 1,
+    "original_complete_Analysis_oracles": 6,
+    "total": 30
+  },
+  "full_corpus": {
+    "single_pages": 11992,
+    "changed_single_pages": 6,
+    "single_document_LFs_removed": 6,
+    "whole_issues": 159,
+    "whole_pages": 11992,
+    "changed_whole_issues": 3,
+    "whole_LFs_removed": 6,
+    "same6source_reviewed_corrections": true,
+    "other_complete_Analysis_exact128": {
+      "singles": 11986,
+      "whole_issues": 156
+    },
+    "all_physical_source_text_Words_layout_article_notices_Tables_styles_nonLFtext_and_typed_structure_preserved": true,
+    "all_actual_public_full_Analysis_equals_frozen_private129v2": true,
+    "actual_PDF_CLI11992_text_exact_API_and128": true
+  },
+  "source_review": {
+    "reviewer": "root/author",
+    "nonblind_development_review": true,
+    "all6originals_visually_read": true,
+    "independently_transcribed_references": [
+      {
+        "page": "20260723g001630016",
+        "reference": "第百八十五条の七第十五項"
+      },
+      {
+        "page": "20260723g001630035",
+        "reference": "第百五十六条の三十八第八項"
+      },
+      {
+        "page": "20260723g001630081",
+        "reference": "第六十四条の四第一項第三号"
+      },
+      {
+        "page": "20260729g001690025",
+        "reference": "第二十九条の三第六項"
+      },
+      {
+        "page": "20260729g001690064",
+        "reference": "第十七条の六第五項"
+      },
+      {
+        "page": "20260930g002150131",
+        "reference": "第68条の２の４第３項"
+      }
+    ],
+    "old_Run_paths_and_LF_offsets_not_expected_value_ownership_search": true,
+    "independent_expected_full_single_and_whole_Analysis": true,
+    "not_global_precision_estimate": true
+  },
+  "failures_fixed": [
+    "Original desired131logicalDocument and4initial contract failures before implementation.",
+    "Three boundary-space failures: trim must not manufacture identifier evidence.",
+    "Embedded-LF helper failure: must not confuse internal newline with renderer-controlled next-item boundary."
+  ],
+  "verifier": {
+    "strict_JSONtypes_arrays_fields_order_all_nonLFchars_and_styles_Tables": true,
+    "corruptions_rejected": 7,
+    "initial_guard_limit_corrected": "Pythoncollection equality might treat equalvalued int/float nestedmetadata as equal; finaltypedchecker rejects it and was rerun on all changed source cases."
+  },
+  "local_native": {
+    "terminal": 0,
+    "source_manifest_sha256": "c44b8c1c51c8d9bcf416028cf434a37a88f6ae3d5b73aad9869875d39e30dcd7",
+    "commands": 138,
+    "integration_targets": 129,
+    "passed": 2967,
+    "failed": 0,
+    "ignored": 0,
+    "result_groups": 137,
+    "no_expected_snapshot_updates": true,
+    "all_commands_exit0": true
+  },
+  "existing_expected_preservation": {
+    "814snapshots_exact": true,
+    "corpus_text_Document_and_XHTML_rules_unchanged": true,
+    "historical128source131oracle_retained": true,
+    "current_source_column_control_uses_separate129oracle": true,
+    "no_UPDATE_EXPECT_or_INSTA_UPDATE_always": true
+  },
+  "renderer": "InitialPopplerJapaneseCMapmissing produced blank glyph output despite exit0; retained as invalid review evidence. BundledPDFium source-only render supplied actual visible originals. No runtime dependency/config change.",
+  "official_hierarchy_references": [
+    "https://laws.e-gov.go.jp/docs/law-data-basic/8ebd8bc-law-structure-and-xml/",
+    "https://laws.e-gov.go.jp/docs/law-data-basic/419a603-xml-schema-for-japanese-law/"
+  ],
+  "remaining": [
+    "Relative/other reference forms and prior columnfill heuristics; other code/PUA and complex tables/order/ownership.",
+    "Next fixed30audit145 has originalPDF/images/fulloutputs frozen, no grades yet.",
+    "Image-only defaultOCR integration lower priority peruser;0.0.15fixed unchanged."
+  ],
+  "OCR": {
+    "version": "0.0.15",
+    "commit": "f97e930b8c3e9512f7788f258ef685da26416483",
+    "changed": false
+  },
+  "additional_models": "None",
+  "artifacts": [
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-quoted-references129/independent-source-review129.json",
+      "sha256": "cc4c63b337e41dd2eb3242bf96c93c8f9f1153695bed0fedf4d85defc71b956b"
+    },
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-quoted-references129/independent-whole-source-proof129.json",
+      "sha256": "e324549521dd138fedebd3dce140f008ba7885d8cb672fd63d793465c34e3202"
+    },
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-quoted-references129/strict-single-and-calibration129.json",
+      "sha256": "f460f048c36bdb2c61670b39ff90671aad0c39aef29707c9d8b11f488dcfd008"
+    },
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-quoted-references129/verify-typed-LF129.py",
+      "sha256": "2d9c2da952dd640ba9c1e8547e86b0b0a29e419056f90b6f0b4b33a25fd06200"
+    },
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-quoted-references129/source-pixels-pdfium-manifest129.json",
+      "sha256": "9548d78a70e1689857731340ed5cdae2919844464e53be06fa71f9d857ce727a"
+    },
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-quoted-references129/private-v1/source-reference-v3-RED.log",
+      "sha256": "bbfaaa024cf1b5992574abb84805bda9eb23553157cf47bfda78b541f9c8a6ec"
+    },
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-quoted-references129/boundary-source-RED129.log",
+      "sha256": "ad027a5e06ea66706f0b48e67f2e0f54ccaef6e7316dc46034477a032ca3a069"
+    },
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-quoted-references129/private-v3/build-result.json",
+      "sha256": "65d2a4438bb06df0ce39548ee1bcc94c485e2e44b8efbf983e6be4c76fb3de2e"
+    },
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-quoted-references129/public-port1/native-gates1/result129.json",
+      "sha256": "cc9253e21e95d6cb0f5f970df89de820912fe967b9827fed464d225fe42db6c2"
+    },
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-quoted-references129/public-port1/single/result.json",
+      "sha256": "d40f9e0075a39bc86e5a6e7583c45f9de6c44e8accddfc9979036ef716fc5a97"
+    },
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-quoted-references129/public-port1/whole/result.json",
+      "sha256": "f658e1e4ab55ba572423e1a6660cc2b36f56964b5be889c692fa50084429e904"
+    },
+    {
+      "path": ".cache/kanpo-227/resume90-local-recovery/native-quoted-references129/public-port1/CLI/result.json",
+      "sha256": "f56261cda4c2a169adc5cd68131ed138e8bfca8e89e9510dbe822a7fc6f13bd3"
+    }
+  ]
+}

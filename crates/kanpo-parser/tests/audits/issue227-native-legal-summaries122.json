@@ -1,0 +1,1414 @@
+{
+  "status": "Validated native122 public4; goal227 active,100% not reached",
+  "baseline": {
+    "primary": "9a56c71732126b5a0b0dc754e58f198229ce06ef",
+    "PR237": "903b9fcac929f6c41f2d4895277eaffefdcf03cf"
+  },
+  "priority": "Native text/layout/article ownership first per user. Image-only fusion deferred. NDLOCR0.0.15/f97e930b8c3e9512f7788f258ef685da26416483 fixed and unchanged; no new model.",
+  "problem": "Independently numbered legal summaries merged with preceding laws or page1 TOC, including rotated source and a complete title whose body begins in the next source column.",
+  "proof": [
+    "A printed leading diamond and exactly one balanced top-level legal instrument qualifier establish a nominal root: law, cabinet order or treaty plus shared canonical positive integer and number suffix. The title is otherwise opaque. This is intentional document grammar, not a law-name/page/number lookup.",
+    "Every root and own body witness must use unique original Used Word occurrences, exact original rendered tokens, valid native glyph bounds and complete source/content typography. Explicit source Right/Down/Left/Up axes are compared in local reading coordinates; original coordinates and PageTrace stay unchanged. Unknown metadata defers.",
+    "The entire wrapped title is contiguous in the same source Region and axis with monotonic baselines and exact repeated hanging margin. Actual source rules fence columns. A short first glyph line is not the physical column edge. No character/line/coordinate proximity cap.",
+    "The complete title must carry its own font emphasis relative to its first nonqualifier body, and that body font set must be contained in the title style set. Another marked caption fences the witness. Parenthesized numbered prose is a body, not a whole parenthetical qualifier.",
+    "An already complete title may own its first body in the immediately next source column only with the nearest covering native separator. A wrapped title cannot borrow its instrument number from another column, and witnesses cannot cross or skip actual source barriers.",
+    "Larger preceding nominal source headings in the same column/axis attach to the first legal root; no fixed field-heading phrase is recognized. Complete prior prose stops prefix-affinity scanning before an opaque ordinal glyph can block an unrelated new root.",
+    "Only source-line cuts are added. Existing exact document repartitioning preserves all original bytes, whitespace, styles and whole Tables once and in order. Existing protected financial scopes and all source provenance are unchanged. No OCR/model/text synthesis or API schema change."
+  ],
+  "new_regressions": {
+    "library": 36,
+    "portable_original_and_continuation_controls": 11,
+    "original_PDFs": 9,
+    "total": 47,
+    "prior_boundary_snapshot_corrections": 2,
+    "historical_character_full_Analysis_contracts_boundary_adjusted": 2,
+    "historical_golden_files_changed": 0
+  },
+  "RED_history": {
+    "independent_original_before_runtime": "Actual121 source law65 page:0pass1fail; independent original scope frozen before any runtime.",
+    "units_v1": "Clean baseline stub9pass11fail; draft implementation preceded clean unit RED, original real RED predates runtime. Initial test borrow-build failures are preserved, not counted as test RED.",
+    "held_v1": "20contracts pass,6of8original/context cases pass; reject because prior opaque circled ordinal blocks larger-prefix scan and valid hanging glyphs exceed first-line right edge.",
+    "v2_counterexamples": "20pass3fail before general source-band correction; final25contracts and1828library pass. Full11992 conservation30changed/86cuts, held after body/caption failures.",
+    "expectation_correction": "Initial synthetic right-edge rejection had assumed first-line glyph bounds define the physical column. Replaced this unsupported expectation with actual source separator rejection. No corpus expected scope changed.",
+    "v3_counterexamples": "27pass2fail then28pass1fail; fix later diamond witness and parenthesized outline prose via balanced-prefix grammar.29contracts pass.",
+    "source_v3_inventory": "127source markers,90accepted;35explicit Down axes and1complete title with next-column body require general source-axis/column rules. One mixed-axis TOC contamination remains held.",
+    "v4_counterexamples": "32pass4fail across36contracts before axis/next-column generalization; final36contracts,1839all parser library pass.",
+    "actual121_portable_RED": "2pass9fail,11independent original/context tests; private/public122v4 all11pass. Nine original PDFs.",
+    "initial_normal_native": "2670pass3fail: two historical full Analysis contracts froze joined laws63/64 and archive_pages had2joined-boundary snapshots. Original pixels and frozen source scopes certified corrections before write.",
+    "final_normal_native": "2673pass0failed/ignored.129identical successful commands reused; failed character targets and archive rerun readonly. Original historical golden bytes remain exact; helper supplies source-certified two-law boundaries after existing character transformations."
+  },
+  "validation": {
+    "native": {
+      "terminal": 0,
+      "source_manifest_sha256": "6cd42d7ed11fdc6daf89e775e679e1452bcc534525baa0ee34745bfebc2b91e0",
+      "commands": 132,
+      "integration_targets": 123,
+      "passed": 2673,
+      "failed": 0,
+      "ignored": 0,
+      "result_groups": 131,
+      "no_expected_snapshot_updates": true,
+      "all_commands_exit0": true,
+      "prior_snapshot_updates": 2,
+      "other_snapshot_bytes_unchanged": 812,
+      "historical_golden_files_unchanged": true,
+      "historical_full_Analysis_contracts_source_boundary_adjusted": 2,
+      "initial_readonly_failures_preserved": true,
+      "successful_runtime_and_test_identical_commands_reused": 129
+    },
+    "single11992_complete_public_analysis_matches_private_predictions": true,
+    "single_all_non_article_fields_and_ordered_text_and_document_material_exact121": true,
+    "single_changed_pages": 46,
+    "single_new_boundaries": 121,
+    "whole_issues": 159,
+    "whole_pages": 11992,
+    "whole_all_PageTrace_non_article_fields_ordered_text_and_document_material_exact121": true,
+    "whole_changed_issues": 21,
+    "whole_new_boundaries": 126,
+    "CLI11992_exact121_API_text": true,
+    "all814snapshots_readonly_pass": true,
+    "source_certified_boundary_snapshot_corrections": 2,
+    "other812snapshots_byte_exact": true,
+    "all_prior_data_and_historical_Analysis_golden_files_byte_exact": true,
+    "whole_original_scope_checks": [
+      {
+        "version": "121",
+        "pages": [
+          {
+            "page": "20260717g001600001",
+            "owners": [
+              21
+            ],
+            "records": 1,
+            "PageTrace_exact": true
+          },
+          {
+            "page": "20260723g001630002",
+            "owners": [
+              20,
+              20
+            ],
+            "records": 2,
+            "PageTrace_exact": true
+          },
+          {
+            "page": "20260723g001630003",
+            "owners": [
+              20
+            ],
+            "records": 1,
+            "PageTrace_exact": true
+          },
+          {
+            "page": "20260723g001630004",
+            "owners": [
+              20,
+              20
+            ],
+            "records": 2,
+            "PageTrace_exact": true
+          },
+          {
+            "page": "20260723g001630005",
+            "owners": [
+              20
+            ],
+            "records": 1,
+            "PageTrace_exact": true
+          },
+          {
+            "page": "20260724g001640004",
+            "owners": [
+              26,
+              26,
+              26
+            ],
+            "records": 3,
+            "PageTrace_exact": true
+          },
+          {
+            "page": "20260729g001690001",
+            "owners": [
+              17,
+              17,
+              17
+            ],
+            "records": 3,
+            "PageTrace_exact": true
+          },
+          {
+            "page": "20260807g001780004",
+            "owners": [
+              52,
+              52,
+              52,
+              52,
+              52,
+              52,
+              52,
+              52,
+              52,
+              52
+            ],
+            "records": 10,
+            "PageTrace_exact": true
+          },
+          {
+            "page": "20260916g002060003",
+            "owners": [
+              38,
+              38,
+              38,
+              38,
+              38,
+              38,
+              38,
+              38,
+              38
+            ],
+            "records": 9,
+            "PageTrace_exact": true
+          }
+        ],
+        "errors": [
+          {
+            "page": "20260723g001630002",
+            "owners": [
+              20,
+              20
+            ],
+            "reason": "separately printed instruments share an owner"
+          },
+          {
+            "page": "20260723g001630004",
+            "owners": [
+              20,
+              20
+            ],
+            "reason": "separately printed instruments share an owner"
+          },
+          {
+            "page": "20260724g001640004",
+            "owners": [
+              26,
+              26,
+              26
+            ],
+            "reason": "separately printed instruments share an owner"
+          },
+          {
+            "page": "20260729g001690001",
+            "owners": [
+              17,
+              17,
+              17
+            ],
+            "reason": "separately printed instruments share an owner"
+          },
+          {
+            "page": "20260807g001780004",
+            "owners": [
+              52,
+              52,
+              52,
+              52,
+              52,
+              52,
+              52,
+              52,
+              52,
+              52
+            ],
+            "reason": "separately printed instruments share an owner"
+          },
+          {
+            "page": "20260916g002060003",
+            "owners": [
+              38,
+              38,
+              38,
+              38,
+              38,
+              38,
+              38,
+              38,
+              38
+            ],
+            "reason": "separately printed instruments share an owner"
+          }
+        ],
+        "law64_continuation_kept": true,
+        "law65_continuation_kept": true
+      },
+      {
+        "version": "122",
+        "pages": [
+          {
+            "page": "20260717g001600001",
+            "owners": [
+              22
+            ],
+            "records": 1,
+            "PageTrace_exact": true
+          },
+          {
+            "page": "20260723g001630002",
+            "owners": [
+              21,
+              22
+            ],
+            "records": 2,
+            "PageTrace_exact": true
+          },
+          {
+            "page": "20260723g001630003",
+            "owners": [
+              22
+            ],
+            "records": 1,
+            "PageTrace_exact": true
+          },
+          {
+            "page": "20260723g001630004",
+            "owners": [
+              22,
+              23
+            ],
+            "records": 2,
+            "PageTrace_exact": true
+          },
+          {
+            "page": "20260723g001630005",
+            "owners": [
+              23
+            ],
+            "records": 1,
+            "PageTrace_exact": true
+          },
+          {
+            "page": "20260724g001640004",
+            "owners": [
+              29,
+              30,
+              31
+            ],
+            "records": 3,
+            "PageTrace_exact": true
+          },
+          {
+            "page": "20260729g001690001",
+            "owners": [
+              18,
+              19,
+              20
+            ],
+            "records": 3,
+            "PageTrace_exact": true
+          },
+          {
+            "page": "20260807g001780004",
+            "owners": [
+              53,
+              54,
+              55,
+              56,
+              57,
+              58,
+              59,
+              60,
+              61,
+              62
+            ],
+            "records": 10,
+            "PageTrace_exact": true
+          },
+          {
+            "page": "20260916g002060003",
+            "owners": [
+              42,
+              43,
+              44,
+              45,
+              46,
+              47,
+              48,
+              49,
+              50
+            ],
+            "records": 9,
+            "PageTrace_exact": true
+          }
+        ],
+        "errors": [],
+        "law64_continuation_kept": true,
+        "law65_continuation_kept": true
+      }
+    ]
+  },
+  "original_pixel_review": {
+    "reviewer": "root",
+    "method": "Original QuickLook Japanese source pixels, all46changed pages plus2adjacent continuation controls actually inspected. Nonblind development review, no fixed30 rescore or accuracy estimate.",
+    "source_pages_viewed": 48,
+    "all_changed_pages_viewed": 46,
+    "continuation_controls": 2,
+    "new_source_boundaries": 121,
+    "native_marker_inventory": 127,
+    "source_certified_markers": 126,
+    "held_marker": "20260916g002060002: foreign vertical TOC page number mixed into horizontal legal caption; do not synthesize a corrected number.",
+    "findings": "Printed independently numbered instruments match the new starts; common larger source heading stays with its first body; rotated TOC prefix remains separate. Entire page/article semantic accuracy is not certified.",
+    "pages": [
+      {
+        "page": "20260717g001600001",
+        "source_image_sha256": "b6ef1fdab4848ab88171df15674c8b99f2f6dfea61721321f82b30bd9e91c61f",
+        "new_boundaries": [
+          {
+            "character_offset": 1218,
+            "source_text_prefix": "本号で公布された\n法令のあらまし\n◇個人情報の保護に関する法律等の一部を改正す\nる法律（法律第五十六号）（個人情報保護委員会）\n第１個人情報の保護に関する法律の一部改正\n１定義\n（１）「連絡可能個人関連情報」とは、特定の\n個人に対する連絡その他の情報の伝達に利\n用することができる一定の記述等が含まれ\nる個人関連情報をいうものとする。（第二条\n第八項関係）\n（２）「統計作成等」とは、統計の作成その他\nの大量の情報から当該情報を構成する要素\nに係る情報を抽出して分類、比較その他の\n解析を行うことによ"
+          }
+        ]
+      },
+      {
+        "page": "20260717g001600005",
+        "source_image_sha256": "526fc75ce1ba5796daad7250535f7fbbe1f251199e53eeab97f3b42824dde26f",
+        "new_boundaries": [
+          {
+            "character_offset": 1573,
+            "source_text_prefix": "◇情報通信技術を活用した行政の推進等に関する\n法律及び情報処理の促進に関する法律の一部を\n改正する法律（法律第五十七号）（内閣官房）\n第１　情報通信技術を活用した行政の推進等に関\nする法律の一部改正\n１　公的基礎情報データベースの共同整備等に\n関する規定の整備\n国の行政機関と他の行政機関等による公的\n基礎情報データベースの共同整備等に関する\n規定を整備する。（第十九条第二項第六号、第\n二十一条関係）\n２　国等データ活用事業の認定制度の創設\n（１）　内閣総理大臣は、国の行政機関等の保有\nするデータ"
+          },
+          {
+            "character_offset": 2829,
+            "source_text_prefix": "◇公職選挙法及び特定電気通信による情報の流通\nによって発生する権利侵害等への対処に関する\n法律の一部を改正する法律（法律第五十八号）\n（総務省）\n第１　公職選挙法の一部改正\n１　電子メールを利用する方法による文書図画\nの頒布に係る規制の廃止（第百四十二条の四\n及び第百四十二条の五第二項関係）\nインターネット等を利用する方法による選\n挙運動又は当選を得させないための活動に使\n用する文書図画の頒布に係る規制のうち、電\n子メールを利用する方法による文書図画の頒\n布に係る送信主体の制限等の規制を廃止し、"
+          }
+        ]
+      },
+      {
+        "page": "20260717g001600006",
+        "source_image_sha256": "daa46a5dd948e83f1fe3a70f188c1fbe67f7435528ff43f8fb2225b58e244044",
+        "new_boundaries": [
+          {
+            "character_offset": 1815,
+            "source_text_prefix": "◇科学技術・イノベーション創出の活性化に関す\nる法律の一部を改正する法律（法律第五十九号）\n（内閣府本府）\n１　研究開発の成果を活用した新たな事業の創出\n及びその成長発展を促進するための環境の整備\nの規定の追加\n国の施策として、研究開発の成果を活用した\n新たな事業の創出及びその成長発展を促進する\nための環境の整備、実用化に必要な研究開発に\n対する支援並びに成果活用事業者等の交流の促\n進のために必要な施策を講じることを追加す\nる。（第三十四条の三の二関係）\n２　先端技術研究成果活用推進機構\n（１）"
+          }
+        ]
+      },
+      {
+        "page": "20260717g001600007",
+        "source_image_sha256": "22490ff310043458fa5799456d707aee9ee8639349b2e5481cc623c22bf1c589",
+        "new_boundaries": [
+          {
+            "character_offset": 308,
+            "source_text_prefix": "◇労働者災害補償保険法等の一部を改正する法律\n（法律第六十号）（厚生労働省）\n第１　労働者災害補償保険法の一部改正\n１　遺族補償年金における支給要件等に関する\n事項\n（１）　遺族補償年金、複数事業労働者遺族年金\n及び遺族年金（以下「遺族補償年金等」と\nいう。）を受けることができる遺族の要件に\nついて、夫が六十歳以上であること又は厚\n生労働省令で定める障害の状態にあること\nという要件を削る。（第十六条の二第一項関\n係）\n（２）　遺族補償年金等について、遺族の人数が\n一人であり、当該遺族が五十五歳以"
+          },
+          {
+            "character_offset": 2390,
+            "source_text_prefix": "◇防災庁設置法（法律第六十一号）（内閣官房）\n１　設置\n内閣に、防災庁を置く。（第二条関係）\n２　任務\n防災庁は、次に掲げることを任務とする。（第\n三条関係）\n（１）　災害対策基本法（昭和三十六年法律第二百\n二十三号）第二条の二の基本理念（（２）におい\nて「基本理念」という。）にのっとり、防災（災\n害予防、災害応急対策、災害復旧及び災害か\nらの復興をいう。以下同じ。）に関する内閣の\n事務を内閣官房と共に助けること。\n（２）　基本理念にのっとり、防災に関する行政事\n務の円滑かつ迅速な遂行を図ること"
+          }
+        ]
+      },
+      {
+        "page": "20260717g001600008",
+        "source_image_sha256": "450894a8ec579cc5d0fe679b66db24cd6a2567975aed18bff3a114adc473bfda",
+        "new_boundaries": [
+          {
+            "character_offset": 2947,
+            "source_text_prefix": "◇防災庁設置法の施行に伴う関係法律の整備等に\n関する法律（法律第六十二号）（内閣官房）\n第１　災害対策基本法の一部改正（第八条関係）\n１　災害対策の基本理念として、次の内容を追\n加する。\n（１）　災害に備えるための措置の改善を図る\n際、災害が国民の安全、国民生活及び国民\n経済に及ぼす影響についての科学的知見に\n基づく調査、予測及び評価を踏まえること。\n（２）　被災者を援護する際、全ての被災者がそ\nの被災地にかかわらず、できる限り、良好\nな生活環境をあまねく享受できるようにす\nること。"
+          }
+        ]
+      },
+      {
+        "page": "20260717g001600010",
+        "source_image_sha256": "4f81358fd06fbb0507ede6ecf76333dd9cf69e2892e2752330f4d09eadc9f794",
+        "new_boundaries": [
+          {
+            "character_offset": 573,
+            "source_text_prefix": "◇自動車の運転により人を死傷させる行為等の処\n罰に関する法律施行令の一部を改正する政令\n（政令第二百二十七号）（法務省）\n１　自動車の運転により人を死傷させる行為等の\n処罰に関する法律施行令の一部改正\n自動車の運転により人を死傷させる行為等の\n処罰に関する法律及び道路交通法の一部を改正\nする法律の施行に伴い、自動車の運転により人\nを死傷させる行為等の処罰に関する法律施行令\nについて所要の規定の整理を行う。（本則関係）\n２　施行期日\nこの政令は、自動車の運転により人を死傷さ\nせる行為等の処罰に関す"
+          },
+          {
+            "character_offset": 864,
+            "source_text_prefix": "◇電波法関係手数料令の一部を改正する政令（政\n令第二百二十八号）（総務省）\n１　無線局の落成後の検査等に係る手数料の額を\n見直すとともに、電子情報処理組織を利用する\n方法により船舶局無線従事者証明の申請等を行\nう場合の手数料の額の特例を定める等をする。\n（本則関係）\n２　施行期日等\n（１）　この政令は、令和八年十月一日から施行す\nる。（附則第一項関係）\n（２）　その他所要の経過措置を定める。"
+          },
+          {
+            "character_offset": 1062,
+            "source_text_prefix": "◇社会福祉士及び介護福祉士法施行令及び精神保\n健福祉士法施行令の一部を改正する政令（政令\n第二百二十九号）（厚生労働省）\n第１　社会福祉士及び介護福祉士法施行令の一部\n改正\n１　社会福祉士試験の受験に係る手数料の額を\n二万四千三百円とする。（第十二条第一項関\n係）\n２　介護福祉士試験の受験に係る手数料の額を\n二万五百十円とする。（第十二条第二項関係）\n第２　精神保健福祉士法施行令の一部改正\n精神保健福祉士試験の受験に係る手数料の額\nを二万八千九百十円とする。（第二条関係）\n第３　施行期日\nこの政"
+          },
+          {
+            "character_offset": 1333,
+            "source_text_prefix": "◇日本国の自衛隊とニュージーランド国防軍との\n間における物品又は役務の相互の提供に関する\n日本国政府とニュージーランド政府との間の協\n定（条約第十六号）（外務省）\nこの協定は、日本国の自衛隊とニュージーラン\nド国防軍との間における物品又は役務の相互の提\n供に関する基本的な条件を定めることを目的とす\nるものであり、その概要は、次のとおりである。\n１　この協定は、自衛隊とニュージーランド国防\n軍との間における、双方の参加を得て行われる\n訓練、国際連合平和維持活動、国際連携平和安\n全活動、人道的な国際"
+          }
+        ]
+      },
+      {
+        "page": "20260723g001630002",
+        "source_image_sha256": "aee25bf516bf486b7d39b004c6bce6010d519e50ab24ecb2026362ee2d9572d0",
+        "new_boundaries": [
+          {
+            "character_offset": 1209,
+            "source_text_prefix": "◇金融商品取引法及び資金決済に関する法律の一\n部を改正する法律（法律第六十四号）（金融庁）\n第１　金融商品取引法の一部改正\n１　暗号資産取引に係る規制の整備\n（１）　暗号資産に係る情報の公表制度に関する\n規定の整備\nイ　暗号資産であって、特定の者のみが当\n該暗号資産を発行する権限を有するもの\n（これに類するものとして内閣府令で定\nめるものを含む。）を「特定暗号資産」と\n定義する。（第二条第五十項関係）\nロ　特定暗号資産発行者に対し、特定暗号\n資産の募集・売出しにつき特定暗号資産\n情報の公表を義務"
+          }
+        ]
+      },
+      {
+        "page": "20260723g001630004",
+        "source_image_sha256": "a53470ab3f0d88a028c17b6d668bfb3910e4175ebf91cab08d03a9c01bddab08",
+        "new_boundaries": [
+          {
+            "character_offset": 1490,
+            "source_text_prefix": "◇下水道法等の一部を改正する法律（法律第六十\n五号）（国土交通省）\n第１　下水道法の一部改正\n１　目的\nこの法律の目的に、下水道の基盤の強化を\n図ることを追加する。（第一条関係）\n２　基本方針\n（１）　国土交通大臣は、下水道の整備及び基盤\nの強化に関する基本的な方針（以下「基本\n方針」という。）を定めるものとする。（第二\n条の二関係）\n（２）　流域別下水道整備総合計画は、基本方針\nに即するものでなければならないものとす\nる。（第二条の四第六項関係）\n（３）　事業計画は、基本方針に即したものでな\n"
+          }
+        ]
+      },
+      {
+        "page": "20260723g001630006",
+        "source_image_sha256": "c217f396ddeb284ebc5205a9d11cd31cb5a02aee1a02f037f369cac79318fad2",
+        "new_boundaries": [
+          {
+            "character_offset": 836,
+            "source_text_prefix": "◇環境影響評価法施行令の一部を改正する政令\n（政令第二百三十号）（環境省）\n１太陽電池発電所の設置の工事の事業等の第一\n種事業及び第二種事業の要件を改める。（本則関\n係）\n２この政令は、令和九年四月一日から施行する。\n（附則第一項関係）\n３この政令の施行に関し必要な経過措置を定め\nる。（附則第二項関係）"
+          },
+          {
+            "character_offset": 989,
+            "source_text_prefix": "◇検疫法施行令の一部を改正する政令（政令第二\n百三十一号）（厚生労働省）\n１下地島空港を新たに検疫飛行場として定め\nる。（別表第一関係）\n２下地島空港について検疫所長が検疫感染症等\nに関し調査及び衛生措置を行うことができる区\n域を定める。（別表第三関係）\n３この政令は、令和八年七月三十日から施行す\nる。（附則関係）\n法律"
+          }
+        ]
+      },
+      {
+        "page": "20260724g001640002",
+        "source_image_sha256": "6001e858b2e014d5803e80dcf0e678fcd05d63fc71b080712123573ef367db5d",
+        "new_boundaries": [
+          {
+            "character_offset": 2736,
+            "source_text_prefix": "◇刑事訴訟法の一部を改正する法律（法律第六十\n七号）（法務省）\n１　訴訟に関する書類の閲覧・謄写に関する規定\nの整備\n刑事訴訟法第四十条第一項等の「訴訟に関す\nる書類」に刑事確定訴訟記録法第二条第一項に\n規定する訴訟の記録（訴訟終結後のものに限\nる。）が含まれることを明確化する。（第四十条第\n一項関係）\n２　再審請求審に要した費用の補償に関する規定\nの整備\n再審開始の決定が確定した事件について、無\n罪の判決が確定したときは、国は、当該再審開\n始の決定に係る再審の請求をした者に対し、一\n定の範囲で"
+          }
+        ]
+      },
+      {
+        "page": "20260724g001640003",
+        "source_image_sha256": "c6f9e1e44972d7a15032f684bfc4aaf9ac92a605faf13d5ae87cb6ff04053220",
+        "new_boundaries": [
+          {
+            "character_offset": 2304,
+            "source_text_prefix": "◇電気事業法の一部を改正する法律（法律第六十\n八号）（経済産業省）\n１　小売電気事業の登録の取消事由の追加\n小売電気事業の登録の取消事由として、小売\n電気事業者が正当な理由がないのに、小売電気\n事業を一年以上引き続き休止したとき等を追加\nする。（第二条の九第二項関係）\n２　基幹送変電設備整備等計画の認定等\n基幹送変電設備整備等計画の認定等に関する\n規定を整備するとともに、推進機関の業務に、\n認定一般送配電事業者等に対し、当該認定に係\nる基幹送変電設備整備等計画に基づく基幹送変\n電設備の整備又は更"
+          }
+        ]
+      },
+      {
+        "page": "20260724g001640004",
+        "source_image_sha256": "eb09aac2c9c5973e31971cf60b0a4ca1a9dcd1fdee7a30f4665233daef9ae884",
+        "new_boundaries": [
+          {
+            "character_offset": 270,
+            "source_text_prefix": "◇国旗の損壊等の処罰に関する法律（法律第六十\n九号）（法務省）\n１　定義\nこの法律において「国旗」とは、国旗及び国\n歌に関する法律に定める国旗として用いられて\nいると社会通念上認められる有体物をいう。（第\n一条関係）\n２　罰則等\n（１）　人に著しく不快又は嫌悪の情を催させるよ\nうな方法により、公然と国旗を損壊し、除去\nし、又は汚損した者は、二年以下の拘禁刑又\nは二十万円以下の罰金に処する。（第二条第一\n項関係）\n（２）　（１）の方法に該当するかどうかの判断は、行\n為の外形、周囲の状況その他の客観"
+          },
+          {
+            "character_offset": 945,
+            "source_text_prefix": "◇ヒトゲノム編集胚等の取扱いの規制に関する法\n律（法律第七十号）（厚生労働省）\n１　目的\nこの法律は、ヒト胚又はヒト生殖細胞に対し\nてゲノム編集技術等を用いることが予測し得な\nい遺伝子改変をもたらす可能性があり、これに\nより、ヒト胚及び人の発育に重大な影響を及ぼ\nすおそれがあること並びに当該遺伝子改変の影\n響が将来の世代にわたって個人や社会に重大な\n影響を及ぼすおそれがあることに鑑み、ヒトゲ\nノム編集胚等を人又は動物の胎内に移植するこ\nとを禁止するとともに、ヒトゲノム編集胚等の\n作成、譲受け及び"
+          }
+        ]
+      },
+      {
+        "page": "20260724g001640005",
+        "source_image_sha256": "ee7b6af8042152f03d4e2343094ace5ab07e949a59a77ef1faf60aedb3938ca6",
+        "new_boundaries": [
+          {
+            "character_offset": 2209,
+            "source_text_prefix": "◇重要品種の育成及びその種苗の生産の振興に関\nする法律（法律第七十一号）（農林水産省）\n１　目的\nこの法律は、農業者の減少、気候の変動その\n他の農業をめぐる情勢の変化に対応して、重要\n品種育成事業及び重要品種種苗生産事業活動の\n促進のための措置を講ずることにより、重要品\n種の育成及びその種苗の生産を振興し、重要品\n種の種苗の普及を図ることを通じて、農業の生\n産性の向上及び農業経営の安定を図り、もって\n農業の持続的な発展及び国民に対する食料の安\n定供給の確保に資することを目的とする。（第一\n条関係"
+          }
+        ]
+      },
+      {
+        "page": "20260724g001640006",
+        "source_image_sha256": "2cd73af234ca3e48e7d08beac3beb9b8af42f7e9d9a7a6e8d6ecfcd5b1545ddb",
+        "new_boundaries": [
+          {
+            "character_offset": 2658,
+            "source_text_prefix": "◇種苗法の一部を改正する法律（法律第七十二号）\n（農林水産省）\n１　育成者権の効力が及ぶ利用の行為類型への種\n苗の貸渡しの追加\n（１）　育成者権の効力が及ぶ登録品種の利用の行\n為類型として、種苗の貸渡しを追加する。（第二条第五項関係）\n（２）　登録品種の種苗を業として貸し渡す者又は\n登録品種の種苗の貸渡しのための展示若しくは広告を業として行う者は、第二十一条の二第一項第一号ロ又は第二号ロに規定する制限が付されている旨及び当該制限の内容について公示がなされている旨の表示をその種苗等\nに付さなければ"
+          }
+        ]
+      },
+      {
+        "page": "20260724g001640007",
+        "source_image_sha256": "be9adb815eb7144c4fc7a160c722a364ad7173b1491fcad57d155ce02bb89470",
+        "new_boundaries": [
+          {
+            "character_offset": 1983,
+            "source_text_prefix": "◇雇用保険法等の一部を改正する法律の一部の施\n行に伴う関係政令の整備等及び経過措置に関す\nる政令の一部を改正する政令（政令第二百三十\n二号）（厚生労働省）\n１　雇用保険法等の一部を改正する法律による改\n正前の船員保険法の規定による障害年金等の額\nについて、その支給の原因となった疾病等の発\nした日が令和七年三月三十一日以前である場合\nには、賃金水準の変動に応じてその改定を行う。\n（本則関係）\n２　施行期日等\n（１）　この政令は、令和八年八月一日から施行す\nる。（附則第一項関係）\n（２）　この政令の"
+          },
+          {
+            "character_offset": 2261,
+            "source_text_prefix": "◇日本国の自衛隊とフィリピンの軍隊との間にお\nける物品又は役務の相互の提供に関する日本国\n政府とフィリピン共和国政府との間の協定（条\n約第十七号）（外務省）\nこの協定は、日本国の自衛隊とフィリピンの軍\n隊との間における物品又は役務の相互の提供に関\nする基本的な条件を定めることを目的とするもの\nであり、その概要は、次のとおりである。\n１　この協定は、自衛隊とフィリピンの軍隊との\n間における、双方の参加を得て行われる訓練、\n国際連合平和維持活動、国際連携平和安全活動、\n人道的な国際救援活動若しくは大"
+          }
+        ]
+      },
+      {
+        "page": "20260729g001690001",
+        "source_image_sha256": "9ca474b55b74e6d9d13447adae193a2918c87dd5bddb0f3c2d32378f708ddb02",
+        "new_boundaries": [
+          {
+            "character_offset": 1041,
+            "source_text_prefix": "本号で公布された\n法令のあらまし\n◇国家情報会議設置法の施行期日を定める政令\n（政令第二百三十三号）（内閣官房）\n国家情報会議設置法（令和八年法律第二十八号）\nの施行期日は、令和八年七月三十一日とする。"
+          },
+          {
+            "character_offset": 1143,
+            "source_text_prefix": "◇国家情報会議設置法の施行に伴う関係政令の整\n備等に関する政令（政令第二百三十四号）（内閣\n官房）\n第１内閣官房組織令の一部改正\n１内閣情報調査室を廃止する。（第一条、改正\n前第四条関係）\n２国家情報局次長を新設する。（改正後第五条\nの二関係）\n３その他所要の改正を行う。\n第２その他関係政令の一部改正\n国家公務員退職手当法施行令その他の政令に\nついて所要の改正を行う。\n第３附則\n１この政令は、国家情報会議設置法の施行の\n日（令和八年七月三十一日）から施行する。（附\n則第一条関係）\n２所要の経過措"
+          },
+          {
+            "character_offset": 1436,
+            "source_text_prefix": "◇環境省組織令の一部を改正する政令（政令第二\n百三十五号）（環境省）\n１環境省組織令の一部改正\n（１）大臣官房及び同環境経済課並びに地球環境\n局及び同局地球温暖化対策課の所掌事務の調\n整\n大臣官房及び同環境経済課並びに地球環境\n局及び同局地球温暖化対策課の所掌事務の調\n整を行う。（第三条第一項第三十七号及び第十\n七条関係）\n（２）国際連携課の名称並びに同課及び参事官の\n所掌事務の変更\n地球環境局国際連携課の名称を同局国際地\n球温暖化対策推進課に変更するとともに、同\n課及び同局の参事官の所掌事務を"
+          }
+        ]
+      },
+      {
+        "page": "20260729g001690002",
+        "source_image_sha256": "7defaf9fc309bf0eaeafc2891e026434f7fca8a8d6cbd8fdd891ec477f9f33f0",
+        "new_boundaries": [
+          {
+            "character_offset": 125,
+            "source_text_prefix": "◇沖縄振興特別措置法施行令の一部を改正する政\n令（政令第二百三十六号）（内閣府本府）\n１　沖縄振興開発金融公庫の新事業創出促進業務\nの資金に充てる資本金を四十四億円から四十五\n億円に増額する。（本則関係）\n２　その他所要の規定の整理を行う。\n３　この政令は、公布の日から施行する。（附則関\n係）"
+          },
+          {
+            "character_offset": 273,
+            "source_text_prefix": "◇令和六年能登半島地震による災害についての激\n甚災害及びこれに対し適用すべき措置の指定に\n関する政令の一部を改正する政令（政令第二百\n三十七号）（内閣府本府）\n１　令和六年能登半島地震による激甚災害につい\nて、中小企業信用保険法による災害関係保証の\n特例の適用期間を令和九年七月三十一日まで延\n長する。（本則関係）\n２　この政令は、公布の日から施行する。（附則関\n係）"
+          },
+          {
+            "character_offset": 458,
+            "source_text_prefix": "◇金融商品取引法及び資金決済に関する法律の一\n部を改正する法律の一部の施行に伴う関係政令\nの整備に関する政令（政令第二百三十八号）（金\n融庁）\n１　金融商品取引法及び資金決済に関する法律の\n一部を改正する法律の一部の施行に伴い、犯則\n事件の調査の範囲を拡大する等、関係政令の規\n定の整備を行う。（本則関係）\n２　この政令は、金融商品取引法及び資金決済に\n関する法律の一部を改正する法律附則第一条第\n二号に掲げる規定の施行の日から施行する。（附\n則関係）"
+          },
+          {
+            "character_offset": 685,
+            "source_text_prefix": "◇中小企業退職金共済法施行令の一部を改正する\n政令（政令第二百三十九号）（厚生労働省）\n１　特定業種退職金共済契約に係る退職金額等の\n改定\n（１）　退職金額の改定\n別表第六に係る特定業種（建設業）に係る\n特定業種退職金共済契約による退職金額を、\n年一・五パーセントの予定運用利回りに基づ\nき定める額に改定する。（別表第六関係）\n（２）　掛金納付月数の通算に用いる額の改定\n被共済者が特定業種退職金共済制度間を移\n動し通算の申出をした場合等に、当該被共済\n者の掛金納付月数の通算に用いる額につい\nて、別"
+          },
+          {
+            "character_offset": 1251,
+            "source_text_prefix": "◇健康保険法施行令等の一部を改正する政令（政\n令第二百四十号）（厚生労働省）\n第１　健康保険法施行令の一部改正\n１　月間の高額療養費算定基準額に関する事項\n（１）　月間の高額療養費算定基準額を見直す。\n（第四十二条第一項〜第八項、第四十三条\n第一項関係）\n（２）　月間の高額療養費算定基準額に係る所得\n区分を細分化する。（第四十二条第一項〜第\n五項、第七項、第四十三条第一項関係）\n２　年間の高額療養費算定基準額に関する事項\n（１）　外来療養に係る年間の高額療養費算定基\n準額を見直す。（第四十二条第"
+          }
+        ]
+      },
+      {
+        "page": "20260731g001720003",
+        "source_image_sha256": "0157938f1a075651b13b1f69cb040efeca1ef67fdc33905b6e5aac4083912db0",
+        "new_boundaries": [
+          {
+            "character_offset": 537,
+            "source_text_prefix": "本号で公布された\n法令のあらまし\n◇日本国憲法の改正手続に関する法律の一部を改\n正する法律（法律第七十三号）（総務省）\n１　投票環境整備のための公職選挙法改正並びの\n改正\n（１）　開票立会人の選任に係る規定の整備（第七\n十六条関係）\nイ　政党等は、開票立会人を、開票区の投票\n人名簿に登録された者に限らず、当該開票\n区の区域の全部又は一部をその区域に含む\n市町村の投票人名簿に登録された者の中か\nら届け出ることができるものとする。\nロ　都道府県の選挙管理委員会が市町村の区\n域を分けて、又は数市町村の"
+          },
+          {
+            "character_offset": 1325,
+            "source_text_prefix": "◇建築士法の一部を改正する法律（法律第七十四\n号）（国土交通省）\n１　建築士等の資格要件に関する改正\n（１）　一級建築士の資格要件の緩和\nイ　二級建築士が一級建築士免許を受けるた\nめの実務経験期間の見直し\n二級建築士が一級建築士の免許を受ける\nために必要となる二級建築士としての実務\nの経験の期間について、次の（イ）又はの者\nであることを要件として、現行の四年を二\n年に短縮する。（第四条第二項第四号関係）\n（イ）　二級建築士になる前の実務の経験を含\nめた実務の経験を八年以上有する者\n高等学校等にお"
+          }
+        ]
+      },
+      {
+        "page": "20260731g001720004",
+        "source_image_sha256": "69e7b37ef7366eebd3cb9951cbfbced02ca17311006050d144a47915e03e71ac",
+        "new_boundaries": [
+          {
+            "character_offset": 134,
+            "source_text_prefix": "◇建築物のエネルギー消費性能の向上等に関する\n法律の一部を改正する法律（法律第七十五号）\n（国土交通省）\n１　題名\n題名を「建築物のエネルギー消費性能の向上\n及び脱炭素化の促進に関する法律」に改める。\n（題名関係）\n２　目的\n法律の目的に、建築物通算炭素排出量評価そ\nの他の措置を講ずることにより、建築物の脱炭\n素化の促進を図ることを追加する。（第一条関\n係）\n３　基本理念\n（１）　建築物のエネルギー消費性能の向上及び脱\n炭素化の促進の取組は、建築物の安全性、快\n適性その他の建築物に必要な性能を確"
+          }
+        ]
+      },
+      {
+        "page": "20260731g001720005",
+        "source_image_sha256": "4796b19c548677d320ed1e21f75c57ca27af2e0b837b87487d33a0dc3a2771de",
+        "new_boundaries": [
+          {
+            "character_offset": 1996,
+            "source_text_prefix": "◇予防接種法の一部を改正する法律（法律第七十\n六号）（厚生労働省）\n１　「予防接種」の定義について、人体に注射し、\n又は接種する医薬品として、疾病の予防に有効\nであることが確認されているワクチンに加え、\n単クローン抗体を有効成分として含有し、かつ、\nワクチンと同程度にその効果が長期間にわたる\n医薬品を含むものとする。（第二条第一項関係）\n２　その他所要の改正を行う。\n３　施行期日等\n（１）　この法律は、公布の日から起算して六月を\n超えない範囲内において政令で定める日から\n施行する。（附則第一項関"
+          },
+          {
+            "character_offset": 2275,
+            "source_text_prefix": "◇医療的ケア児及びその家族に対する支援に関す\nる法律の一部を改正する法律（法律第七十七号）\n（こども家庭庁）\n１　題名及び総則\n（１）　題名\n本法において支援の対象を「医療的ケア児\n及びその家族」から「医療的ケア児等及び重\n症心身障害者並びにそれらの家族」に拡大す\nることに伴い、題名を「医療的ケア児等及び\n重症心身障害者並びにそれらの家族に対する\n支援に関する法律」に改める。\n（２）　目的\n目的に、「医療的ケア児等及び重症心身障害\n者についてそれらの意思が最大限に尊重さ\nれ、必要な支援を受けなが"
+          }
+        ]
+      },
+      {
+        "page": "20260731g001720007",
+        "source_image_sha256": "e6b009c4a1dd173b49c9fa7db9c1456620468a83689d70f51329b040bc22db32",
+        "new_boundaries": [
+          {
+            "character_offset": 857,
+            "source_text_prefix": "◇国家社会機能継続性確保施策及び副首都の整備\nに係る施策の推進に関する法律（法律第七十八\n号）（内閣官房）\n１　総則\n（１）　目的\nこの法律は、国民生活及び国民経済に甚大\nな影響を及ぼすおそれがある大規模災害（以\n下「大規模災害」という。）に備えて、副首都\nの整備に係る施策その他国家社会機能の継続\n性が確保された国土の形成を図るための施策\n（以下「国家社会機能継続性確保施策」とい\nう。）に関し、基本理念を定め、国の責務等を\n明らかにし、基本方針の策定その他基本とな\nる事項を定め、及び副首都の指定"
+          }
+        ]
+      },
+      {
+        "page": "20260731g001720010",
+        "source_image_sha256": "0b63ef33e5c31dc2739e175588165d43a14683ebdf7f72ff2dce0c228b308d50",
+        "new_boundaries": [
+          {
+            "character_offset": 1255,
+            "source_text_prefix": "◇行政機関職員定員令の一部を改正する政令（政\n令第二百四十一号）（内閣官房）\n１　法務省の定員を改正する。（本則関係）\n２　この政令は、公布の日から施行する。（附則関\n係）"
+          },
+          {
+            "character_offset": 1342,
+            "source_text_prefix": "◇総務省組織令の一部を改正する政令（政令第二\n百四十二号）（総務省）\n１　国際戦略局事業展開技術課の設置\n国際戦略局に事業展開技術課を設置するとと\nもに、その所掌事務を定める。（第六十七条、第\n六十九条及び第七十二条関係）\n２　国際戦略局参事官の廃止等\n国際戦略局参事官を廃止するとともに、その\n所掌事務を同局国際戦略課へ移管する。（第六十\n七条、第六十八条及び改正前の第七十五条関係）\n３　情報流通行政局参事官の設置等\n情報流通行政局地域通信振興課を廃止すると\nともに、その所掌事務を同局に設置する"
+          },
+          {
+            "character_offset": 1675,
+            "source_text_prefix": "◇経済社会情勢の変化を踏まえた企業の事業活動\nの持続的な発展を図るための産業競争力強化法\n等の一部を改正する法律の施行期日を定める政\n令（政令第二百四十三号）（経済産業省）\n経済社会情勢の変化を踏まえた企業の事業活動\nの持続的な発展を図るための産業競争力強化法等\nの一部を改正する法律（令和八年法律第二十九号）\nの施行期日は、令和八年七月三十一日とする。"
+          },
+          {
+            "character_offset": 1853,
+            "source_text_prefix": "◇経済社会情勢の変化を踏まえた企業の事業活動\nの持続的な発展を図るための産業競争力強化法\n等の一部を改正する法律の施行に伴う関係政令\nの整備に関する政令（政令第二百四十四号）（経\n済産業省）\n第１　産業競争力強化法施行令の一部改正\n産業競争力強化法第二十一条の二十四第一項\n第一号の政令で定める認定事業適応事業者が認\n定事業適応計画に従って行う事業適応のための\n措置について見直しを行う。（第七条関係）\n第２　貿易保険法施行令の一部改正\n１　国債の償還等に関する規定の整備\n会社は、国債の償還の請求を"
+          }
+        ]
+      },
+      {
+        "page": "20260803g001740001",
+        "source_image_sha256": "b22522a61c9457161f291f3140a0c0c16369332ae208f3b81306a1927b63eb5a",
+        "new_boundaries": [
+          {
+            "character_offset": 950,
+            "source_text_prefix": "本号で公布された\n法令のあらまし\n◇厚生労働省組織令及び社会保障審議会令の一部\nを改正する政令（政令第二百四十五号）（厚生労\n働省）\n第１厚生労働省組織令の一部改正\n１大臣官房、医政局、医薬局、職業安定局及\nび保険局の所掌事務の一部を政策統括官に移\n管する等の改正を行う。（第三条、第六条、第\n十六条、第十八条、第十九条、第三十八条〜\n改正前の第三十九条の二、第五十条、第七十\n五条、第百十九条、改正前の第百二十一条の\n三、第百三十一条関係）\n２大臣官房に置かれる審議官について、政策\n立案総括審議官"
+          }
+        ]
+      },
+      {
+        "page": "20260805g001760002",
+        "source_image_sha256": "1828ebcc162afc00929577dd263a23f1fc3cff98ebd5c94b54af9925221b6bf1",
+        "new_boundaries": [
+          {
+            "character_offset": 649,
+            "source_text_prefix": "本号で公布された\n法令のあらまし\n◇金融庁組織令の一部を改正する政令（政令第二\n百四十六号）（金融庁）\n第１　金融庁組織令の一部改正\n１　次長の設置\n次長を設置する。（第二条関係）\n２　監督総括審議官の設置\n総括審議官を廃止し、監督総括審議官を設\n置することとし、その所掌事務を規定するこ\nととする。（第三条関係）\n３　銀行・証券監督局及び資産運用・保険監督\n局の設置\n総合政策局及び監督局を廃止し、銀行・証\n券監督局及び資産運用・保険監督局を設置す\nることとする。（第五条関係）\n４　局に属しない課"
+          },
+          {
+            "character_offset": 1366,
+            "source_text_prefix": "◇経済産業省組織令の一部を改正する政令（政令\n第二百四十七号）（経済産業省）\n１　経済産業省組織令の一部改正\n（１）　製造産業局及び商務情報政策局の所掌事務\nを変更する。（第八条、第九条関係）\n（２）　製造産業局産業機械課の所掌事務を変更す\nる。（第七十四条関係）\n（３）　商務情報政策局において情報技術利用促進\n課を廃止し、情報処理システム開発・ロボッ\nト課を設置する。（第八十条、第八十四条関係）\n（４）　商務情報政策局情報経済課及び情報産業課\nの所掌事務を変更する。（第八十二条、第八十\n五条関"
+          },
+          {
+            "character_offset": 1672,
+            "source_text_prefix": "◇特定外来生物による生態系等に係る被害の防止\nに関する法律施行令の一部を改正する政令（政\n令第二百四十八号）（環境省）\n１　特定外来生物による生態系等に係る被害の防\n止に関する法律施行令の一部改正\n（１）　外来生物の種として、Lepomis属（ブルー\nギル属）十二種、Maccullochella peelii（マー\nレーコッド）、Macquaria ambigua（ゴール\nデンパーチ）、Coreoperca属（オヤニラミ属）\nに属する種のうちCoreoperca kawamebari\n（オヤニラ"
+          }
+        ]
+      },
+      {
+        "page": "20260805g001760003",
+        "source_image_sha256": "d688eed5d6a2ac3e78d43a1c912d797323733fc315aebffeb25a7e4d4b1a0c40",
+        "new_boundaries": [
+          {
+            "character_offset": 66,
+            "source_text_prefix": "◇刑事に関する共助に関する日本国とカナダとの\n間の条約（条約第十八号）（外務省）\nこの条約は、一方の締約国が他方の締約国の請\n求に基づき、捜査、訴追その他の刑事手続につい\nて共助を実施すること、そのための枠組みとして\n中央当局を指定し、相互に直接連絡すること等を\n定めるものであり、その概要は、次のとおりであ\nる。\n１各締約国は、他方の締約国の請求に基づき、\n捜査、訴追その他の刑事手続についてこの条約\nの規定に従って共助を実施すること等について\n定める。（第一条関係）\n２この条約に規定するところに"
+          }
+        ]
+      },
+      {
+        "page": "20260807g001780003",
+        "source_image_sha256": "47c36e66aea3483b451116254198d193cb9241b786c4ebd413bc8f67d9abb85d",
+        "new_boundaries": [
+          {
+            "character_offset": 940,
+            "source_text_prefix": "本号で公布された\n法令のあらまし\n◇独立行政法人日本学生支援機構法施行令及び大\n学等における修学の支援に関する法律施行令の\n一部を改正する政令（政令第二百四十九号）（文\n部科学省）\n第１独立行政法人日本学生支援機構法施行令の\n一部改正\n独立行政法人日本学生支援機構法（平成十五\n年法律第九十四号）第十七条の二第一項に規定\nする学資支給金の額を定めるときに用いる支給\n額算定基準額の算定について、支給対象者が学\n資支給金支給年度の前年度の十二月三十一日に\nおいてその生計維持者と生計を一にする親族又\nは"
+          }
+        ]
+      },
+      {
+        "page": "20260807g001780004",
+        "source_image_sha256": "2cca1c36e37ed5d8cd13036e70e9e8f14444d781a55be92be1943e01b027a11f",
+        "new_boundaries": [
+          {
+            "character_offset": 82,
+            "source_text_prefix": "◇公益的法人等への一般職の地方公務員の派遣等\nに関する法律第二条第一項第三号の法人を定め\nる政令の一部を改正する政令（政令第二百五十\n号）（総務省）\n１　成田国際空港株式会社を公益的法人等への一\n般職の地方公務員の派遣等に関する法律（平成\n十二年法律第五十号）第二条第一項第三号の法\n人とする。（本則関係）\n２　この政令は、令和九年四月一日から施行する。\n（附則関係）"
+          },
+          {
+            "character_offset": 267,
+            "source_text_prefix": "◇地方税法施行令の一部を改正する政令（政令第\n二百五十一号）（総務省）\n１　自衛隊の船舶の使用者が我が国以外の国の軍\n隊の船舶の動力源に供するため軽油を譲渡する\n場合における軽油引取税の課税免除の特例の対\n象となる物品又は役務の相互の提供に関する条\n約その他の国際約束として、日本国の自衛隊と\nニュージーランド国防軍との間における物品又\nは役務の相互の提供に関する日本国政府と\nニュージーランド政府との間の協定、日本国の\n自衛隊とフィリピンの軍隊との間における物品\n又は役務の相互の提供に関する日本国"
+          },
+          {
+            "character_offset": 725,
+            "source_text_prefix": "◇更生保護制度の充実を図るための保護司法等の\n一部を改正する法律の施行期日を定める政令\n（政令第二百五十二号）（法務省）\n更生保護制度の充実を図るための保護司法等の\n一部を改正する法律（令和七年法律第八十二号）\nの施行期日は令和八年十二月一日とし、同法附則\n第一項ただし書に規定する規定の施行期日は令和\n九年六月一日とする。"
+          },
+          {
+            "character_offset": 888,
+            "source_text_prefix": "◇更生保護制度の充実を図るための保護司法等の\n一部を改正する法律の施行に伴う関係政令の整\n理に関する政令（政令第二百五十三号）（法務省）\n１　更生保護制度の充実を図るための保護司法等\nの一部を改正する法律（令和七年法律第八十二\n号）の施行に伴い、関係政令について所要の規\n定の整理を行う。（本則関係）\n２　この政令は、更生保護制度の充実を図るため\nの保護司法等の一部を改正する法律の施行の日\n（令和八年十二月一日）から施行する。ただし、\n第二条の規定は、同法附則第一項ただし書に規\n定する規定の施行の"
+          },
+          {
+            "character_offset": 1164,
+            "source_text_prefix": "◇溶融亜鉛めっき鋼帯及び鋼板に対して課する暫\n定的な不当廉売関税に関する政令（政令第二百\n五十四号）（財務省）\n１　大韓民国及び中華人民共和国（香港地域及び\nマカオ地域を除く。）を原産地とする溶融亜鉛\nめっき鋼帯及び鋼板について、関税定率法（以\n下「法」という。）第八条第九項に基づき、次に\nより、不当廉売に係る暫定的な関税を課するた\nめ必要な事項を定める。\n（１）　暫定的な不当廉売関税を課する貨物、当該\n貨物の原産地及び課税期間を定める。（第一条\n関係）\n（２）　暫定的な不当廉売関税の税率を定め"
+          },
+          {
+            "character_offset": 1579,
+            "source_text_prefix": "◇電波法施行令の一部を改正する政令（政令第二\n百五十五号）（総務省）\n１　伝搬障害防止区域を表示した図面について所\n要の規定の整備を行う。（第九条関係）\n２　この政令は、地域の自主性及び自立性を高め\nるための改革の推進を図るための関係法律の整\n備に関する法律（令和八年法律第二十七号）の\n施行の日から施行する。（附則関係）"
+          },
+          {
+            "character_offset": 1741,
+            "source_text_prefix": "◇下水道法等の一部を改正する法律の一部の施行\n期日を定める政令（政令第二百五十六号）（国土\n交通省）\n下水道法等の一部を改正する法律（令和八年法\n律第六十五号）附則第一条第二号に掲げる規定の\n施行期日は、令和八年八月十七日とする。"
+          },
+          {
+            "character_offset": 1857,
+            "source_text_prefix": "◇下水道法施行令の一部を改正する政令（政令第\n二百五十七号）（国土交通省）\n１　公共下水道の復旧工事に係る権限の代行\n（１）　都道府県は、公共下水道の復旧に関する工\n事を施行、完了又は廃止しようとするときは、\nあらかじめ、工事の区域等を公示しなければ\nならないものとする。（第九条の十二第一項関\n係）\n（２）　都道府県が復旧に関する工事を行う場合に\nおいて、公共下水道管理者に代わって行う権\n限の内容並びに当該権限を行うことができる\n期間及び区域を定める。（第九条の十二第二\n項、第三項関係）\n（３）"
+          },
+          {
+            "character_offset": 2258,
+            "source_text_prefix": "◇麻薬、麻薬原料植物、向精神薬、麻薬向精神薬\n原料等を指定する政令の一部を改正する政令\n（政令第二百五十八号）（厚生労働省）\n１　次に掲げる物を麻薬に指定する。（本則関係）\n（１）　二－（四－イソプロポキシベンジル）－五－\nニトロ－一－［二－（ピロリジン－一－イル）\nエチル］ベンズイミダゾール及びその塩類\n（２）　二－（四－エトキシベンジル）－一－（エ\nチルアミノ）エチル－五－ニトロベンズイミ\nダゾール及びその塩類\n（３）　メチル＝二－［一－（四－フルオロベンジ\nル）－一H－インダゾール－三－カ"
+          }
+        ]
+      },
+      {
+        "page": "20260807t000380002",
+        "source_image_sha256": "7273abbf3baccc7a3dfd1bed025c648bbec48cc424e1043e06f02fa0b6a174c5",
+        "new_boundaries": [
+          {
+            "character_offset": 282,
+            "source_text_prefix": "◇令和八年熊本地震による災害についての特定非常災害及びこれに対し適用すべき措置の指定に関す\nる政令（政令第二百六十号）（内閣府本府）\n１令和八年熊本地震による災害を特定非常災害として指定すること。（第一条関係）\n２当該特定非常災害に対し、次に掲げる措置を適用すること。（第二条関係）\n（１）行政上の権利利益に係る満了日の延長に関する措置\n（２）期限内に履行されなかった義務に係る免責に関する措置\n（３）債務超過を理由とする法人の破産手続開始の決定の特例に関する措置\n（４）相続の承認又は放棄をすべき期"
+          },
+          {
+            "character_offset": 601,
+            "source_text_prefix": "◇令和八年熊本地震による災害についての総合法律支援法第三十条第一項第四号の規定による指定等\nに関する政令（政令第二百六十一号）（法務省）\n１令和八年熊本地震による災害を総合法律支援法第三十条第一項第四号に規定する非常災害として\n指定する。（第一条関係）\n２１の非常災害についての総合法律支援法第三十条第一項第四号の政令で定める地区は、令和八年\n熊本地震に際し災害救助法が適用された同法第二条第一項に規定する災害発生市町村の区域とす\nる。（第二条第一項関係）\n３１の非常災害についての総合法律支援法第三"
+          }
+        ]
+      },
+      {
+        "page": "20260828g001920002",
+        "source_image_sha256": "428d34b758960fde3b6c510bdd82596f1abfdc298bfc727da7220a7c6d39a12b",
+        "new_boundaries": [
+          {
+            "character_offset": 387,
+            "source_text_prefix": "◇デジタル庁組織令の一部を改正する政令（政令\n第二百六十三号）（デジタル庁）\n１　デジタル庁に置かれる参事官の定数を改め\nる。（第三条関係）\n２　第三条第一項の参事官のうち一人は、令和十\n三年三月三十一日まで置かれるものとする。（附\n則第二項関係）\n３　この政令は、令和八年九月一日から施行する。\n（附則関係）"
+          },
+          {
+            "character_offset": 543,
+            "source_text_prefix": "◇令和八年熊本地震による災害についての激甚災\n害及びこれに対し適用すべき措置の指定に関す\nる政令の一部を改正する政令（政令第二百六十\n四号）（内閣府本府）\n１　令和八年熊本地震による熊本県八代市、宇城\n市、上益城郡御船町及び嘉島町並びに八代郡氷\n川町の区域に係る激甚災害に対し、中小企業信\n用保険法による災害関係保証の特例を適用す\nる。（本則関係）\n２　この政令は、公布の日から施行する。（附則関\n係）"
+          },
+          {
+            "character_offset": 745,
+            "source_text_prefix": "◇科学技術・イノベーション創出の活性化に関す\nる法律施行令の一部を改正する政令（政令第二\n百六十五号）（内閣府本府）\n１　国立研究開発法人産業技術総合研究所による\n出資並びに人的及び技術的援助の業務の対象と\nして、当該成果を活用し、又は活用しようとす\nる事業者に対する助言、資金供給その他の支援\nの事業を行う者を追加する。（別表第二関係）\n２　この政令は、公布の日から施行する。（附則関\n係）"
+          },
+          {
+            "character_offset": 942,
+            "source_text_prefix": "◇自衛隊法施行令の一部を改正する政令（政令第\n二百六十六号）（防衛省）\n１　令和八年三月卒業の防衛医科大学校卒業生が\n離職した場合における償還金の算定の基礎とな\nる金額について、防衛省設置法（昭和二十九年\n法律第百六十四号）第十六条第一項第一号の教\n育訓練を修了した者においては四千七百三十一\n万円、同項第二号の教育訓練を修了した者にお\nいては千二十八万円、同項第三号の教育訓練を\n修了した者においては千二十七万円とするこ\nと。（別表第十一関係）\n２　この政令は、公布の日から施行すること。（附\n則関"
+          },
+          {
+            "character_offset": 1195,
+            "source_text_prefix": "◇出入国管理及び難民認定法及び出入国管理及び\n難民認定法第二条第五号ロの旅券を所持する外\n国人の上陸申請の特例に関する法律の一部を改\n正する法律の一部の施行期日を定める政令（政\n令第二百六十七号）（法務省）\n出入国管理及び難民認定法及び出入国管理及び\n難民認定法第二条第五号ロの旅券を所持する外国\n人の上陸申請の特例に関する法律の一部を改正す\nる法律（令和八年法律第三十二号）附則第一条第\n二号に掲げる規定の施行期日は、令和八年十月一\n日とする。"
+          },
+          {
+            "character_offset": 1419,
+            "source_text_prefix": "◇出入国管理及び難民認定法施行令及び日本国と\nの平和条約に基づき日本の国籍を離脱した者等\nの出入国管理に関する特例法施行令の一部を改\n正する政令（政令第二百六十八号）（法務省）\n第１　出入国管理及び難民認定法施行令の一部改\n正\n１　在留資格の変更の許可等に係る手数料の納\n付に関する規定の整備\n（１）　出入国管理及び難民認定法第六十七条第\n一項の規定により納付しなければならない\n手数料の額を定める。（第二十五条第一項関\n係）\n（２）　経済的困難その他特別の理由により手数\n料を減額し、又は免除するこ"
+          }
+        ]
+      },
+      {
+        "page": "20260904g001980001",
+        "source_image_sha256": "ee5459312a2448559fdb1703bc3407a0ee7da15034cca93ae0b1dfe5fe03448a",
+        "new_boundaries": [
+          {
+            "character_offset": 865,
+            "source_text_prefix": "本号で公布された\n法令のあらまし\n◇地域公共交通の活性化及び再生に関する法律の\n一部を改正する法律の施行期日を定める政令\n（政令第二百六十九号）（国土交通省）\n地域公共交通の活性化及び再生に関する法律の\n一部を改正する法律（令和八年法律第三十五号）\nの施行期日は、令和八年十月十六日とする。"
+          },
+          {
+            "character_offset": 1011,
+            "source_text_prefix": "◇租税特別措置法施行令及び物資の流通の効率化\nに関する法律施行令の一部を改正する政令（政\n令第二百七十号）（国土交通省）\n第１租税特別措置法施行令の一部改正\n第四十三条の四において所要の改正を行う。\n第２物資の流通の効率化に関する法律施行令の\n一部改正\n第十二条第二項ただし書において所要の改正\nを行う。\n第３附則\nこの政令は、地域公共交通の活性化及び再生\nに関する法律の一部を改正する法律の施行の日\n（令和八年十月十六日）から施行する。"
+          },
+          {
+            "character_offset": 1231,
+            "source_text_prefix": "◇医療法等の一部を改正する法律の一部の施行期\n日を定める政令（政令第二百七十一号）（厚生労\n働省）\n医療法等の一部を改正する法律（令和七年法律\n第八十七号）附則第一条第六号に掲げる規定（同\n法第二条中医療法（昭和二十三年法律第二百五号）\n第六条の十二の次に一条を加える改正規定並びに\n同法第七条第一項、第十七条、第十八条及び第二\n十九条第一項第三号の改正規定を除く。）の施行期\n日は、令和九年四月一日とする。"
+          },
+          {
+            "character_offset": 1436,
+            "source_text_prefix": "◇社会経済の変化を踏まえた年金制度の機能強化\nのための国民年金法等の一部を改正する等の法\n律の一部の施行に伴う経過措置に関する政令\n（政令第二百七十二号）（厚生労働省）\n１短時間被保険者に係る厚生年金保険料に関す\nる経過措置（以下「保険料調整制度」という。）\n（１）政令で定めるものとされた保険料調整制度\nの適用の申出をすることができる適用事業所\n及び当該適用事業所における基準日を定め\nる。（第一条関係）\n（２）政令で定めるものとされた存続厚生年金基\n金の加入員を使用する事業所の事業主が保険\n料調"
+          }
+        ]
+      },
+      {
+        "page": "20260909h017860001",
+        "source_image_sha256": "f19d2f2a93859cd6ac5b5d2dbbd8ee7fd7a16b031f35ca0cf7ff45914b80d54b",
+        "new_boundaries": [
+          {
+            "character_offset": 773,
+            "source_text_prefix": "本号で公布された\n法令のあらまし\n◇予備自衛官等の職務の円滑な遂行を図るための\n国家公務員及び地方公務員の兼業の特例に関す\nる法律の施行期日を定める政令（政令第二百七\n十三号）（防衛省）\n予備自衛官等の職務の円滑な遂行を図るための\n国家公務員及び地方公務員の兼業の特例に関する\n法律（令和八年法律第四十号）の施行期日は、令\n和九年四月一日とする。"
+          }
+        ]
+      },
+      {
+        "page": "20260911g002030001",
+        "source_image_sha256": "1efc584ad21f5e504590605e01a485f89adba2f5dd0df0aa9a353502e97cf53e",
+        "new_boundaries": [
+          {
+            "character_offset": 693,
+            "source_text_prefix": "本号で公布された法令のあらまし\n◇医療法等の一部を改正する法律の一部の施行に伴う関係政令の整備及び経過措置に関する政令（政\n令第二百七十四号）（厚生労働省）\n第１　国家公務員共済組合法施行令の一部改正\n１　国家公務員共済組合の組合員が医療情報基盤・診療報酬審査支払機構の役員となるため退職し\nた場合には、長期給付に関する規定の適用については、別段の定めがあるものを除き、その者の\n退職は、なかったものとみなし、退職の際に所属していた組合の組合員であるものとする。（第四\n十三条第二項関係）\n２　その他"
+          },
+          {
+            "character_offset": 1341,
+            "source_text_prefix": "◇社会経済の変化を踏まえた年金制度の機能強化のための国民年金法等の一部を改正する等の法律の\n一部の施行期日を定める政令（政令第二百七十五号）（厚生労働省）\n社会経済の変化を踏まえた年金制度の機能強化のための国民年金法等の一部を改正する等の法律\n（令和七年法律第七十四号。以下「改正法」という。）附則第一条第一項第九号に掲げる規定（改正法\n第十五条中公的年金制度の健全性及び信頼性の確保のための厚生年金保険法等の一部を改正する法律\n附則第五条第三項の表及び第三十八条第三項の表の改正規定並びに改正法第二"
+          },
+          {
+            "character_offset": 1724,
+            "source_text_prefix": "◇社会経済の変化を踏まえた年金制度の機能強化のための国民年金法等の一部を改正する等の法律の\n一部の施行に伴う関係政令の整備に関する政令（政令第二百七十六号）（厚生労働省）\n第１　厚生年金保険法施行令の一部改正\n１　厚生年金保険の被保険者であって老齢厚生年金の受給権者であるものがその資格を喪失した場\n合の年金額の改定について、厚生年金保険法附則第四条の六の新設に伴う所要の規定の整備を行\nう。（第三条の五第一項関係）\n２　特定減額特例対象者から厚生年金保険法第九条の規定による被保険者となった場合にお"
+          }
+        ]
+      },
+      {
+        "page": "20260911g002030002",
+        "source_image_sha256": "5bab31198e7bf0ec87acbd2134e42a2b2fcb2827f746a7498788dbbe939d91eb",
+        "new_boundaries": [
+          {
+            "character_offset": 392,
+            "source_text_prefix": "◇公的年金制度の持続可能性の向上を図るための国民年金法等の一部を改正する法律の一部の施行に\n伴う関係政令の整備及び経過措置に関する政令の一部を改正する政令（政令第二百七十七号）（厚生\n労働省）\n１日本国籍を有しない者に対する脱退一時金の支給に係る経過措置に関する規定の整理を行う。（第\n二条第一項、第二十条関係）\n２この政令は、令和八年十月一日から施行する。（附則関係）\n政令\n医療法等の一部を改正する法律の一部の施行に伴う関係政令の整備及び経過措置に関する政令をこ\nこに公布する。\n御名御璽\n令和八"
+          }
+        ]
+      },
+      {
+        "page": "20260915g002050001",
+        "source_image_sha256": "60bddf3f306cfec480a92d4b90490fc7f8f86175fe68a61ec6a98ad0e33e90a9",
+        "new_boundaries": [
+          {
+            "character_offset": 548,
+            "source_text_prefix": "本号で公布された\n法令のあらまし\n◇廃棄物の処理及び清掃に関する法律等の一部を\n改正する法律の一部の施行期日を定める政令\n（政令第二百七十八号）（環境省）\n廃棄物の処理及び清掃に関する法律等の一部を\n改正する法律（令和八年法律第四十三号）附則第\n一条第二号に掲げる規定の施行期日は、令和八年\n九月十六日とする。"
+          },
+          {
+            "character_offset": 704,
+            "source_text_prefix": "◇廃棄物の処理及び清掃に関する法律施行令の一\n部を改正する政令（政令第二百七十九号）（環境\n省）\n１　非常災害廃棄物の処理に係る委託基準の整備\n廃棄物の処理及び清掃に関する法律等の一部\nを改正する法律（令和八年法律第四十三号。以\n下「改正法」という。）による改正後の廃棄物の\n処理及び清掃に関する法律（昭和四十五年法律\n第百三十七号。以下「法」という。）第六条の二\n第三項及び第五項の規定により、市町村から非\n常災害廃棄物の処理の委託を受けた者が、当該\n処理を他人（以下「非常災害廃棄物処理再受託\n者"
+          }
+        ]
+      },
+      {
+        "page": "20260916g002060002",
+        "source_image_sha256": "aaa09ef130a0546aae06875a0d6514cec54a852b1f5b1010e61106606101ba75",
+        "new_boundaries": [
+          {
+            "character_offset": 682,
+            "source_text_prefix": "◇住民基本台帳法施行令の一部を改正する政令\n（政令第二百八十一号）（総務省）\n１　婚姻内親王等の特例に関する事項\n（１）　住民票の記載事項に関し、「氏名」を「名」\nに読み替える等、所要の改正を行うものとす\nること。（第三十三条第一項関係）\n（２）　婚姻内親王等が皇族の身分を離れた場合に\nおいて、住民基本台帳法第七条各号に掲げる\n事項を記載した住民票を作成等するととも\nに、（１）の規定により読み替えて適用する同条\n各号に掲げる事項を記載した住民票の消除を\n行うものとすること。（第三十三条第二項関\n"
+          },
+          {
+            "character_offset": 1080,
+            "source_text_prefix": "◇恩給給与規則及び国会議員互助年金法施行令を\n廃止する等の政令附則第二項の規定によりなお\nその効力を有するものとされた同令第一条の規\n定による廃止前の国会議員互助年金法施行令の\n一部を改正する政令（政令第二百八十二号）（総\n務省）\n第１　恩給給与規則の一部改正\n１　恩給証書等の添付を求めている規定を削除\nすること。（第二条、第二条ノ七〜第二条ノ九、\n第二条ノ十一〜第二条ノ十三、第三条ノ二、\n第三条ノ三、第七条、第八条、第十条、第十\n条ノ三、第十条ノ六、第十条ノ七、第十条ノ\n九、第十条ノ十、第十一"
+          },
+          {
+            "character_offset": 1936,
+            "source_text_prefix": "◇防衛省組織令の一部を改正する政令（政令第二\n百八十三号）（防衛省）\n１　整備計画局及び同局サイバー整備課並びに統\n合幕僚監部運用部運用第一課の所掌事務を変更\nする。（第七条、第二十八条及び第六十条関係）\n２　この政令は、令和八年十月一日から施行する。\n（附則関係）"
+          },
+          {
+            "character_offset": 2070,
+            "source_text_prefix": "◇建築基準法施行令の一部を改正する政令（政令\n第二百八十四号）（国土交通省）\n１　型式適合認定の類型の追加\n型式適合認定の類型として、建築物の構造耐\n力に係る一連の規定に適合していることについ\nての認定を追加する。（第十条第一号、第百三十\n六条の二の十一第一号関係）\n２　採光規制の対象の合理化\n児童福祉施設等のうち、利用者の滞在時間が\n短いことその他の理由により衛生上支障がない\nものとして国土交通大臣が定めるものについ\nて、建築基準法第二十八条第一項の採光規制の\n対象から除外する。（第十九条第二"
+          }
+        ]
+      },
+      {
+        "page": "20260916g002060003",
+        "source_image_sha256": "225efc5eb02a5b4c2b5566754c64e1f49e786b8348f292989ee075f2350cdce0",
+        "new_boundaries": [
+          {
+            "character_offset": 600,
+            "source_text_prefix": "◇通貨の単位及び貨幣の発行等に関する法律施行\n令の一部を改正する政令（政令第二百八十五号）\n（財務省）\n１　令和九年に開催される二千二十七年国際園芸\n博覧会を記念するため発行する千円の貨幣の素\n材、品位、量目及び形式を定める。（別表第一関\n係）\n２　１に掲げる記念貨幣の発行枚数を、四万枚と\nする。（別表第三関係）\n３　１に掲げる記念貨幣で一枚を容器に入れたも\nのの価額にあっては、三万四百五十五円とする。\n（別表第四関係）\n４　この政令は、公布の日から施行する。（附則関\n係）"
+          },
+          {
+            "character_offset": 840,
+            "source_text_prefix": "◇日本学術会議法の施行に伴う関係政令の整備に\n関する政令（政令第二百八十六号）（内閣府本府）\n１　関係政令の整備\n関係政令について所要の規定の整備を行う。\n２　附則\n（１）　この政令は、令和八年十月一日から施行す\nる。（附則第一項関係）\n（２）　罰則に関する経過措置を定める。（附則第二\n項関係）"
+          },
+          {
+            "character_offset": 989,
+            "source_text_prefix": "◇日本学術会議評価委員会令（政令第二百八十七\n号）（内閣府本府）\n１　専門委員\n（１）　委員会に、専門の事項を調査させるため必\n要があるときは、専門委員を置くことができ\nるものとする。（第一条第一項関係）\n（２）　専門委員は、当該専門の事項に関し学識経\n験のある者のうちから、内閣総理大臣が任命\nする。（第一条第二項関係）\n（３）　専門委員は、その者の任命に係る当該専門\nの事項に関する調査が終了したときは、解任\nされるものとする。（第一条第三項関係）\n２　委員等の勤務\n委員及び専門委員は、非常勤と"
+          },
+          {
+            "character_offset": 1791,
+            "source_text_prefix": "◇経済施策を一体的に講ずることによる安全保障\nの確保の推進に関する法律及び株式会社国際協\n力銀行法の一部を改正する法律の施行期日を定\nめる政令（政令第二百八十八号）（内閣府本府）\n経済施策を一体的に講ずることによる安全保障\nの確保の推進に関する法律及び株式会社国際協力\n銀行法の一部を改正する法律（令和八年法律第三\n十八号）の施行期日及び同法附則第一条第三号に\n掲げる規定の施行期日は、令和八年九月十八日と\nする。"
+          },
+          {
+            "character_offset": 1999,
+            "source_text_prefix": "◇内閣府本府組織令の一部を改正する政令（政令\n第二百八十九号）（内閣府本府）\n１　経済施策を一体的に講ずることによる安全保\n障の確保の推進に関する法律及び株式会社国際\n協力銀行法の一部を改正する法律（令和八年法\n律第三十八号）の施行に伴い、政策統括官の職\n務を変更する。（本則関係）\n２　この政令は、経済施策を一体的に講ずること\nによる安全保障の確保の推進に関する法律及び\n株式会社国際協力銀行法の一部を改正する法律\nの施行の日（令和八年九月十八日）から施行す\nる。（附則関係）"
+          },
+          {
+            "character_offset": 2239,
+            "source_text_prefix": "◇株式会社国際協力銀行法施行令の一部を改正す\nる政令（政令第二百九十号）（財務省）\n１　劣後的政府貸付けについて、担保が付されて\nいないこと、その元本の弁済が行われない期間\nが契約時から五年を超えるものであること、政\n府がその貸付けに係る債権の全部又は一部を免\n除しなければ株式会社国際協力銀行（以下「会\n社」という。）の財産をもって会社の債務を完済\nすることができないと認められる場合におい\nて、会社の目的の達成に重大な支障が生ずるお\nそれがあると認められるときは、政府は会社の\n株式の取得であって"
+          },
+          {
+            "character_offset": 2868,
+            "source_text_prefix": "◇建築物のエネルギー消費性能の向上等に関する\n法律の一部を改正する法律の一部の施行期日を\n定める政令（政令第二百九十一号）（国土交通省）\n建築物のエネルギー消費性能の向上等に関する\n法律の一部を改正する法律（令和八年法律第七十\n五号）附則第一条第二号に掲げる規定の施行期日\nは、令和九年四月一日とする。"
+          },
+          {
+            "character_offset": 3020,
+            "source_text_prefix": "◇建築物のエネルギー消費性能の向上等に関する\n法律施行令の一部を改正する政令（政令第二百\n九十二号）（国土交通省）\n１　特別特定一戸建て住宅建築主等及び特別特定\n一戸建て住宅建設工事業者等の指定に係る基準\nとなる住宅の戸数の設定\n（１）　特別特定一戸建て住宅建築主の指定に係る\n基準となる、前年度に新築した分譲型一戸建\nて規格住宅の戸数を二千戸とする。（第六条第\n一項関係）"
+          }
+        ]
+      },
+      {
+        "page": "20260916g002060004",
+        "source_image_sha256": "1d2f79c1e8282cc210af25aebfee3e0f6711c3082f89cf29c765b02ec0df2306",
+        "new_boundaries": [
+          {
+            "character_offset": 340,
+            "source_text_prefix": "◇金融商品取引法等の一部を改正する法律の一部\nの施行期日を定める政令（政令第二百九十三号）\n（金融庁）\n金融商品取引法等の一部を改正する法律（令和\n五年法律第七十九号）附則第一条第五号に掲げる\n規定の施行期日は、令和八年十一月三十日とする。"
+          },
+          {
+            "character_offset": 461,
+            "source_text_prefix": "◇情報通信技術の進展等の環境変化に対応するた\nめの社債、株式等の振替に関する法律等の一部\nを改正する法律の一部の施行期日を定める政令\n（政令第二百九十四号）（金融庁）\n情報通信技術の進展等の環境変化に対応するた\nめの社債、株式等の振替に関する法律等の一部を\n改正する法律（令和五年法律第八十号）附則第一\n条第三号に掲げる規定の施行期日は、令和八年十\n一月三十日とする。"
+          },
+          {
+            "character_offset": 646,
+            "source_text_prefix": "◇外国為替及び外国貿易法の一部を改正する法律\nの施行期日を定める政令（政令第二百九十五号）\n（財務省）\n外国為替及び外国貿易法の一部を改正する法律\n（令和八年法律第三十号）の施行期日は、令和九\n年一月四日とする。"
+          },
+          {
+            "character_offset": 753,
+            "source_text_prefix": "◇外国為替及び外国貿易法の一部を改正する法律\nの施行に伴う関係政令の整備等に関する政令\n（政令第二百九十六号）（財務省）\n第１　外国為替令（昭和五十五年政令第二百六十\n号）の一部改正\n１　銀行等の確認義務に関する事項\n外国為替及び外国貿易法の一部を改正する\n法律（令和八年法律第三十号。以下「改正法」\nという。）の規定による改正後の外国為替及び\n外国貿易法（昭和二十四年法律第二百二十八\n号。以下「新法」という。）第十七条第一号及\nび第二号において、銀行等の確認義務から除\nく支払等を追加したことに伴"
+          },
+          {
+            "character_offset": 2717,
+            "source_text_prefix": "◇お年玉付郵便葉書等に関する法律施行令の一部\nを改正する政令（政令第二百九十七号）（総務省）\n１　寄附金付郵便葉書等に付加される寄附金の配\n分を受けるための申請の手続における意見書の\n添付を不要とする。（第二条第二項関係）\n２　この政令は、公布の日から施行する。（附則関\n係）"
+          }
+        ]
+      },
+      {
+        "page": "20260917t000500001",
+        "source_image_sha256": "4b588d2c656ba80272189681c65760e1f0a3454dc37e36ffadba7b46877c8425",
+        "new_boundaries": [
+          {
+            "character_offset": 100,
+            "source_text_prefix": "本号で公布された\n法令のあらまし\n◇令和八年熊本地震による災害についての激甚災\n害及びこれに対し適用すべき措置の指定に関す\nる政令の一部を改正する政令（政令第二百九十\n八号）（内閣府本府）\n１令和八年熊本地震による激甚災害に対し、次\nに掲げる措置を適用する。（本則関係）\n（１）公立社会教育施設災害復旧事業に対する補\n助\n（２）私立学校施設災害復旧事業に対する補助\n（３）市町村が施行する感染症予防事業に関する\n負担の特例\n（４）罹災者公営住宅建設等事業に対する補助の\n特例\n２この政令は、公布の日か"
+          }
+        ]
+      },
+      {
+        "page": "20260928g002130001",
+        "source_image_sha256": "dd708c2818130a8f495c0e206681f8bd135de4cd0a3eb7c9e1ba0dd83f64ac82",
+        "new_boundaries": [
+          {
+            "character_offset": 722,
+            "source_text_prefix": "本号で公布された\n法令のあらまし\n◇農業近代化資金融通法の一部を改正する法律の\n施行期日を定める政令（政令第二百九十九号）\n（農林水産省）\n農業近代化資金融通法の一部を改正する法律\n（令和八年法律第十七号）の施行期日は、令和八\n年十月一日とする。"
+          },
+          {
+            "character_offset": 846,
+            "source_text_prefix": "◇農業近代化資金融通法施行令の一部を改正する\n政令（政令第三百号）（農林水産省）\n１貸付対象者の追加\n農業近代化資金の貸付対象者として、農業振\n興事業を主たる事業として営む株式会社であっ\nて、農林中央金庫が総株主の議決権の過半数を\n有しているものを加える。（第一条第八号関係）\n２償還期限の延長\n農業近代化資金のうち、第二条の表第一号か\nら第五号まで及び第七号に掲げる資金の償還期\n限を二十年に延長する。（第二条の表第一号から\n第五号まで及び第七号関係）\n３貸付金合計額の最高限度額の引上げ\n農業近代"
+          }
+        ]
+      },
+      {
+        "page": "20260930g002150003",
+        "source_image_sha256": "dec87229669d619806d7b99278bfef80becc923b83965daed0918d563621e89a",
+        "new_boundaries": [
+          {
+            "character_offset": 1102,
+            "source_text_prefix": "本号で公布された\n法令のあらまし\n◇内閣官房組織令の一部を改正する政令（政令第\n三百一号）（内閣官房）\n１重要電子計算機に対する不正な行為による被\n害の防止に関する法律の施行に伴う関係法律の\n整備等に関する法律（令和七年法律第四十三号）\nの施行に伴い、内閣官房組織令（昭和三十二年\n政令第二百十九号）について所要の規定の整理\nを行う。（本則関係）\n２この政令は、重要電子計算機に対する不正な\n行為による被害の防止に関する法律の施行に伴\nう関係法律の整備等に関する法律の施行の日\n（令和八年十月一日）か"
+          },
+          {
+            "character_offset": 1365,
+            "source_text_prefix": "◇内閣府本府組織令の一部を改正する政令（政令\n第三百二号）（内閣府本府）\n１国家社会機能継続性確保施策及び副首都の整\n備に係る施策の推進に関する法律（令和八年法\n律第七十八号）の施行に伴い、政策統括官の職\n務に同法に関する事務を追加する。（本則関係）\n２この政令は、国家社会機能継続性確保施策及\nび副首都の整備に係る施策の推進に関する法律\nの施行の日から施行する。（附則関係）"
+          },
+          {
+            "character_offset": 1554,
+            "source_text_prefix": "◇防災庁設置法の施行期日を定める政令（政令第\n三百三号）（内閣官房）\n防災庁設置法（令和八年法律第六十一号）の施\n行期日は、令和八年十一月二日とする。"
+          },
+          {
+            "character_offset": 1630,
+            "source_text_prefix": "◇防災庁組織令（政令第三百四号）（内閣官房）\n１防災庁に、統括官四人を置き、命を受けて、\n防災庁の事務を分掌する。（第一条関係）\n２防災庁に、審議官二人（併任の者を除く。）を\n置き、命を受けて、統括官のつかさどる職務の\nうち重要事項に係るものを助ける。（第二条関\n係）\n３防災庁に、公文書監理官一人（関係のある他\nの職を占める者をもって充てられるものとす\nる。）を置き、命を受けて、防災庁の所掌事務の\nうち公文書類の管理並びにこれに関連する情報\nの公開及び個人情報の保護の適正な実施の確保\nに関する重"
+          },
+          {
+            "character_offset": 2028,
+            "source_text_prefix": "◇防災庁設置法及び防災庁設置法の施行に伴う関\n係法律の整備等に関する法律の施行に伴う関係\n政令の整備に関する政令（政令第三百五号）（内\n閣官房）\n１関係政令の整備\n防災庁設置法（令和八年法律第六十一号）及\nび防災庁設置法の施行に伴う関係法律の整備等\nに関する法律（令和八年法律第六十二号）の施\n行に伴い、並びに関係法律の規定に基づき、関\n係政令について所要の規定の整備を行う。（第一\n条〜第三十二条関係）\n２附則\n（１）この政令は、令和八年十一月二日から施行\nする。（附則第一条関係）\n（２）所要の経"
+          },
+          {
+            "character_offset": 2301,
+            "source_text_prefix": "◇サイバー通信情報監理委員会事務局組織令の一\n部を改正する政令（政令第三百六号）（サイバー\n通信情報監理委員会）\n１サイバー通信情報監理委員会の事務局に危害\n防止監理課を置くとともに、調査課を廃止して\nその所掌事務を総務課に移管する。（第三条、第\n四条及び第六条関係）\n２この政令は、重要電子計算機に対する不正な\n行為による被害の防止に関する法律（令和七年\n法律第四十二号）の施行の日（令和八年十月一\n日）から施行する。（附則関係）"
+          },
+          {
+            "character_offset": 2518,
+            "source_text_prefix": "◇防衛省設置法等の一部を改正する法律の一部の\n施行期日を定める政令（政令第三百七号）（防衛\n省）\n防衛省設置法等の一部を改正する法律（令和七\n年法律第四十四号）附則第一条第七号に掲げる規\n定の施行期日は、令和八年十月一日とする。"
+          }
+        ]
+      },
+      {
+        "page": "20260930g002150004",
+        "source_image_sha256": "99abe2e7fbc15456ecd0dcadd5e0f41605fa822f4d8fbeaf487d2944e2588597",
+        "new_boundaries": [
+          {
+            "character_offset": 1120,
+            "source_text_prefix": "◇国立研究開発法人医薬基盤・健康・栄養研究所\n法施行令等の一部を改正する政令（政令第三百\n九号）（厚生労働省）\n第１　国立研究開発法人医薬基盤・健康・栄養研\n究所法施行令の一部改正\n国立研究開発法人医薬基盤・健康・栄養研究\n所法（平成十六年法律第百三十五号。以下「法」\nという。）附則第十七条第一項第一号の政令で定\nめる事業は、次に掲げる事業とする。（附則第十\n四条の二関係）\n１　革新的な医薬品等の国内外における実用化\nに必要な事業活動に関する情報の提供、相談\n及び助言を行う事業\n２　１の事業活動"
+          },
+          {
+            "character_offset": 1848,
+            "source_text_prefix": "◇国家公務員共済組合法施行令及び国家公務員共\n済組合法施行令及び被用者年金制度の一元化等\nを図るための厚生年金保険法等の一部を改正す\nる法律の施行及び国家公務員の退職給付の給付\n水準の見直し等のための国家公務員退職手当法\n等の一部を改正する法律の一部の施行に伴う国\n家公務員共済組合法による長期給付等に関する\n経過措置に関する政令の一部を改正する政令の\n一部を改正する政令（政令第三百十号）（財務省）\n第１　国家公務員共済組合法施行令の一部改正\n１　短時間組合員の要件のうち、報酬月額が八\n万八千円以"
+          },
+          {
+            "character_offset": 3005,
+            "source_text_prefix": "◇地方公務員等共済組合法施行令及び地方公務員\n等共済組合法施行令及び被用者年金制度の一元\n化等を図るための厚生年金保険法等の一部を改\n正する法律及び地方公務員等共済組合法及び被\n用者年金制度の一元化等を図るための厚生年金\n保険法等の一部を改正する法律の一部を改正す\nる法律の施行に伴う地方公務員等共済組合法に\nよる長期給付等に関する経過措置に関する政令\nの一部を改正する政令の一部を改正する政令\n（政令第三百十一号）（総務省）\n第１　地方公務員等共済組合法施行令の一部改正\n１　短時間組合員の要件のう"
+          }
+        ]
+      },
+      {
+        "page": "20260930g002150005",
+        "source_image_sha256": "a3ab5fdace7a302c482bf405a41dfaa761b8602328ff36ebd850bd92b6278885",
+        "new_boundaries": [
+          {
+            "character_offset": 895,
+            "source_text_prefix": "◇私立学校教職員共済法施行令等の一部を改正す\nる政令（政令第三百十二号）（文部科学省）\n第１　私立学校教職員共済法施行令の一部改正\n１　学校法人等に使用される者で当該学校法人\n等から報酬を受けるものであって、その一週\n間の所定労働時間が当該学校法人等に使用さ\nれる通常の労働者の一週間の所定労働時間の\n四分の三未満である等の短時間労働者に係る\n私立学校教職員共済制度の適用除外の要件の\nうち、報酬月額が八万八千円未満であること\nとする要件を削除する。（第一条の二第二項関\n係）\n２　特定減額特例対象者"
+          },
+          {
+            "character_offset": 2102,
+            "source_text_prefix": "◇国家戦略特別区域を定める政令の一部を改正す\nる政令（政令第三百十三号）（内閣府本府）\n１　国家戦略特別区域に、北海道帯広市、河東郡\n音更町、士幌町、上士幌町及び鹿追町、上川郡\n新得町及び清水町、河西郡芽室町、中札内村及\nび更別村、広尾郡大樹町及び広尾町、中川郡幕\n別町、池田町、豊頃町及び本別町、足寄郡足寄\n町及び陸別町並びに十勝郡浦幌町の区域を追加\nする。（本則関係）\n２　この政令は、公布の日から施行する。（附則関\n係）"
+          },
+          {
+            "character_offset": 2316,
+            "source_text_prefix": "◇土地区画整理法施行令の一部を改正する政令\n（政令第三百十四号）（国土交通省）\n１　土地区画整理審議会の委員の選挙に係る候補\n者、当選人並びに当選を承諾したものとみなさ\nれた者及び当選人と定めた者の住所の公告につ\nいては、住所の全部の公告に支障がある場合、\n住所の一部の公告をもって住所の全部の公告に\n代えることができるものとする。（第二十四条第\n五項、第三十五条第五項及び第十項関係）\n２　その他所要の改正を行う。\n３　この政令は、令和八年十月一日から施行する。\n（附則関係）"
+          },
+          {
+            "character_offset": 2556,
+            "source_text_prefix": "◇主要食糧の需給及び価格の安定に関する法律の\n一部を改正する法律の施行期日を定める政令\n（政令第三百十五号）（農林水産省）\n主要食糧の需給及び価格の安定に関する法律の\n一部を改正する法律（令和八年法律第五十五号）\nの施行期日は令和九年四月一日とし、同法附則第\n一条第二号に掲げる規定の施行期日は令和十年四\n月一日とする。"
+          },
+          {
+            "character_offset": 2717,
+            "source_text_prefix": "◇主要食糧の需給及び価格の安定に関する法律の\n一部を改正する法律の施行に伴う経過措置に関\nする政令（政令第三百十六号）（農林水産省）\n１　財務大臣の権限の委任に係る規定の整備\n主要食糧の需給及び価格の安定に関する法律\nの一部を改正する法律（以下「改正法」という。）\n附則第二条第二項の規定による財務大臣の権限\nは、国税庁長官に委任する。ただし、財務大臣\nが自らその権限を行使することを妨げない。（第\n一項関係）\n２　農林水産大臣及び国税庁長官の権限の委任に\n係る規定の整備\n改正法附則第二条第二項の規"
+          },
+          {
+            "character_offset": 3085,
+            "source_text_prefix": "◇主要食糧の需給及び価格の安定に関する法律施\n行令の一部を改正する政令（政令第三百十七号）\n（農林水産省）\n１　米穀を原材料とする飲食料品の指定\n米穀を原材料とする飲食料品であって政令で\n定めるものとして、米穀粉、米穀のひき割りし\nたもの及びミール等を定める。（第三条関係）\n２　生産調整方針に係る規定の削除\n主要食糧の需給及び価格の安定に関する法律\nの一部を改正する法律（以下「改正法」という。）\nにより、生産調整方針に係る規定が廃止される\nことに伴い、施行令における関係規定を削除す\nる。（第四条"
+          }
+        ]
+      },
+      {
+        "page": "20260930g002150006",
+        "source_image_sha256": "c079e23cee4b7e34e20b85bb986357a5e4db1aedc7b4453b5f5da1ee9b14987f",
+        "new_boundaries": [
+          {
+            "character_offset": 335,
+            "source_text_prefix": "◇雇用保険法施行令の一部を改正する政令（政令\n第三百十八号）（厚生労働省）\n１　熊本県が設置する職業能力開発校等の施設及\nび設備であって令和八年熊本地震により著しい\n被害を受けたものの災害復旧に要する経費に関\nする補助金については、令和八年度において、\nその補助率を二分の一から三分の二に引き上げ\nる。（附則第八条関係）\n２　この政令は、公布の日から施行する。（附則関\n係）"
+          },
+          {
+            "character_offset": 523,
+            "source_text_prefix": "◇栄養士法施行令等の一部を改正する政令（政令\n第三百十九号）（厚生労働省）\n第１　栄養士法施行令の一部改正\n１　管理栄養士の免許の申請を情報通信技術を\n活用した行政の推進等に関する法律（以下「情\n報通信技術活用法」という。）第六条第一項の\n規定により同項に規定する電子情報処理組織\n（以下「電子情報処理組織」という。）を使用\nして行うときは、都道府県知事を経由するこ\nとを要しないこととする。（第一条第二項関\n係）\n２　管理栄養士の免許の申請を情報通信技術活\n用法第六条第一項の規定により電子情報処理"
+          },
+          {
+            "character_offset": 1328,
+            "source_text_prefix": "◇健康保険法等の一部を改正する法律の一部の施\n行期日を定める政令（政令第三百二十号）（厚生\n労働省）\n健康保険法等の一部を改正する法律（令和八年\n法律第三十一号）附則第一条第四号に掲げる規定\nの施行期日は、令和九年三月一日とする。\n政令"
+          }
+        ]
+      },
+      {
+        "page": "20261007h018030001",
+        "source_image_sha256": "de1e5ae3fd604a7397a9e8dba3700bd8698a865d63a1375827cad9d24955bddf",
+        "new_boundaries": [
+          {
+            "character_offset": 665,
+            "source_text_prefix": "本号で公布された\n法令のあらまし\n◇エネルギーの使用の合理化及び非化石エネル\nギーへの転換等に関する法律施行令の一部を改\n正する政令（政令第三百二十一号）（経済産業省）\n１特定エネルギー消費機器の範囲の見直し\nガス温水機器及び電気温水機器をエネルギー\n消費関係性能の向上を図ることが特に必要なエ\nネルギー消費機器として定める。（第十八条関\n係）\n２特定エネルギー消費機器等のエネルギー消費\n機器等製造事業者等に係る生産量又は輸入量の\n要件の整備\nガス温水機器及び電気温水機器のエネルギー\n消費機器等製"
+          }
+        ]
+      },
+      {
+        "page": "20261009g002230001",
+        "source_image_sha256": "b4db50bb68eb457c2eb1b535d7b25e7ce07ac5cdec8940bbf8075b069b2d101b",
+        "new_boundaries": [
+          {
+            "character_offset": 1333,
+            "source_text_prefix": "本号で公布された\n法令のあらまし\n◇刑事訴訟法の一部を改正する法律の一部の施行\n期日を定める政令（政令第三百二十二号）（法務\n省）\n刑事訴訟法の一部を改正する法律（令和八年法\n律第六十七号）附則第一条第三号に掲げる規定の\n施行期日は、令和八年十月二十日とする。"
+          },
+          {
+            "character_offset": 1464,
+            "source_text_prefix": "◇建築士法の一部を改正する法律の一部の施行期\n日を定める政令（政令第三百二十三号）（国土交\n通省）\n建築士法の一部を改正する法律（令和八年法律\n第七十四号）附則第一条第二号に掲げる規定の施\n行期日は、令和九年四月一日とする。"
+          },
+          {
+            "character_offset": 1577,
+            "source_text_prefix": "◇建築士法施行令の一部を改正する政令（政令第\n三百二十四号）（国土交通省）\n１建築士法施行令について所要の規定の整備を\n行う。（本則関係）\n２この政令は、建築士法の一部を改正する法律\n附則第一条第二号に掲げる規定の施行の日（令\n和九年四月一日）から施行する。（附則関係）"
+          },
+          {
+            "character_offset": 1713,
+            "source_text_prefix": "◇輸出貿易管理令の一部を改正する政令（政令第\n三百二十五号）（経済産業省）\n１輸出の承認に関する規定の整備\n国際平和のための国際的な努力に我が国とし\nて寄与するため、ロシア等を仕向地とするプラ\nスター等の輸出について承認を要することとす\nる。（別表第二の三関係）\n２施行期日\nこの政令は、公布の日から起算して七日を経\n過した日から施行する。（附則関係）"
+          }
+        ]
+      },
+      {
+        "page": "20261015g002260001",
+        "source_image_sha256": "fb6c5728ef4ca90253610ec3d39c65e9dbee7a1a4c34f3d9e6390322e2327335",
+        "new_boundaries": [
+          {
+            "character_offset": 745,
+            "source_text_prefix": "本号で公布された\n法令のあらまし\n◇環境影響評価法の一部を改正する法律の施行期\n日を定める政令（政令第三百二十六号）（環境省）\n環境影響評価法の一部を改正する法律（令和七\n年法律第七十三号）附則第一条本文に掲げる規定\nの施行期日は、令和九年四月一日とする。"
+          },
+          {
+            "character_offset": 874,
+            "source_text_prefix": "◇環境影響評価法施行令の一部を改正する政令\n（政令第三百二十七号）（環境省）\n１事業実施想定区域及び第一種事業に係る環境\nの保全のための配慮の内容を記載した計画段階\n環境配慮書の作成の対象となる事業に係る工作\n物の要件を定める。（第七条の二関係）\n２ダムの改築の事業に係る第一種事業及び第二\n種事業の要件等を定める。（別表第一の二の項、\n別表第一の五の項、別表第二の三の項〜別表第\n二の六の項、別表第三の三の項〜別表第三の六\nの項関係）\n３この政令は、令和九年四月一日から施行する。\n（附則関係）"
+          }
+        ]
+      }
+    ]
+  },
+  "single_changed_pages": [
+    "20260717g001600001",
+    "20260717g001600005",
+    "20260717g001600006",
+    "20260717g001600007",
+    "20260717g001600008",
+    "20260717g001600010",
+    "20260723g001630002",
+    "20260723g001630004",
+    "20260723g001630006",
+    "20260724g001640002",
+    "20260724g001640003",
+    "20260724g001640004",
+    "20260724g001640005",
+    "20260724g001640006",
+    "20260724g001640007",
+    "20260729g001690001",
+    "20260729g001690002",
+    "20260731g001720003",
+    "20260731g001720004",
+    "20260731g001720005",
+    "20260731g001720007",
+    "20260731g001720010",
+    "20260803g001740001",
+    "20260805g001760002",
+    "20260805g001760003",
+    "20260807g001780003",
+    "20260807g001780004",
+    "20260807t000380002",
+    "20260828g001920002",
+    "20260904g001980001",
+    "20260909h017860001",
+    "20260911g002030001",
+    "20260911g002030002",
+    "20260915g002050001",
+    "20260916g002060002",
+    "20260916g002060003",
+    "20260916g002060004",
+    "20260917t000500001",
+    "20260928g002130001",
+    "20260930g002150003",
+    "20260930g002150004",
+    "20260930g002150005",
+    "20260930g002150006",
+    "20261007h018030001",
+    "20261009g002230001",
+    "20261015g002260001"
+  ],
+  "whole_changed_issues": [
+    {
+      "issue": "20260717g00160",
+      "pages": 184,
+      "sha256": "151fecf4f12eca64ff90868e3fdd8483fe59d6441dc09fdabc1345490138d57a",
+      "changed121": true,
+      "articles_after": 713,
+      "articles_before": 702,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260723g00163",
+      "pages": 240,
+      "sha256": "d2b04266be00c3597f8f6f4058e0ce4b9390dfe778aaf528df624eb09004077b",
+      "changed121": true,
+      "articles_after": 51,
+      "articles_before": 46,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260724g00164",
+      "pages": 64,
+      "sha256": "0d8f86821b40777f432867dfb866321660cd5f8a9e0fd8c1ee37a3b7d29db84c",
+      "changed121": true,
+      "articles_after": 66,
+      "articles_before": 57,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260729g00169",
+      "pages": 184,
+      "sha256": "0697d0391bcf8745f3aff380aabf976d0ba8d9dab2a85c3c853bb4e2f09f96b6",
+      "changed121": true,
+      "articles_after": 46,
+      "articles_before": 38,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260731g00172",
+      "pages": 304,
+      "sha256": "dd57e2e8beed824516b3224b245ab86d69108782f1f94d43bf927f3c2970ca79",
+      "changed121": true,
+      "articles_after": 165,
+      "articles_before": 155,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260803g00174",
+      "pages": 160,
+      "sha256": "88db864dd5c7c8a6a8aa30876cb5dd8c8594ac280f960a53711757ddd5aa4b50",
+      "changed121": true,
+      "articles_after": 558,
+      "articles_before": 557,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260805g00176",
+      "pages": 136,
+      "sha256": "07799ffde99a1bc00d9136857fa2491cd682c656d4a0c3ae33858baa7202af00",
+      "changed121": true,
+      "articles_after": 345,
+      "articles_before": 341,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260807g00178",
+      "pages": 128,
+      "sha256": "b648f3af6d2e1ac3a5d40a4f266d812223421e7f2f22892c1f046163006f4d00",
+      "changed121": true,
+      "articles_after": 163,
+      "articles_before": 153,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260807t00038",
+      "pages": 12,
+      "sha256": "bdad46fb85c8b7113ad383b8a8a12645f3251d1ff29bc87f84d188f16077b7f9",
+      "changed121": true,
+      "articles_after": 25,
+      "articles_before": 22,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260828g00192",
+      "pages": 80,
+      "sha256": "9acdd29a93571910cba6320a9985494e2001e743d02b860a554c633d613046b0",
+      "changed121": true,
+      "articles_after": 241,
+      "articles_before": 234,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260904g00198",
+      "pages": 64,
+      "sha256": "c6a08777d37f1b0155c5caedae24ea8f9fd79c3895c0d0bb66f5c79369154daa",
+      "changed121": true,
+      "articles_after": 195,
+      "articles_before": 191,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260909h01786",
+      "pages": 32,
+      "sha256": "52aa454c049f225b6258beb61ee0214944bb98647681f3c3a22775a890150d55",
+      "changed121": true,
+      "articles_after": 84,
+      "articles_before": 83,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260911g00203",
+      "pages": 112,
+      "sha256": "54515017bd98113ed3531eb64c13d513926397a9bb4234f227940595d52de7cb",
+      "changed121": true,
+      "articles_after": 41,
+      "articles_before": 37,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260915g00205",
+      "pages": 96,
+      "sha256": "1f93fb9cdd2cb64f04ffb2d6845aae86fee4719a609261a611d6c60d7b553ce9",
+      "changed121": true,
+      "articles_after": 20,
+      "articles_before": 18,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260916g00206",
+      "pages": 320,
+      "sha256": "d4fb7f363ca175dc40d0516969f477ccd7e58f1b2ce82b5ea773cc279e6cd031",
+      "changed121": true,
+      "articles_after": 96,
+      "articles_before": 79,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260917t00050",
+      "pages": 2,
+      "sha256": "e00d7f37e74a104ae9a33033f9a2d31afa18c4ab64a0b8b681ab1c55fa4e4044",
+      "changed121": true,
+      "articles_after": 4,
+      "articles_before": 3,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260928g00213",
+      "pages": 128,
+      "sha256": "c1c6e3ace09d09894e5e69fd8da5ac494f787bed2ad2a731838648a6c6f00d61",
+      "changed121": true,
+      "articles_after": 240,
+      "articles_before": 238,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20260930g00215",
+      "pages": 480,
+      "sha256": "0344e2a76e8d82d6d646a9cedfa43f8da237e6dcc7a93593bf555c1bd0062c83",
+      "changed121": true,
+      "articles_after": 201,
+      "articles_before": 181,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20261007h01803",
+      "pages": 32,
+      "sha256": "34783742c5a60764b1bb405c83c9ea61b6c70e6eb7cd2a6075626b5ce3e1445c",
+      "changed121": true,
+      "articles_after": 61,
+      "articles_before": 60,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20261009g00223",
+      "pages": 176,
+      "sha256": "9dcf293c11089f5f7da781d6e87d5cffb08b4aff57e5eee216e09994ca820f5e",
+      "changed121": true,
+      "articles_after": 246,
+      "articles_before": 242,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    },
+    {
+      "issue": "20261015g00226",
+      "pages": 144,
+      "sha256": "be2abff4655d6419891f265a62e0266a064d7a53f1095ddaec3b5a8989814505",
+      "changed121": true,
+      "articles_after": 274,
+      "articles_before": 272,
+      "all_non_article_fields_exact": true,
+      "all_document_bytes_styles_tables_exact": true
+    }
+  ],
+  "limitations": [
+    "All46changed source pages and2adjacent controls pixel reviewed by root, nonblind development verification. Not complete semantic accuracy, fixed30 rescore or global accuracy estimate.",
+    "20260916g002060002 legal caption contains a foreign vertical TOC page number. Keep it deferred; do not replace numbers based on expected instrument identity. Follow source writing axis/physical ownership in future work.",
+    "Other joined announcements, shared financial annex ownership, unheaded roles, complex table/column flow and missing native character/PUA reconstruction remain.",
+    "Image-only body integration remains lower priority per user; no fabricated native glyphs or OCR text.100% not reached."
+  ],
+  "cached_evidence_root": ".cache/kanpo-227/resume90-local-recovery/native-law-summary-roots122",
+  "artifact_sha256": {
+    "original-source-oracle-before-runtime.json": "64afd409bf1a10fdba2d861b93660d26cc41e21a33a7bab0f32f932444a8f2e5",
+    "additional-original-oracles-before-runtime.json": "b982753fd2eea4d6a20a6c78ec9b50d4201d91346b8e05b976c7684ae289ab87",
+    "varied-source-oracles-before-runtime.json": "b769fae67df07aa494c1897332bef008224c519880258a03bb5e182c1b9aa22c",
+    "oriented-source-oracles-before-runtime-v4.json": "df4217ef717adee79fa62cd72f000dd9fc118ed29df3c4310dd9c8fda32f791e",
+    "runtime-v1/RED-clean.log": "5d020271590bc069c0527b0b8ad9ce7260e4bdcc17ee0271be126083de646ad6",
+    "runtime-v2/counter-RED.log": "65b73caf9cc32ebb90147c9b38bf0ef47e00b6fa4b2c32cc8e64c33a2eb4bf66",
+    "runtime-v3/body-caption-RED.log": "c615a751056a52ab1439a76aadf58584f4d18bac13677b452c3840cbb5d32537",
+    "runtime-v4/axes-columns-RED.log": "7828cfc1246c4d3d0732195507a73160f2571e75255dc572c921ce2a959c1c9e",
+    "runtime-v4/all-unit-v4.log": "47efb4cd6c73e14c179b4ebfd9e55a167d652f4791ba2d265ec661e9e568aba8",
+    "portable-final4/RED121.log": "a66a5a6905e8fd1d9c37bef6a2a0551c58151dfa29339eccebb17bcc3e823a8f",
+    "portable-final4/preparation-result.json": "301bd7e885016335411d20d45c948054f8c058f0ca1fc2a927dd1d4a90c32516",
+    "original-targeted-review122.json": "4506bc8f37e9716c8baccc590c8499e628845ac7ba5193296dc4ef9e78090cc6",
+    "runtime-v4/single/result.json": "6310fa390a53f6ef21eda8d115ed8e8cf691ec135a3df443aa4a1de2c352e314",
+    "public-port4/portable.log": "f760429cc6d74564a357035377067f94bcd6c6a1f415e25f73b8de48f4a2c6c5",
+    "public-port4/single/result.json": "06d6e7ea6ce035021db84270554caae76e673d055a36add38c36f5716fc25b21",
+    "public-port4/whole/result.json": "df5441ee0f34e11ff3fccbc92960e88bc5aefe54f6fa339336ce24c2db31499b",
+    "public-port4/whole-original-source-result122.json": "d311f16af46776add027fbf1150773fdbf8bd2ba93748338123493b265d5c4cc",
+    "public-port4/CLI/result.json": "ff9d4acdc5dcf07e6cc14fd261e4e53ab5512fac84c89b5193955f15cd4ccc27",
+    "public-port4/native-gates/result122.json": "049959a1e869b3e69ca5e43f222c78dd0a2bd3e625ec3acabab736268e18e6f4",
+    "public-port4/native-gates/result122-initial-failed.json": "3f3a45546b60f6a90d1e69cfdeaf7b082123b563de020bc57556bbdac094c7c6",
+    "two-snapshot-corrections-before-write122.json": "7f370f64cfed9fed34c0a812472474643cad5c57c1bd7d46b07a8e33e44908bc",
+    "historical-character-boundary-plan-before-write122.json": "6cd0c6ab20b10f9e2d19369bb9eefacd16111b82ee8f5fd5e3f1a9b0707085cc",
+    "public-port4/all-public-gates-result.json": "20be1b15ba882852c016a88934963173ec001ec967bc0ffc96a65e448323210d"
+  }
+}

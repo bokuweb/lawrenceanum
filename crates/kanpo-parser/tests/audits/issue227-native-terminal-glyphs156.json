@@ -1,0 +1,1450 @@
+{
+  "stage": 156,
+  "baseline_local": "2eb0b3c5324d9572101e6915fffc0e62b0c94697",
+  "baseline_publication": "2f2cc6e80938adcac7916a1b64f991c1972a0123",
+  "problem": "Exact amount right edges can differ despite a common original last-Glyph band; coincident components of numbered labels need original glyph ownership.",
+  "source_only_attribute": {
+    "name": "data-native-terminal-glyph",
+    "version": 1,
+    "fields": [
+      "version",
+      "first_original_glyph",
+      "after_original_glyph",
+      "last_glyph_start",
+      "last_glyph_end",
+      "baseline"
+    ],
+    "producer": "Only native-evidence XHTML; direct actual last Glyph, no leading-width/Unicode-count reconstruction; legacy bbox and raw Glyph/Word unchanged.",
+    "consumer": "Unique raw+float32SourceBox occurrence, native flow/range/page count/mode/axis/bounds; opaque page-local evidence set; all members of colliding glyph ranges decline."
+  },
+  "general_rule": "Existing routes remain first. New fallback only complete literal closed parents without protected tables or full internal horizontal crosscuts, full original source inventory and contiguous owners/lines, exactly one complete amount per numeric row, positive common LAST-Glyph advance interval, one whole-frame empty gutter, unchanged native line rendering bytes. Exact per-cell baselines retained. Coincident label components require identical original advances/baseline and disjoint ordered original glyph ranges; numeric origins stay strict.",
+  "no_added_dispatch": [
+    "page/title/year/value/company/font-name/CID/PUA predicates",
+    "fixed point tolerance",
+    "character count or neighboring-row budget",
+    "computed amounts, unknown character or hierarchy reconstruction"
+  ],
+  "new_unit_controls": {
+    "PDF": 19,
+    "parser_binding": 13,
+    "parser_core": 29,
+    "total": 61
+  },
+  "TDD": {
+    "source_API_old155": {
+      "pass": 3,
+      "fail": 5
+    },
+    "source_API_candidate": {
+      "pass": 8,
+      "fail": 0
+    },
+    "corpus_metadata_control_old_allowlist": {
+      "pass": 0,
+      "fail": 1
+    },
+    "corpus_metadata_control_new_allowlist": {
+      "pass": 1,
+      "fail": 0
+    },
+    "details": "PDF18control initial13pass5fail, then19pass. Parser binding original7pass5fail; overlap collision12pass1fail→13pass. Core first23controls19pass4fail; final29pass. All old numeric negative tests retained."
+  },
+  "native_gates": {
+    "terminal": 0,
+    "commands": 2,
+    "integration_targets": 154,
+    "result_groups": 162,
+    "passed": 3850,
+    "failed": 0,
+    "ignored": 0,
+    "all_results": [
+      [
+        "ok",
+        "9",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "2698",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "9",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "2",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "7",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "7",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "3",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "5",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "3",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "4",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "2",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "2",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "3",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "6",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "5",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "3",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "4",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "5",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "2",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "2",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "6",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "8",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "4",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "4",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "4",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "5",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "9",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "3",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "33",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "2",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "3",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "1",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "1",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "8",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "10",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "40",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "2",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "8",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "5",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "8",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "2",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "3",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "2",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "2",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "8",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "11",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "7",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "4",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "3",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "10",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "10",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "4",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "9",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "43",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "1",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "1",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "5",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "2",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "6",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "8",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "7",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "4",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "2",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "4",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "6",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "5",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "4",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "8",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "13",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "3",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "13",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "4",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "4",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "6",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "4",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "8",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "9",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "2",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "6",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "1",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "8",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "1",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "1",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "1",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "10",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "8",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "1",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "5",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "4",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "3",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "1",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "20",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "2",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "1",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "3",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "1",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "5",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "2",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "7",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "6",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "1",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "6",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "5",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "4",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "3",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "3",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "15",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "4",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "6",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "8",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "1",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "1",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "4",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "7",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "1",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "7",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "5",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "1",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "2",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "3",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "9",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "7",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "26",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "16",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "2",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "6",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "4",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "25",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "14",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "7",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "9",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "8",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "8",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "6",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "3",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "9",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "7",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "1",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "2",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "1",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "1",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "1",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "1",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "2",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "4",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "12",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "1",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "3",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "1",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "2",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "3",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "1",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "11",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "1",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "5",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "238",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "11",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "4",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "0",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "1",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "0",
+        "0",
+        "0"
+      ],
+      [
+        "ok",
+        "1",
+        "0",
+        "0"
+      ]
+    ],
+    "source_manifest_sha256": "6d7dc0ce8895da3acc4b8bcac0edc93228770f736c10169dee8a2f301424c484",
+    "source_and_all_existing_test_inputs_prepost_exact": true,
+    "snapshot_updates_disabled": true
+  },
+  "first_normal_gate": {
+    "passed": 3847,
+    "failed": 2,
+    "reasons": [
+      "Only source-reviewed cashflow033 22x2 snapshot structure",
+      "Native XHTML source-only new attribute; all old bytes and current fields remain checked after explicit version handling."
+    ],
+    "repairs": "No runtime changes after frozen footprint; one precisely projected snapshot and one new corpus metadata regression control. Final allnative gate rerun with updates disabled."
+  },
+  "footprint": {
+    "single_pages": 11992,
+    "single_changed": 4,
+    "single_complete_Analysis_exact155": 11988,
+    "whole_issues": 159,
+    "whole_changed": 3,
+    "whole_complete_Analysis_exact155": 156,
+    "new_tables": 4,
+    "new_rows_including_headings": 117,
+    "new_numeric_rows": 108,
+    "unrelated_whole_ArticleAnalysis_exact": 388,
+    "all_changed_pages_equal_the_reviewed_before_after_singletons": true,
+    "all_material_Word_owners_order_body_Doc_styles_existing_tables_merges_notices_and_article_contracts_pass": true,
+    "source_authority": "Independent original Glyph advances/ranges; all four closed parents and all native row inventories, no tolerance/leading-width/Unicode-count inference. Four PDFium full originals visually reviewed;117row witness includes96cashflowrows plus21prior rateheadingrows. Source I Unicode variants retained. Existing unknown PUA markers remain omitted.",
+    "scope": "Frozen optimized prototype impact compared to155; all changed original source parents reviewed before adoption. Actual Cargo release validation recorded separately."
+  },
+  "single_source_certificates": [
+    {
+      "key": "20260724g001650654",
+      "tables": 1,
+      "rows": 21,
+      "amount_columns": [
+        [
+          1,
+          1
+        ]
+      ],
+      "old_articles": 1,
+      "unrelated_ArticleAnalysis_exact": 0,
+      "promotions": [
+        {
+          "page": 0,
+          "region": 0,
+          "start": 39,
+          "rows": 21,
+          "cols": 2
+        }
+      ],
+      "source_certificates": [
+        {
+          "rows": 21,
+          "numeric_rows": 20,
+          "closed_parent": [
+            430.75,
+            274.714,
+            774.75,
+            549.0
+          ],
+          "tail_intersection": [
+            766.754,
+            770.75
+          ],
+          "coincident_label_pairs": 2,
+          "all_original_words": 95
+        }
+      ]
+    },
+    {
+      "key": "20260817g001830033",
+      "tables": 1,
+      "rows": 22,
+      "amount_columns": [
+        [
+          1,
+          1
+        ]
+      ],
+      "old_articles": 1,
+      "unrelated_ArticleAnalysis_exact": 0,
+      "promotions": [
+        {
+          "page": 0,
+          "region": 0,
+          "start": 3,
+          "rows": 22,
+          "cols": 2
+        }
+      ],
+      "source_certificates": [
+        {
+          "rows": 22,
+          "numeric_rows": 20,
+          "closed_parent": [
+            69.5,
+            79.072,
+            412.5,
+            357.786
+          ],
+          "tail_intersection": [
+            405.0,
+            409.0
+          ],
+          "coincident_label_pairs": 0,
+          "all_original_words": 116
+        }
+      ]
+    },
+    {
+      "key": "20261016g002280418",
+      "tables": 1,
+      "rows": 33,
+      "amount_columns": [
+        [
+          1,
+          1
+        ]
+      ],
+      "old_articles": 1,
+      "unrelated_ArticleAnalysis_exact": 0,
+      "promotions": [
+        {
+          "page": 0,
+          "region": 0,
+          "start": 2,
+          "rows": 33,
+          "cols": 2
+        }
+      ],
+      "source_certificates": [
+        {
+          "rows": 33,
+          "numeric_rows": 30,
+          "closed_parent": [
+            69.5,
+            69.428,
+            412.5,
+            496.857
+          ],
+          "tail_intersection": [
+            405.0,
+            409.0
+          ],
+          "coincident_label_pairs": 0,
+          "all_original_words": 201
+        }
+      ]
+    },
+    {
+      "key": "20261016g002280573",
+      "tables": 1,
+      "rows": 41,
+      "amount_columns": [
+        [
+          1,
+          1
+        ]
+      ],
+      "old_articles": 1,
+      "unrelated_ArticleAnalysis_exact": 0,
+      "promotions": [
+        {
+          "page": 0,
+          "region": 0,
+          "start": 2,
+          "rows": 41,
+          "cols": 2
+        }
+      ],
+      "source_certificates": [
+        {
+          "rows": 41,
+          "numeric_rows": 38,
+          "closed_parent": [
+            69.5,
+            67.0,
+            412.5,
+            549.0
+          ],
+          "tail_intersection": [
+            405.0,
+            409.0
+          ],
+          "coincident_label_pairs": 0,
+          "all_original_words": 202
+        }
+      ]
+    }
+  ],
+  "whole_material_source": [
+    {
+      "key": "20260724g00165",
+      "tables": 1,
+      "rows": 21,
+      "amount_columns": [
+        [
+          1,
+          1
+        ]
+      ],
+      "old_articles": 5,
+      "unrelated_ArticleAnalysis_exact": 4,
+      "promotions": [
+        {
+          "page": 653,
+          "region": 0,
+          "start": 39,
+          "rows": 21,
+          "cols": 2
+        }
+      ],
+      "source_pages": [
+        {
+          "page": 653,
+          "source": "20260724g001650654",
+          "complete_before_after_PageTrace_exact_singleton": true
+        }
+      ]
+    },
+    {
+      "key": "20260817g00183",
+      "tables": 1,
+      "rows": 22,
+      "amount_columns": [
+        [
+          1,
+          1
+        ]
+      ],
+      "old_articles": 306,
+      "unrelated_ArticleAnalysis_exact": 305,
+      "promotions": [
+        {
+          "page": 32,
+          "region": 0,
+          "start": 3,
+          "rows": 22,
+          "cols": 2
+        }
+      ],
+      "source_pages": [
+        {
+          "page": 32,
+          "source": "20260817g001830033",
+          "complete_before_after_PageTrace_exact_singleton": true
+        }
+      ]
+    },
+    {
+      "key": "20261016g00228",
+      "tables": 2,
+      "rows": 74,
+      "amount_columns": [
+        [
+          1,
+          2
+        ]
+      ],
+      "old_articles": 81,
+      "unrelated_ArticleAnalysis_exact": 79,
+      "promotions": [
+        {
+          "page": 417,
+          "region": 0,
+          "start": 2,
+          "rows": 33,
+          "cols": 2
+        },
+        {
+          "page": 572,
+          "region": 0,
+          "start": 2,
+          "rows": 41,
+          "cols": 2
+        }
+      ],
+      "source_pages": [
+        {
+          "page": 417,
+          "source": "20261016g002280418",
+          "complete_before_after_PageTrace_exact_singleton": true
+        },
+        {
+          "page": 572,
+          "source": "20261016g002280573",
+          "complete_before_after_PageTrace_exact_singleton": true
+        }
+      ]
+    }
+  ],
+  "actual_release_single_cohort": {
+    "profile": "actual Cargo release",
+    "frozen_original_PDFs": 11992,
+    "complete_Analysis_exact_private_v7": 11992,
+    "actual_release_PDF_textdump_exact_native_body_bytes": 11992,
+    "duplicate_word_reports": 0,
+    "all_input_source_and_binary_hashes_prepost_exact": true,
+    "seconds": 104.657899542,
+    "scope": "Full frozen single-page release CLI and full Analysis equivalence. Whole159 issue footprint was separately compared with the optimized frozen prototype; not a full release whole-issue run or independent accuracy gold."
+  },
+  "actual_release_examples": {
+    "original_PDFs": 13,
+    "actual_Cargo_library_full_Analysis_equal_private_v7": 13,
+    "actual_Cargo_PDF_textdump": 13,
+    "actual_Cargo_XHTML_textdump": 13,
+    "actual_Cargo_text_example": 13,
+    "actual_Cargo_docjson_singletons": 13,
+    "actual_Cargo_consecutive_three_page_docjson": 1,
+    "duplicate_word_reports": 0,
+    "source_and_binaries_prepost_exact": true,
+    "profile": "release",
+    "scope": "Actual Cargo release examples on all4changed originals and9controls. Full11992release CLI is a separate gate."
+  },
+  "renderer": {
+    "passed": 10,
+    "failed": 0,
+    "command": "node figma/scripts/test-amend-document.mjs",
+    "new_witness_rows": 117,
+    "new_empty_heading_amounts": 9,
+    "backend_fixture": "tests/data/native-terminal-glyphs/documents156.json",
+    "manual_fixture": "tests/data/native-terminal-glyphs/manual-source117rows156.json"
+  },
+  "old_assets": {
+    "all_old_native_assets": 2886,
+    "all_old_snapshots": 814,
+    "unchanged_old_assets": 2885,
+    "unchanged_old_snapshots": 813,
+    "only_changed_asset": {
+      "path": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260817g00183__20260817g001830033.pdf.snap",
+      "old_sha256": "12a773890256e3a7780833482b5f9e7990d844c83671a2ccfe7e27d6d0ac7aa0",
+      "new_sha256": "67e9ed04e11758b68775c6d6bdc99a1d26d930ceae40b201229b5780fae2dba3",
+      "changes": "Only the original 22-row cashflow run becomes its reviewed 22x2 table; whole native body and surrounding snapshot bytes exact. Reverse projection restores all original snapshot bytes.",
+      "row_count": 22,
+      "all_rows_match_independent_original_transcription": true,
+      "old_complete_Analysis_retained_in": "tests/data/native-terminal-glyphs/20260817g001830033-baseline155.json",
+      "scope": "One source-reviewed snapshot, never INSTA_UPDATE=always or blanket regeneration."
+    },
+    "all_primary_foreign_files": 23,
+    "all_foreign_hashes_exact": true
+  },
+  "review": {
+    "method": "Implementer nonblind PDFium full-page review of all4changed originals and manual117row witness (96cashflow plus21prior rate/heading). Independent original Glyph dump used actual Cargo155 public extract_pages/bbox::words.",
+    "not_accuracy_gold": true,
+    "unrecovered_source_characters": "Unknown composite PUA numbering13..20 remains omitted in native labels; not character restoration.",
+    "unchanged_left_reason": "654 left label has different exact original baselines from different text operators; no cap overflow and no missing evidence. No tolerance added."
+  },
+  "remaining": [
+    "654 left label baseline mixture",
+    "top open/internal grade grid and leading inline numeric labels",
+    "unrecovered PUA/character codes",
+    "unproved column/page continuation, hierarchy and comparison ownership",
+    "image/outline-only body remains opt-in OCR scope"
+  ],
+  "OCR": {
+    "opt_in": true,
+    "auto_integration": false,
+    "version": "0.0.15",
+    "revision": "f97e930b8c3e9512f7788f258ef685da26416483",
+    "used": false
+  },
+  "extra_models_used": false,
+  "accuracy_claim": "No overall accuracy estimate or100% achievement; historical source-review139 remains native138. Goal stays active.",
+  "actual_release_whole_cohort": {
+    "profile": "actual Cargo release",
+    "whole_issues": 159,
+    "complete_Analysis_equal_frozen_private_v7": 159,
+    "all_inputs_sources_binaries_prepost_exact": true,
+    "seconds": 160.43208445899998,
+    "scope": "Actual Cargo release library public analyze_item over original whole-issue sequences, compared by full serialized Analysis including all Documents/notices. Full single-page release textdump CLI is separately verified; no independent blind accuracy gold."
+  },
+  "runtime_source_equivalence": [
+    {
+      "package": "kanpo-parser",
+      "sources": 251,
+      "byte_exact": 245,
+      "only_rustfmt_differences": [
+        "native_numeric_compound_tests153.rs",
+        "native_numeric_matrix.rs",
+        "native_numeric_terminal.rs",
+        "native_numeric_terminal_tests156.rs",
+        "native_terminal_glyph.rs",
+        "native_terminal_glyph_tests156.rs"
+      ],
+      "all_source_sets_equal": true
+    },
+    {
+      "package": "kanpo-pdf",
+      "sources": 41,
+      "byte_exact": 39,
+      "only_rustfmt_differences": [
+        "native_terminal_glyph.rs",
+        "native_terminal_glyph_tests156.rs"
+      ],
+      "all_source_sets_equal": true
+    }
+  ],
+  "fixture_sha256": {
+    "20260724g001650654-baseline155.json": "c9f11f1e30b7cca25765bcee255fffc5fe09ca826e81d8f12108d5575cc33232",
+    "20260724g001650654-reviewed156.json": "4a862d328b4aeb13574b8d7f63b0c244a981ece2a9c626df9cc7aa95174387a9",
+    "20260724g001650654.pdf": "47d3df8c49573eb093220e0e4b778543bb53ceeb3a1068f9308b1724c1032959",
+    "20260817g001830033-baseline155.json": "492ee76c5459fdf775a8b7e6cdae68b56492a1d081886c918b82f78624f433d6",
+    "20260817g001830033-reviewed156.json": "0d51368cf570ec5316cbd3a9a07f0facbe7b58fd8ea1f29f0026ee515ae9b96b",
+    "20260817g001830033.pdf": "cf5d9ce01db2265128fb238d63edf233f98eacdc4eea9df69b46ea09fc8ef509",
+    "20261016g002280418-baseline155.json": "f03136e888e9824cd5bdc465aa9fc1268d10ab918e62671162d524613bc97316",
+    "20261016g002280418-reviewed156.json": "b369f38acf9d9e4aa00367ce96446ab2dbabb06c4df6f1bdfa0b789b8d021d59",
+    "20261016g002280418.pdf": "9326f403a313a6cb33da0cf73814a7e4516d564e58852d1de3696d89726d0bba",
+    "20261016g002280573-baseline155.json": "f14a2f76de05422f38d132f49c75c702c98f00b3071c9eb75eb76c6b69c8fce3",
+    "20261016g002280573-reviewed156.json": "0d7dc37f1d9297de0a4b501019a7698cd45a808dda1a5577166541953f453e80",
+    "20261016g002280573.pdf": "eab139e7820ea8ac42d9791e74b3b534565682abccc9edc4858403f924e4da1d",
+    "consecutive-three-pages-baseline155.json": "8780bf295b40126080dbc4e1e1ea875f97c1c9a3d4c0de94d3434b1815f35907",
+    "documents156.json": "a3c269e2fc913994a19d78c5bc6abf0b2662b021236006c2742004541414e912",
+    "manual-source117rows156.json": "077594e2fdb9e5ea4cd91202c7374150d4ac6fe0cbe7a536224a7a3573032e08"
+  },
+  "validation_scope": "All frozen11992single and159whole completeAnalysis checked with actual Cargo release libraries, all11992 actual release textdump --pdf outputs checked byte-for-byte, plus13PDF/XHTML/text/docjson and consecutive3page examples. No independent blind accuracy gold or100% claim."
+}

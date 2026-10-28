@@ -1,0 +1,363 @@
+{
+  "schema_version": 1,
+  "issue": "https://github.com/bokuweb/lawrenceanum/issues/227",
+  "phase": "第84次: 元の罫線セル内の流れと印刷されたレコード",
+  "date": "2026-10-24",
+  "decision": "Adopt115v6 after all required local tests and actual public API/CLI/whole-issue checks. Remote CI is a separate publication gate.",
+  "predecessor_primary": "e621954ade8bdf2814807f15254e7616c8791b74",
+  "predecessor_PR237_head": "5fdc325e028f9ad9b8e1901958a012689c393c8b",
+  "scope": "Native ruled-cell order and complete coordinate rows. NDLOCR stays0.0.15, commitf97e930b8c3e9512f7788f258ef685da26416483. No new dependency, semantic model, automatic OCR fusion, Word geometry edits or Table creation.",
+  "general_evidence": [
+    "Require complete positive finite native glyph bounds for all Used Words, explicit rightward axes, unique occurrence ownership, a complete nonoverlapping leaf-cell partition and source rulings continuously separating occupied cells. Existing Tables are barriers.",
+    "Finish each physical source cell in row/column order, preserving its internal occurrence order and closed balanced delimiter spans. Never borrow membership across units, comparison roles or parts. Reconstructing any changed/stale line must fail closed rather than erase earlier repairs.",
+    "Repeated distinct overlapping native glyph bands across cells certify record ambiguity, so retain the prior whole-frame row sequence. Adjacent fields join only with a common native glyph band and the same physical source frame and row. Preserve complete old lines when their occurrence sequence survives.",
+    "Non-grid text is opaque and retains its original internal order. Relocation requires disjoint native support and both a source-ruling-certified predecessor and successor in a unique bounded gap. Shared projections and actual continuous rulings are required; diagonal, contradictory or unbounded evidence does not authorize a move.",
+    "Optional coordinate header prefixes use arbitrary complete owned alphabetic labels, not a known heading vocabulary. At least two subsequent complete consecutive records must satisfy the existing paired numeric coordinate and six-original-glyph proofs. Header text remains unchanged.",
+    "Before committing a flow rewrite, require the exact unique occurrence multiset and identical nonwhitespace characters. The separate existing coordinate restoration may only map the original angle glyphs after complete row ownership is proved."
+  ],
+  "no_result_specific_production_branches": [
+    "No page/PDF ID, company/issuer/title, expected-output lookup or source-specific geometry constant.",
+    "No new character, line, column or maximum record-count caps. Two distinct bands/records are the minimum evidence of repetition/consecutive records. Existing numeric-coordinate grammar and legacy heuristics still exist and are not claimed eliminated.",
+    "Native bounds and exact Word identity are structural witnesses; arbitrary text replacements, scale/translation, incomplete geometry, conflicting axes/owners, Tables, unbalanced grammar and stale repaired lines have regression coverage."
+  ],
+  "source_references": {
+    "scope": "Source-reviewed original physical cell/row relationships. Page IDs, text and selected source Word IDs are test data only; no production lookup. Review is nonblind development, not accuracy estimate.",
+    "source_manifest": [
+      {
+        "page": "20260731g001720178",
+        "source_archive": ".cache/kanpo-archive/2026-07-31/20260731g00172/20260731g001720178.pdf",
+        "sha256": "5e65e89a836c783860a2dba880a72e25d50c6ed1ea04495b9c8ad557dbd9c01a"
+      },
+      {
+        "page": "20260731g001720180",
+        "source_archive": ".cache/kanpo-archive/2026-07-31/20260731g00172/20260731g001720180.pdf",
+        "sha256": "3466945e73a55f1a52956c3a69c10ea8baf6b3e2e782d22d7340a9994e5f4349"
+      },
+      {
+        "page": "20260908h017850006",
+        "source_archive": ".cache/kanpo-archive/2026-09-08/20260908h01785/20260908h017850006.pdf",
+        "sha256": "573a75bccbf9c0354574ab6d62fcaab3c5140c69e00bb9a166d2ee68d26c392f"
+      },
+      {
+        "page": "20260908h017850007",
+        "source_archive": ".cache/kanpo-archive/2026-09-08/20260908h01785/20260908h017850007.pdf",
+        "sha256": "c8eecbe28c4e5ba81d3543ccd5d12fe08b392c985bd9cde27aff6c3069ad51c9"
+      },
+      {
+        "page": "20260916g002060274",
+        "source_archive": ".cache/kanpo-archive/2026-09-16/20260916g00206/20260916g002060274.pdf",
+        "sha256": "be2890dc447aadcc672526a0f4fc47ba0dc42a9ae65f94857228bc42153e768f"
+      },
+      {
+        "page": "20260930g002160061",
+        "source_archive": ".cache/kanpo-archive/2026-09-30/20260930g00216/20260930g002160061.pdf",
+        "sha256": "ab504815bbda18cc1f17b463a7f53277dc22144309683a15a4823e0575ba2847"
+      },
+      {
+        "page": "20260930g002150344",
+        "source_archive": ".cache/kanpo-archive/2026-09-30/20260930g00215/20260930g002150344.pdf",
+        "sha256": "d7008e209fa8286cb715d988f93db615b2018b798d4a003d3df37b7d07a01723"
+      },
+      {
+        "page": "20260716g001590046",
+        "source_archive": ".cache/kanpo-archive/2026-07-16/20260716g00159/20260716g001590046.pdf",
+        "sha256": "36cde675f693e5a65583984518a09ea0caca58b0cdd49bdea523bd0e2c97035a"
+      },
+      {
+        "page": "20261019h018100002",
+        "source_archive": ".cache/kanpo-archive/2026-10-19/20261019h01810/20261019h018100002.pdf",
+        "sha256": "1a72a77aa35d07ea555bf9c00a97611d6f6ed296973265fcbc2c6da84f43cba4"
+      },
+      {
+        "page": "20261019h018100001",
+        "source_archive": ".cache/kanpo-archive/2026-10-19/20261019h01810/20261019h018100001.pdf",
+        "sha256": "97423bc74e5aa0c703c9c6c7f8d89679c1c5fd8dd3201a846db7bb508ba33ecd"
+      }
+    ],
+    "orders": {
+      "20260731g001720178": [
+        [
+          87,
+          59,
+          60,
+          5,
+          61,
+          6
+        ]
+      ],
+      "20260731g001720180": [
+        [
+          51,
+          52,
+          22,
+          53,
+          23
+        ]
+      ],
+      "20260908h017850006": [
+        [
+          82,
+          85,
+          63,
+          60,
+          58
+        ],
+        [
+          27,
+          30,
+          6,
+          3,
+          1
+        ]
+      ],
+      "20260908h017850007": [
+        [
+          834,
+          835,
+          820,
+          836,
+          837,
+          818
+        ],
+        [
+          792,
+          793,
+          775,
+          794,
+          795,
+          773
+        ]
+      ],
+      "20260916g002060274": [
+        [
+          86,
+          81,
+          77,
+          71,
+          74
+        ],
+        [
+          27,
+          21,
+          16,
+          5,
+          7
+        ]
+      ],
+      "20260930g002160061": [
+        [
+          94,
+          154,
+          91,
+          90,
+          89,
+          148,
+          85,
+          152,
+          86
+        ]
+      ]
+    },
+    "coordinate_source_oracle_correction": "Original coordinate-number-only oracle omitted printed angle symbols. Both complete17-occurrence assertions include all6 original symbol glyphs and full coordinate text. OldRED and correction history retained in private115 receipts.",
+    "context_regression": {
+      "page": "20261019h018100002",
+      "previous_page": "20261019h018100001",
+      "first2_PageTrace_exact_full32_proven": true,
+      "required_source_record": "Same complete17occurrence point/latitude/longitude source record as standalone; no adjacent comparison prose membership."
+    }
+  },
+  "additional_source_boundary": {
+    "page": "20260930g002150345",
+    "left_cell_then_omissions": [
+      97,
+      89,
+      65
+    ],
+    "right_cell_then_omissions": [
+      32,
+      26,
+      2
+    ],
+    "outer_boundary_preserved": [
+      89,
+      65,
+      26,
+      2,
+      134,
+      125,
+      24
+    ],
+    "timing": "Original full page reviewed and source anchors fixed before115runtime; actual114 five source tests2passed3failed."
+  },
+  "regressions": {
+    "added": 54,
+    "new_library": 39,
+    "ruled_flow": 35,
+    "coordinate_header": 4,
+    "new_portable_source_and_context": 15,
+    "parser_library_total": 1588,
+    "test_first_history": [
+      "Initial23 geometry/grammar/ownership tests17passed6failed before implementation.",
+      "Five repeated-record contracts, one complete printed-row contract and one already-fragmented native-row contract reproduced failures before their fixes.",
+      "Four header cases included a RED headed-coordinate restoration beforev5.",
+      "The full-context source assertion remained RED onv5 (14passed1failed portable); five bounded-gap cases included a RED positive beforev6. All15portable and1588library tests now pass."
+    ],
+    "oracle_corrections": [
+      "The first coordinate oracle copied11 numeric IDs from the broken output and omitted6 printed glyphs. It was strengthened to all17 IDs and exact full printed text; old RED and correction receipts retained.",
+      "An underconstrained mixed-grid fixture and a diagonal outside fixture were refined from source geometry before the corresponding runtime proposal. Diagonal placement remains an unchanged negative case.",
+      "The old compatibility fixture froze the first3broken coordinate frames. Its new116record source expectation retains the fourth existing Table and checks every full Word attribute, including source_box; only522 original empty angle glyphs may change.",
+      "A legacy test serializer deliberately removed source_box. The initial final-gate driver was stopped; the comparator now uses complete direct serialization and the final full normal gate was run fresh. Expected Word values and runtime were unchanged."
+    ]
+  },
+  "held_prototypes": [
+    {
+      "version": 1,
+      "reason": "Whole-cell linearization broke financial label/value correspondence; rejected before publication."
+    },
+    {
+      "version": 2,
+      "reason": "Repeated-row protection still split complete old record lines."
+    },
+    {
+      "version": 3,
+      "reason": "Old-line identity could not rejoin already-fragmented native rows."
+    },
+    {
+      "version": 4,
+      "reason": "Headed coordinate rows still rejected complete original suffix restoration."
+    },
+    {
+      "version": 5,
+      "reason": "All standalone outputs passed, but the full32page context still mixed comparison prose into a coordinate record. v6 adds a general bounded native gap proof."
+    }
+  ],
+  "required_public_gates": {
+    "terminal": 0,
+    "source_manifest_sha256": "99d93a06dc05db264cadef74ff09ea750c1f33943497d9b321216aa9d17e32d4",
+    "commands": 121,
+    "integration_targets": 112,
+    "passed": 2352,
+    "failed": 0,
+    "ignored": 0,
+    "result_groups": 120,
+    "no_expected_snapshot_updates": true,
+    "all_commands_exit0": true
+  },
+  "snapshots": {
+    "total": 814,
+    "byte_equal_adopted114": 810,
+    "changed": [
+      "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_items@20260904g00198-p20.json.snap",
+      "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260728h01756__20260728h017560005.pdf.snap",
+      "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260730g00171__20260730g001710024.pdf.snap",
+      "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260904g00198__20260904g001980021.pdf.snap"
+    ],
+    "readonly_actual_archive_tests_pass": true,
+    "review": "No blanket refresh. Independent source-derived coordinate116record full snapshot and two plain expectations preceded ordinary formatter output. All4complete diffs, including article projection, were reviewed.",
+    "remaining_formatter_limit": "Existing Document paragraph joins such as omission-to-heading or rate-to-note still occur; this pass certifies source occurrence order, not all paragraph or semantic Table boundaries."
+  },
+  "actual_public_single_page_API": {
+    "terminal": 0,
+    "pages": 11992,
+    "complete_Analysis_equal_private6": 11992,
+    "private6_mismatches": [],
+    "changed114": [
+      "20260728h017560005",
+      "20260730g001710024",
+      "20260731g001720178",
+      "20260731g001720180",
+      "20260904g001980021",
+      "20260908h017850006",
+      "20260908h017850007",
+      "20260916g002060274",
+      "20260930g002150345",
+      "20260930g002160061",
+      "20261019h018100002"
+    ],
+    "source_inputs_artifacts_prepost_exact": true,
+    "seconds": 777.193625834,
+    "scope": "Actualpublic115v6 source API, every11992original PDF, full completeAnalysis equality to frozen private6; no test-side output transformation."
+  },
+  "actual_public_CLI": {
+    "pages": 11992,
+    "actual_public_API_CLI_text_bytes_equal": true,
+    "mismatches": [],
+    "archive": {
+      "archive": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/CLI115v6/actual-CLI115v6-plaintext.tar.gz",
+      "archive_sha256": "6c1a8971a2cdbac64bdcff7134c9ab46fa5ba6ac07364881be0e21192461b20a",
+      "archive_bytes": 8299738,
+      "uncompressed_bytes": 39468396,
+      "members": 11992,
+      "every_member_SHA256_equals_actual_CLI_payload": true,
+      "scope": "Only remove loose plaintext after all actual payload hashes and every lossless archived payload verified."
+    }
+  },
+  "private_complete_issue_validation": {
+    "issues": 159,
+    "pages": 11992,
+    "changed": [
+      "20260728h017560005",
+      "20260730g001710024",
+      "20260731g001720178",
+      "20260731g001720180",
+      "20260904g001980021",
+      "20260908h017850006",
+      "20260908h017850007",
+      "20260916g002060274",
+      "20260930g002160061",
+      "20260930g002150345",
+      "20261019h018100002"
+    ],
+    "complete_PageTrace_equal114": 11981,
+    "complete_issue_Analysis_equal114": 150,
+    "article_counts_preserved": true,
+    "source_failures": [],
+    "source_inputs_reference_binaries_verified": true,
+    "seconds": 972.571598125,
+    "scope": "Private115v6 all159complete original issues against frozen adopted-private114v3 full sequence references. All changed complete issues independently replayed on actual published114. No accuracy estimate."
+  },
+  "actual_public_complete_issue_validation": {
+    "issues": 159,
+    "pages": 11992,
+    "complete_issue_Analysis_equal_private6": 159,
+    "complete_PageTrace_equal_private6": 11992,
+    "issue_mismatches": [],
+    "page_mismatches": [],
+    "all_private6_original_role_order_and_coordinate_source_gates_carried_by_exact_complete_Analysis_equality": true,
+    "source_inputs_artifacts_prepost_exact": true,
+    "seconds": 410.095542083,
+    "scope": "Actualpublic115v6 source API on all159wholeoriginalissues, no only-affected selection."
+  },
+  "source_fidelity": {
+    "standalone_pages": 11,
+    "whole_issues": 9,
+    "whole_pages": 1560,
+    "standalone_original_glyphs_restored": 978,
+    "whole_original_glyphs_restored": 798,
+    "all_source_identity_occurrence_Table_and_character_proofs_passed": true
+  },
+  "source_fidelity_scope": "All11changed standalone outputs and all9changed full issues1560pages compared with actual published114. Every original raw/id/coordinate/source_box and all complete Table data preserved; only existing empty original angle glyphs become Used. Exactly978standalone and798whole glyphs restored, no other character additions/removals. All159article counts preserved.",
+  "evidence": {
+    ".cache/kanpo-227/resume90-local-recovery/public-gates115v6-final/result115.json": "187b987a6d619277683fee85f12f65c5dde811400c7eaf48663b47d99b52849a",
+    ".cache/kanpo-227/resume90-local-recovery/public-corpus115v6/result115v6.json": "4c6127f36642fe0b5084ac07c8961c06d0fa2325ae0a276ed71609542a225291",
+    ".cache/kanpo-227/resume90-local-recovery/public-whole115v6/result.json": "32187f43ce0a7e5d6c3ca02f1192ea8b9ba1317886e86dd12d5173989feaead1",
+    ".cache/kanpo-227/resume90-local-recovery/CLI115v6/all-CLI-API-equal115v6.json": "f3e6a62f12b52f817bc247618848ff7011f2ea80b004a237bc6de9ab9b52eb07",
+    ".cache/kanpo-227/resume90-local-recovery/open-top-source115/candidate-v6/source-fidelity-audit/result.json": "13ab27c78fea2d6630e3989189b706f82cf73d1e5f3d60aedcf6b18d5307d70c",
+    ".cache/kanpo-227/resume90-local-recovery/open-top-source115/candidate-v6/source-fidelity-audit/all11-standalone-source-fidelity.json": "063735b48ef28277c31c3c6a0f31f3d31dfd668419b66dc5002991efebce35a8",
+    ".cache/kanpo-227/resume90-local-recovery/open-top-source115/candidate-v6/source-fidelity-audit/all9-changed-whole-issues-source-fidelity.json": "8cbcd8f560457bf1dfce97c81c092091f6023d440863d31bc00891af935d83e3",
+    ".cache/kanpo-227/resume90-local-recovery/open-top-source115/candidate-v6/source-fidelity-audit/v5-review-transfer.json": "2a8c2bed6d100fe9dff7b8ae78a2729b5efb95aa6ee7791758c2013214fd51d2",
+    ".cache/kanpo-227/resume90-local-recovery/open-top-source115/adopted114-RED-result.json": "338ef18aae7f7056f2e09b6cfb72998fcaef7c1e530bce1e3baeeca86415a63c",
+    ".cache/kanpo-227/resume90-local-recovery/open-top-source115/source-oracle-before-prototype115.json": "64c70327afed39bbd922db47533a0fcbc3d411efc742ad105287ed38771aea91",
+    ".cache/kanpo-227/resume90-local-recovery/open-top-source115/coordinate-source-oracle-correction.json": "65eb5b8904b29b83cb6951cd9723970a4545f3bb30962477ebe97b709535d950",
+    ".cache/kanpo-227/resume90-local-recovery/open-top-source115/portable-context6-addition.json": "1c4c5afebab8b7686d65f0bea6f0fdc9fae8b0a0da3548fdf5e37386c4a63614",
+    ".cache/kanpo-227/resume90-local-recovery/open-top-source115/snapshot-review115-public6/result.json": "9d8efe38318f8f2ec11107ebe0617889354c1609e053af6b6c619d6beb910b7d",
+    ".cache/kanpo-227/resume90-local-recovery/open-top-source115/snapshot-review115-public6/per-case-review-clarification.json": "8603cb1f209a5001abb924d0b7fcc8593e6c1f9be13ffe74524cddbb963a0f79",
+    ".cache/kanpo-227/resume90-local-recovery/open-top-source115/snapshot-review115-public6/full-Word-comparator-repair.json": "af28cd173de66b53bb127ead82c5688bc7f442a99d59cab4f921888c91fb562d"
+  },
+  "limitations": [
+    "Root nonblind original-source development review, not independent audit or population accuracy estimate. Fixed30pages are not rescored.",
+    "159wholeissues and11992standalone originals passing regression comparisons do not establish100% extraction accuracy.",
+    "Left comparison prose on20261019h018100002 retains ambiguous legacy row interleaving. Image/outlined text, PUA, paragraph and article/cell ownership issues remain. No automatic OCR integration or additional RURI/ModernBERT model is adopted.",
+    "NDLOCR remains0.0.15; recognition-region mode stays opt-in. Goal227 remains active and100%unachieved."
+  ]
+}

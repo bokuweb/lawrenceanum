@@ -1,0 +1,108 @@
+{
+  "scope": "Original source and derived original-PDF paint controls. Gold is independently constructed from baseline167 with three original marker-supported cuts; 9/9 remains unresolved.",
+  "fixtures": [
+    {
+      "file": "source.pdf",
+      "sha256": "2b179a76188691ee8f81e63c6a6b75ec8ee4de25ab145b76e29d9587e8c4afaf",
+      "source_key": "20260723g001630108",
+      "derived": false
+    },
+    {
+      "file": "image-only.pdf",
+      "sha256": "fdaade5cb9f1e90d0b055976262ea11ad49924126f9ed88a8382d123c80032fe",
+      "source_key": null,
+      "derived": false
+    },
+    {
+      "file": "image-inside.pdf",
+      "sha256": "e4a551fb08636c478bcdc1bfdb7bf55de66e5d1ec7ade4b220cc37ed1020618b",
+      "source_key": "20260723g001630108",
+      "derived": true
+    },
+    {
+      "file": "image-outside.pdf",
+      "sha256": "8195fe7350ed154e3af73126008262459ed94cc6c4b33d1d7627e0d4fd00cd7d",
+      "source_key": "20260723g001630108",
+      "derived": true
+    },
+    {
+      "file": "fill-inside.pdf",
+      "sha256": "030b709fd6b649aba9d761e9b6141f84fda5e6ad59855341c52657035b6ef81f",
+      "source_key": "20260723g001630108",
+      "derived": true
+    },
+    {
+      "file": "curve-inside.pdf",
+      "sha256": "a84ae19516c24e9c6758927a029cd24dd7d9c58ee1ac32546c8e36964f87a7b5",
+      "source_key": "20260723g001630108",
+      "derived": true
+    },
+    {
+      "file": "form-image-inside.pdf",
+      "sha256": "77ef47fd3bb1d5634cdaac36c6b771357d9fea55a8efb00375bf1c411dea8e7b",
+      "source_key": "20260723g001630108",
+      "derived": true
+    },
+    {
+      "file": "stroke-inside.pdf",
+      "sha256": "dce18a9fa5f8731bdbc8196704d7af7ea7cd2e5ad25268d9fda14907c699f30e",
+      "source_key": "20260723g001630108",
+      "derived": true
+    },
+    {
+      "file": "stroke-inside-long.pdf",
+      "sha256": "4031cddfcfd268f69d17a8a7145899c705c552a8d6f7a26ea51ab8328a28c639",
+      "source_key": "20260723g001630108",
+      "derived": true
+    }
+  ],
+  "derived_annotation_policy": "Annotations omitted because pypdf cannot decrypt original annotation strings. Native content/fonts and complete baseline Analysis verified unchanged before testing the new pass.",
+  "gold_annotation": {
+    "after_old_row4": [
+      [
+        [
+          52
+        ],
+        [
+          53
+        ]
+      ],
+      [
+        [
+          56
+        ],
+        [
+          57
+        ]
+      ],
+      [
+        [
+          60
+        ],
+        [
+          61
+        ]
+      ]
+    ],
+    "before_old_row2": [
+      [
+        [
+          46
+        ],
+        [
+          47
+        ]
+      ],
+      [
+        [
+          50
+        ],
+        [
+          51
+        ]
+      ]
+    ]
+  },
+  "baseline_sha256": "795aae37ac8603ab58c36e15dcfd24b61c08b9281828784f3b11ace45c71d5fa",
+  "expected_sha256": "8d3645f86e738a1bca27525cc910484826f9e5a07790bdc6362c6b9bfbe3c645"
+}

@@ -1,0 +1,1248 @@
+{
+  "issue": 227,
+  "stage": 106,
+  "native_baseline": 138,
+  "scope": "Same historically fixed 30 original pages, freshly extracted and rendered before runtime140 changes. Implementing agent nonblind full-source/body and all45 Article/Document Run/cell review; no replacement or exclusion. Historical scores are unchanged. This is not independent validation or a full-corpus accuracy estimate.",
+  "source_primary": "b2d7425dd56d06e1b7e10060240ded2bff815376",
+  "source_publication": "0fc1f591c46f18e66a54411c0b99661ad1f30d90",
+  "selection_sha256": "0a68f14e409493e2d4e95b8757f283b65500bc44e31fdf8fe157c94b7b2a4e0d",
+  "page_count": 30,
+  "Article_count": 45,
+  "body_observations": {
+    "minor": 2,
+    "ok": 18,
+    "major": 10
+  },
+  "strict_structure_observations": {
+    "minor": 9,
+    "ok": 4,
+    "major": 17
+  },
+  "exclusions": 0,
+  "source_input_and_binary_prepost_exact": true,
+  "source_inputs": [
+    {
+      "index": 0,
+      "page": "20260731g001720293",
+      "sha256": "e815dc502008e8fad44aced8dfb9091b1ffa3f30978c5a5aa4575becc9725698"
+    },
+    {
+      "index": 1,
+      "page": "20260724g001640064",
+      "sha256": "ff9f582f1dde556a8f8da6c50d4db95767095b606accbdd584fce80c1d579ba9"
+    },
+    {
+      "index": 2,
+      "page": "20260723g001630004",
+      "sha256": "aba392feb51b7dd73cf71ce8865cd6ad46f7704e3cc5758e9d967d005da3ea29"
+    },
+    {
+      "index": 3,
+      "page": "20260930g002150101",
+      "sha256": "8a97bc24d885d6966d5e831968ae38675da70ef4a3325a174f2b0d1ddc7e8e9f"
+    },
+    {
+      "index": 4,
+      "page": "20261016g002280023",
+      "sha256": "50197f9b9cfe08ea4338cc51d7f70aa7305d22ad27919ba2636575dd3127e0c6"
+    },
+    {
+      "index": 5,
+      "page": "20260925h017950022",
+      "sha256": "8054fd07dc906ce7bd548ba2975c78ecdb348913a783697a70ca1564e2d61f06"
+    },
+    {
+      "index": 6,
+      "page": "20260925h017950021",
+      "sha256": "f3a8a67c6080852439065724903b44a13a34d213a071896f414ab55639e224d0"
+    },
+    {
+      "index": 7,
+      "page": "20260825g001890074",
+      "sha256": "b10c626049f582fe594852d42b70f83b805991d7fac3c30df921ea5ef5222aef"
+    },
+    {
+      "index": 8,
+      "page": "20260924g002110023",
+      "sha256": "e672dc7cb1a01dd0c42092dd39aeb4e965a579598fe31c577093fb42a7c831c8"
+    },
+    {
+      "index": 9,
+      "page": "20261016g002280553",
+      "sha256": "1faefcb00d527582f5370ac87315c992972bc8a3399b28fe4c205e83a06983e1"
+    },
+    {
+      "index": 10,
+      "page": "20260930g002150152",
+      "sha256": "75c0658050c44e56071caa302842678564470c30741e54da73dc2dddc41a89cb"
+    },
+    {
+      "index": 11,
+      "page": "20260805g001760035",
+      "sha256": "91156fbf6540f43dc7009fccc34ee7f97a19742b885d8953b030d0afb55a4b71"
+    },
+    {
+      "index": 12,
+      "page": "20260722g001620052",
+      "sha256": "60ce386d7ceaa137bf760d0417c5d0e63b644c884567d31f67ed17c57f2200d9"
+    },
+    {
+      "index": 13,
+      "page": "20261020g002300016",
+      "sha256": "93a39c35d1e31138d693106e5aa9ffb44649642c68fffdf81d782225185c13b8"
+    },
+    {
+      "index": 14,
+      "page": "20260930g002150370",
+      "sha256": "30109f91e99037e1f671d1193206ff7a4e7968f101352a914483bc095ca00013"
+    },
+    {
+      "index": 15,
+      "page": "20260831h017790021",
+      "sha256": "c71b8bc2dda1c0b401bfc9cf10e806e50e54c55a2202caecb2541ad561c3f30f"
+    },
+    {
+      "index": 16,
+      "page": "20260731g001720158",
+      "sha256": "7b763daf552efb29c176d0fa8435268a85d0f13564087777d96e277a8f39bcdb"
+    },
+    {
+      "index": 17,
+      "page": "20260827h017770019",
+      "sha256": "4bd51a9f3e510eab583a819bb7beec75cd5719ff1d31fe90a95a4d458ca9cc92"
+    },
+    {
+      "index": 18,
+      "page": "20261016g002280260",
+      "sha256": "34f3fdb3316cbf8055410be72348c5e559d98dd40182cc02d89a6f4c6c817d94"
+    },
+    {
+      "index": 19,
+      "page": "20260930g002160053",
+      "sha256": "52b0aff9d57723dc10f5b68ddfe375372f10594872155a70063a68c314864dbe"
+    },
+    {
+      "index": 20,
+      "page": "20260724h017540009",
+      "sha256": "174a41f42a2845d41278f3aa75e2239f292e06647f031542339ceb582314fce7"
+    },
+    {
+      "index": 21,
+      "page": "20260918g002090059",
+      "sha256": "aabf8723345d39afc67726d60e7a28c8ad53481ebb4dfc9ce69a4312c6f4d1d8"
+    },
+    {
+      "index": 22,
+      "page": "20260730g001710030",
+      "sha256": "759b27e70b4a28d00a798bbc770582a04f57aad6650d0eb2a6db73db2eaadd0a"
+    },
+    {
+      "index": 23,
+      "page": "20260930g002150368",
+      "sha256": "3b977021cc3a9db41c099f8262eead75309222db9d54d426a636c90b47ffce57"
+    },
+    {
+      "index": 24,
+      "page": "20260928h017960008",
+      "sha256": "918bb168914878abd48f8645c565801acd9e8b6d8f856a4044394631976a253a"
+    },
+    {
+      "index": 25,
+      "page": "20260803g001740089",
+      "sha256": "7e1305cd08d3efe6602949ad606735d48078bf0d278db9e96111f1a5f6ef3ed3"
+    },
+    {
+      "index": 26,
+      "page": "20260731g001720064",
+      "sha256": "34811290bc8892bde0286432f72b8a0e5565aebea2c22552f64b8bbbae7b2659"
+    },
+    {
+      "index": 27,
+      "page": "20261016g002280289",
+      "sha256": "677ed189120daf32c99a90c377c18649457a20ab96d90f927e141584f4ae57ab"
+    },
+    {
+      "index": 28,
+      "page": "20260914h017890022",
+      "sha256": "9dd31a6aea8d33b46e0f832c057320072fbdde17a40ee5ebd9ff301e932e1f1c"
+    },
+    {
+      "index": 29,
+      "page": "20260717g001600015",
+      "sha256": "11b7d6cd73cf72e5092b220189fc3d9299641c6f1cf1c154bb3533cf8c68a261"
+    }
+  ],
+  "review_protocol": {
+    "source_primary": "b2d7425dd56d06e1b7e10060240ded2bff815376",
+    "source_publication": "0fc1f591c46f18e66a54411c0b99661ad1f30d90",
+    "selection": "Same30 previously fixed audit144; no replacement or exclusions",
+    "scope": "Every full original/full native body plus every Article and Document, rows/cells/roles/ownership/characters. Preserve old grades and report new observations separately.",
+    "grades": {
+      "ok": "No confirmed meaningful reading/character/ownership error in checked scope",
+      "minor": "Local formatting/segmentation error without lost or reordered meaningful clause or wrong article/cell ownership",
+      "major": "Missing or reordered meaningful text, wrong column/row/role/article ownership, or material character corruption",
+      "unverified": "Whole selected page or Article/Document not actually checked"
+    },
+    "images": "No whole-page exclusion. Image/outline-only native omissions recorded separately and kept in overall observations; default OCR remains off peruser.",
+    "reviewer": "Implementing agent, nonblind; not independent quality estimate",
+    "initial_grades_immutable": true,
+    "do_not_tune_candidate_to_sample": "No candidate code changes during this audit. Fixes after audit must be source-rule-based, separately tested, and cohort-compared."
+  },
+  "reviews": [
+    {
+      "page": "20260731g001720293",
+      "body_grade": "minor",
+      "strict_grade": "minor",
+      "whole_original_viewed": true,
+      "full_body_read": true,
+      "all_Article_Document_content_reviewed": true,
+      "Articles": 4,
+      "document_tables": 1,
+      "document_table_slots": 120,
+      "notes": [
+        "Original full rotated source compared with all body and every Document Run/cell. Continued26281 + cancellation1109(23739/27062),1110(24554/24555/24557), fertilizer1111 all retain content/order/ownership. Fertilizer23records+header fivecolumns/120slots keep identifiers, products, company/address associations.",
+        "Glycine max(L.) Merr. still lacks printed space before(L.). Local Latin spacing minor; no meaningful lost/reordered clause or wrong article/cell seen.",
+        "Useful real negative wrap control: printed ISEKI Ja / pan in the company cells renders correctly as ISEKI Japan. A generic space at every Latin physical line break would regress this source."
+      ],
+      "proof_files": {
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260731g001720293/source.png": "dc91d53c300d482173940ecf69b4a1594015b55b14d6047729529e757b58439a",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260731g001720293/Analysis.json": "59e4e2bffa6e9196e46eb15a3b73675f958bbd0373e77347bc2230225b5d3e02",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260731g001720293/body.txt": "1aeade02cec2de3f75eb34915b13934046ce791b575acae01c7b64c10af82e44",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260731g001720293/documents.txt": "e22ce7f259f91f696df95b1a19cc6fae6589a8e3cb160d9be1e2d5308ff5ea9d"
+      }
+    },
+    {
+      "page": "20260724g001640064",
+      "body_grade": "ok",
+      "strict_grade": "minor",
+      "whole_original_viewed": true,
+      "full_body_read": true,
+      "all_Article_Document_content_reviewed": true,
+      "Articles": 1,
+      "notes": [
+        "Full original two columns, continuedArticle, completeDocumentRun reviewed: ro/ha/ni-equivalent,Art4(4..8),5..10 andsupplementary1..3 preserve clause order, quotation/numeric values, and left-bottom→right-top join.",
+        "Bodyok. Document flatoneParagraph/Run retains boundaries onlyasnewlines; strictminor. Printed ni/二 homograph not diagnosed asUnicode error from appearance/context alone."
+      ],
+      "proof_files": {
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260724g001640064/source.png": "75254093f75afaeb0d542e7edbe316b945c3c62c9724daefcde88237558f2ec8",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260724g001640064/Analysis.json": "0ec4dbc6ccdaa4ff02f47d12fb8324be4cfcdd30a0dd6218430b920eac7c253c",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260724g001640064/body.txt": "16bc442c72feaab3b861622ba63bb27f8de56aacd9ba5a47863000840ce9a9b8",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260724g001640064/documents.txt": "7d803a32ac09a492527ed2f42327e26ba73de7f3277b030a941d8ecb726c7432"
+      }
+    },
+    {
+      "page": "20260723g001630004",
+      "body_grade": "ok",
+      "strict_grade": "minor",
+      "whole_original_viewed": true,
+      "full_body_read": true,
+      "all_Article_Document_content_reviewed": true,
+      "Articles": 2,
+      "notes": [
+        "Full original4columns and all2Article/DocumentRuns reviewed. Financiallaw amendments(4..8), sanctions, paymentlaw, effectives and new◇SewerageAct65 have completebody/order. The separatelegalheading is nowArticle1; no priorArticle fusion remains.",
+        "Bodyok. Some subheadings in Document join directly withfollowingprose (e.g追加内閣総理... /5罰則所要...). Local structuralboundary loss strictminor; no lost/reorderedmeaningfulclause observed."
+      ],
+      "proof_files": {
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260723g001630004/source.png": "7cc36fb1098b8c058408a8d0a2d33c19f5eec834a9b7e8b26ca185a75c5a69f1",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260723g001630004/Analysis.json": "631791928270cdfcdbfe3fca30dfeb56aa732855f9995cfd6e76ed4e11e562d9",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260723g001630004/body.txt": "6a0e82f03adbe1bf93e458da389de79c2a789e19800329323f03a3f0f2d76035",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260723g001630004/documents.txt": "25b975ed28d86f508ef0167522def6bad796790ea3ec626dcfbd4aecaf7900f3"
+      }
+    },
+    {
+      "page": "20260930g002150101",
+      "body_grade": "ok",
+      "strict_grade": "ok",
+      "whole_original_viewed": true,
+      "full_body_read": true,
+      "all_Article_Document_content_reviewed": true,
+      "Articles": 1,
+      "notes": [
+        "Full original upperAfter/lowerBefore bands and everyRun in5pairedrows/10sides read. Articles11445の2の7/11445の2, law23-2-10の4/の2, forms63-19-2/3, original1/copies2, artificialintelligence除く/限る, thirdハ and exclusionconditions match. No confirmed body/order/role/row-pair error."
+      ],
+      "proof_files": {
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260930g002150101/source.png": "b4d86a88655612212213ab7771c41b530d5f22cc57fd283a05e94c344764b733",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260930g002150101/Analysis.json": "f281d7981fe6f63a93b27e285f448645dd6c632698fd7778c06e78909ddc577c",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260930g002150101/body.txt": "4f5aae2968069a0b5804851ca1b934bb3082437d668952bb7d2b044fa270876a",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260930g002150101/documents.txt": "ae90eacf7ffa3b12b4b577166b4670dd8dda7540e9fc08cbeb8de9539200b91d"
+      }
+    },
+    {
+      "page": "20261016g002280023",
+      "body_grade": "ok",
+      "strict_grade": "minor",
+      "whole_original_viewed": true,
+      "full_body_read": true,
+      "all_Article_Document_content_reviewed": true,
+      "Articles": 1,
+      "notes": [
+        "Full original and allRun/celltexts of19x9 upper and3x7 lower tables read. All printed labels, △amounts/dashes/closingbalances preserve correspondingrows/columns.",
+        "Lowerheader is nested: Document row1col3 colspan2 overlaps nonemptycol4 childheader, loses vertical parent/childrelation; 純資産合計 lacks original2rowspan. Numericalownership preserved; structuralminor."
+      ],
+      "proof_files": {
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20261016g002280023/source.png": "7fa7a2c112d41eed3ec4cadceb1cc3e0e6e841fe057e024a1fac9fe24f54839d",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20261016g002280023/Analysis.json": "9f3fc045029389f9ad8944073e577bd22b131b5ec7dd59c8e3190e1a8d9978c9",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20261016g002280023/body.txt": "d344f2684f0aac9883d0a3c9cad0661c3859b4f06222da96a6ea9ffb5f7b50d0",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20261016g002280023/documents.txt": "05bf0dd2c73885b4b479bbbeb7313705c739af23ce396b0aee6c068747581979"
+      }
+    },
+    {
+      "page": "20260925h017950022",
+      "body_grade": "major",
+      "strict_grade": "major",
+      "whole_original_viewed": true,
+      "full_body_read": true,
+      "all_Article_Document_content_reviewed": true,
+      "Articles": 2,
+      "notes": [
+        "Full original4columns and all2Article/DocumentRuns read. Previous-page settlement continuation throughTakasaki andneweducation-centerヒ2002 throughHachinohe are separated correctly in current2Articles.",
+        "Sourcevisible supervision再1, ordinary再20, smallpersonal122/55/69/525/185/241/316/22/627/371 bodyspans are absent from output, retaining3headings appended to secondArticle. Materialbodyomission major; original image/outline/nativeavailability must be recorded separately, not excluded fromaudit.",
+        "The native-readable two settlements retain printedclauses; missingcasebodies are the dominant failure. DefaultOCR remains off. No inferred restitution fromcasewording performed."
+      ],
+      "proof_files": {
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260925h017950022/source.png": "e856e30fb02b807d635d45f0e534af91760cda6b133ed7753544cd0c07602bbe",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260925h017950022/Analysis.json": "0761ddb6e81382d4a4eead64d48ec585306b390dcb4ed33801be9a3e8611c5b3",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260925h017950022/body.txt": "e859c094268503a7746b27e8ff84f85a6e7835d68bcc850c8ee2b36a594732bd",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260925h017950022/documents.txt": "29b1194ce2d502b2cd7d3aeb38b4cbbb20990c575d9ad2d989989bf5e97b1669"
+      }
+    },
+    {
+      "page": "20260925h017950021",
+      "body_grade": "ok",
+      "strict_grade": "minor",
+      "whole_original_viewed": true,
+      "full_body_read": true,
+      "all_Article_Document_content_reviewed": true,
+      "Articles": 3,
+      "notes": [
+        "Full source4columns and all3Article/DocumentRuns reviewed. Threeindependentcasesヒ3,ヒ25,ヒ6 are now separated, withcourt closures exact. Fivecreditoramounts2204862/3867870/5330318/101940/503700, assets415104 and repayments76215/133701/184253/3524/17411 match; case25fourcreditors55796479 andratio0.00270647788, ceiling-rule/rights-disposal preserveprintedmeaning.",
+        "Some Document headings/paragraphs flatten into following prose; local formatting minor. Previous strictmajor from3casefusion is no longerpresent."
+      ],
+      "proof_files": {
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260925h017950021/source.png": "2b6b3c4a99c3c679d996428566dd2a914bb6c124c771671f67de38f827e3ea6e",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260925h017950021/Analysis.json": "c83707ff8faa260fc9a42c5e2b09acbb9ebb3a34cb3462abce65a136748ca895",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260925h017950021/body.txt": "7bb0f72f8b9cb553602943fc68380d57ee3c7ae404b58bdf9807ef72a74f53f9",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260925h017950021/documents.txt": "b6acd0ad496a284a8c1b3c504624ad08b80de66d09b813658f29c57d0bb076e8"
+      }
+    },
+    {
+      "page": "20260825g001890074",
+      "body_grade": "ok",
+      "strict_grade": "major",
+      "whole_original_viewed": true,
+      "full_body_read": true,
+      "all_Article_Document_content_reviewed": true,
+      "Articles": 1,
+      "notes": [
+        "Full rotatedsource left38rowsplusnote, rightcashflow sectionsI/II and allArticle/Documenttext/cells read. Left38x2/76slots retain everyamount; right item/amountsigns andvalues retained including subtotal744943589967 andoperatingCF604181379501.",
+        "Right cashflow is still oneplainRun, losing table/row structure andjoining eachfollowinglabel directlyaftertheprioramount. Originalsource exhibits separate rows andnumericcolumn; classify strictmajor, bodymaterial/orderok.",
+        "Nonimage prioritycandidate: preserve/infer rightnumericcolumn using originalrails, repeatedrowalignment andamountgrammar; do not branchonthispage/title/value. Auditfirst, candidateafteraudit."
+      ],
+      "proof_files": {
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260825g001890074/source.png": "235ae8e442ece6a50a78aa9c6fdee6f0c3417bf96e967bafcf9e50e9385109e8",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260825g001890074/Analysis.json": "d4439dfebf53d1c03129000c3d5baeb64f8c7fa7202e352f16f3ed5197e9f467",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260825g001890074/body.txt": "b46354632b7cd56abff58de758a1adf01cf2d441d75fada96e80becc468bcd93",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260825g001890074/documents.txt": "98844a195f0ce4cc3e3a5da00224a0fe1e9b3fdae7758125444473e9a4f073f5"
+      }
+    },
+    {
+      "page": "20260924g002110023",
+      "body_grade": "ok",
+      "strict_grade": "major",
+      "whole_original_viewed": true,
+      "full_body_read": true,
+      "all_Article_Document_content_reviewed": true,
+      "Articles": 1,
+      "notes": [
+        "Full sourceleftunderlined andrightplain columns and entireDocumentRun read: leftcontinues(3),(4),8,9through(4); right8,9through(6),10(1) begins. Bothinternalorders andliteral機媒体(left)/紙媒体(right) preservetheprint, includingsource typo; do not semantically repair.",
+        "Singlepage stilloneproseparagraph/Run withroleslost, left9(4)endsdirectlybefore right8 restarts. Comparisonownership/row structure absent; strictmajor. Wholeissue context must be auditedseparately before assumingno headings can be inferred locally."
+      ],
+      "proof_files": {
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260924g002110023/source.png": "a15c06851483105daf5deb1e9a2fb622bcc0eb65f4fa9f4609e01a96ed3b1d4b",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260924g002110023/Analysis.json": "3febc616fd332c1395e1b42c9ecc99a2ea29b4609b13bd6683a643a5d4225c9d",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260924g002110023/body.txt": "0806d7868ef6080d1a9d515ff103cf9a4b4efbd4bce1717b47ad5ac7b8fb0385",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260924g002110023/documents.txt": "a90ad2592da81a453818d50f2ea80fba5fedf2c444b1aa57a671662a2b54727a"
+      }
+    },
+    {
+      "page": "20261016g002280553",
+      "body_grade": "ok",
+      "strict_grade": "major",
+      "whole_original_viewed": true,
+      "full_body_read": true,
+      "all_Article_Document_content_reviewed": true,
+      "Articles": 2,
+      "notes": [
+        "Full originalleftretirement/contract notes andrightassetstatement; all2Article/DocumentRun/cells reviewed. IndepKyushuInstitute notice separatescorrectly, retainslawcitations,date,headandissuer. LeftPFI3x3 andcontracts7x3 preserve8datarecordsamounts; retirement△11197/△3595,total59099,3.2%,326210 exact.",
+        "Balance sheet labels/rawamounts/depreciation/impairment/netamountsand totals allmaterialpreserved (e.g11289047,718382,2430,47951019,48710776). Butallrows andmultipleamountlanes collapseintooneplainDocumentRun. Loss ofcell/row/nesting associations strictmajor; nativebodyorder/charactersok."
+      ],
+      "proof_files": {
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20261016g002280553/source.png": "022ce61ffd81f279b2656def9c661777367d3eb3544202ca3f6945eefabcf1c1",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20261016g002280553/Analysis.json": "a1833988fcc08569fffd02356fcd48a2070303cbbdae4fa861549ae944a98642",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20261016g002280553/body.txt": "481fb16cec992a813fb0ffb2022f50fa7f33616dc6003b026fecd0436cad0a7c",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20261016g002280553/documents.txt": "368cda5b821088f16cfd1a859bb6676ff67a5c9bfcb1d7bf4b0c72658360891d"
+      }
+    },
+    {
+      "page": "20260930g002150152",
+      "body_grade": "ok",
+      "strict_grade": "ok",
+      "whole_original_viewed": true,
+      "full_body_read": true,
+      "all_Article_Document_content_reviewed": true,
+      "Articles": 1,
+      "notes": [
+        "Full originaltwoaddedprovisions and everyRun of2shinkyupairs reviewed. Article20-2 paragraph1..4 and20-3 paragraph1..2 incl numberedcriteria, referencedlaw18-2-5/18-2-6/14, internal20-5/6/7/14 are retained in sourceorder; bothbefore sides correctly新設. No confirmedreading/role/pairingloss."
+      ],
+      "proof_files": {
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260930g002150152/source.png": "b3b8674fa3967efba25710c80bb629f4033dda26856e7eaa7069dcfcfaa29977",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260930g002150152/Analysis.json": "8fd30d21f9f45c3d7197ec9df9ef192104c9524975a9a713162b138bd34cdab0",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260930g002150152/body.txt": "0335aadf78f32ab692d7c26ac455b8c00568391761f1afa8c42cd6bf13c6c3ea",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260930g002150152/documents.txt": "7f4a859e7154ea7ef04d55591d9ae6fdb9171be77f2f7bb45dcbd7fec4348bec"
+      }
+    },
+    {
+      "page": "20260805g001760035",
+      "body_grade": "ok",
+      "strict_grade": "minor",
+      "whole_original_viewed": true,
+      "full_body_read": true,
+      "all_Article_Document_content_reviewed": true,
+      "Articles": 1,
+      "notes": [
+        "Full originaltopverticalpanel andsingleArticle/DocumentRun reviewed. Article15 paragraphs1..10, allinsurancepositions/counts, listsイ..ホ, quotations95/97/5andinsurance-lawreferences retainprintedorder/content.",
+        "PlainDocumentRun preservesnumberlabels/newlines butnotexplicitclause/headinghierarchy; strictminor. Bodyhasno confirmedmeaningfulomission orreordering."
+      ],
+      "proof_files": {
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260805g001760035/source.png": "742299acfafd0c39e0b6e5d76acf6a1a686888eb62a541e821784bfbfa476f70",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260805g001760035/Analysis.json": "b1a2aa6186de74590065640c50fcb01a13a0bb15e23e2e7359af9fbf7f10c10d",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260805g001760035/body.txt": "95ef30e3abe61e0085c4d0d94b5d14af2043e28fd13c68bad0a0b3d3c301ea23",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260805g001760035/documents.txt": "0ccd20c6c125e76d996468a3a978b0e8b939dd1fa329337e20ea31651ace6d71"
+      }
+    },
+    {
+      "page": "20260722g001620052",
+      "body_grade": "major",
+      "strict_grade": "major",
+      "whole_original_viewed": true,
+      "full_body_read": true,
+      "all_Article_Document_content_reviewed": true,
+      "Articles": 1,
+      "notes": [
+        "Full original4columns andsinglefinancialArticle/DocumentRun+3tables reviewed. Nativefinance notice onright keeps6613/305/1510/4798,18615/17871/4/17/731/18619 and79/30/36/73/109 correspondence.",
+        "Originalcourtcase notices acrossfirst3columns andtopright are absentfromnativebody. Default image/outline availability must be recorded, notexcluded; materialvisiblebodyomission major. Original image/table data still available inPDF but notallArticle representation."
+      ],
+      "proof_files": {
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260722g001620052/source.png": "a527b9b7c433852b631f2da707bbf4289813ca3fc791f486df0fd7549548f6a9",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260722g001620052/Analysis.json": "a624936028f68135d7bc8cc700fe61f7d095385721c3de338ac96a0dc64b4783",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260722g001620052/body.txt": "2314cc71520ef3d3225e500c8f804d27bb7a8b7e7f98fef30962a5739ef22678",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260722g001620052/documents.txt": "c47cc0edb03c2d2b1e82ad2b4dc17d195d6c7f973d561408701a7210f2c01fb4"
+      }
+    },
+    {
+      "page": "20261020g002300016",
+      "body_grade": "major",
+      "strict_grade": "major",
+      "whole_original_viewed": true,
+      "full_body_read": true,
+      "all_Article_Document_content_reviewed": true,
+      "Articles": 1,
+      "notes": [
+        "Full originalbothpanels ofJIScatalogue andentireDocumentRun read. CodesC9745..G0576 andlabels allmaterialpresent, butmultiplewrappedlabels are interruptedbytheircode beforethelabelends.",
+        "Examples: C9745-2-15 appearsbefore個別要求事項; C61558-2-7 before玩具用変圧器...; C62271-200 beforeギヤ; C62368-3 before信ポート...; C62841-2-8/9/11 and3-10 beforelabeltails. Sourcecolumnclearlyhasfullwrappedlabelleft andidentifierfieldright. Nativebody andDocument have wronglogicalcellorder; major onbothaxes.",
+        "Highpriority nonimage general-row problem. Need generic terminalfieldcolumn+source-rowextent/grouping forwrappedlabels, notJIScode/page/labelcasebranches. SamepatternmaybenefitfinancialCF andnestedamounttables."
+      ],
+      "proof_files": {
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20261020g002300016/source.png": "4ded698d59bdaa21ea4c3064b65734b11fa77b6cbd21eaa0cb0065c87ff8a728",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20261020g002300016/Analysis.json": "9ae9054c56eb8290537f6044fb4032be2c6eb8d7eef002a027a6e35573979918",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20261020g002300016/body.txt": "376a1666284e68164afff8b196eb29b1562d2fb86df6d440ee7c1f89ce464d09",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20261020g002300016/documents.txt": "d1973e5959d68963ade2bb701347ae5c014232a45b6990fb2f023455338503de"
+      }
+    },
+    {
+      "page": "20260930g002150370",
+      "body_grade": "ok",
+      "strict_grade": "major",
+      "whole_original_viewed": true,
+      "full_body_read": true,
+      "all_Article_Document_content_reviewed": true,
+      "Articles": 1,
+      "notes": [
+        "Full sourceleftAfter/rightBefore comparisons andsingleArticle/DocumentRun read. Currentbody retainsallwording andorder: changedheight1mvsground-height,Article218 inserteditem4/renumbering,223-7/8 sourceclauses andtwobefore新設.",
+        "Singlepage isproseandflatoneRun, noAfter/Before rolesorpairedrows; comparisonsemantics lost strictmajor. Wholeissue context needsseparatetest."
+      ],
+      "proof_files": {
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260930g002150370/source.png": "4f7409de5a78c6615411e143eff5afc6074f61b2e953b30b540247eb041a01b2",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260930g002150370/Analysis.json": "419331f9bdb31c0dc6b220ea297a19c30dc75b2e94862f7c31bbfbb05ac6f357",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260930g002150370/body.txt": "209523aec6a72d366d2b3f397d506b6dd543401477b2a8ca90e83a511f169d82",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260930g002150370/documents.txt": "436e136c680981390a6ec8e5a7f25126373e45d850b1ba25fac85afe94fc065d"
+      }
+    },
+    {
+      "page": "20260831h017790021",
+      "body_grade": "major",
+      "strict_grade": "major",
+      "whole_original_viewed": true,
+      "full_body_read": true,
+      "all_Article_Document_content_reviewed": true,
+      "Articles": 2,
+      "notes": [
+        "Full sourcefourcolumns andall2Article/DocumentRuns read. Currentnativebodyretains special-liquidationstartヒ3/3025 andtermination2006/3014/1003/5/1, butsixfirstcases arefused inArticle0; onlylastヒ1 separate. Independentnativecourtcaseboundaries stillmajor.",
+        "Manyother sourcevisiblebankruptcy/written-report/reorganizationcasebodies absent. Image/outline/nativeavailability must be classified separately; defaultOCRoff. Retainedprocedureheadings attachtoincorrectcasebody.",
+        "Source3025 representativefirstglyph before石一治 appearsas boxedcomplexglyph inrender butisabsentfromnativeplaintext. Requires highres/correspondingrawGlyph/CID/actualfont investigation, notsurname guessing. Potential nonimageencodingcase; notconfirmedwhatUnicode shouldbe."
+      ],
+      "proof_files": {
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260831h017790021/source.png": "9e60c7c3255eff904f7f165a46c3487d2e3f9a286c628f1698aa2eea0be8048e",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260831h017790021/Analysis.json": "418b4df7f1e11256de4494159c7cc28901ad7d63b62be6b0d58fec79c5896079",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260831h017790021/body.txt": "f3dc9e2008a421a9b4c45b8e8bdcd81e1274c1e8b78e5babc63db7327839b9ce",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260831h017790021/documents.txt": "4d4c8b5c6334d5f62f7dd53f6172e8324bf0f12f1f4839ea0d067b5904849f04"
+      }
+    },
+    {
+      "page": "20260731g001720158",
+      "body_grade": "major",
+      "strict_grade": "major",
+      "whole_original_viewed": true,
+      "full_body_read": true,
+      "all_Article_Document_content_reviewed": true,
+      "Articles": 1,
+      "notes": [
+        "Full sourceportraitpage: twoamendedbacksideformnotes andverticalsupplementaryprovisions; allDocumentRuns/pair read. Nativeoutputretainsfront略/same上 labels,共通備考and施行期日/申請/経過措置1..3; no observednativeleftpanelorderloss.",
+        "Bothvisiblebacksideforms (注意事項1..6 and備考1..4) absentfromnativebody, despitefulloriginalprintedcontent. Materialbodyomission major; image/outline/nativeavailability needsactualglyph/sourceinspection. NoOCRrunorautoenabled."
+      ],
+      "proof_files": {
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260731g001720158/source.png": "27a651c450d5ea158d55bdb9f341af9e2719db88096213fe0e1a574b80063ddb",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260731g001720158/Analysis.json": "042a95c8da5005a57263b47ff9e82f6a3feccdad937d7d48d35bd8286d641d5a",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260731g001720158/body.txt": "9307da634f0412ceea42957910358d7d38052eabb7d2836580cfe7de5a578836",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260731g001720158/documents.txt": "cb69ee66dabe8cbc3cf76362d46d201a6eb09740225053999d5b2c4eab627a2e"
+      }
+    },
+    {
+      "page": "20260827h017770019",
+      "body_grade": "major",
+      "strict_grade": "major",
+      "whole_original_viewed": true,
+      "full_body_read": true,
+      "all_Article_Document_content_reviewed": true,
+      "Articles": 1,
+      "notes": [
+        "Full originalfourcolumns andcompleteoneArticle/DocumentRun reviewed. Single nativespecial-liquidationstartヒ27 preservescompany,address,representative,date/mainorder andSaitamacourt.",
+        "Sourcevisiblebankruptcycases, writtenreportintro/cases andexemptioninionnotice absent; onlyfourcategoryheadings plusnativecase appear. Dominantmissing sourcevisiblebody major, withwrongheadingfusion. Nativeavailabilitymustbeprovenbeforetreating asOCR-only."
+      ],
+      "proof_files": {
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260827h017770019/source.png": "d2d3c03cdcb94f95b21397bc2374dbcb4efa10366e834c387a253bc3642a419d",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260827h017770019/Analysis.json": "9aa5139836e70c068e1b80b79e920141605bd73b94c74b1a3aa0d0c6a942bf27",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260827h017770019/body.txt": "cec24be2350d28210f98b194da5914ffa851a3ca2e51c344552c6ce6e93882ad",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260827h017770019/documents.txt": "d4d37d2266bc713daef8fe0580e117f7cd59857e749fb3dbd3a30a4446063943"
+      }
+    },
+    {
+      "page": "20261016g002280260",
+      "body_grade": "ok",
+      "strict_grade": "minor",
+      "whole_original_viewed": true,
+      "full_body_read": true,
+      "all_Article_Document_content_reviewed": true,
+      "Articles": 1,
+      "notes": [
+        "Full sourceand allRun/cells of3tables (financial5x4,property3x4,income2x3) read; clauseorder,allamounts/△/parentheses match. Heading1610662,1343366/1318106/△25260,property1145195/△88400/1056795/1014028 and68404/42050(26665)/46872(46872) retainfieldassociation.",
+        "Propertyheader当期末の時価 spans2sourceheaderrows butDocument onlyrow1col3,no2rowspan; localizedstructureminor. Some otherheadingsjoinprose; no meaningfulbodyloss."
+      ],
+      "proof_files": {
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20261016g002280260/source.png": "36027c2f3343f8d94e5fd71c312661c9750612ff12e2e2aa29abe8ee16216845",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20261016g002280260/Analysis.json": "b1894bab8000c8c7fa08b8940ad17953733a0bef83ca973b784787398b10bd25",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20261016g002280260/body.txt": "3cf2d72d509943a40ca370e79a69cc3eee3d42bd90a76d0a2b96c68eda30c596",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20261016g002280260/documents.txt": "7391f5337263038ab8c89da44784db3723ff719b254345696c153307735b36ef"
+      }
+    },
+    {
+      "page": "20260930g002160053",
+      "body_grade": "minor",
+      "strict_grade": "minor",
+      "whole_original_viewed": true,
+      "full_body_read": true,
+      "all_Article_Document_content_reviewed": true,
+      "Articles": 1,
+      "notes": [
+        "Full sourceCFcontinuation,profitdisposaltable andrightaccountingnotes read againsteveryDocumentRun/cell. 13x5 CF and6x5 profitgrid amounts/signs/labels/merges retainassociations incl159383105009,341582286701,△4623728444,159604.",
+        "Printed Romansectionindices III/IV/V/VI/VII inCF andI/II/III inprofittable areabsent. Otherlabel/valueassociationclear; minorbody/structureloss. Prior native0 claim needsfreshsourcecoverage; noOCR/characterguessing."
+      ],
+      "proof_files": {
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260930g002160053/source.png": "a5cac9ba9b9411e4cdb475285a27870dde487a3980572fcc43da2a0abae61468",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260930g002160053/Analysis.json": "5d2ed4703555606c5f227798e49751249784f7d197efd62bd40a77f67bfac180",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260930g002160053/body.txt": "76038cf502571a09f964bec6386d4747786696a34ad2900952bd377a40fd65d9",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260930g002160053/documents.txt": "c98c1f47e73d117aa290b64b7e47aca28cffb61bd3248c90874cc231bf5916f3"
+      }
+    },
+    {
+      "page": "20260724h017540009",
+      "body_grade": "major",
+      "strict_grade": "major",
+      "whole_original_viewed": true,
+      "full_body_read": true,
+      "all_Article_Document_content_reviewed": true,
+      "Articles": 1,
+      "notes": [
+        "Full originalfourcolumns andsingleArticle/DocumentRun read. Corporatejudicialscrivenerdisciplinarynotice retainsdatedJune11oneweek,legal48(1)(2)/51,minister,date,corporatename/association/ID11-00134/address.",
+        "Otherthreeindividualdisciplinarynotices andallvisibleestateadministrationcases absentfromnativebody. Onlyestatecategoryheading appendedtoaboveArticle. Materialbodyomissionmajor; nativeavailabilityneedsfreshcoverage."
+      ],
+      "proof_files": {
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260724h017540009/source.png": "aaa7f0dc3ba53fae8e657e2b1ff8c9bc5b018863c8a76d2afed96ce65d7613a0",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260724h017540009/Analysis.json": "a354e6b5b133bfb52fc2988a60bacfbb8600506084ce455f068809deb567434b",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260724h017540009/body.txt": "b290ea5612038fa142a103c92d029fc3c175cb7c194596d13dc5d4a71e92e4a1",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260724h017540009/documents.txt": "deba3388a485f13bdf565a6d5696cf6ea2b78cf07cd413af76fa24771d6642cb"
+      }
+    },
+    {
+      "page": "20260918g002090059",
+      "body_grade": "ok",
+      "strict_grade": "major",
+      "whole_original_viewed": true,
+      "full_body_read": true,
+      "all_Article_Document_content_reviewed": true,
+      "Articles": 1,
+      "notes": [
+        "Full originalAfter/Before columns andall6Documentpairedrows reviewed. Alllegaltext retained:26-2changeditems2/3/5/7 vs2/5/6/8,29changed26-2vs27,32changes, newSection7/32-2/3/4 andallfour新設markers.",
+        "Firstbefore新設 correspondsphysicallytoAfter第七節, butDocument appendsit topreviousArticle32 row2.before. Row3.after combinesSection7+Article32-2 withonlyonebeforemarker. Sourcefirstnew-sectionmarker haswrongrowownership. Strictmajor; bodyallcharacters/orderretained.",
+        "Targetedsourcepairingcandidate: sectionheading/newarticle alignment, notliteral第七節 orselectedexpectedmarker count dispatch."
+      ],
+      "proof_files": {
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260918g002090059/source.png": "3601a2071cc761b984f8b14ef8f38bdd2d9c2b4953d4e04c5c12fb90d52b913e",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260918g002090059/Analysis.json": "3ba6bb69b7fc6d166c67b224dbc25efce6725727456c506d42d4bf3a6bf806c2",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260918g002090059/body.txt": "9069b789a39ae02dadff2ad27df38ec8d4ed49e66d79ff58dac5f82e8b077979",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260918g002090059/documents.txt": "baa5ad505f16a1b5e9b0fe005ac94bffb7bc2478ff6956dcbf6c94f69c0ea718"
+      }
+    },
+    {
+      "page": "20260730g001710030",
+      "body_grade": "major",
+      "strict_grade": "major",
+      "whole_original_viewed": true,
+      "full_body_read": true,
+      "all_Article_Document_content_reviewed": true,
+      "Articles": 2,
+      "notes": [
+        "Full source portraitpage andall2Article/Document blocks/Runs/tablecells reviewed. Notice286 header,addition11/clause1..10, before新設andoutside備考 preservemembership. Notice287 newfreqtable6x5 isstructured andnew/sourcevalues preserved.",
+        "Notice287 retains explicit変更後/変更前 onlyasprosetext, notpairedroles; oldfreqtable unstructured. Its850-860/J77/移動J106/一般業務用/conditions intertwine: J77 interruptsデジタルMCA陸上移動通信用... as通J77信用. Thisis meaningfulnativebodycell-interleaving, bothaxesmajor.",
+        "Sourcefieldsneedwholecell/grouping usingrulings/roles; notspecialfrequency/value/titlecases."
+      ],
+      "proof_files": {
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260730g001710030/source.png": "a584958aa97fa6e2a6f1320f8eff7e021ff56aaba6a54023df1f7fadbf0a097c",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260730g001710030/Analysis.json": "1aecf14ee21bc73bb7976c9e84a57a82839c7b7385322006419cdeaae3515c0b",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260730g001710030/body.txt": "7fa4d7c3531b5e116d318f75cba52e4ef311b94fd8f59a438398c1f9c4ba7215",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260730g001710030/documents.txt": "36158c9a2a982a42d6f4569018e8e219fc04d7f66532cca055c4ef6dfb989bcb"
+      }
+    },
+    {
+      "page": "20260930g002150368",
+      "body_grade": "ok",
+      "strict_grade": "major",
+      "whole_original_viewed": true,
+      "full_body_read": true,
+      "all_Article_Document_content_reviewed": true,
+      "Articles": 1,
+      "notes": [
+        "Full originalleftAfter/rightBefore andentireDocumentRun read:145-8added/新設,166changedrule/condition,198paragraph9..15 changes incl43-12,32-8/9/10/11/12,0.8°/6°/4° preservecontent/internalorder.",
+        "Singlepageprose/oneRun losescomparisonrolesandrows. Bodyallmaterial/orderok, strictmajor. Contextwholeissueneedsseparateproof; no similarity-onlyroleguess."
+      ],
+      "proof_files": {
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260930g002150368/source.png": "f9a07e77fe16b585fdc720c854e1c723f1ffb5f1afc4205c6686838e24f18ce8",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260930g002150368/Analysis.json": "ce9594d7d319cab0053796c650309989d42e1f37426e1d06a56bf7c2f70bc367",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260930g002150368/body.txt": "84163a2308df79954c07317ad63cb7ce028a49a3b0409cf568900618452fb12d",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260930g002150368/documents.txt": "093fd2ba65b2409df14c8d959dbb998ec39dd9525b085b8471dc32b74da697ab"
+      }
+    },
+    {
+      "page": "20260928h017960008",
+      "body_grade": "major",
+      "strict_grade": "major",
+      "whole_original_viewed": true,
+      "full_body_read": true,
+      "all_Article_Document_content_reviewed": true,
+      "Articles": 6,
+      "notes": [
+        "Full originalupperrank/honor panels,imperialtelegram,lowergovernmentandcorporatenotices; all6Article/DocumentRuns read. Uppernames/ranks/honorawards/dategroups andimperialtelegram retaincontent/order; no confirmedmisassignedpersonaward observed.",
+        "Lowerprintedlabour-insurancecommitteeannouncement,justiceMinistercompanyregister-disappearance notices27/29 andcorporateabolitionnotice bodies absent; onlymastheads官庁報告/公告/諸事項 separateemptyArticles. Materialvisiblebodyomissionmajor; freshnativeavailabilityinspectionneeded."
+      ],
+      "proof_files": {
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260928h017960008/source.png": "559d36682a4a37b8bc737c084d1753cc8f6f8f00cd41ec8192aab8793de34fd8",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260928h017960008/Analysis.json": "934a6a810ab0619d3aef4ceda05cd1f234edb6730f6d8d32353550236b649f67",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260928h017960008/body.txt": "805b4fccc69e8108820a567087d23855174faf67a48065637fa1477b57feecca",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260928h017960008/documents.txt": "954bf9a1f9e418d80a0d826f9d65e54d061683caf0ef3a07c997f498ceac70c1"
+      }
+    },
+    {
+      "page": "20260803g001740089",
+      "body_grade": "major",
+      "strict_grade": "major",
+      "whole_original_viewed": true,
+      "full_body_read": true,
+      "all_Article_Document_content_reviewed": true,
+      "Articles": 1,
+      "notes": [
+        "Full originaltwofinancialpanels, previousagencyprofitdisposalandnewNAROfinancialnotice andalloneDocumentRun reviewed. SourcehasindependentnewboldNAROnotice/date/issuerafterpreviousprofitbox; outputfusesit intotheprecedingfinancialArticle. Independentarticleboundarymissing strictmajor.",
+        "NativeCF/financialamounts generallyretained, butrighttemporaryloss subtotal229582 ispostponed untilaftertemporaryprofitcomponents6/229573/3: bothbare229582subtotals appearafterthesecomponentsbefore当期純利益. Printedfirstsubtotal belongsbefore臨時利益. Multi-amountlane readingorder/bodyassociationmajor; traceWord-ID geometryshouldbecertifiedbeforefix.",
+        "NeitherpreviousfinancialtablesnornewbalancesheetstructuredasDocumenttables; label/amountrowsflatten. General source-row/subtotalcellownership andemphasizedpublicationroot detection candidates; noNARO/title-specificbranch."
+      ],
+      "proof_files": {
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260803g001740089/source.png": "14aa55d684127d8fa952b9bd019baf8f25cd0bc081e8ff0cfa8f9fca21668338",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260803g001740089/Analysis.json": "0e41f2146adc4b358b6c26cd7fcfb3520ce7b2265d890be305fbfe8c86c4e6e1",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260803g001740089/body.txt": "71fc2dff57a3e046aee2f889818d0fdac2471a521946655fb8aad4b9616f2d28",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260803g001740089/documents.txt": "f8bfc4c132d6e48e7c83c661a0425cbb482a8c4b892390efa7c180f026a84366"
+      }
+    },
+    {
+      "page": "20260731g001720064",
+      "body_grade": "ok",
+      "strict_grade": "ok",
+      "whole_original_viewed": true,
+      "full_body_read": true,
+      "all_Article_Document_content_reviewed": true,
+      "Articles": 1,
+      "notes": [
+        "Full originalupperAfter/lowerBefore andeverypairedRun/nestedcell read. First2x3 continuationgrid has44(6)vs44(2); Article5-3,intro,一略,二longformula and3x2nestedtable havecorrectrole/content including44(6)vs44(5)andallnestedreferences. 三・四outsideafter/beforetables retainroleandposition.",
+        "No confirmedmaterialorder/cellmembership/pairedroleerror. OneDocumentRow includes二plusfollowing三・四asdistinctRunaftertable onbothsides; doesnotmis-pairorinterleave."
+      ],
+      "proof_files": {
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260731g001720064/source.png": "9ce0800e7c9ef5cbd78724524bf0947371cccebb9f7bbb2a9d4c6e8a5e26cb25",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260731g001720064/Analysis.json": "060dc91f07025722c07d8225982e3e0356e946ed40e7d3f95f4c74e18c96684f",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260731g001720064/body.txt": "45d039011b9561e4c3c4146321bdff7da58b48a65f024fc178bfd0314ffa7e9e",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260731g001720064/documents.txt": "ca6e80e6d4cdff7f14ea232f79710db69592821b6262d753b770790477ea73cf"
+      }
+    },
+    {
+      "page": "20261016g002280289",
+      "body_grade": "ok",
+      "strict_grade": "major",
+      "whole_original_viewed": true,
+      "full_body_read": true,
+      "all_Article_Document_content_reviewed": true,
+      "Articles": 1,
+      "notes": [
+        "Full originaltwofinancialcolumns andentireDocumentRun read. Investment/cash/receivable/allowance/netassets/liabilities/capital figuresand△signs retainassociation inbody, including4195448212-26144797→4169303415,77844902363/16084075044/93868977407,18458085901/12236825776/30694911677 andcapital50665593896.",
+        "Allbalance-sheetrow/amountlanes/hierarchy remainplainDocumentRun with noTable. Label/valueandmultipleamountcolumnstructurelost strictmajor; no meaningfullost/reorderedbodyclause observed."
+      ],
+      "proof_files": {
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20261016g002280289/source.png": "a053fc426f54b51752d149ad7d84c9d75cacb3c7ec09741a4d6884fc34acb499",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20261016g002280289/Analysis.json": "dc7fb17c6deefb1a89de9ed8b95071f3fa0fdbf028abb040aa592371f3afbe69",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20261016g002280289/body.txt": "7dbf08ec2ab1f8c4d7600df83191df648968ca622855b36f1f32c72e18e80466",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20261016g002280289/documents.txt": "22f7f372d21c1c5ed6094e8614c7bbe898cded7385988c522138a941a685baf1"
+      }
+    },
+    {
+      "page": "20260914h017890022",
+      "body_grade": "ok",
+      "strict_grade": "minor",
+      "whole_original_viewed": true,
+      "full_body_read": true,
+      "all_Article_Document_content_reviewed": true,
+      "Articles": 1,
+      "notes": [
+        "Full original4columns andsingleArticle/DocumentRun read. Definitions,chapters1..5, secured2claims140025644,preferred7claims12440714,general52claims642449696,10万100%/7%,a..eformulaandallpayment/waiver deadlines preserveprintedorder/content.",
+        "Document joins someheadings/definitionfields directlywithfollowingtext (e.g確定更生担保権件数２確定債権額...). Localboundaryformatloss minor; no confirmedmeaningfulclause/amount/partyomission."
+      ],
+      "proof_files": {
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260914h017890022/source.png": "d7f6cc78f617077900be6935e6e63dde018d8b7bf537e36ba38cef9334c610d5",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260914h017890022/Analysis.json": "d194cf2c9379c68477e369e375b7ae87aab6052d9538afac133db2b00c2d9ac6",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260914h017890022/body.txt": "7ece01e7c7da05042ab58e5c863e5491ad9b66b3bde9fb4db4ae87f8f374a0ab",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260914h017890022/documents.txt": "bb78e6d861851bd3c2a1d6058c41e4d4a814c3dad5954806d6af0eb5e8dab4f5"
+      }
+    },
+    {
+      "page": "20260717g001600015",
+      "body_grade": "ok",
+      "strict_grade": "ok",
+      "whole_original_viewed": true,
+      "full_body_read": true,
+      "all_Article_Document_content_reviewed": true,
+      "Articles": 1,
+      "notes": [
+        "Full originalupper/lowerverticalbands andsingleproseArticle/completeDocumentRun read. Fourth..tenth biometrics exceptions,8..10paragraphs, under16exceptions1..12, Articles36/37/39/40 amendments andnew40-2quotation/substitutionchain+exceptions1..3 retainprintedcontent/order andallscopes.",
+        "No confirmedmeaningfulbody/role/article/Documentcontenterror incheckedscope. Doesnotassertlegalcorrectness ofprintedlaw orindependentfullcorpusaccuracy."
+      ],
+      "proof_files": {
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260717g001600015/source.png": "071e2efe08fa9e3044bf1d6809b8e67ebc7bafa93b5847c1e61d2baf6d4413c1",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260717g001600015/Analysis.json": "cf5eba9073f2430806c519fdf97dbbcb845b68b8550a24e3b50137b72c030248",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260717g001600015/body.txt": "27e6a0754141cb2c8ee200b2b95ac78718a80e78de79233678c851794422eee9",
+        ".cache/kanpo-227/resume90-local-recovery/native-source-review139/20260717g001600015/documents.txt": "700ded427a0b52355ac1b85da8cecd6bda054d5b085fb0522ccb52a79e37c8b0"
+      }
+    }
+  ],
+  "native_missing_body_samples": [
+    {
+      "page": "20260925h017950022",
+      "source_missing_body_sample_box": [
+        246,
+        148,
+        414,
+        225
+      ],
+      "intersecting_any_native_Glyphs": 0,
+      "source_native_positive_box": [
+        65,
+        45,
+        230,
+        295
+      ],
+      "intersecting_any_native_Glyphs_positive": 381,
+      "original_rendered_sample_reviewed": true,
+      "native_unavailable_for_sample": true,
+      "full_page_image_declared": {
+        "sequence": 0,
+        "object_ref": "Some(ObjRef { num: 32, gen: 0 })",
+        "pixel_width": 2480,
+        "pixel_height": 3509,
+        "image_to_user": [
+          595.0,
+          0.0,
+          0.0,
+          842.0,
+          0.0,
+          0.0
+        ],
+        "page_clip_bounds": null,
+        "geometry_complete": true,
+        "form_path": "[]"
+      },
+      "no_OCR": true
+    },
+    {
+      "page": "20260722g001620052",
+      "source_missing_body_sample_box": [
+        65,
+        45,
+        230,
+        150
+      ],
+      "intersecting_any_native_Glyphs": 0,
+      "source_native_positive_box": [
+        620,
+        240,
+        775,
+        440
+      ],
+      "intersecting_any_native_Glyphs_positive": 168,
+      "original_rendered_sample_reviewed": true,
+      "native_unavailable_for_sample": true,
+      "full_page_image_declared": {
+        "sequence": 0,
+        "object_ref": "Some(ObjRef { num: 32, gen: 0 })",
+        "pixel_width": 2480,
+        "pixel_height": 3509,
+        "image_to_user": [
+          595.0,
+          0.0,
+          0.0,
+          842.0,
+          0.0,
+          0.0
+        ],
+        "page_clip_bounds": null,
+        "geometry_complete": true,
+        "form_path": "[]"
+      },
+      "no_OCR": true
+    },
+    {
+      "page": "20260731g001720158",
+      "source_missing_body_sample_box": [
+        250,
+        115,
+        480,
+        318
+      ],
+      "intersecting_any_native_Glyphs": 0,
+      "source_native_positive_box": [
+        45,
+        60,
+        158,
+        760
+      ],
+      "intersecting_any_native_Glyphs_positive": 576,
+      "original_rendered_sample_reviewed": true,
+      "native_unavailable_for_sample": true,
+      "full_page_image_declared": {
+        "sequence": 0,
+        "object_ref": "Some(ObjRef { num: 38, gen: 0 })",
+        "pixel_width": 2480,
+        "pixel_height": 3509,
+        "image_to_user": [
+          595.0,
+          0.0,
+          0.0,
+          842.0,
+          0.0,
+          0.0
+        ],
+        "page_clip_bounds": null,
+        "geometry_complete": true,
+        "form_path": "[]"
+      },
+      "no_OCR": true
+    },
+    {
+      "page": "20260827h017770019",
+      "source_missing_body_sample_box": [
+        65,
+        45,
+        235,
+        160
+      ],
+      "intersecting_any_native_Glyphs": 0,
+      "source_native_positive_box": [
+        620,
+        460,
+        780,
+        550
+      ],
+      "intersecting_any_native_Glyphs_positive": 97,
+      "original_rendered_sample_reviewed": true,
+      "native_unavailable_for_sample": true,
+      "full_page_image_declared": {
+        "sequence": 0,
+        "object_ref": "Some(ObjRef { num: 32, gen: 0 })",
+        "pixel_width": 2480,
+        "pixel_height": 3509,
+        "image_to_user": [
+          595.0,
+          0.0,
+          0.0,
+          842.0,
+          0.0,
+          0.0
+        ],
+        "page_clip_bounds": null,
+        "geometry_complete": true,
+        "form_path": "[]"
+      },
+      "no_OCR": true
+    },
+    {
+      "page": "20260724h017540009",
+      "source_missing_body_sample_box": [
+        65,
+        45,
+        235,
+        205
+      ],
+      "intersecting_any_native_Glyphs": 0,
+      "source_native_positive_box": [
+        250,
+        230,
+        410,
+        365
+      ],
+      "intersecting_any_native_Glyphs_positive": 207,
+      "original_rendered_sample_reviewed": true,
+      "native_unavailable_for_sample": true,
+      "full_page_image_declared": {
+        "sequence": 0,
+        "object_ref": "Some(ObjRef { num: 32, gen: 0 })",
+        "pixel_width": 2480,
+        "pixel_height": 3509,
+        "image_to_user": [
+          595.0,
+          0.0,
+          0.0,
+          842.0,
+          0.0,
+          0.0
+        ],
+        "page_clip_bounds": null,
+        "geometry_complete": true,
+        "form_path": "[]"
+      },
+      "no_OCR": true
+    },
+    {
+      "page": "20260928h017960008",
+      "source_missing_body_sample_box": [
+        210,
+        460,
+        400,
+        600
+      ],
+      "intersecting_any_native_Glyphs": 0,
+      "source_native_positive_box": [
+        65,
+        60,
+        540,
+        210
+      ],
+      "intersecting_any_native_Glyphs_positive": 368,
+      "original_rendered_sample_reviewed": true,
+      "native_unavailable_for_sample": true,
+      "full_page_image_declared": {
+        "sequence": 0,
+        "object_ref": "Some(ObjRef { num: 41, gen: 0 })",
+        "pixel_width": 2480,
+        "pixel_height": 3509,
+        "image_to_user": [
+          595.0,
+          0.0,
+          0.0,
+          842.0,
+          0.0,
+          0.0
+        ],
+        "page_clip_bounds": null,
+        "geometry_complete": true,
+        "form_path": "[]"
+      },
+      "no_OCR": true
+    },
+    {
+      "page": "20260831h017790021",
+      "source_missing_body_sample_box": [
+        65,
+        45,
+        235,
+        150
+      ],
+      "intersecting_any_native_Glyphs": 0,
+      "source_native_positive_box": [
+        435,
+        195,
+        600,
+        275
+      ],
+      "intersecting_any_native_Glyphs_positive": 89,
+      "original_rendered_sample_reviewed": true,
+      "native_unavailable_for_sample": true,
+      "full_page_image_declared": {
+        "sequence": 0,
+        "object_ref": "Some(ObjRef { num: 39, gen: 0 })",
+        "pixel_width": 2480,
+        "pixel_height": 3509,
+        "image_to_user": [
+          595.0,
+          0.0,
+          0.0,
+          842.0,
+          0.0,
+          0.0
+        ],
+        "page_clip_bounds": null,
+        "geometry_complete": true,
+        "form_path": "[]"
+      },
+      "no_OCR": true
+    }
+  ],
+  "missing_Roman_indices": {
+    "method": "Current native136 PDF extract, all Glyphs closed intersection; no visible-ink omission waived. Same immutable originalrects from prioraudit; no newcoordinates/chars inferred.",
+    "rows": [
+      {
+        "printed": "Ⅲ",
+        "source_box": [
+          73.1,
+          234.8169,
+          81.0,
+          242.8009
+        ],
+        "all_native_Glyphs_closed_intersection": 0,
+        "positive_neighbour_count": 2
+      },
+      {
+        "printed": "Ⅳ",
+        "source_box": [
+          73.1,
+          346.53110000000004,
+          81.0,
+          354.51509999999996
+        ],
+        "all_native_Glyphs_closed_intersection": 0,
+        "positive_neighbour_count": 2
+      },
+      {
+        "printed": "Ⅴ",
+        "source_box": [
+          73.1,
+          366.8526,
+          81.0,
+          374.8366
+        ],
+        "all_native_Glyphs_closed_intersection": 0,
+        "positive_neighbour_count": 1
+      },
+      {
+        "printed": "Ⅵ",
+        "source_box": [
+          73.1,
+          379.17400000000004,
+          81.0,
+          387.15799999999996
+        ],
+        "all_native_Glyphs_closed_intersection": 0,
+        "positive_neighbour_count": 1
+      },
+      {
+        "printed": "Ⅶ",
+        "source_box": [
+          73.1,
+          396.81690000000003,
+          81.0,
+          404.80089999999996
+        ],
+        "all_native_Glyphs_closed_intersection": 0,
+        "positive_neighbour_count": 1
+      },
+      {
+        "printed": "Ⅰ",
+        "source_box": [
+          73.1,
+          466.56690000000003,
+          81.0,
+          474.55089999999996
+        ],
+        "all_native_Glyphs_closed_intersection": 0,
+        "positive_neighbour_count": 1
+      },
+      {
+        "printed": "Ⅱ",
+        "source_box": [
+          73.1,
+          501.8526,
+          81.0,
+          509.8366
+        ],
+        "all_native_Glyphs_closed_intersection": 0,
+        "positive_neighbour_count": 1
+      },
+      {
+        "printed": "Ⅲ",
+        "source_box": [
+          73.1,
+          537.1383000000001,
+          81.0,
+          545.1223
+        ],
+        "all_native_Glyphs_closed_intersection": 0,
+        "positive_neighbour_count": 1
+      }
+    ]
+  },
+  "whole_issue_context_supplement": [
+    {
+      "page": "20260930g002150368",
+      "issue_pages": 480,
+      "page_index": 367,
+      "single_roles": [
+        "body"
+      ],
+      "whole_roles": [
+        "after",
+        "before"
+      ],
+      "source_Words_exact": true,
+      "whole_page_text_prefix": "改正後\n（脇見警報装置）\n第145条の８　脇見警報装置の機能、性能等に関し、保安基準第43条の12の告示で定める基準は、\n次に掲げる基準とする。\n一　運転者の状態に基づいて脇見を検知及び報知するものであること。\n二　走行時において確実に機能するものであること。この場合において、脇見警報装置の機能\nを損なうおそれのある損",
+      "whole_page_sha256": "cfa9ad411a2b1b69a960453a71412515860080c965c69813f0339a28219738f6",
+      "role_regions_match_original_left_after_right_before_source_columns": [
+        {
+          "role": "after",
+          "Words": 74,
+          "source_horizontal_extent": [
+            75.242,
+            423.25
+          ]
+        },
+        {
+          "role": "before",
+          "Words": 58,
+          "source_horizontal_extent": [
+            430.746,
+            778.754
+          ]
+        }
+      ],
+      "nearest_preceding_original_heading_page": null
+    },
+    {
+      "page": "20260930g002150370",
+      "issue_pages": 480,
+      "page_index": 369,
+      "single_roles": [
+        "body"
+      ],
+      "whole_roles": [
+        "after",
+        "before"
+      ],
+      "source_Words_exact": true,
+      "whole_page_text_prefix": "改正後\n四　車両後退表示投影装置の直射光又は反射光は、当該車両後退表示投影装置を備える自動車\n及び他の自動車の運転操作を妨げるものでないこと。この場合において、車両後退表示投影\n装置の見かけの表面が地上１ｍの位置から直接視認できないものは、この基準に適合するも\nのとする。\n五　（略）\n４　（略）\n（その他の灯火等の制限",
+      "whole_page_sha256": "f2e52696852fe85cf4e733aabf0904de2901d65d928fbf7e1a1dfee05830960d",
+      "role_regions_match_original_left_after_right_before_source_columns": [
+        {
+          "role": "after",
+          "Words": 67,
+          "source_horizontal_extent": [
+            75.25,
+            423.25
+          ]
+        },
+        {
+          "role": "before",
+          "Words": 27,
+          "source_horizontal_extent": [
+            430.754,
+            774.754
+          ]
+        }
+      ],
+      "nearest_preceding_original_heading_page": null
+    },
+    {
+      "page": "20260924g002110023",
+      "issue_pages": 120,
+      "page_index": 22,
+      "single_roles": [
+        "body"
+      ],
+      "whole_roles": [
+        "after",
+        "before"
+      ],
+      "source_Words_exact": true,
+      "whole_page_text_prefix": "改正後\n（３）　稼働状況の監視\n機構、認定委託先事業者、単独設置型地方団体及び機構委託クラウド事業者は、それぞ\nれ分担して、市区町村サーバ、都道府県サーバ、機構サーバ及び電気通信関係機器の稼働\n状況を常時監視し、必要に応じ対策を実施すること。\n（４）　不正プログラムの混入防止等\n国税連携ネットワークシステムにコンピュー",
+      "whole_page_sha256": "ae48f3a11dca7bb47b42da0cc0e3cb9bd80f730e92e07e8769afea0dfbeee65c",
+      "role_regions_match_original_left_after_right_before_source_columns": [
+        {
+          "role": "after",
+          "Words": 61,
+          "source_horizontal_extent": [
+            83.23,
+            419.25
+          ]
+        },
+        {
+          "role": "before",
+          "Words": 64,
+          "source_horizontal_extent": [
+            430.726,
+            778.754
+          ]
+        }
+      ],
+      "nearest_preceding_original_heading_page": null
+    }
+  ],
+  "context_limits": "The three single-page comparison-role majors retain their original grades; whole-issue roles and source column geometry were checked separately. Nearest preceding original heading was not established by the raw-word search and is not claimed. No full whole-issue grading.",
+  "nonimage_priorities": [
+    "source row/cell order in JIS catalogue 20261020g002300016",
+    "new Section7 before-role marker attached to preceding Article32 in20260918g002090059",
+    "change-before/after frequency tables and footnote ownership in20260730g001710030",
+    "independent publication boundaries and financial subtotals in20260803g001740089",
+    "seven native special-liquidation cases on20260831h017790021 still fused into two articles; first representative glyph remains uninvestigated",
+    "untyped multiamount financial tables, other encoding and ownership errors"
+  ],
+  "OCR": {
+    "opt_in": true,
+    "automatic_OCR": false,
+    "engine": "NDLOCR",
+    "version": "0.0.15",
+    "new_inferences": 0
+  },
+  "additional_models": false,
+  "runtime_change": false,
+  "overall_goal_complete": false
+}

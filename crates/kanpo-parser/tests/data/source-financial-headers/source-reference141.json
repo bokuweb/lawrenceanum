@@ -1,0 +1,55 @@
+{
+  "issue": 227,
+  "stage": 108,
+  "runtime_native": 141,
+  "scope": "Original parent financial headers, native source rows and independent publication boundaries; no OCR",
+  "review": "Implementing agent nonblind review of2 source originals and changed boundary/header order. Full output JSON freezes the reviewed change and surroundings, not an independently correct full-page transcription.",
+  "source_originals": [
+    {
+      "page": "20260731g001730090",
+      "original_PDF_sha256": "632315c87152dfbd4fa2ae87eeaac9e15b8478c5f63ed7f914eabf0e2359be77",
+      "PDF_in_repo": "crates/kanpo-parser/tests/data/source-financial-headers/20260731g001730090.pdf",
+      "source_image_sha256": "c3e5061a9d81bb8973103d8e4addf8441bbb5e7b3012dd8006931a724fef3f43",
+      "source_review": {
+        "page": "20260731g001730090",
+        "original_full_image_viewed": true,
+        "source_review_scope": "Original has prior institution report continuation above an independently dated/signed cooperative deposit-insurance financial announcement; title before own date/address/issuer, followed by general-account inventory. Newly2Articles match original2publications. Officer roster material belongs to prior report; its5records and lower8-column financial table remain unchanged.",
+        "all_source_Word_fields_exact": true,
+        "every_original_Line_and_table_exact_once": true,
+        "old_Articles": 1,
+        "new_Articles": 2,
+        "proof_files": {
+          ".cache/kanpo-227/resume90-local-recovery/native-header-source-order141/private-v6/impact-single/20260731g001730090-140.json.gz": "325e3211351aadb37125975ed5587508903da9b951118a6dfc53630cc65fefce",
+          ".cache/kanpo-227/resume90-local-recovery/native-header-source-order141/private-v6/impact-single/20260731g001730090-141.json.gz": "8cbcea6fedbd80923f660d0ee0bbe70cefe116390f4baec2f6f48d29f36035e8",
+          ".cache/kanpo-227/resume90-local-recovery/native-header-source-order141/source-review/20260731g001730090.png": "c3e5061a9d81bb8973103d8e4addf8441bbb5e7b3012dd8006931a724fef3f43"
+        }
+      }
+    },
+    {
+      "page": "20260806g001770058",
+      "original_PDF_sha256": "c654ea513b7ac30048d3d55704c1c0755bbc9b2b396a1fddaa887e60e82ff29d",
+      "PDF_in_repo": "crates/kanpo-parser/tests/data/shared-publication-row/20260806g001770058.pdf",
+      "source_image_sha256": "0bd60730cf26612253d294f841654652bf208906d4171e52bae223387faefa07",
+      "source_review": {
+        "page": "20260806g001770058",
+        "original_full_image_viewed": true,
+        "source_review_scope": "Original has3publications: prior financial continuation, pension change and federation financial announcement. FinalV6 makes3Articles, title/date/issuer precede statement/caption. Original unit caption extends0.5pt beyond inner table edge but fits original full-height right column425..793; no fixed tolerance added. Full-page character/cell independent correctness not claimed.",
+        "all_source_Word_fields_exact": true,
+        "every_original_Line_and_table_exact_once": true,
+        "old_Articles": 2,
+        "new_Articles": 3,
+        "proof_files": {
+          ".cache/kanpo-227/resume90-local-recovery/native-header-source-order141/private-v6/impact-single/20260806g001770058-140.json.gz": "fe66c722a541005e2216a1ee2f49e450556ebfa20f34275df4ab2f8d5361d493",
+          ".cache/kanpo-227/resume90-local-recovery/native-header-source-order141/private-v6/impact-single/20260806g001770058-141.json.gz": "fe693e3cfbbc85d006fde745d85a6be64a21292e77cb70e77b5a76a2d8ea3058",
+          ".cache/kanpo-227/resume90-local-recovery/native-header-source-order141/source-review/20260806g001770058.png": "0bd60730cf26612253d294f841654652bf208906d4171e52bae223387faefa07"
+        }
+      }
+    }
+  ],
+  "old_140_reference_JSONs_and_814_snapshots_retained": true,
+  "OCR": {
+    "opt_in": true,
+    "version": "NDLOCR0.0.15",
+    "new_inferences": 0
+  }
+}

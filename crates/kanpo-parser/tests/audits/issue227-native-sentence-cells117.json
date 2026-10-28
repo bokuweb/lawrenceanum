@@ -1,0 +1,255 @@
+{
+  "status": "validated native117 public implementation; goal227 active",
+  "scope": "Native original leaf-cell sentence scope only; no body/publication lookup, line/character ceilings, OCR fusion or new semantic model. NDLOCR remains0.0.15/f97e930b8c3e9512f7788f258ef685da26416483. User prioritizes non-image issues.",
+  "baseline": {
+    "primary": "76e380dc9bc3c04ee1c9bbb53564f4dd62c5da9a",
+    "PR237": "f13b1945a333f1c07a2a75b5e2bfee6ec3d73da8"
+  },
+  "problem": "An inferred neighbor-row anchor cut a sentence inside an unchanged original ruled cell. Outer source order alone did not prevent this cell fragmentation.",
+  "proof": [
+    "Bind complete current table memberships to initial native occurrences, known glyph supports, unchanged native axes/projection and exact original leaf grid.",
+    "Bind ordered current cell text to original source occurrence text, ignoring whitespace only.",
+    "Continuous actual source strokes protect real internal row/column boundaries; unknown graphics and overlapping ownership defer.",
+    "Balanced top-level sentence terminals may connect fragments inside one original cell. Numeric scalar/value correspondences, parallel parenthetical fields and actual source rowspans protect independent records.",
+    "A source-proved sparse-prose underline can remain nonlexical; an aligned graphic value counterpart remains opaque.",
+    "Render restored units before deriving page text, article text and nested document tables. Preserve Word attributes, occurrence multiplicity and all nonwhite material."
+  ],
+  "initial_red": {
+    "original_cell_regressions": "4failed + financial control1passed on actual116",
+    "pure_none_stub": "6failed/21 initialcontracts",
+    "integrity_native_cut_graphic_counterexamples": "Final35corecontracts allpassed after retaining all intermediate failures",
+    "output_integration": "4public page/API +4article/nested output failures on runtime2 despite source cell tests passing. Integration moved before rendering, original expectations unchanged.",
+    "corpus_discovery": "runtime2/3 changed4pages: two improved source sentence cells and two wrong/undesired financial field rewrites. Financial source controls2failed + frequencypositive1passed before reject-only general field safeguards.",
+    "ordered_source_binding": "1 synthetic reversed-current-text test failed before replacing char-multiset authorization with ordered lexical binding."
+  },
+  "private_test_results": {
+    "unit": {
+      "existing": 1673,
+      "new": 38,
+      "passed": 1711
+    },
+    "original_integration": {
+      "original_cell_and_financial_control": 5,
+      "public_text_output": 4,
+      "article_nested_output": 4,
+      "additional_frequency_and_financial_controls": 3,
+      "passed": 16
+    },
+    "portable_Cargo_source_tests": {
+      "targets": 2,
+      "passed": 16,
+      "fixture_JSON_includes_checked": true
+    }
+  },
+  "reviewed_sources": {
+    "verified_all_changed_sources": true,
+    "rows": [
+      {
+        "page": "20260930g002150345",
+        "baseline116_sha256": "e75c92b5eb4b2310b974dcd4aba281a9acf601e5aebbc891a5c1ded04edbe612",
+        "private117v5_sha256": "069ddcbcf3d2959ed0fb04eefdc756520e7970f7213248f70f27c241586cfed2",
+        "complete_Analysis_equal": false,
+        "Word_attrs_exact": true,
+        "emitted_ID_multiplicity_exact": true,
+        "all_original_physical_cell_memberships_and_internal_order_exact": true,
+        "nonwhite_chars_exact_in_API_and_articles_document": true,
+        "article_counts": [
+          1,
+          1
+        ],
+        "original_review": "Root full original nonblind development review, not independent accuracy audit."
+      },
+      {
+        "page": "20261001g002170049",
+        "baseline116_sha256": "8215a4bf6c282045c147e03c46298049605749bb0bf62e4204dc168fa3b03cb1",
+        "private117v5_sha256": "600a639182dc28ca60f380de0e1ddd1aef3fa7bac54feba011183828552d9d71",
+        "complete_Analysis_equal": false,
+        "Word_attrs_exact": true,
+        "emitted_ID_multiplicity_exact": true,
+        "all_original_physical_cell_memberships_and_internal_order_exact": true,
+        "nonwhite_chars_exact_in_API_and_articles_document": true,
+        "article_counts": [
+          1,
+          1
+        ],
+        "original_review": "Root full original nonblind development review, not independent accuracy audit."
+      },
+      {
+        "page": "20261013g002240055",
+        "baseline116_sha256": "90915db599d587e881cb65353fa5d36de9f9a7c82e4886a6496678830904dcc5",
+        "private117v5_sha256": "90915db599d587e881cb65353fa5d36de9f9a7c82e4886a6496678830904dcc5",
+        "complete_Analysis_equal": true,
+        "Word_attrs_exact": true,
+        "emitted_ID_multiplicity_exact": true,
+        "all_original_physical_cell_memberships_and_internal_order_exact": true,
+        "nonwhite_chars_exact_in_API_and_articles_document": true,
+        "article_counts": [
+          1,
+          1
+        ],
+        "original_review": "Root full original nonblind development review, not independent accuracy audit."
+      },
+      {
+        "page": "20261016g002280625",
+        "baseline116_sha256": "fbd315e0743bfcaf4bc012e740d70e880dde65e655c9efbfad7846224ba47239",
+        "private117v5_sha256": "fbd315e0743bfcaf4bc012e740d70e880dde65e655c9efbfad7846224ba47239",
+        "complete_Analysis_equal": true,
+        "Word_attrs_exact": true,
+        "emitted_ID_multiplicity_exact": true,
+        "all_original_physical_cell_memberships_and_internal_order_exact": true,
+        "nonwhite_chars_exact_in_API_and_articles_document": true,
+        "article_counts": [
+          1,
+          1
+        ],
+        "original_review": "Root full original nonblind development review, not independent accuracy audit."
+      }
+    ]
+  },
+  "held_versions": {
+    "runtime-v1": "Incomplete initial contract scope and late rendering integration; not adopted.",
+    "runtime-v2": "Late restoration left stale public text/articles despite repaired trace cells; financial mixed fields merged wrongly. Full11992single+159whole evidence retained.",
+    "runtime-v3": "Rendering corrected, still financial4changedpages/2controls fail; not adopted.",
+    "runtime-v4": "Mixed-field guards pass16 sourcecontrols and1710unit; ordered text binding counterexample fails. Not adopted."
+  },
+  "limitations": [
+    "Root nonblind original review, not independent accuracy estimate; fixed30audit not rescored.",
+    "No OCR automatic integration; image pages deprioritized by user, not claimed solved.",
+    "Physical source cells containing parallel labeled subsections can still need fuller paragraph reconstruction; current controls preserve adopted output.",
+    "Other native text/PUA, complex columns and article boundaries remain; goal active,100% not claimed."
+  ],
+  "evidence": {
+    ".cache/kanpo-227/resume90-local-recovery/native-sentence-cells117/source-oracle-before-prototype.json": "c898c055c87418a699d772d8c9ee200d468026289c32bdcb22802fdb60cfc97d",
+    ".cache/kanpo-227/resume90-local-recovery/native-sentence-cells117/RED.log": "772046d4c0c9cfb0c0aef06a81add534fc35d80a3b701e067254ca8296a06bde",
+    ".cache/kanpo-227/resume90-local-recovery/native-sentence-cells117/source-output-RED.log": "3a5fcd1566d17d023ab326ee62f4ad2f0ea8a2265370d82c8a9eecdfb3fe00bd",
+    ".cache/kanpo-227/resume90-local-recovery/native-sentence-cells117/source-document-RED.log": "6aa77564200d206f6aa98d653d55e3ba03642e1a4dffcd1ba4217f2b9784ec54",
+    ".cache/kanpo-227/resume90-local-recovery/native-sentence-cells117/additional-source-oracles/RED.log": "2103cbe5f35825c3e04f7113b4375080535f9cddc22d7488307099912e889986",
+    ".cache/kanpo-227/resume90-local-recovery/native-sentence-cells117/contracts-v4-RED/RED.log": "58f7b86f6778530a8eea541d4d77f5b1a199a6d3574bdb43165259402d5735b8",
+    ".cache/kanpo-227/resume90-local-recovery/native-sentence-cells117/source-binding-RED/RED.log": "d678370860a2a1abb7e509b3218fa04ce3b58647d6ae8d492fc0acefcea94f4f",
+    ".cache/kanpo-227/resume90-local-recovery/native-sentence-cells117/runtime-v5/all-unit-tests.log": "dae411a533a4d0c7aaf3f071bf3b14dd0e8253c7ac35bbcd8903f0bfdfffea61",
+    ".cache/kanpo-227/resume90-local-recovery/native-sentence-cells117/runtime-v5/source-tests.log": "184af8c8026d7e880fe1e7293a41b2cc2152f3bd951b94becba47b79657a897e",
+    ".cache/kanpo-227/resume90-local-recovery/native-sentence-cells117/runtime-v5/output-tests.log": "eb5bc5d5edc4f10f2bb17e6fa7f89fcdf5d2ef57aa9bb2ebbc2ebdf51d978ec2",
+    ".cache/kanpo-227/resume90-local-recovery/native-sentence-cells117/runtime-v5/document-tests.log": "d5846270eb652effb4836826033eaf57d927a7b3352db07f1c6beb5318657a72",
+    ".cache/kanpo-227/resume90-local-recovery/native-sentence-cells117/runtime-v5/additional-source-tests.log": "421ce3fb18c82f07c5806e8845054723e5860a6f51e346e95bc3a4f2a1f5e4dc",
+    ".cache/kanpo-227/resume90-local-recovery/native-sentence-cells117/portable-oracle-preflight/result.json": "56473e6b9f136a07328512c2c8224a7794fba77ad5705d4510ab5a76fe4fe966",
+    ".cache/kanpo-227/resume90-local-recovery/native-sentence-cells117/runtime-v5/single/result.json": "4526dbe482e688ec49bf1b039ad7889111aca8f568f572764fba09714d2b0967",
+    ".cache/kanpo-227/resume90-local-recovery/native-sentence-cells117/runtime-v5/whole/result.json": "39d685731311f8719e6abc1d7069dbb860f592aaa30b55590b4e3f61bfcffa99",
+    ".cache/kanpo-227/resume90-local-recovery/native-sentence-cells117/public-port5/port-verification.json": "e2d86d7f612932550da049c82ecedab7644314763956da908b52bfa679455a3e",
+    ".cache/kanpo-227/resume90-local-recovery/native-sentence-cells117/public-port5/single/result.json": "ba16eea2d27b7d8e13eb572ffd24392c417d6b5559979f84c9a24f370a65c740",
+    ".cache/kanpo-227/resume90-local-recovery/native-sentence-cells117/public-port5/whole/result.json": "50d245adc64d28b1a6dd810f803f54ae728dc59f5b23feed80b993353e1c6761",
+    ".cache/kanpo-227/resume90-local-recovery/native-sentence-cells117/public-port5/CLI/result.json": "1ea44069a55288eed054feab2bba99feb26e95d85c66a9f603b1c1682b02e033",
+    ".cache/kanpo-227/resume90-local-recovery/native-sentence-cells117/public-port5/all4-public-gates-result.json": "c4a91180c437cb806db3135b0109c9fcdea572a689b5db96ef99b9fce0af7505"
+  },
+  "private_single_corpus": {
+    "terminal": 0,
+    "pages": 11992,
+    "changed116": [
+      "20260930g002150345",
+      "20261001g002170049"
+    ],
+    "source_inputs_artifacts_prepost_exact": true,
+    "seconds": 239.77384779099998
+  },
+  "conservation_source_receipt": "runtime-v5/original-review/result.json",
+  "private_whole": {
+    "issues": 159,
+    "pages": 11992,
+    "changed": [
+      "20261001g002170049",
+      "20260930g002150345"
+    ],
+    "source_failures": [],
+    "seconds": 474.444893833,
+    "source_inputs_artifacts_prepost_exact": true
+  },
+  "private_whole_changed_issues": [
+    {
+      "issue": "20260930g00215",
+      "pages": 480,
+      "sha256": "534e0c4d509128abcc048fdda227bc8ce06515276e511308a48770e8bf2998e7",
+      "equal116": false,
+      "changed": [
+        "20260930g002150345"
+      ],
+      "articles": 181,
+      "all_Word_attrs_exact": true,
+      "full_Tables_equal": false,
+      "tables": [
+        545,
+        545
+      ],
+      "articles_before": 181,
+      "nonwhite_chars_equal": true
+    },
+    {
+      "issue": "20261001g00217",
+      "pages": 160,
+      "sha256": "5145c49f6a2384a499e31a9901d6dfad66769312a5e81ea4c91d1bcda419294b",
+      "equal116": false,
+      "changed": [
+        "20261001g002170049"
+      ],
+      "articles": 414,
+      "all_Word_attrs_exact": true,
+      "full_Tables_equal": false,
+      "tables": [
+        425,
+        425
+      ],
+      "articles_before": 414,
+      "nonwhite_chars_equal": true
+    }
+  ],
+  "normal_native_gates": {
+    "terminal": 0,
+    "source_manifest_sha256": "7ecac01abc7b702135baad4e799065b76e5d3b0cf2682fd2a72ff54af367f6f7",
+    "commands": 124,
+    "integration_targets": 115,
+    "passed": 2496,
+    "failed": 0,
+    "ignored": 0,
+    "result_groups": 123,
+    "no_expected_snapshot_updates": true,
+    "all_commands_exit0": true
+  },
+  "public_API_CLI_and_whole_equality": {
+    "all11992_actual_API_complete_Analysis_equal_private5": true,
+    "all159whole11992pages_complete_Analysis_equal_private5": true,
+    "all11992actual_CLI_text_bytes_equal_actual_API": true,
+    "normal_native_gate_result": {
+      "terminal": 0,
+      "source_manifest_sha256": "7ecac01abc7b702135baad4e799065b76e5d3b0cf2682fd2a72ff54af367f6f7",
+      "commands": 124,
+      "integration_targets": 115,
+      "passed": 2496,
+      "failed": 0,
+      "ignored": 0,
+      "result_groups": 123,
+      "no_expected_snapshot_updates": true,
+      "all_commands_exit0": true
+    }
+  },
+  "snapshot_conservation": {
+    "count": 814,
+    "all_bytes_equal116": true,
+    "expected_updates": 0
+  },
+  "source_files_sha256": {
+    "crates/kanpo-parser/src/lib.rs": "6b41cedf2798e5304fa7a92450ba4137d4f2d7104e3352c6c18f97b8d12f647f",
+    "crates/kanpo-parser/src/vertical.rs": "cb00c4217b6702eb595b4b73556f98907ea7a2cb3db7020c6e96f331f7dbc0d6",
+    "crates/kanpo-parser/src/ruled_cell_flow.rs": "e3c15f6b43c7fc53faaa225b3a34de07aa160965ed21bc7616b3448cdb23e0f0",
+    "crates/kanpo-parser/src/native_sentence_cells.rs": "0a9e4597b08944645434122b8203fe6a2e647cdb8d0feb75c7619e1a76f81fdb",
+    "crates/kanpo-parser/src/native_sentence_plan.rs": "8320bc5146233464b7fd1c430aec5536db3e94cc098aa5856d58cd99c3f0b75c",
+    "crates/kanpo-parser/src/native_sentence_contracts.rs": "bc08db14e95f4fdf71ca523d70e390fe8af45bb8b2d12eea488a498576094dfb",
+    "crates/kanpo-parser/tests/native_sentence_cell_fixtures.rs": "e277ea7fa5713f038631683ca8d13908ca96475ef7b51fd98de7291b9efd5b1e",
+    "crates/kanpo-parser/tests/native_sentence_value_controls.rs": "e8625c6335a4a43af7adab392e2a4542c1e59bdebf7c6ab0586236b675fd291c",
+    "crates/kanpo-parser/tests/data/native-sentence-cells/references.json": "c898c055c87418a699d772d8c9ee200d468026289c32bdcb22802fdb60cfc97d",
+    "crates/kanpo-parser/tests/data/native-sentence-cells/20261001g002170049.pdf": "c6bf2b86167689ee84dd8df49ccb8dbf6eda67e7dc279f96ede5128670462011",
+    "crates/kanpo-parser/tests/data/native-sentence-cells/additional-references.json": "f5eeb39fb079a487ff24be9a41f7aa4159df0bf711b8d5990be96335b0e98045",
+    "crates/kanpo-parser/tests/data/native-sentence-cells/20261016g002280625.pdf": "564d1d59a1ea1ad92e36842304fd12beaf339d839c1140102bced9cbfbc26506",
+    "crates/kanpo-parser/tests/data/native-sentence-cells/20261013g002240055-baseline116.json": "7b702b5c02cfd5e243d78441361e3617b4fcad739140e87350bdaabc7cadf8db",
+    "crates/kanpo-parser/tests/data/native-sentence-cells/20261016g002280625-baseline116.json": "9ce22375ee89b3e3f0dfc68e27e355f1bb782d0d97c01e03d0222458882a4771",
+    "crates/kanpo-parser/tests/data/native-sentence-cells/20261013g002240055.pdf": "dae8f227454b5868dc8db21e5e4a06e6f3b8db7c3d9d95c3483683fcfb1cebc4"
+  },
+  "user_priority": "2026-10-24: prioritize native text, reading order, table flow and role/article boundaries. Image-only OCR fusion may remain unchanged for now; NDLOCR0.0.15 fixed."
+}

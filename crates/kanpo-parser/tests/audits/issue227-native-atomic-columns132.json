@@ -1,0 +1,634 @@
+{
+  "issue": 227,
+  "iteration": "native132",
+  "status": "validated; not100%; native/non-image priority",
+  "problem": "Native caption of a raster-body column mixed into neighboring native court procedure. Preserve original physical-column ownership and close that block even at page end.",
+  "source_witness": "tests/data/native-atomic-columns/source-caption-witnesses132.json",
+  "reviewed_goldens_are_not_independent_full_quality_oracles": true,
+  "original_PDFs": [
+    {
+      "path": "tests/data/native-atomic-columns/20260728h017560022.pdf",
+      "sha256": "416bd8b67c38074d73a2ce53de3ad7aa9dfa5da221b3a516b28d37d273d9fd79"
+    },
+    {
+      "path": "tests/data/native-atomic-columns/20260824h017740012.pdf",
+      "sha256": "cd513f30e75e15b17f9534ebf376496abbb5d6c19e79724d5820e8f5301f230f"
+    },
+    {
+      "path": "tests/data/native-atomic-columns/20260825h017750019.pdf",
+      "sha256": "8c680b71ce215e2b6068141cb659fe855577f2c5e18f3664fb520c6e6aa23d25"
+    },
+    {
+      "path": "tests/data/native-atomic-columns/20260825h017750020.pdf",
+      "sha256": "48e82231f2db8e904252080720bd6e15c7442d06a6ffd0c2def5bdf902862712"
+    },
+    {
+      "path": "tests/data/native-atomic-columns/20260826h017760023.pdf",
+      "sha256": "12f490132e46988607157bde4af8ccca97df0d852867ec55e8ec3f4c12ad629c"
+    },
+    {
+      "path": "tests/data/native-atomic-columns/20260831g001930134.pdf",
+      "sha256": "c5d7f22567dc1c9581d2c4564aa994ccda07c6d31a93b13e23f753c8e73ddecb"
+    },
+    {
+      "path": "tests/data/native-atomic-columns/20260917h017920023.pdf",
+      "sha256": "a1bb8e26035e16f61e15026ade2f8667cfa078d466b9b1a9a8d1c9ef4eeef814"
+    },
+    {
+      "path": "tests/data/native-atomic-columns/20260925h017950020.pdf",
+      "sha256": "52f5449111906f9b34553b4c9586db4023d56bc915c465e735ab4ff7d9a054ef"
+    },
+    {
+      "path": "tests/data/native-atomic-columns/20261020h018110016.pdf",
+      "sha256": "e8d7a729748fc917fa5a50dbd7fbe9f69fdd9092927435ed02ab90c13f74b492"
+    },
+    {
+      "path": "tests/data/native-atomic-columns/20261020h018110017.pdf",
+      "sha256": "b229a189c736e066b961f83ff8537ac63ae7716508b5e0357db22c38c6469413"
+    }
+  ],
+  "general_rules": [
+    "explicit original native Glyph bounds, Right axis AND Horizontal writing mode, complete original NativeFlow belonging to its glyphs",
+    "full original baseline coverage by adjacent open native column walls; complete isolated lane shares one exact original baseline independent of word wrappers or text length",
+    "all original used provenance known; one owner per consumed Word; typed Tables, comparative roles, blanks, closing rules, enclosures, crossing glyphs and ambiguous reconstruction hold",
+    "intact source Lines reused; only the proven atomic lane and mixed-line remainders reconstructed; characters and unique source IDs verified",
+    "carry actual native reconstruction Certificate(words, originalFrame) in a private serdeSkip PageTrace field; existing regions are not classified from shape or labels",
+    "article roots require the exact reconstruction certificate plus original native source checks; page-end exclusive source offset supported without resetting quote state",
+    "atomic lane glyphs must be wholly inside its own frame; neighboring prose extent uses exact original baselines, not a point tolerance",
+    "no page/title/court/Word-ID/expected-value selector; no new fixed character/preceding-following-line/distance cap; no semantic model"
+  ],
+  "failure_history": [
+    "v1 source test staysRED because font descender extends past original rule endpoint; repaired using complete original native baselines, no tolerance constant",
+    "v2 source LineGREEN but ArticleownershipRED: caption moves into first court Article; own source block and article boundaries required",
+    "v3 synthetic guard failures for enclosures, duplicates across Units, opaque Tables and unknown foreign provenance fixed before adopting",
+    "v4 all11992 material/source guardsPASS but8changes include incorrect4Article split of pre-existing comparison pageG193p134: rejected",
+    "G193 original labels have Right axis AND native mode1; direction alone not enough. Native original XML and original PDFium image reviewed",
+    "v5 carries reconstruction Certificate; unrelated comparison controlGREEN and all11992changed7. Whole ownershipguard5PASS2RED: page-end caption still merged next-page procedure",
+    "two original2page regressionsREDv5; v6 supports exclusive last-line boundary and bothGREEN. Whole7sourceownership/style/materialguardsGREEN",
+    "finalv7 source-frame-end synthetic contract initiallyRED2158PASS1FAIL; reject entire incompletely enclosed interpretation, final2159libPASS. FinalactualRoot complete11992/159Analysis equals frozenv6; no claim of separate exhaustiveprivatev7probe",
+    "test harness initially called Unit.clone although Unit is notClone; fixed helper copying fields. Unit.text trims already-leading boundary spaces, so intact-space assertion corrected to actual source Line.text. Returntype compiler failures while adding Certificate preserved; not counted as behavioral regression failures"
+  ],
+  "tests_added": {
+    "library": 31,
+    "original_source_fixtures": 10,
+    "total": 41,
+    "old131_originals": {
+      "pass": 1,
+      "fail": 9
+    },
+    "v5_two_page_end_originals": {
+      "pass": 0,
+      "fail": 2
+    },
+    "final_library": 2159
+  },
+  "native_validation": {
+    "terminal": 0,
+    "source_manifest_sha256": "396560686d2b628ed43a03501cd3334fcdc97b9b52de56e2c2090a8ae2028a05",
+    "commands": 142,
+    "integration_targets": 133,
+    "passed": 3068,
+    "failed": 0,
+    "ignored": 0,
+    "result_groups": 141,
+    "no_expected_snapshot_updates": true,
+    "all_commands_exit0": true
+  },
+  "impact_single": {
+    "mode": "single",
+    "items": 11992,
+    "pages": 11992,
+    "changed": 7,
+    "raw_material_guard_failures": 0,
+    "source_geometry_guard_failures": 0,
+    "source_inputs_baselines_binaries_prepost_exact": true,
+    "seconds": 242.456150625,
+    "scope": "impact only; independent source review and exact table/style/ownership verification required before adoption"
+  },
+  "impact_whole": {
+    "mode": "whole",
+    "items": 159,
+    "pages": 11992,
+    "changed": 7,
+    "raw_material_guard_failures": 0,
+    "source_geometry_guard_failures": 0,
+    "source_inputs_baselines_binaries_prepost_exact": true,
+    "seconds": 456.99874379100004,
+    "scope": "impact only; independent source review and exact table/style/ownership verification required before adoption"
+  },
+  "actual_root": {
+    "single": {
+      "mode": "single",
+      "items": 11992,
+      "pages": 11992,
+      "all_complete_Analysis_equals_frozen_private132v6": true,
+      "source_inputs_oracles_binaries_prepost_exact": true,
+      "seconds": 401.12146375000003
+    },
+    "whole": {
+      "mode": "whole",
+      "items": 159,
+      "pages": 11992,
+      "all_complete_Analysis_equals_frozen_private132v6": true,
+      "source_inputs_oracles_binaries_prepost_exact": true,
+      "seconds": 614.1176972080001
+    },
+    "CLI": {
+      "terminal": 0,
+      "pages": 11992,
+      "changed_from_validated132v6_API_text": [],
+      "source_inputs_CLI_source_bbox_binary_links_prepost_exact": true,
+      "seconds": 287.268758292,
+      "scope": "Actual root textdump --pdf CLI on all11992originalPDFs, everytext digest checked against full-source-verified132v6API.Native reading order changes at7source-reviewed pages; unchanged source Words and typed Table ownership and source styles guarded separately."
+    }
+  },
+  "final_single_source_ownership": {
+    "mode": "single",
+    "checked": 7,
+    "failures": 0,
+    "rows": [
+      {
+        "key": "20260728h017560022",
+        "passed": true,
+        "proof": {
+          "certified_pages": {
+            "0": [
+              {
+                "words": [
+                  141
+                ],
+                "frame": [
+                  241.0,
+                  46.0,
+                  425.0,
+                  549.0
+                ]
+              }
+            ]
+          },
+          "old_Articles": 5,
+          "new_Articles": 6,
+          "intact_lines_all_verbatim": true,
+          "all_typed_Tables_shinkyu_exact": true,
+          "source_native_geometry_all_exact": true,
+          "Article_word_ownership_and_per_old_Article_material_styles_notices_verified": true
+        }
+      },
+      {
+        "key": "20260824h017740012",
+        "passed": true,
+        "proof": {
+          "certified_pages": {
+            "0": [
+              {
+                "words": [
+                  3
+                ],
+                "frame": [
+                  57.0,
+                  46.0,
+                  241.0,
+                  549.0
+                ]
+              }
+            ]
+          },
+          "old_Articles": 1,
+          "new_Articles": 2,
+          "intact_lines_all_verbatim": true,
+          "all_typed_Tables_shinkyu_exact": true,
+          "source_native_geometry_all_exact": true,
+          "Article_word_ownership_and_per_old_Article_material_styles_notices_verified": true
+        }
+      },
+      {
+        "key": "20260825h017750019",
+        "passed": true,
+        "proof": {
+          "certified_pages": {
+            "0": [
+              {
+                "words": [
+                  0
+                ],
+                "frame": [
+                  609.0,
+                  46.0,
+                  793.0,
+                  549.0
+                ]
+              }
+            ]
+          },
+          "old_Articles": 1,
+          "new_Articles": 2,
+          "intact_lines_all_verbatim": true,
+          "all_typed_Tables_shinkyu_exact": true,
+          "source_native_geometry_all_exact": true,
+          "Article_word_ownership_and_per_old_Article_material_styles_notices_verified": true
+        }
+      },
+      {
+        "key": "20260826h017760023",
+        "passed": true,
+        "proof": {
+          "certified_pages": {
+            "0": [
+              {
+                "words": [
+                  76
+                ],
+                "frame": [
+                  425.0,
+                  46.0,
+                  609.0,
+                  549.0
+                ]
+              }
+            ]
+          },
+          "old_Articles": 3,
+          "new_Articles": 5,
+          "intact_lines_all_verbatim": true,
+          "all_typed_Tables_shinkyu_exact": true,
+          "source_native_geometry_all_exact": true,
+          "Article_word_ownership_and_per_old_Article_material_styles_notices_verified": true
+        }
+      },
+      {
+        "key": "20260917h017920023",
+        "passed": true,
+        "proof": {
+          "certified_pages": {
+            "0": [
+              {
+                "words": [
+                  82
+                ],
+                "frame": [
+                  57.0,
+                  46.0,
+                  241.0,
+                  549.0
+                ]
+              }
+            ]
+          },
+          "old_Articles": 2,
+          "new_Articles": 3,
+          "intact_lines_all_verbatim": true,
+          "all_typed_Tables_shinkyu_exact": true,
+          "source_native_geometry_all_exact": true,
+          "Article_word_ownership_and_per_old_Article_material_styles_notices_verified": true
+        }
+      },
+      {
+        "key": "20260925h017950020",
+        "passed": true,
+        "proof": {
+          "certified_pages": {
+            "0": [
+              {
+                "words": [
+                  114
+                ],
+                "frame": [
+                  241.0,
+                  46.0,
+                  425.0,
+                  549.0
+                ]
+              }
+            ]
+          },
+          "old_Articles": 5,
+          "new_Articles": 6,
+          "intact_lines_all_verbatim": true,
+          "all_typed_Tables_shinkyu_exact": true,
+          "source_native_geometry_all_exact": true,
+          "Article_word_ownership_and_per_old_Article_material_styles_notices_verified": true
+        }
+      },
+      {
+        "key": "20261020h018110016",
+        "passed": true,
+        "proof": {
+          "certified_pages": {
+            "0": [
+              {
+                "words": [
+                  0
+                ],
+                "frame": [
+                  609.0,
+                  46.0,
+                  793.0,
+                  549.0
+                ]
+              }
+            ]
+          },
+          "old_Articles": 1,
+          "new_Articles": 2,
+          "intact_lines_all_verbatim": true,
+          "all_typed_Tables_shinkyu_exact": true,
+          "source_native_geometry_all_exact": true,
+          "Article_word_ownership_and_per_old_Article_material_styles_notices_verified": true
+        }
+      }
+    ],
+    "scope": "strict source/material/style/ownership guards with no-op tracing, not an independent full-quality oracle"
+  },
+  "final_whole_source_ownership": {
+    "mode": "whole",
+    "checked": 7,
+    "failures": 0,
+    "rows": [
+      {
+        "key": "20260728h01756",
+        "passed": true,
+        "proof": {
+          "certified_pages": {
+            "21": [
+              {
+                "words": [
+                  141
+                ],
+                "frame": [
+                  241.0,
+                  46.0,
+                  425.0,
+                  549.0
+                ]
+              }
+            ]
+          },
+          "old_Articles": 98,
+          "new_Articles": 100,
+          "intact_lines_all_verbatim": true,
+          "all_typed_Tables_shinkyu_exact": true,
+          "source_native_geometry_all_exact": true,
+          "Article_word_ownership_and_per_old_Article_material_styles_notices_verified": true
+        }
+      },
+      {
+        "key": "20260824h01774",
+        "passed": true,
+        "proof": {
+          "certified_pages": {
+            "11": [
+              {
+                "words": [
+                  3
+                ],
+                "frame": [
+                  57.0,
+                  46.0,
+                  241.0,
+                  549.0
+                ]
+              }
+            ]
+          },
+          "old_Articles": 130,
+          "new_Articles": 132,
+          "intact_lines_all_verbatim": true,
+          "all_typed_Tables_shinkyu_exact": true,
+          "source_native_geometry_all_exact": true,
+          "Article_word_ownership_and_per_old_Article_material_styles_notices_verified": true
+        }
+      },
+      {
+        "key": "20260825h01775",
+        "passed": true,
+        "proof": {
+          "certified_pages": {
+            "18": [
+              {
+                "words": [
+                  0
+                ],
+                "frame": [
+                  609.0,
+                  46.0,
+                  793.0,
+                  549.0
+                ]
+              }
+            ]
+          },
+          "old_Articles": 119,
+          "new_Articles": 121,
+          "intact_lines_all_verbatim": true,
+          "all_typed_Tables_shinkyu_exact": true,
+          "source_native_geometry_all_exact": true,
+          "Article_word_ownership_and_per_old_Article_material_styles_notices_verified": true
+        }
+      },
+      {
+        "key": "20260826h01776",
+        "passed": true,
+        "proof": {
+          "certified_pages": {
+            "22": [
+              {
+                "words": [
+                  76
+                ],
+                "frame": [
+                  425.0,
+                  46.0,
+                  609.0,
+                  549.0
+                ]
+              }
+            ]
+          },
+          "old_Articles": 103,
+          "new_Articles": 105,
+          "intact_lines_all_verbatim": true,
+          "all_typed_Tables_shinkyu_exact": true,
+          "source_native_geometry_all_exact": true,
+          "Article_word_ownership_and_per_old_Article_material_styles_notices_verified": true
+        }
+      },
+      {
+        "key": "20260917h01792",
+        "passed": true,
+        "proof": {
+          "certified_pages": {
+            "22": [
+              {
+                "words": [
+                  82
+                ],
+                "frame": [
+                  57.0,
+                  46.0,
+                  241.0,
+                  549.0
+                ]
+              }
+            ]
+          },
+          "old_Articles": 66,
+          "new_Articles": 68,
+          "intact_lines_all_verbatim": true,
+          "all_typed_Tables_shinkyu_exact": true,
+          "source_native_geometry_all_exact": true,
+          "Article_word_ownership_and_per_old_Article_material_styles_notices_verified": true
+        }
+      },
+      {
+        "key": "20260925h01795",
+        "passed": true,
+        "proof": {
+          "certified_pages": {
+            "19": [
+              {
+                "words": [
+                  114
+                ],
+                "frame": [
+                  241.0,
+                  46.0,
+                  425.0,
+                  549.0
+                ]
+              }
+            ]
+          },
+          "old_Articles": 121,
+          "new_Articles": 123,
+          "intact_lines_all_verbatim": true,
+          "all_typed_Tables_shinkyu_exact": true,
+          "source_native_geometry_all_exact": true,
+          "Article_word_ownership_and_per_old_Article_material_styles_notices_verified": true
+        }
+      },
+      {
+        "key": "20261020h01811",
+        "passed": true,
+        "proof": {
+          "certified_pages": {
+            "15": [
+              {
+                "words": [
+                  0
+                ],
+                "frame": [
+                  609.0,
+                  46.0,
+                  793.0,
+                  549.0
+                ]
+              }
+            ]
+          },
+          "old_Articles": 110,
+          "new_Articles": 112,
+          "intact_lines_all_verbatim": true,
+          "all_typed_Tables_shinkyu_exact": true,
+          "source_native_geometry_all_exact": true,
+          "Article_word_ownership_and_per_old_Article_material_styles_notices_verified": true
+        }
+      }
+    ],
+    "scope": "strict source/material/style/ownership guards with no-op tracing, not an independent full-quality oracle"
+  },
+  "guard_calibration": {
+    "meaningful_corruptions_rejected": 13,
+    "rows": [
+      {
+        "corruption": "Word_character",
+        "rejected": true,
+        "reason": "source Words/geometry/schema"
+      },
+      {
+        "corruption": "Word_ID_JSON_type",
+        "rejected": true,
+        "reason": "source Words/geometry/schema"
+      },
+      {
+        "corruption": "raw_character",
+        "rejected": true,
+        "reason": "raw material"
+      },
+      {
+        "corruption": "Document_underline",
+        "rejected": true,
+        "reason": "per-original-Article style/underline"
+      },
+      {
+        "corruption": "Document_character",
+        "rejected": true,
+        "reason": "caption Document contains unrelated text"
+      },
+      {
+        "corruption": "caption_Article_extra_body",
+        "rejected": true,
+        "reason": "caption Article contains another source block"
+      },
+      {
+        "corruption": "caption_Document_extra_body",
+        "rejected": true,
+        "reason": "caption Document contains unrelated text"
+      },
+      {
+        "corruption": "intact_line_space",
+        "rejected": true,
+        "reason": "intact lines/roles/order/space changed"
+      },
+      {
+        "corruption": "source_owner_swap",
+        "rejected": true,
+        "reason": "caption retained in unrelated Article"
+      },
+      {
+        "corruption": "source_ID_JSON_type",
+        "rejected": true,
+        "reason": "source ID type"
+      },
+      {
+        "corruption": "certificate_word_binding",
+        "rejected": true,
+        "reason": "incomplete original lane"
+      },
+      {
+        "corruption": "certificate_frame",
+        "rejected": true,
+        "reason": "certificate lacks original walls"
+      },
+      {
+        "corruption": "spurious_typed_Table",
+        "rejected": true,
+        "reason": "typed Tables/shinkyu changed"
+      }
+    ],
+    "actual_Run_underline_field": true,
+    "source_ID_swap_preserves_global_word_counts": true
+  },
+  "all_old_PDF_JSON_expected_snapshots_unchanged": true,
+  "existing_snapshots_readonly": 814,
+  "internal_PageTrace_initializers": "13existing test literals add empty private Certificate vec only; no old test condition or expected value changed",
+  "external_JSON_shape": "new reconstruction Certificate private and serdeSkip",
+  "source_review": "Author reviewed7changed original caption columns plus1comparison negative original usingPDFium. Two additional following PDFs reproduce page-end contexts; not independently graded for full-page accuracy. Nonblind development validation, not precision estimate. Raster text remains baseline.",
+  "known_limits": [
+    "raster-body omissions remain baseline; this is caption ownership, not OCR recovery",
+    "other existing native caption-only regions remain baseline if not actually reconstructed",
+    "multibaseline/wrapped caption lanes not covered",
+    "within-column category heading belongs to first court case:2actual original regressions stillRED on132, next133",
+    "headerless amendment roles",
+    "other native table/column/ownership issues",
+    "character encodings/PUA",
+    "fixed30original audit still partial; no30sample rate"
+  ],
+  "OCR": {
+    "engine": "NDLOCR",
+    "version": "0.0.15",
+    "commit": "f97e930b8c3e9512f7788f258ef685da26416483",
+    "opt_in": true,
+    "automatic_integration": false
+  },
+  "evidence_cache": ".cache/kanpo-227/resume90-local-recovery/native-sparse-column-fences132"
+}

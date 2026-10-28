@@ -7,6 +7,7 @@
     "build": "vite build",
     "build:wasm": "bash scripts/build-kanpo-wasm.sh",
     "test:e2e": "playwright test",
+    "test:amend-document": "node scripts/test-amend-document.mjs",
     "test:e2e:history": "playwright test --config playwright.history.config.ts",
     "dev": "vite"
   },

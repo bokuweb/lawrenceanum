@@ -10,12 +10,14 @@ publish.workspace = true
 
 [dependencies]
 anyhow.workspace = true
+icu_properties = "2.2.0"
 kanpo-pdf = { path = "../kanpo-pdf" }
 scraper.workspace = true
 serde.workspace = true
+# Native source certificates compare original f64 coordinate bits.
+serde_json = { workspace = true, features = ["float_roundtrip"] }
 
 [dev-dependencies]
-serde_json.workspace = true
 # examples/egov_check が e-Gov の法令 API を引くため。
 reqwest = { workspace = true, features = ["blocking"] }
 insta = { version = "1", features = ["glob"] }

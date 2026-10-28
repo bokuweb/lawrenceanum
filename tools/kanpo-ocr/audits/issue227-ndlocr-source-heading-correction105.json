@@ -1,0 +1,38 @@
+{
+  "iteration": "OCRsource105",
+  "status": "source-reference correction, no OCR rerun, no runtime/code/threshold/model/text change",
+  "original_source100_reference_error": "The source100 manual pre-inference transcription used に係る, but the printed original title says に伴う. The old reference is wrong.",
+  "withdrawn_claim": "NDLOCR recognized に伴う in place of printed に係る",
+  "corrected_source_heading": "所在不明株主の株式の競売又は売却に伴う異議申述の公告",
+  "existing_NDLOCR_0_0_15_raw_heading_present": true,
+  "scope": "Root nonblind development reinspection of one heading using full original PDF render and embedded source image. No global/full-text/occurrence-level recognition percentage. Frozen source100 reference and raw outputs retained byte-for-byte.",
+  "still_unresolved": [
+    "Raw reading_order interleaves independent inheritance notices and the stockholder notice.",
+    "Other source100 recognition errors remain, including some 受遣者 instead of printed 受遺者.",
+    "Article ownership/visibility/body coverage not certified; canonical integration remains held."
+  ],
+  "source_evidence": {
+    "original_pdf": {
+      "path": ".cache/kanpo-archive/2026-10-07/20261007g00221/20261007g002210047.pdf",
+      "sha256": "c118100a1bc86c58428cdf96d146e547e0960e9f4630f9a69add2165e19fed65"
+    },
+    "full_original_render": {
+      "path": ".cache/kanpo-227/resume90-local-recovery/fresh30-source98/20261007g002210047.png",
+      "sha256": "bc0214df959022082891eaf606116fb913129cf73e5fc34879d3125fd8f9f359"
+    },
+    "embedded_source_image": {
+      "path": ".cache/kanpo-227/ndlocr-hybrid-source100/result/decoded/page0-draw0.png",
+      "sha256": "a61f9e11fdfc99131e877e05f9a355eb1848815c10080a64ff03ebbb49eaab34"
+    },
+    "inspection_crop": {
+      "path": ".cache/kanpo-227/resume90-local-recovery/OCRsource105-heading-recheck/original-full-render-heading-crop.png",
+      "sha256": "6c575b1496f9d75361481627e3ded124740cbd938f2e461c2de4502382990533",
+      "operation": "Full1190x1684 original render crop(263,112,290,510), Pillow default resize108x1592 for inspection; not OCR input or runtime condition."
+    },
+    "frozen_source100_reference_sha256": "e35a4a4c143d93411427ff61b075f93a0d7a9c322f906f65efc6a2c743a7f68a",
+    "unchanged_raw_trace_sha256": "3c4219571e961a3e6ff88588ef35847f756f6fa0b23476cbbc717a4339fdadf8",
+    "unchanged_raw_txt_sha256": "7dad78d8c276a0a04164870dc70221872384ce98be2c414a757ca6f33ecab167"
+  },
+  "original_public_audit100_sha256": "85abc9259e11fd1fda18e94162cde9efdccdcae95441f23868044a6fa814d12d",
+  "correction_policy": "Original pre-inference manual heading reference and raw files are retained unchanged. Public100 now carries this correction and keeps its previous finding as historical text."
+}

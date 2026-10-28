@@ -31,7 +31,7 @@ fn each_lines(units: &[Unit], f: &mut impl FnMut(&[Line])) {
                 after,
                 before,
                 outside,
-            } => {
+            ..} => {
                 f(preamble);
                 for p in after.iter().chain(before).chain(outside) {
                     f(p);
@@ -229,7 +229,7 @@ fn restore_in_grids(units: &mut [Unit], words: &mut [Word], grids: &[Grid]) {
                 after,
                 before,
                 outside,
-            } => {
+            ..} => {
                 restore_lines(preamble, words, grids, &owners);
                 for p in after.iter_mut().chain(before).chain(outside) {
                     restore_lines(p, words, grids, &owners);

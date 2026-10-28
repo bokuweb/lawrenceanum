@@ -1,0 +1,38 @@
+[
+  {
+    "source": "20260724g001660034",
+    "url": "https://www.kanpo.go.jp/20260724/20260724g00166/20260724g001660034.pdf",
+    "sha256": "1c284ae002684f3e4df602741e9a413d77d10c0408d3c8ae47a55c7c0842e838",
+    "purpose": "complete native comparison followed by independent source-certified announcement roots"
+  },
+  {
+    "source": "20260724g001660036",
+    "url": "https://www.kanpo.go.jp/20260724/20260724g00166/20260724g001660036.pdf",
+    "sha256": "14650a5f68157cf65735745a6880129e337b22ca21a6b17c0b32d17b545823a9",
+    "purpose": "complete native comparison followed by independent source-certified announcement roots"
+  },
+  {
+    "source": "20260805g001760106",
+    "url": "https://www.kanpo.go.jp/20260805/20260805g00176/20260805g001760106.pdf",
+    "sha256": "f89999a9376a092429a9b88c53b588ada858792b421a17520e21389ba08489f0",
+    "purpose": "complete native comparison followed by independent source-certified announcement roots"
+  },
+  {
+    "source": "20260805g001760108",
+    "url": "https://www.kanpo.go.jp/20260805/20260805g00176/20260805g001760108.pdf",
+    "sha256": "99b91ead8a09a948309c331b1ecbb1ea836eaf9f5181ebcc5a0fa096e94a4c7a",
+    "purpose": "complete native comparison followed by independent source-certified announcement roots"
+  },
+  {
+    "source": "20260806g001770048",
+    "url": "https://www.kanpo.go.jp/20260806/20260806g00177/20260806g001770048.pdf",
+    "sha256": "65db60054c120a468f1ba39d83496110c2d963d5f9443a3e2756124fe847acb3",
+    "purpose": "complete native comparison followed by independent source-certified announcement roots"
+  },
+  {
+    "source": "20260806g001770049",
+    "url": "https://www.kanpo.go.jp/20260806/20260806g00177/20260806g001770049.pdf",
+    "sha256": "0d319e6aa8906c14663f93d5b3f01022aa2f39d5d67d2e8e5c3b0d6559a13b76",
+    "purpose": "complete native comparison followed by independent source-certified announcement roots"
+  }
+]

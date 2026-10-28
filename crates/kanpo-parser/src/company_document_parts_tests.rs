@@ -65,7 +65,7 @@ fn preserves_original_paragraph_boundary() {
 fn refuses_source_newold_blocks() {
     let old = Document {
         format: "shinkyu".into(),
-        blocks: vec![Block::Shinkyu { rows: vec![] }],
+        blocks: vec![Block::Shinkyu {labels:None, rows: vec![] }],
     };
     assert!(repartition(&old, &[doc("甲")]).is_none());
 }

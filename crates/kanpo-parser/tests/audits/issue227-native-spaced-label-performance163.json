@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "issue": 227,
+  "stage": "native163",
+  "baseline_local": "edd45cf84f59399def1ca7d395b1135fd58679e4",
+  "problem": "A2second sample of the actual native archive suite identified repeated Unicode nonwhitespace character counts in the older vertical::spaced_label_split nested scan. Inner loops also allocated joined text before checking geometry.",
+  "change": "Compute the existing single-character eligibility once per function call, preserve source order, and allocate the existing pair string only after all original geometry comparisons pass. All original16HEADS, cut/em comparisons, count thresholds and return behavior are retained. No new document vocabulary, point tolerance or neighbor/character budget is introduced. This does not claim the legacy lexical rule has been generally replaced.",
+  "private_differential_profile": {
+    "cuts": 80,
+    "positive_and_negative_old_outputs_unchanged": true,
+    "debug_original_ms": 560.310917,
+    "debug_optimized_ms": 54.17075,
+    "scope": "Private synthetic function-only profile, not a permanent duplicate old-implementation test or full-parser performance claim."
+  },
+  "normal_native": {
+    "terminal": 0,
+    "commands": 2,
+    "integration_targets": 157,
+    "result_groups": 165,
+    "passed": 4024,
+    "failed": 0,
+    "ignored": 0,
+    "source_manifest_sha256": "8f200d076a121b8061fede59504535149bcfc37a9765f9b87a7afb57a57aa204",
+    "source_and_all_existing_test_inputs_prepost_exact": true,
+    "snapshot_updates_disabled": true
+  },
+  "actual_Cargo_release": {
+    "profile": "actual Cargo release, final W sources",
+    "single_complete_Analysis_exact_private_final": 11992,
+    "whole_complete_Analysis_exact_private_final": 159,
+    "actual_release_PDF_textdump_CLI_native_body_bytes_exact": 11992,
+    "single_duplicate_owner_pages": 0,
+    "CLI_duplicate_word_reports": 0,
+    "all_original_inputs_native_sources_Cargo_and_binaries_prepost_exact": true,
+    "seconds": 211.575473958,
+    "scope": "Full final actual-Cargo release public API Analysis and native CLI over original PDFs; Repeated legacy character scans and allocations avoided, every complete Analysis and CLI body byte is unchanged162. No independent accuracy claim."
+  },
+  "preservation": "All11992single and159whole complete Analysis and11992native CLI body bytes exactly equal actual162; duplicateowners/reports0. No original corpus asset, gold, PDF or snapshot changed.",
+  "owned_runtime_sha256": {
+    "crates/kanpo-parser/src/vertical.rs": "c28273c20439ce2ae684262ce547a1ac7b79cd10666bac49ed748fc104ef62f2"
+  },
+  "goal_status": "Full227active; exact-head CI verification still required. No timeout increase, testskip, OCR/model dependency change,100percent claim, merge or issue closure."
+}

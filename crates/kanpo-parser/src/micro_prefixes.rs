@@ -54,7 +54,7 @@ fn all_lines(units: &[Unit]) -> Vec<&Line> {
                 after,
                 before,
                 outside,
-            } => {
+            ..} => {
                 out.extend(preamble);
                 for p in after.iter().chain(before).chain(outside) {
                     out.extend(p);
@@ -74,7 +74,7 @@ fn all_lines_mut(units: &mut [Unit]) -> Vec<&mut Line> {
                 after,
                 before,
                 outside,
-            } => {
+            ..} => {
                 out.extend(preamble);
                 for p in after.iter_mut().chain(before).chain(outside) {
                     out.extend(p);

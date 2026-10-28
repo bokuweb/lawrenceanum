@@ -1,5 +1,7 @@
 #[path = "support/legacy_analysis.rs"]
 mod legacy_analysis;
+#[path = "support/native_numeric_matrix_contracts.rs"]
+mod matrix_contract;
 use kanpo_parser::Analysis;
 fn actual(pdf:&[u8])->Analysis { kanpo_parser::analyze_item(&kanpo_parser::page_inputs(pdf).unwrap()) }
 const PDF0:&[u8]=include_bytes!("archive/pages/20260803g00174/20260803g001740087.pdf");
@@ -13,7 +15,13 @@ const BASE3:&str=include_str!("archive/pages/20260716g00159/20260716g001590045.e
 fn target()->Analysis{actual(PDF0)}
 #[test]fn full_two_line_notice_heading_starts_the_new_article(){let a=target();assert_eq!(a.articles.len(),2);assert!(a.articles[1].text.starts_with("国立研究開発法人建築研究所令和７事業年度財務諸表に関する\n公告\n"),"the complete source heading belongs to its own notice");}
 #[test]fn preceding_profit_appropriation_article_ends_before_the_next_heading(){let a=target();assert!(a.articles[0].text.ends_with("積立金　80,555,474"));assert!(!a.articles[0].text.contains("建築研究所"));}
-#[test]fn original_page_words_regions_text_and_ids_are_unchanged(){let a=target();let old:serde_json::Value=serde_json::from_str(BASE0).unwrap();let v=legacy_analysis::value(&a);assert_eq!(v["pages"],old["pages"]);assert_eq!(v["text"],old["text"]);assert_eq!(v["format"],old["format"]);for (id,text) in [(190,"国立研究開発法人建築研究所令和７事業年度財務諸表に関する"),(191,"公告")]{let w=&a.pages[0].words[id];assert_eq!(w.id,id);assert_eq!(w.text,text);assert_eq!(w.status,kanpo_parser::trace::WordStatus::Used);}}
+#[test]fn original_page_words_regions_text_and_ids_are_unchanged(){let a=target();let old:serde_json::Value=serde_json::from_str(BASE0).unwrap();let before:serde_json::Value=serde_json::from_str(include_str!("data/native-numeric-parents/20260803g001740087-baseline152.json")).unwrap();
+let reviewed:serde_json::Value=serde_json::from_str(include_str!("data/native-numeric-parents/20260803g001740087-reviewed153.json")).unwrap();
+let current:serde_json::Value=serde_json::from_str(&serde_json::to_string(&a).unwrap()).unwrap();
+let rules:serde_json::Value=serde_json::from_str(&serde_json::to_string(&kanpo_parser::page_rules(PDF0).unwrap()).unwrap()).unwrap();
+assert_eq!(matrix_contract::reviewed_parent_projection(&before,&reviewed,&[rules],&[kanpo_parser::bbox_xhtml(PDF0).unwrap()]),1);
+assert_eq!(current,reviewed);
+let v=legacy_analysis::value(&before);assert_eq!(v["pages"],old["pages"]);assert_eq!(v["text"],old["text"]);assert_eq!(v["format"],old["format"]);for (id,text) in [(190,"国立研究開発法人建築研究所令和７事業年度財務諸表に関する"),(191,"公告")]{let w=&a.pages[0].words[id];assert_eq!(w.id,id);assert_eq!(w.text,text);assert_eq!(w.status,kanpo_parser::trace::WordStatus::Used);}}
 #[test]fn previous_financial_page_all_analysis_is_unchanged(){let a=actual(PDF1);let old:serde_json::Value=serde_json::from_str(BASE1).unwrap();assert_eq!(legacy_analysis::value(&a),old);}
 #[test]fn following_financial_page_all_analysis_is_unchanged(){let a=actual(PDF2);let old:serde_json::Value=serde_json::from_str(BASE2).unwrap();assert_eq!(legacy_analysis::value(&a),old);}
 #[test]fn separate_notice_title_and_body_all_analysis_is_unchanged(){let a=actual(PDF3);let old:serde_json::Value=serde_json::from_str(BASE3).unwrap();assert_eq!(legacy_analysis::value(&a),old);}

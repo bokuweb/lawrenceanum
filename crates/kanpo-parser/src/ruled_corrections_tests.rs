@@ -172,7 +172,7 @@ impl Fixture {
             .filter(|s| !s.is_empty())
             .collect::<Vec<_>>()
             .join("\n");
-        PageTrace {native_axes:vec![],native_rulings:vec![],
+        PageTrace {native_comparison_labels:vec![],native_horizontal_baselines:vec![],native_atomic_columns:vec![],native_axes:vec![],native_rulings:vec![],
             width: 10000.,
             height: 10000.,
             layout: "tiers",
@@ -562,7 +562,7 @@ fn enclosing_publications_and_quoted_examples_keep_their_original_scope() {
             let Unit::Plain(ls) = f.units.remove(0) else {
                 unreachable!()
             };
-            f.units.push(Unit::Shinkyu {
+            f.units.push(Unit::Shinkyu {labels:None,
                 preamble: ls,
                 after: vec![],
                 before: vec![],

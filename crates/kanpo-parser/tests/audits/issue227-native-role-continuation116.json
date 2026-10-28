@@ -1,0 +1,373 @@
+{
+  "schema_version": 1,
+  "issue": "https://github.com/bokuweb/lawrenceanum/issues/227",
+  "phase": "第85次: 元の欄見出しと局所枠によるページ継続",
+  "date": "2026-10-24",
+  "predecessor_primary": "c19404e154498680b0f00f58bdf844927c48171c",
+  "predecessor_PR237": "6470d75d421af6179bd39977e2925ce2df697310",
+  "scope": "Native text layer only. NDLOCR0.0.15/f97e930b8c3e9512f7788f258ef685da26416483 unchanged. No new models or OCR fusion.",
+  "general_evidence": [
+    "Prior roles require matching printed original publication captions (改正/変更 + 後/前), same source occurrences, known native axes/bounds and exclusive leading support for both fields. Inferred region labels alone cannot mint provenance.",
+    "An inherited current open-top two-cell frame requires three continuously drawn native vertical walls, complete closing bottom, no incoming full or partial cap, complete unique original ownership and no preceding native material in its projection. Two fields express the semantic pair, not a line or record count limit.",
+    "Current fields keep independent punctuation and source order even when a sentence continues across a page. Requiring page-closed delimiters was rejected as unrelated to independently proven roles. Existing115 inference guards remain unchanged.",
+    "Ordinary neighboring components are opaque complete grid parent scopes or one disjoint nongrid envelope. Their order requires a unique DAG from actual continuous rulings over shared native support. No diagonal or gap-tolerance guessing; derived grid axes are not assumed to be drawn strokes.",
+    "Complete current printed captions defer the inherited fallback to explicit layout handling. Body prose mentioning a caption is not a caption row.",
+    "Reconstruction preserves each current source occurrence exactly once per field/component and globally and retains all nonwhitespace characters. Ordinary rendering uses the existing source-table renderer. A scene with following ordinary material ends provenance; a certified pair alone may continue across arbitrarily many pages.",
+    "Unowned retained Used merge constituents are opaque obstacles, never caption evidence. Omitted Noise/HeaderLabel captions require complete original grammar and native scope; a diagnostic tag alone supplies no semantics.",
+    "A current rewritten caption cannot borrow unrelated raw source text. Caption glyph strings must agree with this original occurrence under the existing normalizer; source whitespace is immaterial."
+  ],
+  "no_result_specific_branches": [
+    "No publication/page/company/issuer/title/body-fragment lookup.",
+    "No source-specific geometric values, arbitrary character/line/frame/record count maxima or new similarity threshold.",
+    "Standard publication caption grammar is an explicit semantic vocabulary, not body-text classification. Legacy parser heuristics remain and are not claimed removed."
+  ],
+  "source_review": {
+    "reviewer": "root, nonblind development;not heldout accuracy",
+    "originals": [
+      {
+        "path": "crates/kanpo-parser/tests/data/ruled-cell-flow/20261019h018100001.pdf",
+        "sha256": "97423bc74e5aa0c703c9c6c7f8d89679c1c5fd8dd3201a846db7bb508ba33ecd"
+      },
+      {
+        "path": "crates/kanpo-parser/tests/data/ruled-cell-flow/20261019h018100002.pdf",
+        "sha256": "1a72a77aa35d07ea555bf9c00a97611d6f6ed296973265fcbc2c6da84f43cba4"
+      }
+    ],
+    "observed": "Page1 explicitly prints変更後/前. Page2 left local pair closes before annex and a new land-designation notice; right ordinary coordinate frames continue1..30/31..60. Legacy global split erroneously treated ordinary frame31..60 asBefore.",
+    "frozen_source_expectations": "Five original regressions remain unchanged. Full37left/29right WordID order/membership, localroles, annex/notice/coordinateBody boundaries. Source IDs and wording exist in test data only.",
+    "contextless_limit": "This change does not infer missing roles for a standalone unheaded page without prior source-caption evidence."
+  },
+  "test_first_records": {
+    "RED-result.json": {
+      "sha256": "e3d17f933bea6cee6878044603bc1202521e05a368f616dfa16eb2085a1553c4",
+      "record": {
+        "exit": 101,
+        "tests": 5,
+        "passed": 0,
+        "failed": 5,
+        "frozen": {
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/comparison-context-source116/source_context_regressions.rs": "ba9b7fbe3a96420fee1c57c6739b7148764f85fbc12063e1869acd641ad152c1",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/comparison-context-source116/native-open-frame-observations116.json": "37bfd39ff4ab9ce7868d28c29187283fab3f79551ccdb78178aed083b42d9023",
+          "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/libkanpo_parser_public115v6.rlib": "3421547b27d5ccaea1a4edf17a06a2a302a6f8ed439c007f68299ada83cf7551"
+        },
+        "scope": "Complete66source comparison membership/order assertion strengthens original4source regressions. All5 fail on immutable actual115 before any116runtime implementation. Public runtime and expectations unchanged."
+      }
+    },
+    "runtime-candidate-v1/result.json": {
+      "sha256": "bbb93af83e0500c8f504952be7a7569cce8a33e5b7351e60d234d6db648313b9",
+      "record": {
+        "source_tests_exit": 0,
+        "summaries": [
+          "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.71s"
+        ],
+        "first2_articles": 9,
+        "source_prepost_exact": true,
+        "scope": "First private parser integration. No golden/public edits. Actual first2original output captured for source review."
+      }
+    },
+    "runtime-candidate-v1/full32-result.json": {
+      "sha256": "6ff229ab20340b14a8634297ced9d8a23fbc35af4c55d3bec5508f4fa263fe73",
+      "record": {
+        "changed_pages": [
+          2
+        ],
+        "first2_PageTrace_prefix_exact": true,
+        "articles": 57,
+        "baseline_articles": 57
+      }
+    },
+    "runtime-candidate-v1/whole-issues/result.json": {
+      "sha256": "2a0315e72779e20e0daecf71e1d27bada9f88838f94c314fd2373966b3d506e1",
+      "record": {
+        "issues": 159,
+        "pages": 11992,
+        "changed": [
+          "20261019h018100002"
+        ],
+        "source_failures": [],
+        "seconds": 236.799213791,
+        "source_inputs_artifacts_prepost_exact": true
+      }
+    },
+    "runtime-candidate-v2/RED-result.json": {
+      "sha256": "4113cb252067fd5c728106268e03052efe76e11ae936b89c99fd7ac61caa6d8e",
+      "record": {
+        "exit": 101,
+        "scope": "Actual runtime functions, 43 scene contracts + 26 caption contracts + 5 new diagnostic-tag independence tests; no duplicate runtime helper."
+      }
+    },
+    "native-role-delimiter-independence-refinement.json": {
+      "sha256": "2e715b5c0894e18fc3f2f2f43afcec163c1f3d8cb7b3b8b10c81cba3cde1fb85",
+      "record": {
+        "scope": "Refine an unadopted synthetic assumption before runtime integration; original66membership, five original output assertions and prior-source proof unchanged.",
+        "reason": "Published semantic After/Before ownership is independently authorized by original prior captions and native physical fields. Current-page delimiter closedness is not an ownership prerequisite: text may continue across pages or contain original punctuation errors. Never infer/veto a native role from body punctuation. The older115grammar guard belongs to order inference without this source-caption role proof and remains unchanged.",
+        "replacement": "Change the old synthetic each-field-must-close negative to a positive with exact same owner IDs; add punctuation invariance and ordinary Body span continuation. Keep native identity/axis/ruling/unique-owner requirements, all original characters and role separation.",
+        "new_scene_requirement": "A source-proven inherited pair must lead the completely ordered material scene; ordinary material before it is contradictory to previous-unit continuation.",
+        "timing": "New assertions run RED on the old grammar helper and None scene stub before changing either helper."
+      }
+    },
+    "ordinary-native-component-proof-refinement.json": {
+      "sha256": "ec5f5137427c3fad0f17a206e8e5de1104d57f2c2dff8d4be1382c8ee04be72b",
+      "record": {
+        "source_observations": "Original ordinary coordinate continuation has no top horizontal cap; Grid axes can average native positions (548.875 vs actual548.75/549). A small sidewall gap at62.464..62.465 is not used by any required ordering edge.",
+        "general_requirement": "Ordinary atoms are opaque complete native membership components from source grid topology, not declarations that every physical side is closed. Unique full-scene order requires actual continuous native fences on the shared support for each certified relation. A gap inside that support remains a rejection; no coordinate epsilon/tolerance added.",
+        "test_changes": "Replace an unadopted closed-all-four-sides negative with open ordinary continuation positive; add derived-axis and outside-support-gap positives, keep inside-support-gap negative and current-caption priority. Preserve all original5output/66membership expectations.",
+        "scope": "Test-first proof requirement refinement before scene-v2logic, no source/page special case."
+      }
+    },
+    "runtime-candidate-v2/chain-oracle-correction.json": {
+      "sha256": "ad4a31b33c1f2ed232be291830c8149c972a347ed32976b5e0db9979efff1c5e",
+      "record": {
+        "reason": "Synthetic XHTML input-order IDs were incorrect: existing page_words_with_styles canonically sorts x descending, y ascending before assigning IDs. Actual source boxes prove left x75 IDs2,3 and right x155 IDs0,1. Only synthetic expected IDs corrected; native roles and original5 source expectations unchanged.",
+        "observed": [
+          [
+            0,
+            [
+              155,
+              85,
+              215,
+              93
+            ]
+          ],
+          [
+            1,
+            [
+              155,
+              105,
+              215,
+              113
+            ]
+          ],
+          [
+            2,
+            [
+              75,
+              85,
+              135,
+              93
+            ]
+          ],
+          [
+            3,
+            [
+              75,
+              105,
+              135,
+              113
+            ]
+          ]
+        ]
+      }
+    }
+  },
+  "validation": {
+    "new_regressions": {
+      "library": 85,
+      "original_context": 5,
+      "total": 90
+    },
+    "native": {
+      "terminal": 0,
+      "source_manifest_sha256": "5924000017fd4b8bcd3cd81f5bf9987c3a6d16dc3beb2c9b5fd7277faf152fc4",
+      "commands": 122,
+      "integration_targets": 113,
+      "passed": 2442,
+      "failed": 0,
+      "ignored": 0,
+      "result_groups": 121,
+      "no_expected_snapshot_updates": true,
+      "all_commands_exit0": true
+    },
+    "all814_snapshot_bytes_equal115": true,
+    "standalone_complete_Analysis_equal115": 11992,
+    "whole_complete_PageTrace_equal115": 11991,
+    "whole_issues": 159,
+    "whole_pages": 11992,
+    "only_changed_page": "20261019h018100002",
+    "all159article_counts_preserved": true,
+    "all_Word_attributes_complete_Tables_and_nonwhitespace_characters_preserved": true,
+    "first2_source_PageTrace_exact_full32": true,
+    "independent_current_public_and_private3_replay_complete_Analysis_equal": true,
+    "actual_current_public_API_CLI_all11992_payloads_byte_equal": true,
+    "source_case": {
+      "issue": "20261019h01810",
+      "pages": 32,
+      "sha256": "ad3bdb3c34f9373115cca58e48631e13145310431aa48647bc574c21ceec79b7",
+      "equal115": false,
+      "changed": [
+        "20261019h018100002"
+      ],
+      "articles": 57,
+      "all_Word_attrs_exact": true,
+      "full_Tables_equal": true,
+      "tables": [
+        20,
+        20
+      ],
+      "articles_before": 57,
+      "nonwhite_chars_equal": true
+    },
+    "receipts": {
+      "private3-replay/whole-issues/result.json": {
+        "sha256": "828e2b4361323f679b2bf098fce53a83edd2bd17a114a0e463e7575b0c2284f2",
+        "record": {
+          "issues": 159,
+          "pages": 11992,
+          "changed": [
+            "20261019h018100002"
+          ],
+          "source_failures": [],
+          "seconds": 744.405738,
+          "source_inputs_artifacts_prepost_exact": true
+        }
+      },
+      "public-final3-whole/result.json": {
+        "sha256": "0fc9dc06bdcc56e134b65409adb4c4c77a46e1c805140c189daa56c840f414a1",
+        "record": {
+          "issues": 159,
+          "pages": 11992,
+          "changed": [
+            "20261019h018100002"
+          ],
+          "source_failures": [],
+          "seconds": 699.032218375,
+          "source_inputs_artifacts_prepost_exact": true
+        }
+      },
+      "public-final3-single/result.json": {
+        "sha256": "65b9bdb1fc6cfed58f106d4f6733efb47d4677032f3f949af20be8bb7d22fc4b",
+        "record": {
+          "terminal": 0,
+          "pages": 11992,
+          "changed115": [],
+          "source_inputs_artifacts_prepost_exact": true,
+          "seconds": 517.23360675
+        }
+      },
+      "CLI-final3/result.json": {
+        "sha256": "a2cec00311516a54b0667e816354e72942dc684d4fc6634166f6c9babd871f67",
+        "record": {
+          "terminal": 0,
+          "pages": 11992,
+          "changed115_API_text": [],
+          "source_inputs_CLI_source_bbox_binary_links_prepost_exact": true,
+          "seconds": 381.422046625,
+          "scope": "Actual unchanged textdump --pdf CLI on all11992 original PDFs with fresh retained plaintext; current API equality checked separately."
+        }
+      },
+      "public-port3/actual-public3-fresh-API-CLI-private3-equality.json": {
+        "sha256": "d068b127879c011e54efe3871459b6011c736e8bd6b767a4f2b399fe26dd7a0d",
+        "record": {
+          "public_runtime": "116v3 original raw/current caption guard",
+          "all11992actual_CLI_text_bytes_equal_current_API": true,
+          "all159complete_current_public_Analysis_equal_private3_REPLAY": true,
+          "all11992single_complete_Analysis_equal115": true,
+          "scope": "Fresh independently frozen actual final3 API/CLI and independent private3 replay; previous driver-contaminated folders not adopted."
+        }
+      },
+      "public-port3/actual-API-CLI-and-native-before-whole.json": {
+        "sha256": "4af26cf86f6b3a65a44a40b011a52b09efdad01e2c1843db492d10ff551dce32",
+        "record": {
+          "actual_public3_API_CLI_text_bytes_equal": true,
+          "pages": 11992,
+          "native_result": {
+            "terminal": 0,
+            "source_manifest_sha256": "5924000017fd4b8bcd3cd81f5bf9987c3a6d16dc3beb2c9b5fd7277faf152fc4",
+            "commands": 122,
+            "integration_targets": 113,
+            "passed": 2442,
+            "failed": 0,
+            "ignored": 0,
+            "result_groups": 121,
+            "no_expected_snapshot_updates": true,
+            "all_commands_exit0": true
+          },
+          "all814snapshotbytes_equal115": true,
+          "scope": "Final current public3 source, actualAPI+actualCLI; independently verifiedbeforewhole-issuejoin."
+        }
+      },
+      "runtime-candidate-v3/all-lib-result.json": {
+        "sha256": "ca788565fb61dbe1cb517c7cc210a767b5a0243b28d691a36fa31de5dc756ab5",
+        "record": {
+          "exit": 0,
+          "scope": "All 1588 existing plus85 new library regressions. No filters; latest raw-caption source guard."
+        }
+      },
+      "normal_native": {
+        "sha256": "aab5d88de7a6bccd6177244d012a5b984f7c4c6eb38a688c8c6ff602beae2bdd",
+        "record": {
+          "terminal": 0,
+          "source_manifest_sha256": "5924000017fd4b8bcd3cd81f5bf9987c3a6d16dc3beb2c9b5fd7277faf152fc4",
+          "commands": 122,
+          "integration_targets": 113,
+          "passed": 2442,
+          "failed": 0,
+          "ignored": 0,
+          "result_groups": 121,
+          "no_expected_snapshot_updates": true,
+          "all_commands_exit0": true
+        }
+      }
+    }
+  },
+  "accuracy": "100%未達。全件差分検査と既知原本回帰は未見精度の推定ではない。固定30件を改善率として再採点しない。",
+  "decision": "Adopt116v3 after all current-source local native/API/CLI/whole-issue gates. Remote CI on the published exact head is a separate gate.",
+  "test_first_detail": {
+    "initial_original5": "1150pass5fail;1161/2/3all5pass. Original IDs/role/order expectations unchanged.",
+    "source_caption_tagging": "3failures confirmed before accepting complete omitted Noise captions; separate unrelated-axis counterexample failed before local scope refinement.",
+    "source_raw_caption": "1newnegative failed before the original raw/current caption equality guard;2newraw/whitespace tests plusall existing tests pass.",
+    "synthetic_chain_test_correction": "Original input-order-ID expectation was wrong: parser assigns IDs after canonical x-desc/y-asc sort. Source boxes proved left IDs2,3/right0,1; only synthetic expectation corrected. Original5 unchanged."
+  },
+  "failed_validation_handling": [
+    "First public port missed include_str reference data; Cargo original5 compilation failed. Copied original reference bytes into tests/data/native-role-continuation/references.json and changed only the include path; current Cargo original5 succeeds.",
+    "First queued public3 observer build missed version-specific output names and overlapped private observer paths. Original affected whole run and old public3 folders were held, not adopted. Original source and private3 library hashes were intact. A new isolated private3 replay and fresh explicit-public3 API/CLI directories were executed; current build commands assert their output paths and library binding. Original logs/commands were preserved.",
+    "No expected snapshot or original source oracle was refreshed to suppress a failure."
+  ],
+  "tests_are_self_contained": {
+    "portable_test": "crates/kanpo-parser/tests/native_role_continuation_fixtures.rs",
+    "reference": "crates/kanpo-parser/tests/data/native-role-continuation/references.json",
+    "reference_bytes_exact_source_observation": true,
+    "PDFs_reused": "Existing repository ruled-cell-flow original first2 PDF fixtures. No ignored-cache dependencies in public tests."
+  },
+  "production_literals": {
+    "scope": "Manual-supporting inspection of four newly introduced runtime files only; not a proof about all legacy code. Standard caption grammar and module include names are the only string literals. No page/issuer/body/oracle string switches.",
+    "files": [
+      {
+        "source": "native_role_continuation.rs",
+        "sha256": "43788fd014cf0448bca1bfe271e6f965f24859232a7ee7349dcf451234fae6ae",
+        "string_literals": [
+          "\"native_role_captions.rs\"",
+          "\"native_role_plan.rs\"",
+          "\"native_role_scene.rs\""
+        ]
+      },
+      {
+        "source": "native_role_plan.rs",
+        "sha256": "2520e812d562489c5e584cee22e4cf2bdbf0bc78cec2ccefcbde3a66c25e09fb",
+        "string_literals": []
+      },
+      {
+        "source": "native_role_scene.rs",
+        "sha256": "6a573fedccecbe94456e8a5e7c29256306e7cdf594b2edc34a4af9f5f1c6b720",
+        "string_literals": [
+          "\"変更前\"",
+          "\"変更後\"",
+          "\"改正前\"",
+          "\"改正後\""
+        ]
+      },
+      {
+        "source": "native_role_captions.rs",
+        "sha256": "b8441ef00892b78f7850becc277c1c996761005d8d44612f3e4e826fc0c8cac2",
+        "string_literals": [
+          "\"変更\"",
+          "\"変更前\"",
+          "\"変更後\"",
+          "\"改正\"",
+          "\"改正前\"",
+          "\"改正後\""
+        ]
+      }
+    ]
+  }
+}

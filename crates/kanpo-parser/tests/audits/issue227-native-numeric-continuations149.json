@@ -1,0 +1,252 @@
+{
+  "issue": 227,
+  "native_baseline": 148,
+  "stage": "native149",
+  "scope": "Source-certified numeric continuations, complete compound labels and kerned original signs; native-only.",
+  "baseline_local": "1127e0f8f0b1b18a7de11b59cbf1d7b85b798be3",
+  "baseline_publication": "001c9d7b293f5b34d5545c09a198f884d71a800f",
+  "rules": [
+    "Two original native vertical rails with exactly corresponding endpoints and at least one full original horizontal end rule certify an open-top or open-bottom frame. Both ends open still decline. Interior grid rails, prior grids/roles and complete whole-frame ownership retain their authority.",
+    "A proven native baseline must lie inside the frame. Complete glyph rectangles remain inside every closed end; ascenders/descenders can cross only an open end.",
+    "The complete original terminal numeric field is split from the last fullwidth separator. All preceding source label words must bind in order; whitespace is ignored only for binding, while original line/cell bytes, ASCII and fullwidth gaps remain exact.",
+    "Unicode Roman numerals are allowed only as a leading whitespace-separated enumerator before a nonnumeric label. Extra amount lanes, embedded/nonleading numeric material and unsupported whole-frame numeric rows still decline. This is notation grammar, not financial account or page wording.",
+    "A detached sign needs its own unique original word on exactly the same native baseline, with its left and right edges preceding the corresponding first numeric-word edges. Partial printed kerning is allowed without a fixed distance/overlap threshold; wrong-row, competing, missing or covering signs decline.",
+    "Every numeric source row across the complete original frame must certify the same sole terminal amount rail and common empty label/value gap. Complete consecutive source rows render the exact old bytes and preserve every prior source occurrence."
+  ],
+  "no_new_dispatch": [
+    "page ID",
+    "company/title/account wording",
+    "known amount",
+    "font name",
+    "fixed point tolerance",
+    "fixed Japanese fragment length",
+    "neighboring line budget"
+  ],
+  "tdd": {
+    "new_unit_controls": 16,
+    "public_source_tests_total": 14,
+    "new_public_source_tests": 4,
+    "old148_public_results": {
+      "passed": 9,
+      "intended_failures": 5,
+      "note": "The4 new positive controls and the updated consecutive-page contract fail; all9 other public controls pass. Wire JSON is used for source-coordinate equality."
+    },
+    "original20row_contract_RED_to_GREEN": true,
+    "prototype_v1": "Bottom rule/compound labels/Unicode enumerators passed the initial8 controls, but actual original20-row contract still failed. Original CFF sign rectangle overlaps its first digit; v2 changes the source edge-order certificate and adds targeted negative controls.",
+    "adversarial_controls": [
+      "baseline outside open top",
+      "crossing closed top",
+      "a second amount lane",
+      "numeric label material after an enumerator",
+      "nonleading numeric material",
+      "skipped native word",
+      "sign covers numeric word",
+      "sign starts within numeric word",
+      "translation/scale invariance",
+      "ASCII/fullwidth gaps"
+    ],
+    "parser_unit_total": 2544,
+    "original_PDF_fixture_total": 13
+  },
+  "singletons": {
+    "pages": 11992,
+    "changed": 59,
+    "complete_Analysis_equal148": 11933,
+    "sources_binaries_inputs_prepost_exact": true
+  },
+  "whole_issues": {
+    "issues": 159,
+    "changed": 11,
+    "complete_Analysis_equal148": 148,
+    "additional_tables": 92,
+    "additional_rows": 674,
+    "printed_sign_words_newly_owned": 337,
+    "sources_binaries_inputs_prepost_exact": true
+  },
+  "preservation": {
+    "single_changed_pages": 59,
+    "single_complete_Analysis_equal148": 11933,
+    "whole_changed_issues": 11,
+    "whole_complete_Analysis_equal148": 148,
+    "whole_changed_PageTraces": 59,
+    "all_body_text_exact": true,
+    "all_original_Word_payload_except_sign_status_exact": true,
+    "single_contracts": {
+      "changed_pages": 59,
+      "failed_pages": 0,
+      "failures": [],
+      "additional_tables": 92,
+      "additional_rows": 674,
+      "additional_source_signs": 337,
+      "scope": "Private prototype invariants only, not visual approval or an accuracy rate."
+    },
+    "whole_contracts": {
+      "changed_issues": 11,
+      "failed_pages": 0,
+      "failures": [],
+      "additional_tables": 92,
+      "additional_rows": 674,
+      "additional_source_signs": 337,
+      "scope": "Private prototype invariants only, not visual approval or an accuracy rate."
+    },
+    "scope": "Final private runtime is source-equivalent to the public port. These are source/material invariants, not an independent accuracy percentage."
+  },
+  "source_review": {
+    "pages": [
+      {
+        "page": "20260825g001890075",
+        "original_path": ".cache/kanpo-archive/2026-08-25/20260825g00189/20260825g001890075.pdf",
+        "review": "Full original page viewed; added source rows/column association, signs and independent prose/grid scope checked. Implementing-agent nonblind review; not full-page independent accuracy grading."
+      },
+      {
+        "page": "20260810g001790109",
+        "original_path": ".cache/kanpo-archive/2026-08-10/20260810g00179/20260810g001790109.pdf",
+        "review": "Full original page viewed; added source rows/column association, signs and independent prose/grid scope checked. Implementing-agent nonblind review; not full-page independent accuracy grading."
+      },
+      {
+        "page": "20260825g001890072",
+        "original_path": ".cache/kanpo-archive/2026-08-25/20260825g00189/20260825g001890072.pdf",
+        "review": "Full original page viewed; added source rows/column association, signs and independent prose/grid scope checked. Implementing-agent nonblind review; not full-page independent accuracy grading."
+      },
+      {
+        "page": "20260901g001950082",
+        "original_path": ".cache/kanpo-archive/2026-09-01/20260901g00195/20260901g001950082.pdf",
+        "review": "Full original page viewed; added source rows/column association, signs and independent prose/grid scope checked. Implementing-agent nonblind review; not full-page independent accuracy grading."
+      },
+      {
+        "page": "20261001g002170117",
+        "original_path": ".cache/kanpo-archive/2026-10-01/20261001g00217/20261001g002170117.pdf",
+        "review": "Full original page viewed; added source rows/column association, signs and independent prose/grid scope checked. Implementing-agent nonblind review; not full-page independent accuracy grading."
+      },
+      {
+        "page": "20261016g002280006",
+        "original_path": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280006.pdf",
+        "review": "Full original page viewed; added source rows/column association, signs and independent prose/grid scope checked. Implementing-agent nonblind review; not full-page independent accuracy grading."
+      },
+      {
+        "page": "20261016g002280142",
+        "original_path": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280142.pdf",
+        "review": "Full original page viewed; added source rows/column association, signs and independent prose/grid scope checked. Implementing-agent nonblind review; not full-page independent accuracy grading."
+      },
+      {
+        "page": "20261016g002280509",
+        "original_path": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280509.pdf",
+        "review": "Full original page viewed; added source rows/column association, signs and independent prose/grid scope checked. Implementing-agent nonblind review; not full-page independent accuracy grading."
+      },
+      {
+        "page": "20261016g002280558",
+        "original_path": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280558.pdf",
+        "review": "Full original page viewed; added source rows/column association, signs and independent prose/grid scope checked. Implementing-agent nonblind review; not full-page independent accuracy grading."
+      },
+      {
+        "page": "20261016g002280564",
+        "original_path": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280564.pdf",
+        "review": "Full original page viewed; added source rows/column association, signs and independent prose/grid scope checked. Implementing-agent nonblind review; not full-page independent accuracy grading."
+      },
+      {
+        "page": "20261016g002280678",
+        "original_path": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280678.pdf",
+        "review": "Full original page viewed; added source rows/column association, signs and independent prose/grid scope checked. Implementing-agent nonblind review; not full-page independent accuracy grading."
+      },
+      {
+        "page": "20261016g002280298",
+        "original_path": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280298.pdf",
+        "review": "Full original page viewed; added source rows/column association, signs and independent prose/grid scope checked. Implementing-agent nonblind review; not full-page independent accuracy grading."
+      },
+      {
+        "page": "20261016g002280481",
+        "original_path": ".cache/kanpo-archive/2026-10-16/20261016g00228/20261016g002280481.pdf",
+        "review": "Full original page viewed; added source rows/column association, signs and independent prose/grid scope checked. Implementing-agent nonblind review; not full-page independent accuracy grading."
+      }
+    ],
+    "complete_transcription_page": "20260825g001890075",
+    "complete_transcription_rows": 20,
+    "counterexamples": "Existing5 real source controls remain complete-Analysis equal148; reviewed original counterexamples were already kept in148.",
+    "blind": false,
+    "accuracy_rate": null,
+    "all59_changed_images_graded": false
+  },
+  "snapshots": {
+    "existing": 814,
+    "changed": [
+      {
+        "path": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261016g00228__20261016g002280006.pdf.snap",
+        "previous_sha256": "75cd655029a82c7dd1b5fae76c1c555864e81706c108453cbd1fa5f57b1e8000",
+        "candidate_sha256": "6e7cbb41254bda0932f5315b96f5d697c43c36c19aefffc9c0f3ca6866e2574c",
+        "candidate": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261016g00228__20261016g002280006.pdf.snap.new",
+        "accepted_sha256": "6e7cbb41254bda0932f5315b96f5d697c43c36c19aefffc9c0f3ca6866e2574c",
+        "original_PDF_sha256": "67688afa6e753ab527a7a89baa22f605402e2afebc1e6cac6df5d283c04b8cd5",
+        "reviewed_new_rows": 4,
+        "review": "Full original page image and snapshot diff reviewed. Only the4closing or9originalleft-column source rows become two-cell rows; all other snapshot content stays exact."
+      },
+      {
+        "path": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261016g00228__20261016g002280678.pdf.snap",
+        "previous_sha256": "709f256488477fdb36f85ac9fd1c025491c62b830411d56dc1c937c3fcf96f24",
+        "candidate_sha256": "4035f5f3b54e805f85d56125c41b75e52b242ede2f85a98c62960e1509c7897f",
+        "candidate": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20261016g00228__20261016g002280678.pdf.snap.new",
+        "accepted_sha256": "bab47bc3deed0a70716b849050d7de7a18237c473d726a80c49be324b449032f",
+        "original_PDF_sha256": "eee4f3ac98b1aa8782532141fa33689dc6f0e531805e10edb64c572a77c9dabe",
+        "reviewed_new_rows": 9,
+        "review": "Full original page image and snapshot diff reviewed. Only the4closing or9originalleft-column source rows become two-cell rows; all other snapshot content stays exact."
+      }
+    ],
+    "other812_byte_exact": true
+  },
+  "limits": [
+    "Implementing-agent nonblind13-original review and source invariants, not independent full-page gold or an accuracy percentage. The59 changed pages have not all been independently image-graded.",
+    "All old147/140/148JSON, TSV and PDF anchors remain. The housing page adds a149 reference and checks its projection from148 plus the independently signed next-publication boundary.",
+    "Multi-amount columns/hierarchy, wrapped labels, Arabic-numbered labels, frames with both ends open, encoding/PUA and other article ownership failures remain.",
+    "The fixed30-page139 audit retains its original138 grades; this stage is not a new blind audit.",
+    "Next source witness:20260831h017790021 has7 native-readable independently closed court cases still fused into2 articles. A failing source test is recorded separately; no150 runtime is adopted in this stage."
+  ],
+  "OCR": {
+    "mode": "explicit opt-in only; unused",
+    "NDLOCR_version": "0.0.15",
+    "rev": "f97e930b8c3e9512f7788f258ef685da26416483"
+  },
+  "additional_models": "none",
+  "overall_goal_complete": false,
+  "native_gate": {
+    "terminal": 0,
+    "commands": 2,
+    "integration_targets": 148,
+    "result_groups": 156,
+    "passed": 3636,
+    "failed": 0,
+    "ignored": 0,
+    "source_manifest_sha256": "6f8703ac0d6d99d22c2df9bfab96d6cede21a960be86e79513588c6596714728",
+    "source_and_all_existing_test_inputs_prepost_exact": true,
+    "snapshot_updates_disabled": true
+  },
+  "actual_Cargo_CLI": {
+    "original_PDFs": 66,
+    "actual_Cargo_library_full_Analysis_equal_private_v2": 66,
+    "actual_Cargo_PDF_textdump": 66,
+    "actual_Cargo_XHTML_textdump": 66,
+    "actual_Cargo_text_example": 66,
+    "actual_Cargo_structured_docjson_singletons": 66,
+    "actual_Cargo_consecutive_three_page_docjson": 1,
+    "duplicate_word_reports": 0,
+    "source_and_binaries_prepost_exact": true,
+    "scope": "Actual Cargo debug examples on all59 changed originals plus7 controls. Not full11992 CLI or release-mode validation."
+  },
+  "renderer": {
+    "actual_shared_component_tests": 5,
+    "passed": 5,
+    "failed": 0,
+    "fixture": "The actual native74-page renderer fixture remains unchanged and the backend source-link test passes; no frontend source changes in149."
+  },
+  "runtime_source_sha256": "913dcb9fadd5048c190933ea0e254739a0c25b54f5512ca49d3305c81d6ef7cd",
+  "evidence_files_sha256": {
+    "candidate-preservation149.json": "2b5da18eaa7b7796ec8471b4f5c327f8281fe336727d5d650c7d77af67889fcc",
+    "runtime-source-equivalence149.json": "3cf6d5a4875c548035bd79c1ecf0eaa5d645c29c3cd01225ff518144bf45096f",
+    "original-tests-against148-RED149.log": "7b3c97b71116bc8fad63043aa1749cdc24e8c2aee1e891361fb3a7b61b015693",
+    "remaining-source-RED149.log": "4245642af2b55a6d501f2d828cd986bd39c35b600e1ba704406e4c96f0a0ee93",
+    "remaining-source-GREEN149.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source-review149.json": "093ae594eb5fbc15345f0ff36528f337f212df4c7760c054f37a87446df997f7",
+    "reviewed-snapshot-transitions149.json": "7c549d44a9b9ab6024f9d32ffb99f3b167506d66aeb75071653ff5ddb6c4f8ca",
+    "native-gates-final149/result149.json": "c5375d0e3ab53021e131ffb7379222956769154d6332019106f63edefc42dcd2",
+    "actual-CLI-result149.json": "f77254a9299da594473fada731e0cead1176ba270457dfeee2ed681c1cbd7c17",
+    "renderer149.log": "9079d38a081d4e8e30ddf51e01062e07fc570a774de464e91bbf66889e494503"
+  }
+}

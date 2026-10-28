@@ -1,0 +1,16 @@
+{
+  "frozen_source_commit": "0e954f16a72b9741d566c460681a414b67bbbc19",
+  "source_path": "crates/kanpo-parser/src/model.rs",
+  "model_source_sha256": "ad503cb746ed5e5f90fcb2f0af7ffa73cdaa80ab47af5ca27421274f882d723c",
+  "old_parser_rlib_sha256": "eb1d01153c53cb414beefe4915c6818145cfba038893b5d3535f282c34852396",
+  "observer_source_sha256": "aaec91527c4c0523b6322249f215cc0587f8e55dcf4f81ef4e6736044ac8784f",
+  "observer_binary_sha256": "8206cc0088d9af5daf78763a9502cef93bf8ccea8e1f5a2ffca1b2cc16c80ebc",
+  "reference_input_sha256": "1594b73ab6fcf8fb76f7d197be9c07688299cd4cc44a2233b1068067202012f6",
+  "reference_output_sha256": "0890933216020ddb74d80d482fdfce6b9391e1168851120529896f403e5bc34a",
+  "method": "Frozen190 public Document::from_text on literal source-annotated field text; old component reproduced exactly first. The189 field detector, source PDF extraction and current parser are never called by the reference observer. All canonical field characters match the original source line fragments ignoring whitespace. Public replay below uses this literal reference output only. Form-heading row granularity remains the old model grammar; this stage changes field ownership.",
+  "controls": {
+    "old_component_exact_roundtrip": true,
+    "source_field_characters_exact": true,
+    "new189_detector_called": false
+  }
+}

@@ -1,0 +1,468 @@
+{
+  "issue": 227,
+  "stage": "native195",
+  "baseline": {
+    "local_root": "6655bcfe5daeb92536d971beb4f138c359f804fa",
+    "local_W": "6aae2906eeae3ade4a1f7cb7005b0745fa1e5889",
+    "publication": "b7489ebe1e0c5f65b9956427cfb4c9f403e4733e",
+    "all5_CI_success": true,
+    "native_counts": [
+      4414,
+      0,
+      0
+    ],
+    "native_job_seconds": 1129
+  },
+  "problem": "Complete native signed announcements were excluded from the existing source instrument certificate solely because they contained an announcement suffix. The original social-worker committee announcement consequently joined the preceding examination inquiry.",
+  "principles": {
+    "change": "Reuse existing complete title_end announcement grammar; an incomplete announcement remains ineligible. A complete title may use the unchanged strict source typography, own complete prose, own date/baseline and own office/name geometry certificate.",
+    "retained_guards": [
+      "independent heading and body typography with complete native font metadata",
+      "balanced quotation state",
+      "unframed Body role and source flow",
+      "complete sentence and original source bounds",
+      "own date/signature before the following candidate",
+      "existing qualified announcement grammar and office grammar"
+    ],
+    "no_new_dispatch": [
+      "page identity",
+      "company/title/body words",
+      "issuer dictionary",
+      "font name",
+      "CID/PUA value",
+      "Japanese character length",
+      "neighbor-line budget",
+      "fixed point tolerance"
+    ],
+    "necessary_semantics": "Existing formal qualified announcement and office grammar only. Existing legacy heuristics elsewhere remain. No additional model."
+  },
+  "tests": {
+    "new_publication_unit": 5,
+    "new_complete_API": 4,
+    "new_total": 9,
+    "publication_passed": 69,
+    "instrument_and_announcement_API_passed": 29,
+    "coverage": [
+      "varied complete titles/offices",
+      "incomplete announcement grammar",
+      "missing body/date/baseline/styles/bounds",
+      "unclosed quotation",
+      "following candidate signature cannot authorize current candidate",
+      "opaque native font ID relabeling",
+      "complete eight-original API outputs",
+      "unchanged coauthored psychology original",
+      "reverse Word node order on all eight originals",
+      "missing own source typography restores entire old baseline"
+    ]
+  },
+  "RED": "The actual social-worker original produced two articles against the independently reviewed three-article expectation before the fix.",
+  "source_QA": {
+    "originals": 8,
+    "full_PDFium_pages_viewed": true,
+    "categories": {
+      "examination_committees": 3,
+      "land_improvement_approvals": 4,
+      "vacant_house_removal_order": 1
+    },
+    "coauthored_psychology_control": "Already correct with three articles in192 and remains byte-identical; not counted as newly fixed.",
+    "all_original_PageTrace_text_Words_and_tables_exact192": true
+  },
+  "independent_gold": {
+    "complete_outputs": [
+      {
+        "kind": "single",
+        "key": "20260721g001610079",
+        "baseline_sha256": "ee5a9f2764888d50b4955e06cd7de4ac16986cbe460794c915faacb9fa4653ed",
+        "expected_sha256": "6e18c95abc871c283bc315f6727da7f47391e497dddbd22c82e64a6919e87570",
+        "cuts": [
+          {
+            "source_page": "20260721g001610079",
+            "owner_before_this_cut": 0,
+            "source": {
+              "title": "介護福祉士試験委員の公告",
+              "witness": "介護福祉士試験委員の公告\n第39回介護福祉士国家試験の試験委員を次のと",
+              "page_line": 136,
+              "source_words": [
+                135
+              ]
+            }
+          }
+        ],
+        "candidate_read_or_used": false
+      },
+      {
+        "kind": "single",
+        "key": "20260729h017570006",
+        "baseline_sha256": "e39ee3285c3298f47304f115aba5c00fa34ace7c9b4ef20f8e38567fbebe8429",
+        "expected_sha256": "d6f85608b01d6433f459d21cec805fa35674aa34324dd5136241c7a5bee51084",
+        "cuts": [
+          {
+            "source_page": "20260729h017570006",
+            "owner_before_this_cut": 5,
+            "source": {
+              "title": "財部町土地改良区の定款変更\nの認可の公告",
+              "witness": "財部町土地改良区の定款変更\nの認可の公告\n土地改良法（昭和24年法律第195号）第30条第",
+              "page_line": 130,
+              "source_words": [
+                24,
+                25
+              ]
+            }
+          }
+        ],
+        "candidate_read_or_used": false
+      },
+      {
+        "kind": "single",
+        "key": "20260807g001780069",
+        "baseline_sha256": "1a7ee6fa744808e5ebff9cf1e973999844718845f455a14e48a4aa3c29ab89b6",
+        "expected_sha256": "afe0b65b982f53d22ef8d3f0716f96be174d70fd6746e9b74ae19282d430b95a",
+        "cuts": [
+          {
+            "source_page": "20260807g001780069",
+            "owner_before_this_cut": 0,
+            "source": {
+              "title": "社会福祉士試験委員の公告",
+              "witness": "社会福祉士試験委員の公告\n第39回社会福祉士国家試験の試験委員を次のと",
+              "page_line": 7,
+              "source_words": [
+                342
+              ]
+            }
+          }
+        ],
+        "candidate_read_or_used": false
+      },
+      {
+        "kind": "single",
+        "key": "20260807g001780071",
+        "baseline_sha256": "615555daba98a6c46e07a53370aad57eec9263781f3b2a79406f77fd7ec9e88d",
+        "expected_sha256": "8b7ff5d16a80885faf67726daff363c10794fb080d6fcf393088e004d374fa17",
+        "cuts": [
+          {
+            "source_page": "20260807g001780071",
+            "owner_before_this_cut": 0,
+            "source": {
+              "title": "精神保健福祉士試験委員の公告",
+              "witness": "精神保健福祉士試験委員の公告\n第29回精神保健福祉士国家試験の試験委員を次",
+              "page_line": 54,
+              "source_words": [
+                155
+              ]
+            }
+          }
+        ],
+        "candidate_read_or_used": false
+      },
+      {
+        "kind": "single",
+        "key": "20260824h017740007",
+        "baseline_sha256": "0cb0d088b060385eb43759aed766678765da426ed923259c8985ed6a362610ea",
+        "expected_sha256": "25431978193507c01d8773e4ce5deee944f3afb1f35275d7de32fd22038589d0",
+        "cuts": [
+          {
+            "source_page": "20260824h017740007",
+            "owner_before_this_cut": 4,
+            "source": {
+              "title": "潮来市土地改良区の定款変更の認可の公告",
+              "witness": "潮来市土地改良区の定款変更の認可の公告\n土地改良法（昭和24年法律第195号）第30条第",
+              "page_line": 91,
+              "source_words": [
+                17,
+                18
+              ]
+            }
+          }
+        ],
+        "candidate_read_or_used": false
+      },
+      {
+        "kind": "single",
+        "key": "20260915h017900008",
+        "baseline_sha256": "f8b295254e727f2af19e9e1e13f7cb56f23cc05e125f3160ec6f19695c48559b",
+        "expected_sha256": "6a0be0571424b65e8c1ae3de2a961a9d00a69f170fc97ff96c6dd4324ffcde05",
+        "cuts": [
+          {
+            "source_page": "20260915h017900008",
+            "owner_before_this_cut": 0,
+            "source": {
+              "title": "佐賀東部土地改良区の定款変更の認可の公告",
+              "witness": "佐賀東部土地改良区の定款変更の認可の公告\n土地改良法（昭和24年法律第195号）第30条第",
+              "page_line": 18,
+              "source_words": [
+                12,
+                13
+              ]
+            }
+          }
+        ],
+        "candidate_read_or_used": false
+      },
+      {
+        "kind": "single",
+        "key": "20260930g002160004",
+        "baseline_sha256": "51819bcb9a5245d078731db3dde0cda41a78ccc51f8f4c13f7b94d6b3f8a0baa",
+        "expected_sha256": "b827a8983b9040017162703e0b3d0d19d7f7f99ce2908d72820b91b17eec690c",
+        "cuts": [
+          {
+            "source_page": "20260930g002160004",
+            "owner_before_this_cut": 0,
+            "source": {
+              "title": "三養基土地改良区の定款変更の認可の公告",
+              "witness": "三養基土地改良区の定款変更の認可の公告\n土地改良法（昭和24年法律第195号）第30条第",
+              "page_line": 25,
+              "source_words": [
+                7,
+                8
+              ]
+            }
+          }
+        ],
+        "candidate_read_or_used": false
+      },
+      {
+        "kind": "single",
+        "key": "20261008g002220077",
+        "baseline_sha256": "d0ff7b980b985d2b7a2710c4fd71b449172a4322385b4480948fda321a386e85",
+        "expected_sha256": "d689dabb11513a7d70107580ae6def9744a1166358881b39cf12fa60e114f6bb",
+        "cuts": [
+          {
+            "source_page": "20261008g002220077",
+            "owner_before_this_cut": 0,
+            "source": {
+              "title": "特定空家等の除去命令の公告",
+              "witness": "特定空家等の除去命令の公告\n空家等対策の推進に関する特別措置法（平成26",
+              "page_line": 21,
+              "source_words": [
+                61
+              ]
+            }
+          }
+        ],
+        "candidate_read_or_used": false
+      },
+      {
+        "kind": "whole",
+        "key": "20260721g00161",
+        "baseline_sha256": "b8639bacc5f88a3da56a4921dc7dc5bfd5941a7cede9ce24fa3d263ffa10dfd1",
+        "expected_sha256": "8e4a937b8a6d59eebd130c13484a0bcf9642cf92478c0496d2ed9e5522010ac4",
+        "cuts": [
+          {
+            "source_page": "20260721g001610079",
+            "owner_before_this_cut": 143,
+            "source": {
+              "title": "介護福祉士試験委員の公告",
+              "witness": "介護福祉士試験委員の公告\n第39回介護福祉士国家試験の試験委員を次のと",
+              "page_line": 136,
+              "source_words": [
+                135
+              ]
+            }
+          }
+        ],
+        "candidate_read_or_used": false
+      },
+      {
+        "kind": "whole",
+        "key": "20260729h01757",
+        "baseline_sha256": "836164cd8a909d9f56d48ed66d30f4e2822a5cf32678c0f086aff3fedc078944",
+        "expected_sha256": "a8372f8246f2269877c9ea8842559aa719dfe891f2e94a5a9752770e8c084608",
+        "cuts": [
+          {
+            "source_page": "20260729h017570006",
+            "owner_before_this_cut": 45,
+            "source": {
+              "title": "財部町土地改良区の定款変更\nの認可の公告",
+              "witness": "財部町土地改良区の定款変更\nの認可の公告\n土地改良法（昭和24年法律第195号）第30条第",
+              "page_line": 130,
+              "source_words": [
+                24,
+                25
+              ]
+            }
+          }
+        ],
+        "candidate_read_or_used": false
+      },
+      {
+        "kind": "whole",
+        "key": "20260807g00178",
+        "baseline_sha256": "cd4b955dcc1b58a6f7de9b4f26ef5967ba915743926337f6cbe96de71c0506c5",
+        "expected_sha256": "d20fa7b386f9e44f651e7858359068803c9def4b5d489746fd1fc43977a6d8f6",
+        "cuts": [
+          {
+            "source_page": "20260807g001780069",
+            "owner_before_this_cut": 116,
+            "source": {
+              "title": "社会福祉士試験委員の公告",
+              "witness": "社会福祉士試験委員の公告\n第39回社会福祉士国家試験の試験委員を次のと",
+              "page_line": 7,
+              "source_words": [
+                342
+              ]
+            }
+          },
+          {
+            "source_page": "20260807g001780071",
+            "owner_before_this_cut": 118,
+            "source": {
+              "title": "精神保健福祉士試験委員の公告",
+              "witness": "精神保健福祉士試験委員の公告\n第29回精神保健福祉士国家試験の試験委員を次",
+              "page_line": 54,
+              "source_words": [
+                155
+              ]
+            }
+          }
+        ],
+        "candidate_read_or_used": false
+      },
+      {
+        "kind": "whole",
+        "key": "20260824h01774",
+        "baseline_sha256": "1a60a1ef9368b48314cdf6e23f0319e83aaa7758d845451c96fd141bdc1bf55a",
+        "expected_sha256": "630f5fc0b628c7db11cc547f729355aeb284314ff5cfa2b9552c2ddff1c9a5cf",
+        "cuts": [
+          {
+            "source_page": "20260824h017740007",
+            "owner_before_this_cut": 35,
+            "source": {
+              "title": "潮来市土地改良区の定款変更の認可の公告",
+              "witness": "潮来市土地改良区の定款変更の認可の公告\n土地改良法（昭和24年法律第195号）第30条第",
+              "page_line": 91,
+              "source_words": [
+                17,
+                18
+              ]
+            }
+          }
+        ],
+        "candidate_read_or_used": false
+      },
+      {
+        "kind": "whole",
+        "key": "20260915h01790",
+        "baseline_sha256": "cc5da5b44d1463caef4c629837546a896d9b8aa4966b61719690bb64990df6dc",
+        "expected_sha256": "aeaa6f5c9a96804bbc9533f60aef644055f8ad9c00c0f6f7230b19ddea2d31d1",
+        "cuts": [
+          {
+            "source_page": "20260915h017900008",
+            "owner_before_this_cut": 36,
+            "source": {
+              "title": "佐賀東部土地改良区の定款変更の認可の公告",
+              "witness": "佐賀東部土地改良区の定款変更の認可の公告\n土地改良法（昭和24年法律第195号）第30条第",
+              "page_line": 18,
+              "source_words": [
+                12,
+                13
+              ]
+            }
+          }
+        ],
+        "candidate_read_or_used": false
+      },
+      {
+        "kind": "whole",
+        "key": "20260930g00216",
+        "baseline_sha256": "c5bdf2dd929281efaca9b707b7b5930dde20097ca754ccd2d9a9492f56a82fd4",
+        "expected_sha256": "4d7d578fa8b52e65885e556bf2e1402ef7c07369d52ad89d65ea55bd27574fde",
+        "cuts": [
+          {
+            "source_page": "20260930g002160004",
+            "owner_before_this_cut": 3,
+            "source": {
+              "title": "三養基土地改良区の定款変更の認可の公告",
+              "witness": "三養基土地改良区の定款変更の認可の公告\n土地改良法（昭和24年法律第195号）第30条第",
+              "page_line": 25,
+              "source_words": [
+                7,
+                8
+              ]
+            }
+          }
+        ],
+        "candidate_read_or_used": false
+      },
+      {
+        "kind": "whole",
+        "key": "20261008g00222",
+        "baseline_sha256": "6d0b31f437d4f24330bab8cd2dd70d4876d06d9a27f50e380fe007aa34b7ed1d",
+        "expected_sha256": "462484e90b805f61d6a7ace5556e481035219cd70b61865ec4b8bf1cf3cfbb1c",
+        "cuts": [
+          {
+            "source_page": "20261008g002220077",
+            "owner_before_this_cut": 13,
+            "source": {
+              "title": "特定空家等の除去命令の公告",
+              "witness": "特定空家等の除去命令の公告\n空家等対策の推進に関する特別措置法（平成26",
+              "page_line": 21,
+              "source_words": [
+                61
+              ]
+            }
+          }
+        ],
+        "candidate_read_or_used": false
+      }
+    ],
+    "all_fifteen_exact": true,
+    "construction": "Pure standard-library Python slices the frozen192 complete raw Article and exact original plain Run at independently reviewed original heading plus own first-prose witness; copies original formats and all opaque objects. No195 parser/detector used. All other article/document/page values are retained.",
+    "constructor_correction": "Initial construction incorrectly trimmed retained LF at a table-adjacent plain Run seam in two single/two whole comparisons. Generic exact old Run slicing fixed the oracle, with no runtime change. Initial controls and comparisons retained locally.",
+    "historical179": "Original baseline and expected069 JSON kept byte-identical. Current API expectation uses an optional test-index pointer to separate195 gold. Historical pure verifier still uses original fields; no runtime fixture routing.",
+    "not_a_blind_accuracy_estimate": true
+  },
+  "snapshots": {
+    "corrected_existing_page_snapshots": 4,
+    "method": "Render independent full source gold only after the same renderer exactly reproduces each old frozen snapshot body. No blanket snapshot acceptance.",
+    "affected_item_snapshots": 0
+  },
+  "corpus": {
+    "single_pages": 11992,
+    "single_Analysis_exact192": 11984,
+    "changed_single": 8,
+    "whole_issues": 159,
+    "whole_Analysis_exact192": 152,
+    "changed_whole": 7,
+    "new_source_article_boundaries": 8,
+    "changed_original_PageTrace": 0,
+    "all_original_Word_values_and_physical_tables_exact": true,
+    "duplicate_original_owners": 0,
+    "actual_release_final": {
+      "profile": "actual Cargo release, final W sources",
+      "single_complete_Analysis_exact_private_final": 11992,
+      "whole_complete_Analysis_exact_private_final": 159,
+      "actual_release_PDF_textdump_CLI_native_body_bytes_exact": 11992,
+      "single_duplicate_owner_pages": 0,
+      "CLI_duplicate_word_reports": 0,
+      "all_original_inputs_native_sources_Cargo_and_binaries_prepost_exact": true,
+      "seconds": 261.542416542,
+      "scope": "Signed complete announcements:11984single and152whole completeAnalysis exact192;8single and7whole outputs equal independent source-cut golds. All originalPageTrace/text/Words/tables retained; only article partition changes. Source snapshot corrections derived from complete independent golds with exact old renderer controls. Finalrelease matches private195-v1 hashes and11992CLI bodies; all CLI native bodybytes exact192. No overall accuracy claim."
+    }
+  },
+  "normal_final": {
+    "exit_code": 0,
+    "seconds": 846.547104625,
+    "all_sources_and_Cargo_exact": true,
+    "groups": 178,
+    "counts": [
+      4423,
+      0,
+      0
+    ]
+  },
+  "workflow_policy": "No test removed/ignored, workflow or timeout changed. Require all5 exact-head CI after publication.",
+  "CI_at_publication": "Pending; previous192 all5success with original20minute limit.",
+  "remaining": [
+    "Unlabelled comparison records: original9/9 versus7/7 remains.",
+    "Centered/cross-column financial disposition headings need independent native source investigation.",
+    "Character restoration and other article ownership remain; raster court text and the two visible travel-death notices on20261008g002220077 remain image/OCR opt-in.",
+    "No full-corpus accuracy or100% completion claim."
+  ],
+  "OCR": {
+    "mode": "explicit opt-in",
+    "package": "NDLOCR",
+    "version": "0.0.15",
+    "revision": "f97e930b8c3e9512f7788f258ef685da26416483",
+    "additional_models": []
+  }
+}

@@ -157,6 +157,10 @@ impl CMap {
     }
 
     /// 文字列を文字コードに切り分ける。`(符号, バイト長)` の並び。
+    pub(crate) fn source_codespace_contains(&self,bytes:&[u8])->bool{
+        self.codespace.iter().any(|(len,lo,hi)|*len==bytes.len()&&lo.len()==*len&&hi.len()==*len&&bytes.iter().zip(lo.iter().zip(hi)).all(|(b,(l,h))|l<=b&&b<=h))
+    }
+
     pub(crate) fn split(&self, bytes: &[u8]) -> Vec<(u32, usize)> {
         let mut out = Vec::new();
         let mut i = 0;

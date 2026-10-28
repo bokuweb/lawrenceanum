@@ -1,0 +1,718 @@
+{
+  "version": 1,
+  "baseline_publication": "5b11b1d56618360ac14f7c002decd38e65a5b73f",
+  "scope": "Complete Analysis regression fixtures, constructed from frozen178 baseline plus only source-reviewed original Word/Line cuts and literal old AST partitions. Existing format labels and all other old data are retained, not re-inferred. Not independent full-page transcription.",
+  "cases": [
+    {
+      "key": "20260728h017560010",
+      "pdfs": [
+        {
+          "path": "tests/data/native-instrument-roots/pdfs/20260728h017560010.pdf",
+          "sha256": "dbf43217e726d270ffa4a5bc103774f7f702b7929d3d464b3bf4ce42008fc097",
+          "reused_existing_fixture": false
+        }
+      ],
+      "baseline": "baseline/20260728h017560010.json",
+      "expected": "expected/20260728h017560010.json",
+      "baseline_Analysis_sha256": "629f24b2e3fa031029cc12fd361e1a64b0d6daec9cab9699e70971e1e6c20f7b",
+      "expected_Analysis_sha256": "f5d5838eee1d6bad1207a6d2c03483c51d8c099c2c139309ba09ea00136cf915",
+      "cuts": [
+        {
+          "page": 0,
+          "region": 1,
+          "line": 12,
+          "words": [
+            167
+          ],
+          "source_line": "登録消火講習機関の登録に関する公示",
+          "old_article": 2,
+          "old_article_char_offset": 501,
+          "document_anchor": "登録消火講習機関の登録に関する公示",
+          "source_role": "independently viewed printed root with its own date/office; category hierarchy included where present"
+        }
+      ],
+      "source_review": "source second horizontal column: prior survival-course registration5-7 remains above independent fire-course title; own legal paragraph/date/minister signature and items1-7 remain with fire-course root. Neighbor vertical notices/award/estate unaffected in Analysis pages; only new cut certified, not full page independent accuracy."
+    },
+    {
+      "key": "20260803g001740041",
+      "pdfs": [
+        {
+          "path": "tests/data/native-instrument-roots/pdfs/20260803g001740041.pdf",
+          "sha256": "3eaddbe16cdbc4254ff7a1213ba097930752d91046a8a7aa456235a0b830e103",
+          "reused_existing_fixture": false
+        }
+      ],
+      "baseline": "baseline/20260803g001740041.json",
+      "expected": "expected/20260803g001740041.json",
+      "baseline_Analysis_sha256": "55c47d0908ae83ecfe1ea2dfcb0eb577e7eda5c4a70e55eeead7afe90c0f0713",
+      "expected_Analysis_sha256": "ac04c1f9bb9b5733f6037d6cd9f0f82c067bbe155c5a76c5f44142cafe62846c",
+      "cuts": [
+        {
+          "page": 0,
+          "region": 0,
+          "line": 179,
+          "words": [
+            81
+          ],
+          "source_line": "助産師国家試験の施行",
+          "old_article": 0,
+          "old_article_char_offset": 3208,
+          "document_anchor": "助産師国家試験の施行",
+          "source_role": "independently viewed printed root with its own date/office; category hierarchy included where present"
+        }
+      ],
+      "source_review": "Column4: new midwifery exam title follows prior public-health nursing office list. Its own law paragraph, full date and minister signature are visibly printed before page end; new root retains all6 source lines. Only this new cut verified, not a full independent accuracy annotation."
+    },
+    {
+      "key": "20260803g001740043",
+      "pdfs": [
+        {
+          "path": "tests/data/native-instrument-roots/pdfs/20260803g001740043.pdf",
+          "sha256": "bac09d472f84ec048be03bc3e922f4e7d64a81172c725e503e34d9ee3eb7097b",
+          "reused_existing_fixture": false
+        }
+      ],
+      "baseline": "baseline/20260803g001740043.json",
+      "expected": "expected/20260803g001740043.json",
+      "baseline_Analysis_sha256": "874b84c48bd7c18da6f635c80f5ffa062a48b2ede669df0c8c6267dd9b3b83dd",
+      "expected_Analysis_sha256": "7dffa3fcf8853b787569c5795df07a8b80b724c9e462639616ac817fef0139a9",
+      "cuts": [
+        {
+          "page": 0,
+          "region": 0,
+          "line": 68,
+          "words": [
+            179
+          ],
+          "source_line": "看護師国家試験の施行",
+          "old_article": 0,
+          "old_article_char_offset": 1234,
+          "document_anchor": "看護師国家試験の施行",
+          "source_role": "independently viewed printed root with its own date/office; category hierarchy included where present"
+        }
+      ],
+      "source_review": "Column2: nursing exam root follows complete prior midwifery office list; independent bold title, law declaration, date and minister signature precede its own numbered exam details across columns3-4. Only this new cut verified, not a full independent accuracy annotation."
+    },
+    {
+      "key": "20260806h017630009",
+      "pdfs": [
+        {
+          "path": "tests/data/native-instrument-roots/pdfs/20260806h017630009.pdf",
+          "sha256": "874dbcc791130b6fb4a91ff497b47bdde18c00924c8dbb99e60e2c367c6d5980",
+          "reused_existing_fixture": false
+        }
+      ],
+      "baseline": "baseline/20260806h017630009.json",
+      "expected": "expected/20260806h017630009.json",
+      "baseline_Analysis_sha256": "6f8d69adea08f6a23069df0df1c79232fe1e5c999c8f03f76c973e23fb51792d",
+      "expected_Analysis_sha256": "4c6528ba2936bfee713e27d8f3c8165cdc65554d8f8f6c82bf258dbc239612b6",
+      "cuts": [
+        {
+          "page": 0,
+          "region": 0,
+          "line": 47,
+          "words": [
+            10
+          ],
+          "source_line": "令和８年度公共工事に関する",
+          "old_article": 1,
+          "old_article_char_offset": 384,
+          "document_anchor": "令和８年度公共工事に関する",
+          "source_role": "independently viewed printed root with its own date/office; category hierarchy included where present"
+        }
+      ],
+      "source_review": "Column2: multiline technical qualification registration root follows the prior construction-license cancellation items. Independent bold title and own declaration/date/minister precede its two numbered items; following estate notices and prior blank recommendation form stay in their original scopes. Only this new cut verified, not a full independent accuracy annotation."
+    },
+    {
+      "key": "20260807g001780069",
+      "pdfs": [
+        {
+          "path": "tests/archive/pages/20260807g00178/20260807g001780069.pdf",
+          "sha256": "a2726127dacee34c689dbb050c9ad27c18c9f86dd3a6fcb76dd96575fe7314cc",
+          "reused_existing_fixture": true
+        }
+      ],
+      "baseline": "baseline/20260807g001780069.json",
+      "expected": "expected/20260807g001780069.json",
+      "baseline_Analysis_sha256": "ea1fa14325b763466a3b780dca89e533ac7784e8e7ad3a03e934432396374fc9",
+      "expected_Analysis_sha256": "1a7ee6fa744808e5ebff9cf1e973999844718845f455a14e48a4aa3c29ab89b6",
+      "cuts": [
+        {
+          "page": 0,
+          "region": 0,
+          "line": 40,
+          "words": [
+            347
+          ],
+          "source_line": "精神保健福祉士国家試験の施行",
+          "old_article": 0,
+          "old_article_char_offset": 679,
+          "document_anchor": "精神保健福祉士国家試験の施行",
+          "source_role": "independently viewed printed root with its own date/office; category hierarchy included where present"
+        }
+      ],
+      "source_review": "Column1: new mental-health welfare exam root follows the distinct social-worker exam committee list. Own bold title, legal/delegation paragraph, full date and minister signature precede its own exam details in columns2-4. Only this new cut verified, not full page independent accuracy.",
+      "current_expected": "../native-signed-announcements/expected/20260807g001780069.json",
+      "current_expected_provenance": "native195 complete signed announcement source gold; historical179 expected and baseline JSON unchanged"
+    },
+    {
+      "key": "20260901g001950035",
+      "pdfs": [
+        {
+          "path": "tests/data/native-instrument-roots/pdfs/20260901g001950035.pdf",
+          "sha256": "e4c73179a54935af69e92915501814a45898ed474444382c8fddcbde2572cb5a",
+          "reused_existing_fixture": false
+        }
+      ],
+      "baseline": "baseline/20260901g001950035.json",
+      "expected": "expected/20260901g001950035.json",
+      "baseline_Analysis_sha256": "5d75b3505ee4d6b4066a8f930204f6e65779dfb8b92cd1f5801c37ae3a1675d4",
+      "expected_Analysis_sha256": "2116ca005396cd3d29ad0757adbb9add5e045ca11e87ed19651c03edf0735680",
+      "cuts": [
+        {
+          "page": 0,
+          "region": 0,
+          "line": 48,
+          "words": [
+            142
+          ],
+          "source_line": "臨床検査技師国家試験の施行",
+          "old_article": 0,
+          "old_article_char_offset": 849,
+          "document_anchor": "臨床検査技師国家試験の施行",
+          "source_role": "independently viewed printed root with its own date/office; category hierarchy included where present"
+        }
+      ],
+      "source_review": "Column2: independent clinical laboratory examination title/declaration/date/minister header begins after radiological examination contacts in column1. Exam subjects and requirements remain with the new root. Only this new cut verified, not full page independent accuracy."
+    },
+    {
+      "key": "20260901g001950037",
+      "pdfs": [
+        {
+          "path": "tests/data/native-instrument-roots/pdfs/20260901g001950037.pdf",
+          "sha256": "1ba62189653f23f1dee95f25bce808dee8aeec3cb3cc7c0019e16dc2135e3e26",
+          "reused_existing_fixture": false
+        }
+      ],
+      "baseline": "baseline/20260901g001950037.json",
+      "expected": "expected/20260901g001950037.json",
+      "baseline_Analysis_sha256": "b394959f972664bd2eca9db66776fe25193c5a962ba37cbb435b209d75e8eccb",
+      "expected_Analysis_sha256": "9d082f65954e78126fb87e70ac66688b0638098a98235b806b4a6caf59a3f27e",
+      "cuts": [
+        {
+          "page": 0,
+          "region": 0,
+          "line": 96,
+          "words": [
+            116
+          ],
+          "source_line": "理学療法士国家試験の施行",
+          "old_article": 0,
+          "old_article_char_offset": 1704,
+          "document_anchor": "理学療法士国家試験の施行",
+          "source_role": "independently viewed printed root with its own date/office; category hierarchy included where present"
+        }
+      ],
+      "source_review": "Column3: physical-therapy examination title follows preceding clinical laboratory examination contacts continuing from columns1-2. Own declaration/date/minister precedes numbered physical-therapy requirements continuing in column4. Only this new cut verified, not full page independent accuracy."
+    },
+    {
+      "key": "20260901g001950038",
+      "pdfs": [
+        {
+          "path": "tests/data/native-instrument-roots/pdfs/20260901g001950038.pdf",
+          "sha256": "fde8ef78b67fdf4ad9d86f47a559ffe9e97ede5fec37fb01e5e30f8f024bf912",
+          "reused_existing_fixture": false
+        }
+      ],
+      "baseline": "baseline/20260901g001950038.json",
+      "expected": "expected/20260901g001950038.json",
+      "baseline_Analysis_sha256": "ca511026a30c70ffd080fe58308921ce406448cf4262c267d6e36b596ff77596",
+      "expected_Analysis_sha256": "55770b3b55ffccb2ba16839361091891186f8117f6faad85942026d946cd252f",
+      "cuts": [
+        {
+          "page": 0,
+          "region": 0,
+          "line": 155,
+          "words": [
+            73
+          ],
+          "source_line": "作業療法士国家試験の施行",
+          "old_article": 0,
+          "old_article_char_offset": 2783,
+          "document_anchor": "作業療法士国家試験の施行",
+          "source_role": "independently viewed printed root with its own date/office; category hierarchy included where present"
+        }
+      ],
+      "source_review": "Column4: occupational-therapy examination title follows physical-therapy contacts. Own legal paragraph/date/minister separates its numbered requirements; full original page and whole195 context independently inspected. Only this new cut verified, not full page independent accuracy.",
+      "native_header_witness": {
+        "date_words": [
+          63
+        ],
+        "signature_words": [
+          14,
+          9
+        ],
+        "source": "original date and minister/name row independently inspected; ids point to frozen baseline native Words"
+      }
+    },
+    {
+      "key": "20260901g001950040",
+      "pdfs": [
+        {
+          "path": "tests/data/native-instrument-roots/pdfs/20260901g001950040.pdf",
+          "sha256": "21b28c203e04a8920f79a04e8ed0ee9f061704ec56fe668c9326eb155e45988e",
+          "reused_existing_fixture": false
+        }
+      ],
+      "baseline": "baseline/20260901g001950040.json",
+      "expected": "expected/20260901g001950040.json",
+      "baseline_Analysis_sha256": "a809dd404650534b515fe209b94c4a468e7d4528932d8166fb44b2526baf4437",
+      "expected_Analysis_sha256": "568b7e63f7efdc7b3de8793aac0f47cf369bd78ae8f98a3bc77c92dfd040315c",
+      "cuts": [
+        {
+          "page": 0,
+          "region": 0,
+          "line": 12,
+          "words": [
+            237
+          ],
+          "source_line": "視能訓練士国家試験の施行",
+          "old_article": 0,
+          "old_article_char_offset": 202,
+          "document_anchor": "視能訓練士国家試験の施行",
+          "source_role": "independently viewed printed root with its own date/office; category hierarchy included where present"
+        }
+      ],
+      "source_review": "Column1: orthoptic examination root follows prior occupational-therapy office list; own legal declaration/date/minister precedes numbered exam details and qualification paragraphs across remaining columns. Only this new cut verified, not full page independent accuracy."
+    },
+    {
+      "key": "20260901g001950042",
+      "pdfs": [
+        {
+          "path": "tests/data/native-instrument-roots/pdfs/20260901g001950042.pdf",
+          "sha256": "c3b46595eed3ccc26bc739594323a064b4281be789dbf158d8418b3f79b29cf5",
+          "reused_existing_fixture": false
+        }
+      ],
+      "baseline": "baseline/20260901g001950042.json",
+      "expected": "expected/20260901g001950042.json",
+      "baseline_Analysis_sha256": "da3d1c8618bfb4859ec03c3326f1562acd2160e147b0a5cd1aa28bb0d9ba681f",
+      "expected_Analysis_sha256": "a3c0171bf52c42db1a8e8d3deabb68199bade4458d7dd04c5b9395c9fcf72ac2",
+      "cuts": [
+        {
+          "page": 0,
+          "region": 0,
+          "line": 26,
+          "words": [
+            233
+          ],
+          "source_line": "はり師国家試験の施行",
+          "old_article": 0,
+          "old_article_char_offset": 512,
+          "document_anchor": "はり師国家試験の施行",
+          "source_role": "independently viewed printed root with its own date/office; category hierarchy included where present"
+        }
+      ],
+      "source_review": "Column1: acupuncture examination root follows prior massage examination contact block; own declaration/delegation/date/minister precedes acupuncture-only conditions. Its references to concurrent moxibustion remain body text. Only this new cut verified, not full page independent accuracy."
+    },
+    {
+      "key": "20260901g001950043",
+      "pdfs": [
+        {
+          "path": "tests/data/native-instrument-roots/pdfs/20260901g001950043.pdf",
+          "sha256": "8d0efcf14e3aaa88f79bb1c24b32597c01d574e63e1823db53f7326300f390a3",
+          "reused_existing_fixture": false
+        }
+      ],
+      "baseline": "baseline/20260901g001950043.json",
+      "expected": "expected/20260901g001950043.json",
+      "baseline_Analysis_sha256": "a8d1edc727513cec959568918fd274e13853d5e5401b4ba7378da64e22e75280",
+      "expected_Analysis_sha256": "579aaedfa9f2c9d3fa1395a9bd0117b91f2181d5833cfa0ee2aee0011519a000",
+      "cuts": [
+        {
+          "page": 0,
+          "region": 0,
+          "line": 17,
+          "words": [
+            218
+          ],
+          "source_line": "きゅう師国家試験の施行",
+          "old_article": 0,
+          "old_article_char_offset": 354,
+          "document_anchor": "きゅう師国家試験の施行",
+          "source_role": "independently viewed printed root with its own date/office; category hierarchy included where present"
+        }
+      ],
+      "source_review": "Column1: moxibustion examination root follows previous acupuncture examination contact block; own declaration/delegation/date/minister precedes its conditions. Cross references to acupuncture remain in the body. Only this new cut verified, not full page independent accuracy."
+    },
+    {
+      "key": "20260901g001950044",
+      "pdfs": [
+        {
+          "path": "tests/data/native-instrument-roots/pdfs/20260901g001950044.pdf",
+          "sha256": "f2a56bc90fbfe4c5d3453f8aac3210bafa37cefd5f67818ab04d99e756bd2b61",
+          "reused_existing_fixture": false
+        }
+      ],
+      "baseline": "baseline/20260901g001950044.json",
+      "expected": "expected/20260901g001950044.json",
+      "baseline_Analysis_sha256": "9f7018f40a284d777ce2a5e379e9b1c322eed2ff3848e831473222555a098bf7",
+      "expected_Analysis_sha256": "820d8c9f57dc285bba955447b49f5dd59eaca4ddda258ed24325bc3873767eef",
+      "cuts": [
+        {
+          "page": 0,
+          "region": 0,
+          "line": 17,
+          "words": [
+            214
+          ],
+          "source_line": "臨床工学技士国家試験の施行",
+          "old_article": 0,
+          "old_article_char_offset": 354,
+          "document_anchor": "臨床工学技士国家試験の施行",
+          "source_role": "independently viewed printed root with its own date/office; category hierarchy included where present"
+        }
+      ],
+      "source_review": "Column1: clinical engineering examination root follows preceding moxibustion contact block; own legal/delegation declaration/date/minister precedes engineering subjects and qualifications across columns. Only this new cut verified, not full page independent accuracy."
+    },
+    {
+      "key": "20260901g001950045",
+      "pdfs": [
+        {
+          "path": "tests/data/native-instrument-roots/pdfs/20260901g001950045.pdf",
+          "sha256": "ac4b60a0110e65fffac89ad6cd71e272cb3233ef91a922e9946b8928c42e0d07",
+          "reused_existing_fixture": false
+        }
+      ],
+      "baseline": "baseline/20260901g001950045.json",
+      "expected": "expected/20260901g001950045.json",
+      "baseline_Analysis_sha256": "fde940c1345b5f18996d335a8e69d31d27b0d58c58d0bc995f714898101e002c",
+      "expected_Analysis_sha256": "b948c499065a08896030bcbec12101eb0598647f2efef9a23c8e60c011aa4edb",
+      "cuts": [
+        {
+          "page": 0,
+          "region": 0,
+          "line": 76,
+          "words": [
+            173
+          ],
+          "source_line": "義肢装具士国家試験の施行",
+          "old_article": 0,
+          "old_article_char_offset": 1498,
+          "document_anchor": "義肢装具士国家試験の施行",
+          "source_role": "independently viewed printed root with its own date/office; category hierarchy included where present"
+        }
+      ],
+      "source_review": "Column2 lower: prosthetics/orthotics exam root follows preceding clinical engineering contact block. Its own declaration/delegation/date/minister is followed by exam dates and requirements in columns3-4. Only these new cuts verified, not full page independent accuracy."
+    },
+    {
+      "key": "20260901g001950046",
+      "pdfs": [
+        {
+          "path": "tests/data/native-instrument-roots/pdfs/20260901g001950046.pdf",
+          "sha256": "2b48a1063f248511298265bbe0081e9d1f517b25556677fae8abae457c157aba",
+          "reused_existing_fixture": false
+        }
+      ],
+      "baseline": "baseline/20260901g001950046.json",
+      "expected": "expected/20260901g001950046.json",
+      "baseline_Analysis_sha256": "5646b83bac9ceaa7fe025cd55c74562dbf9dda583bc69d902e551859055c0506",
+      "expected_Analysis_sha256": "5f63c721022876de8b90ef9268da2324455b8f3c13fc567bbb06d119822e7860",
+      "cuts": [
+        {
+          "page": 0,
+          "region": 0,
+          "line": 63,
+          "words": [
+            164
+          ],
+          "source_line": "柔道整復師国家試験の施行",
+          "old_article": 0,
+          "old_article_char_offset": 1221,
+          "document_anchor": "柔道整復師国家試験の施行",
+          "source_role": "independently viewed printed root with its own date/office; category hierarchy included where present"
+        }
+      ],
+      "source_review": "Column2 middle: judo-therapy examination root follows prior prosthetics contact block. Own law/delegation paragraph/date/minister precedes its numbered details; references to offices/qualifications remain body. Only these new cuts verified, not full page independent accuracy."
+    },
+    {
+      "key": "20260901g001950047",
+      "pdfs": [
+        {
+          "path": "tests/data/native-instrument-roots/pdfs/20260901g001950047.pdf",
+          "sha256": "13ebc29c20cb5a70fcf9c685ea54ab4969a79ae357f502733778f3ac9cf0d1d8",
+          "reused_existing_fixture": false
+        }
+      ],
+      "baseline": "baseline/20260901g001950047.json",
+      "expected": "expected/20260901g001950047.json",
+      "baseline_Analysis_sha256": "b9b411781f4bd03c2c9b3b69ac672b24e11258be83ff39a5c5823cda37caff4e",
+      "expected_Analysis_sha256": "6158ea4d6f96bbbbedebb9da865a7d5c534800d924df3b64c49b8ba3b0880e62",
+      "cuts": [
+        {
+          "page": 0,
+          "region": 0,
+          "line": 35,
+          "words": [
+            254
+          ],
+          "source_line": "歯科衛生士国家試験の施行",
+          "old_article": 0,
+          "old_article_char_offset": 678,
+          "document_anchor": "歯科衛生士国家試験の施行",
+          "source_role": "independently viewed printed root with its own date/office; category hierarchy included where present"
+        },
+        {
+          "page": 0,
+          "region": 0,
+          "line": 145,
+          "words": [
+            60
+          ],
+          "source_line": "歯科技工士国家試験の施行",
+          "old_article": 0,
+          "old_article_char_offset": 2773,
+          "document_anchor": "歯科技工士国家試験の施行",
+          "source_role": "independently viewed printed root with its own date/office; category hierarchy included where present"
+        }
+      ],
+      "source_review": "Two independently signed new roots: dental hygienist exam at bottom of column1, dental technician exam in column4 after the hygienist details/contact block. Each has own legal/delegation paragraphs/date/minister. The two cuts match both source declarations. Only these new cuts verified, not full page independent accuracy."
+    },
+    {
+      "key": "20260901g001950048",
+      "pdfs": [
+        {
+          "path": "tests/data/native-instrument-roots/pdfs/20260901g001950048.pdf",
+          "sha256": "a82ff5e10b1431b809d90429d04fbf55e7a02abbd436d3c8372d394af7b497d2",
+          "reused_existing_fixture": false
+        }
+      ],
+      "baseline": "baseline/20260901g001950048.json",
+      "expected": "expected/20260901g001950048.json",
+      "baseline_Analysis_sha256": "914d8c95c3ff65c5a162b8e6c8b6fe8b4c20819fd3ee658b8cc081589e9d9c7d",
+      "expected_Analysis_sha256": "4d50eaf98b6b51ad2f68810ab535bb4c440152fe05bb6b8f9b887f89a9e42eac",
+      "cuts": [
+        {
+          "page": 0,
+          "region": 0,
+          "line": 82,
+          "words": [
+            197
+          ],
+          "source_line": "言語聴覚士国家試験の施行",
+          "old_article": 0,
+          "old_article_char_offset": 1542,
+          "document_anchor": "言語聴覚士国家試験の施行",
+          "source_role": "independently viewed printed root with its own date/office; category hierarchy included where present"
+        }
+      ],
+      "source_review": "Column2 bottom: speech-language-hearing examination root follows preceding dental-technician contact block. Own legal/delegation declaration/date/minister precedes requirements continuing into columns3-4. Only these new cuts verified, not full page independent accuracy."
+    },
+    {
+      "key": "20260904g001980021",
+      "pdfs": [
+        {
+          "path": "tests/archive/pages/20260904g00198/20260904g001980021.pdf",
+          "sha256": "1fc4d90e29cf6cb39606cac3ec2de351e415d50ca2f87c8d01cedb7c2fbf4168",
+          "reused_existing_fixture": true
+        }
+      ],
+      "baseline": "baseline/20260904g001980021.json",
+      "expected": "expected/20260904g001980021.json",
+      "baseline_Analysis_sha256": "dc29ade31db08434d2334ecd6b736d9df3246cd7aea3915e611569fd64353e58",
+      "expected_Analysis_sha256": "401cfd3fd70473dde381df4f247a2fd0a0b6154c4d63fbf7202560a73a906840",
+      "cuts": [
+        {
+          "page": 0,
+          "region": 0,
+          "line": 90,
+          "words": [
+            207
+          ],
+          "source_line": "公認心理師試験の施行",
+          "old_article": 1,
+          "old_article_char_offset": 379,
+          "document_anchor": "公認心理師試験の施行",
+          "source_role": "independently viewed printed root with its own date/office; category hierarchy included where present"
+        }
+      ],
+      "source_review": "Column3: distinct psychology examination root follows prior exam committee membership, with its own legal/delegation paragraph and both minister signatures; new root retains both co-signers. Earlier committee remains a separate unresolved boundary in legacy output. Only this new cut verified, not full page independent accuracy."
+    },
+    {
+      "key": "20260911h017880010",
+      "pdfs": [
+        {
+          "path": "tests/archive/pages/20260911h01788/20260911h017880010.pdf",
+          "sha256": "e14f1103b9e4c5da543a2c9bbcd62cbe3f27b77b446185394d6ebbdc71475e81",
+          "reused_existing_fixture": true
+        }
+      ],
+      "baseline": "baseline/20260911h017880010.json",
+      "expected": "expected/20260911h017880010.json",
+      "baseline_Analysis_sha256": "95aa6d87c85dbeaf5eb70834ae81d21b9be0d6340b2c9747f22acea6f8d762a5",
+      "expected_Analysis_sha256": "cecb912be65bdb4141e12aaec41b1006dbf50623ab9f409b64167a98873a06ed",
+      "cuts": [
+        {
+          "page": 0,
+          "region": 0,
+          "line": 17,
+          "words": [
+            149
+          ],
+          "source_line": "東北地方整備局公示",
+          "old_article": 0,
+          "old_article_char_offset": 270,
+          "document_anchor": "東北地方整備局公示",
+          "source_role": "independently viewed printed root with its own date/office; category hierarchy included where present"
+        }
+      ],
+      "source_review": "Column1: northeastern road-utility designation begins after prior registration-change notice and carries its own law declaration/date/regional chief signature before its road range; neighboring labor/exam announcements retain existing output. Only this new cut verified, not full page independent accuracy."
+    },
+    {
+      "key": "20260925h017950008",
+      "pdfs": [
+        {
+          "path": "tests/archive/pages/20260925h01795/20260925h017950008.pdf",
+          "sha256": "0f5a784da96df7c5fc432b09b3b7b21dabf95b4d5e0756e3cf8e25db47f65236",
+          "reused_existing_fixture": true
+        }
+      ],
+      "baseline": "baseline/20260925h017950008.json",
+      "expected": "expected/20260925h017950008.json",
+      "baseline_Analysis_sha256": "a2c4723f1b3545bfb98cecc3d96bab7e0dcc94da5d27de96955e42a17c72597b",
+      "expected_Analysis_sha256": "5ae050217a0a339d98ce4e004d003044a05b9169ab665c3e520170fd5a8272e0",
+      "cuts": [
+        {
+          "page": 0,
+          "region": 0,
+          "line": 33,
+          "words": [
+            229
+          ],
+          "source_line": "関東地方整備局公示",
+          "old_article": 0,
+          "old_article_char_offset": 461,
+          "document_anchor": "関東地方整備局公示",
+          "source_role": "independently viewed printed root with its own date/office; category hierarchy included where present"
+        },
+        {
+          "page": 0,
+          "region": 0,
+          "line": 48,
+          "words": [
+            135,
+            129
+          ],
+          "source_line": "産業",
+          "old_article": 0,
+          "old_article_char_offset": 692,
+          "document_anchor": "産業日本産業規格",
+          "source_role": "independently viewed printed root with its own date/office; category hierarchy included where present"
+        }
+      ],
+      "source_review": "Road root itself is independently signed and correct. JIS root must include the larger original 産業 category preceding it. Current v6 leaves that prefix at end of road article; do not adopt v6. New general larger-prefix tests written RED. Native word metadata: prefix font3,size9,bounds262.8196..307.8196,y46.4996..55.4996; JIS title font2,size8,bounds245..293,y69.706..77.89. Existing legal_summaries::larger_prefix is a general geometry/font hierarchy proof that can be shared; do not add the category name to production branches. v7 JIS179-v7.json now starts 産業\\n日本産業規格 and no preceding article ends with 産業. Existing larger_prefix hierarchy proof reused, no production category-name branch. Full v7 census pending."
+    },
+    {
+      "key": "20261015h018080009",
+      "pdfs": [
+        {
+          "path": "tests/data/native-instrument-roots/pdfs/20261015h018080009.pdf",
+          "sha256": "c1e36e500332e7920f7f934fd5a798fee27ede72a167f82cf30820d447aea765",
+          "reused_existing_fixture": false
+        }
+      ],
+      "baseline": "baseline/20261015h018080009.json",
+      "expected": "expected/20261015h018080009.json",
+      "baseline_Analysis_sha256": "c036f2c1052a052e1b1eb73e9b084a144f8ad2e659d34348746bac09f59fad9a",
+      "expected_Analysis_sha256": "b04d030414bf212832ab9fc910511ab4885f1a797de11c08f0d1d625de510ee8",
+      "cuts": [
+        {
+          "page": 0,
+          "region": 0,
+          "line": 17,
+          "words": [
+            51,
+            52,
+            53
+          ],
+          "source_line": "次期中等練習機及び地上教育器材並びに次期連絡機の提案要求書の手交に関する説明会",
+          "old_article": 0,
+          "old_article_char_offset": 328,
+          "document_anchor": "次期中等練習機及び地上教育器材並びに次期連絡機の提案要求書の手交に関する説明会",
+          "source_role": "independently viewed printed root with its own date/office; category hierarchy included where present"
+        }
+      ],
+      "source_review": "Column1: defense briefing multiline bold title follows an unrelated statutory corporation notice. Own briefing prose/date/chief signature precedes its numbered conditions which continue into column2; new source root agrees with the printed notice boundary. Only this new cut verified, not full page independent accuracy."
+    },
+    {
+      "key": "tax-page-boundary",
+      "pdfs": [
+        {
+          "path": "tests/data/native-instrument-roots/pdfs/20260914h017890009.pdf",
+          "sha256": "b9ccd89b86c9fbeb6ab15538a9dd1127bffaeb78648b6e70e38445299296ca39",
+          "reused_existing_fixture": false
+        },
+        {
+          "path": "tests/data/native-instrument-roots/pdfs/20260914h017890010.pdf",
+          "sha256": "7bc3820514d4ca4c247bb2f16b9fb47025cf98dc97313acc9d55547f7d5db860",
+          "reused_existing_fixture": false
+        }
+      ],
+      "baseline": "baseline/tax-page-boundary.json",
+      "expected": "expected/tax-page-boundary.json",
+      "baseline_Analysis_sha256": "7b7d6d95363a043b0baae15490b9a5be2dab282a19d4c2bd0919c6c290e6b8d0",
+      "expected_Analysis_sha256": "4ea1beee6c4b67b3e8d005a8e5554481ec520e992dd128e37d16d2e89252cd67",
+      "cuts": [
+        {
+          "page": 1,
+          "region": 0,
+          "line": 0,
+          "words": [
+            16,
+            5,
+            2
+          ],
+          "source_line": "所得税法第214条の規定に該",
+          "old_article": 0,
+          "old_article_char_offset": 630,
+          "document_anchor": "所得税法第214条の規定に該"
+        }
+      ],
+      "source_review": "Original independently dated/signed source root and neighboring page context; source-cut-only expected old AST partition. Other original page material retained; not independent fullpage accuracy."
+    },
+    {
+      "key": "exam-page-continuation",
+      "pdfs": [
+        {
+          "path": "tests/data/native-instrument-roots/pdfs/20260901g001950038.pdf",
+          "sha256": "fde8ef78b67fdf4ad9d86f47a559ffe9e97ede5fec37fb01e5e30f8f024bf912",
+          "reused_existing_fixture": true
+        },
+        {
+          "path": "tests/data/native-instrument-roots/pdfs/20260901g001950039.pdf",
+          "sha256": "7a795052144fa52d4edb4f435640525d9a6acb20aed1e9d86144dbb668a67100",
+          "reused_existing_fixture": false
+        }
+      ],
+      "baseline": "baseline/exam-page-continuation.json",
+      "expected": "expected/exam-page-continuation.json",
+      "baseline_Analysis_sha256": "a8d1d5de0e98c99b2ded15137f3783effc6938bf2d07f6592997ad47ebb138f7",
+      "expected_Analysis_sha256": "92551b388779660eca862a6ea090cc362bd30c4359322a1fc4e028b974f52bd2",
+      "cuts": [
+        {
+          "page": 0,
+          "region": 0,
+          "line": 155,
+          "words": [
+            73
+          ],
+          "source_line": "作業療法士国家試験の施行",
+          "old_article": 0,
+          "old_article_char_offset": 2783,
+          "document_anchor": "作業療法士国家試験の施行"
+        }
+      ],
+      "source_review": "Original independently dated/signed source root and neighboring page context; source-cut-only expected old AST partition. Other original page material retained; not independent fullpage accuracy."
+    }
+  ]
+}

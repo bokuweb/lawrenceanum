@@ -1,0 +1,432 @@
+{
+  "schema_version": 1,
+  "issue": 227,
+  "stage": "native136",
+  "status": "Native4gate and actual debug/release CLI successful. Exact publication-head CI is tracked separately in PR237.",
+  "problem": "Native source word gaps within existing ruled table cells were lost from logical cell text and nested document tables. Existing table data was already present; this does not recover a missing table.",
+  "behavior": {
+    "native_source_contract": "data-native-cell-origin v2: first/after original glyph IDs, six exact advance/baseline/spacing numbers, full original glyph metric bounds, first/last original glyph font sizes. Original strict native-flow tuple remains absent when actual baselines differ. Glyph metric bounds are not proof of ink outlines, clipping or final visibility.",
+    "acceptance": [
+      "Own original raw text/source box and complete contiguous original glyph occurrence range",
+      "Horizontal writing mode, rightward native advances, finite and positive source geometry/font sizes",
+      "All actual glyph metric rectangles fit the same existing physical cell; original Word use unique in the actual page units",
+      "Native baseline/start order agrees with contiguous source paint order; nonwhitespace character order exactly equals current cell text",
+      "Same-baseline original positive prefix gap accounts for the native advances; adjoining actual glyph sizes exactly match",
+      "Unicode line-break AL/HL/NU classes from already-locked icu_properties2.2.0; combining marks inherit their base eligibility",
+      "Keep every existing whitespace character and position. Add source-backed ASCII spaces only; never infer line-break word boundaries.",
+      "Missing/new-version/invalid/legacy-only origin evidence remains unknown and does not trigger restoration"
+    ],
+    "no_runtime_dispatch_by": "Page ID, company/title/body literal, value, font name; no new fixed character count, line count or point/fraction cutoff. Existing source Word segmentation is unchanged.",
+    "default_OCR": "Unchanged, explicit standalone CLI opt-in only; NDLOCR0.0.15 fixed; no model added."
+  },
+  "regressions": {
+    "new_library": {
+      "kanpo_pdf": 11,
+      "kanpo_parser": 34
+    },
+    "new_original_and_synthetic_integration": 4,
+    "source_HTML_compatibility": 1,
+    "actual_originals_before": "native135:1passed3failed; V8:4passed0failed.",
+    "negative_size_case": "Constructed same-baseline16/8pt letter pair with0.125pt TJ prefix. V7 incorrectly inserted ab→a b. V8 full Analysis equals reviewed native135 baseline; original PDF rendered and viewed.",
+    "unknown_origin_case": "A complete legacy flow without a full source envelope is insufficient; new regression failed before removing fallback and passes afterward.",
+    "full_native4": {
+      "terminal": 0,
+      "source_manifest_sha256": "9c4d3efd85dff294ccac6b546c395fdd6429fca9507a0b8c5b2a0dd818c4d1fe",
+      "commands": 147,
+      "integration_targets": 138,
+      "passed": 3247,
+      "failed": 0,
+      "ignored": 0,
+      "result_groups": 146,
+      "no_expected_snapshot_updates": true,
+      "all_commands_exit0": true
+    },
+    "actual_CLI_debug": {
+      "binary": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-target/debug/examples/textdump",
+      "binary_sha256": "25b93f324642e842a19ed0d2e36d0d40781359a1bde8126e016a95520fa428b6",
+      "scope": "Actual Cargo-built textdump CLI: --pdf reextracts native data and matches all8V8Analysis.text; legacy native135 HTML/rules do not infer missing origin data and match old8Analysis.text. No OCR engine invoked.",
+      "runs": [
+        {
+          "mode": "native_pdf",
+          "pages": 8,
+          "complete_texts_match": "136",
+          "duplicate_original_word_reports": 0,
+          "log_sha256": "1882b077f87efc180d53649f13f86f0117cc6726419b86b96f0c9f5474155315"
+        },
+        {
+          "mode": "legacy_xhtml",
+          "pages": 8,
+          "complete_texts_match": "135",
+          "duplicate_original_word_reports": 0,
+          "log_sha256": "1882b077f87efc180d53649f13f86f0117cc6726419b86b96f0c9f5474155315"
+        }
+      ]
+    },
+    "expected_data_policy": {
+      "corpus": "Existing HTML/JSON/body references unchanged. Old HTML fixtures compare all previous bytes while ignoring only the additive origin attribute absent from that fixture. Regenerated fixtures containing origin data compare complete current bytes, so UPDATE_EXPECT remains self-consistent. Original glyph/size/envelope provenance tested separately.",
+      "archive": {
+        "file": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260722g00162__20260722g001620030.pdf.snap",
+        "old_sha256": "9ac1be710ff9c3151829cd2d33a80a63ccbb7cc164eae192f494d0ca03670458",
+        "new_sha256": "990363da0b32ca8c475b12616bd1bac6fa16df500ce15048b41e22a63cdd340e",
+        "review": "Exactly two serialized views of one original source gap LE / 2024. Original source cell viewed in original-images/v6-gaps panel2. Original Word data unchanged. Full source gap proof reviewed, no automatic snapshot generation. Other813snapshotfiles left byte-exact."
+      }
+    },
+    "actual_CLI_release": {
+      "command_build": "cargo build --release --locked -p kanpo-parser --example text --example textdump",
+      "binary_sha256": "e5b016c71e31457894bc5c26f884e3db8fdf035a80a422b92130d6f2390f2a4b",
+      "runs": [
+        {
+          "mode": "native_pdf",
+          "pages": 8,
+          "all_full_texts_exact_reference": "136",
+          "duplicate_source_word_reports": 0,
+          "log_sha256": "1882b077f87efc180d53649f13f86f0117cc6726419b86b96f0c9f5474155315"
+        },
+        {
+          "mode": "legacy_xhtml",
+          "pages": 8,
+          "all_full_texts_exact_reference": "135",
+          "duplicate_source_word_reports": 0,
+          "log_sha256": "1882b077f87efc180d53649f13f86f0117cc6726419b86b96f0c9f5474155315"
+        }
+      ]
+    }
+  },
+  "fixed_cohorts": {
+    "baseline": "Verified native135 production, unchanged by OCR-test-only137 commit.",
+    "single": {
+      "mode": "single",
+      "items": 11992,
+      "changed": 8,
+      "changed_physical_pages": 8,
+      "source_inputs_oracles_binaries_prepost_exact": true,
+      "source_Word_text_raw_ID_geometry_changed_items": [],
+      "seconds": 475.705461042
+    },
+    "whole": {
+      "mode": "whole",
+      "items": 159,
+      "changed": 5,
+      "changed_physical_pages": 8,
+      "source_inputs_oracles_binaries_prepost_exact": true,
+      "source_Word_text_raw_ID_geometry_changed_items": [],
+      "seconds": 904.401989625
+    },
+    "input_list_sha256": "dcbdef7348f26fbdfcfe2a13abc17ba484d42d5f9b7cee83ee145df5b6e0c74d",
+    "original_changed_pages": [
+      {
+        "id": "20260722g001620027",
+        "source_path": ".cache/kanpo-archive/2026-07-22/20260722g00162/20260722g001620027.pdf",
+        "PDF_sha256": "9e5895d9161dee588c5497fe7d2a94e793c5e00a3ce248235fe309c06c9dace3"
+      },
+      {
+        "id": "20260722g001620029",
+        "source_path": ".cache/kanpo-archive/2026-07-22/20260722g00162/20260722g001620029.pdf",
+        "PDF_sha256": "ed03073d8a17627b7c9b8394d0ae2ce9f0119dfcb58f0677caed549957d8c8d7"
+      },
+      {
+        "id": "20260722g001620030",
+        "source_path": ".cache/kanpo-archive/2026-07-22/20260722g00162/20260722g001620030.pdf",
+        "PDF_sha256": "13e9f1752cb9cdcbfb48b2c2dddba16ea852ed9de9027c94870214498503745f"
+      },
+      {
+        "id": "20260813h017670004",
+        "source_path": ".cache/kanpo-archive/2026-08-13/20260813h01767/20260813h017670004.pdf",
+        "PDF_sha256": "340f3d95015c45a7a630b9ce4fb24574a6c3174363edacc5acf0f0e46145b2b5"
+      },
+      {
+        "id": "20260824g001880058",
+        "source_path": ".cache/kanpo-archive/2026-08-24/20260824g00188/20260824g001880058.pdf",
+        "PDF_sha256": "a0af6bdf934784e8a0ba583c4c5a263b6971dd8849a84b2fca9e9b7bdeb1b751"
+      },
+      {
+        "id": "20260824g001880059",
+        "source_path": ".cache/kanpo-archive/2026-08-24/20260824g00188/20260824g001880059.pdf",
+        "PDF_sha256": "d6ffea921a459655a45aaadee2ba0162835b91a9d2575855a0562a072c9b9b06"
+      },
+      {
+        "id": "20260907g001990010",
+        "source_path": ".cache/kanpo-archive/2026-09-07/20260907g00199/20260907g001990010.pdf",
+        "PDF_sha256": "cb10b76474b2aa38e6c7ccd7beadbc9b71c97b686352d976d0af3282d0355ede"
+      },
+      {
+        "id": "20261013h018060004",
+        "source_path": ".cache/kanpo-archive/2026-10-13/20261013h01806/20261013h018060004.pdf",
+        "PDF_sha256": "6eda450d2f496e08aef244a1b7575a66e45defab6896cc62afcc05217db5369c"
+      }
+    ],
+    "scope": "Actual fresh V8 runs, immutable original inputs and reference/binary hashes checked pre/post. No global extraction accuracy inferred."
+  },
+  "source_and_model_verification": {
+    "fresh_noop_observer": "audit-v8 matches complete V8 Analysis for all8changed single pages and5changed whole issues. Only certificate printing and page index plumbing differ from runtime code.",
+    "single": {
+      "mode": "single",
+      "cases": 8,
+      "changed_cells": 10,
+      "inserted_original_spaces": 13,
+      "scope": "Fresh V8 no-op observer full Analysis equality, consumed source glyph envelope/ranges/flow/endpoint sizes, exact old whitespace, typed-model structure/styles, unchanged article/notice metadata. Derived source-cell material projection is not complete Word-ID tracing or independent overall accuracy grading.",
+      "inputs_sources_binaries_and_verifiers_prepost_exact": true
+    },
+    "whole": {
+      "mode": "whole",
+      "cases": 5,
+      "changed_cells": 10,
+      "inserted_original_spaces": 13,
+      "scope": "Fresh V8 no-op observer full Analysis equality, consumed source glyph envelope/ranges/flow/endpoint sizes, exact old whitespace, typed-model structure/styles, unchanged article/notice metadata. Derived source-cell material projection is not complete Word-ID tracing or independent overall accuracy grading.",
+      "inputs_sources_binaries_and_verifiers_prepost_exact": true
+    },
+    "memo_revalidation": "All13complete fresh memo payloads re-parsed and reverified against source PDFs, no-op Analysis and frozen producers/verifiers.",
+    "corruption_calibrations": {
+      "source": "20260722g001620027",
+      "rejected": 26,
+      "cases": [
+        "original_Word_raw",
+        "original_Word_status",
+        "original_Word_geometry",
+        "article_count",
+        "region_role",
+        "format",
+        "cell_column",
+        "cell_span",
+        "cell_Word_order",
+        "invented_cell_prefix_space",
+        "old_cell_whitespace_removed",
+        "physical_wrap_invented",
+        "source_space_moved_inside_a_token",
+        "invented_derived_prefix_space",
+        "old_derived_newline_removed",
+        "foreign_legacy_box",
+        "full_glyph_envelope_outside_cell",
+        "interrupted_original_paint_range",
+        "foreign_original_page_count",
+        "invented_native_prefix",
+        "tiny_baseline_drift",
+        "unknown_original_size",
+        "nonfinite_original_size",
+        "missing_source_certificate",
+        "repeated_source_certificate",
+        "size_only_word_split"
+      ],
+      "original_memos_and_all_frozen_proof_inputs_unchanged": true
+    },
+    "independent_property_consumer": "Separate immutable ICU/std-property range producer enumerates all Unicode scalar values for AL/HL/NU/CM and Rust whitespace; independent source-cell consumer checks exact proposed positions. Range table/source/binary hashes frozen.",
+    "limits": "Original cell Word ownership and all existing article/notice metadata, typed model structure/style and text nonwhitespace order are checked. Derived text spaces match certified source-cell material; this is not complete derived Word-ID tracing or independent full-page accuracy grading."
+  },
+  "visual_review": {
+    "method": "Author non-blind original PDF review. All10changed source cells viewed; V8 complete8page Analysis equals the reviewed V6 outputs byte-values and original PDFs are hash-identical. Synthetic mixed-size control also rendered/viewed.",
+    "source_cells": [
+      {
+        "index": 0,
+        "key": "20260722g001620027",
+        "cell": [
+          16,
+          1
+        ],
+        "source_box": [
+          229.5,
+          297.425,
+          421.5,
+          313.139
+        ],
+        "old": "・モンテレイエス　No.4LE2021",
+        "new": "・モンテレイエス　No.4 LE 2021",
+        "crop": ".cache/kanpo-227/resume90-local-recovery/native-table-row-associations136/original-images/v6-gaps/00-20260722g001620027.png"
+      },
+      {
+        "index": 1,
+        "key": "20260722g001620029",
+        "cell": [
+          20,
+          1
+        ],
+        "source_box": [
+          229.5,
+          405.573,
+          421.5,
+          423.502
+        ],
+        "old": "・スーパー　セレクション　No.1RE2023",
+        "new": "・スーパー　セレクション　No.1 RE 2023",
+        "crop": ".cache/kanpo-227/resume90-local-recovery/native-table-row-associations136/original-images/v6-gaps/01-20260722g001620029.png"
+      },
+      {
+        "index": 2,
+        "key": "20260722g001620030",
+        "cell": [
+          2,
+          1
+        ],
+        "source_box": [
+          229.5,
+          77.428,
+          421.5,
+          93.142
+        ],
+        "old": "・アブソリュートス　LE2024",
+        "new": "・アブソリュートス　LE 2024",
+        "crop": ".cache/kanpo-227/resume90-local-recovery/native-table-row-associations136/original-images/v6-gaps/02-20260722g001620030.png"
+      },
+      {
+        "index": 3,
+        "key": "20260813h017670004",
+        "cell": [
+          3,
+          4
+        ],
+        "source_box": [
+          668.5,
+          257.786,
+          740.5,
+          314.322
+        ],
+        "old": "WinGen,L.L.C.\n6834　Old Lock‑hart Hwy, Mus‑tang Ridge, Tex‑as78610,USA",
+        "new": "WinGen,L.L.C.\n6834　Old Lock‑hart Hwy, Mus‑tang Ridge, Tex‑as 78610,USA",
+        "crop": ".cache/kanpo-227/resume90-local-recovery/native-table-row-associations136/original-images/v6-gaps/03-20260813h017670004.png"
+      },
+      {
+        "index": 4,
+        "key": "20260813h017670004",
+        "cell": [
+          7,
+          4
+        ],
+        "source_box": [
+          668.5,
+          451.93,
+          740.5,
+          508.466
+        ],
+        "old": "WinGen,L.L.C.\n6834　Old Lock‑hart Hwy, Mus‑tang Ridge, Tex‑as78610,USA",
+        "new": "WinGen,L.L.C.\n6834　Old Lock‑hart Hwy, Mus‑tang Ridge, Tex‑as 78610,USA",
+        "crop": ".cache/kanpo-227/resume90-local-recovery/native-table-row-associations136/original-images/v6-gaps/04-20260813h017670004.png"
+      },
+      {
+        "index": 5,
+        "key": "20260824g001880058",
+        "cell": [
+          3,
+          4
+        ],
+        "source_box": [
+          300.5,
+          213.679,
+          372.5,
+          269.572
+        ],
+        "old": "Beotanics Ltd\nOldtown, Stoney‑ford, Co, Kilken‑ny R95T384, Re‑public of Ireland",
+        "new": "Beotanics Ltd\nOldtown, Stoney‑ford, Co, Kilken‑ny R95 T384, Re‑public of Ireland",
+        "crop": ".cache/kanpo-227/resume90-local-recovery/native-table-row-associations136/original-images/v6-gaps/05-20260824g001880058.png"
+      },
+      {
+        "index": 6,
+        "key": "20260824g001880059",
+        "cell": [
+          2,
+          3
+        ],
+        "source_box": [
+          636.5,
+          136.107,
+          708.5,
+          193.286
+        ],
+        "old": "Beotanics Ltd\nOldtown, Stoney‑ford, Co, Kilken‑ny R95T384, Re‑public of Ireland",
+        "new": "Beotanics Ltd\nOldtown, Stoney‑ford, Co, Kilken‑ny R95 T384, Re‑public of Ireland",
+        "crop": ".cache/kanpo-227/resume90-local-recovery/native-table-row-associations136/original-images/v6-gaps/06-20260824g001880059.png"
+      },
+      {
+        "index": 7,
+        "key": "20260907g001990010",
+        "cell": [
+          8,
+          2
+        ],
+        "source_box": [
+          212.5,
+          348.145,
+          340.5,
+          384.286
+        ],
+        "old": "Walters Gardens, Inc.\n1992-96th Avenue, Zeeland, Mic‑higan49464-0137,USA",
+        "new": "Walters Gardens, Inc.\n1992-96th Avenue, Zeeland, Mic‑higan 49464-0137,USA",
+        "crop": ".cache/kanpo-227/resume90-local-recovery/native-table-row-associations136/original-images/v6-gaps/07-20260907g001990010.png"
+      },
+      {
+        "index": 8,
+        "key": "20261013h018060004",
+        "cell": [
+          10,
+          2
+        ],
+        "source_box": [
+          212.5,
+          389.142,
+          340.5,
+          425.713
+        ],
+        "old": "BARBERET&BLANC, S.A.Camino Viejo 205, 30890 PuertoLumbreras, Murcia, Spain",
+        "new": "BARBERET & BLANC, S.A.Camino Viejo 205, 30890 PuertoLumbreras, Murcia, Spain",
+        "crop": ".cache/kanpo-227/resume90-local-recovery/native-table-row-associations136/original-images/v6-gaps/08-20261013h018060004.png"
+      },
+      {
+        "index": 9,
+        "key": "20261013h018060004",
+        "cell": [
+          2,
+          2
+        ],
+        "source_box": [
+          580.5,
+          143.857,
+          708.5,
+          188.429
+        ],
+        "old": "Hyfryd Plants\nCefn Hyfryd, Kerry, Newtown,Powys, SY164DX, United King‑dom",
+        "new": "Hyfryd Plants\nCefn Hyfryd, Kerry, Newtown,Powys, SY16 4DX, United King‑dom",
+        "crop": ".cache/kanpo-227/resume90-local-recovery/native-table-row-associations136/original-images/v6-gaps/09-20261013h018060004.png"
+      }
+    ],
+    "target_only": "Full-page expected JSON freezes reviewed target changes, not an independently correct full-page gold.",
+    "artifacts": [
+      "tests/data/native-cell-gaps/reviewed-source-cells136.png",
+      "tests/data/native-cell-gaps/same-baseline-size-change136.png"
+    ]
+  },
+  "remaining": [
+    "Latin word boundaries across physical wraps, including Euphorbiapulcherrima…",
+    "Missing punctuation spacing such as max(L.) and original address punctuation/hyphenation",
+    "Closing annotation bracket before 備考 表中の〔 in20260813h017670003",
+    "Character encoding/PUA recovery, other complex layout/table/notice ownership issues",
+    "Fixed30page audit remains ungraded; full issue227goal is not complete"
+  ],
+  "production_files": [
+    "crates/kanpo-parser/src/native_mode_band_binding_tests.rs",
+    "crates/kanpo-parser/src/native_cell_origin.rs",
+    "crates/kanpo-parser/src/lib.rs",
+    "crates/kanpo-parser/src/notice_boundaries_tests.rs",
+    "crates/kanpo-parser/src/vertical.rs",
+    "crates/kanpo-parser/src/native_cell_text_tests.rs",
+    "crates/kanpo-parser/src/source_flow_binding_tests.rs",
+    "crates/kanpo-parser/src/source_ruling_binding_tests.rs",
+    "crates/kanpo-parser/src/source_axis_binding_tests.rs",
+    "crates/kanpo-parser/src/native_cell_text.rs",
+    "crates/kanpo-pdf/src/native_cell_origin.rs",
+    "crates/kanpo-pdf/src/bbox.rs",
+    "crates/kanpo-pdf/src/native_content_style_tests.rs",
+    "crates/kanpo-pdf/src/native_cell_origin_tests.rs",
+    "crates/kanpo-parser/tests/native_cell_gaps_fixtures.rs",
+    "crates/kanpo-parser/tests/corpus.rs",
+    "crates/kanpo-parser/tests/data/native-cell-gaps/same-baseline-size-change-native135.json",
+    "crates/kanpo-parser/tests/data/native-cell-gaps/source-references136.json",
+    "crates/kanpo-parser/tests/data/native-cell-gaps/20260813h017670004-reviewed136.json",
+    "crates/kanpo-parser/tests/data/native-cell-gaps/20260722g001620027-reviewed136.json",
+    "crates/kanpo-parser/tests/data/native-cell-gaps/20260813h017670004.pdf",
+    "crates/kanpo-parser/tests/data/native-cell-gaps/20261013h018060004-reviewed136.json",
+    "crates/kanpo-parser/tests/data/native-cell-gaps/same-baseline-size-change.pdf",
+    "crates/kanpo-parser/tests/data/native-cell-gaps/20261013h018060004.pdf",
+    "crates/kanpo-parser/tests/data/native-cell-gaps/20260722g001620027.pdf",
+    "crates/kanpo-parser/Cargo.toml",
+    "Cargo.lock",
+    "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260722g00162__20260722g001620030.pdf.snap"
+  ]
+}

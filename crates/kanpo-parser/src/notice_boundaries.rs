@@ -6,6 +6,8 @@ use std::collections::{BTreeSet, HashMap, HashSet};
 type Rect = [f32; 4];
 pub(crate) struct Part {
     pub text: String,
+    /// Positive source claims from recoverable pages, not an exhaustive
+    /// inventory for mixed or multipage articles.
     pub sources: Vec<(usize, usize)>,
 }
 fn compact(s: &str) -> String {
@@ -102,11 +104,13 @@ pub(crate) fn date(t: &str) -> bool {
 }
 struct SourceLine<'a> {
     line: &'a Line,
+    scope: usize,
     role: Role,
     ids: Vec<usize>,
     tokens: Option<Vec<String>>,
     bbox: Option<Rect>,
     unquoted: bool,
+    quote_state: crate::amendment_quotes::State,
 }
 fn word_bounds(page: &PageTrace, id: usize) -> Option<Rect> {
     let w = page.words.get(id)?;
@@ -126,7 +130,8 @@ fn word_bounds(page: &PageTrace, id: usize) -> Option<Rect> {
 fn source_lines(page: &PageTrace) -> Option<Vec<SourceLine<'_>>> {
     let mut seen = HashSet::new();
     let mut lines = vec![];
-    let mut quotes = vec![];
+    let quote_lines=crate::amendment_quotes::source_lines(page);
+    let quote_states=crate::amendment_quotes::states(&quote_lines);
     let mut occurrences = HashMap::new();
     for w in &page.words {
         if !matches!(w.status, WordStatus::Used) {
@@ -152,7 +157,7 @@ fn source_lines(page: &PageTrace) -> Option<Vec<SourceLine<'_>>> {
             }
         }
     }
-    for region in &page.regions {
+    for (scope, region) in page.regions.iter().enumerate() {
         for l in &region.lines {
             let ids = if let Some(t) = &l.table {
                 t.cells
@@ -187,26 +192,17 @@ fn source_lines(page: &PageTrace) -> Option<Vec<SourceLine<'_>>> {
             }
             let tokens =
                 (l.table.is_none() && tokens.concat() == compact(&l.text)).then_some(tokens);
-            let unquoted = quotes.is_empty() && !l.text.contains(['「', '」', '『', '』']);
-            for c in l.text.chars() {
-                match c {
-                    '「' => quotes.push('」'),
-                    '『' => quotes.push('』'),
-                    '」' | '』' => {
-                        if quotes.last() == Some(&c) {
-                            quotes.pop();
-                        }
-                    }
-                    _ => {}
-                }
-            }
+            let unquoted = quote_states[lines.len()].empty && !l.text.contains(['「','」','『','』']);
+            let quote_state = quote_states[lines.len()];
             lines.push(SourceLine {
                 line: l,
+                scope,
                 role: region.role,
                 ids,
                 tokens,
                 bbox,
                 unquoted,
+                quote_state,
             });
         }
     }
@@ -229,6 +225,8 @@ fn styles(page: &PageTrace, ids: &[usize]) -> Option<NativeStyles> {
 #[derive(Clone)]
 struct Heading {
     line: usize,
+    /// Final original title line; `after` is a token offset on this line.
+    last: usize,
     financial: bool,
     styles: NativeStyles,
     after: usize,
@@ -276,7 +274,8 @@ fn qualifier_bytes(tail: &str) -> Option<usize> {
 }
 // Only a suffix at the outer title level can end the main announcement noun.
 // An unclosed/mismatched prefix cannot be repaired by a later marker inside it.
-fn announcement_ends(text: &str) -> Vec<usize> {
+fn announcement_ends(text: &str) -> Vec<usize> { announcement_ends_nominal(text, false) }
+fn announcement_ends_nominal(text: &str, lists: bool) -> Vec<usize> {
     let (mut out, mut stack, mut valid_prefix) = (Vec::new(), Vec::new(), true);
     for (offset, c) in text.char_indices() {
         if valid_prefix && stack.is_empty() && text[offset..].starts_with("公告") {
@@ -290,6 +289,7 @@ fn announcement_ends(text: &str) -> Vec<usize> {
                     valid_prefix = false;
                 }
             }
+            '、' if lists => {},
             '。' | '、' | '「' | '」' | '『' | '』' => valid_prefix = false,
             _ => {}
         }
@@ -314,18 +314,24 @@ fn heading_styles(page: &PageTrace, line: &SourceLine<'_>, end: usize) -> Option
     }
     Some(out)
 }
+#[cfg(test)]
 fn headings(page: &PageTrace, lines: &[SourceLine<'_>], frames: &[OwnedFrame]) -> Vec<Heading> {
-    headings_at_source_starts(page, lines, frames, &[])
+    headings_at_source_starts(page, lines, frames, &[], &[])
 }
 fn headings_at_source_starts(
     page: &PageTrace,
     lines: &[SourceLine<'_>],
     frames: &[OwnedFrame],
     geometric_starts: &[usize],
+    enclosures: &[Rect],
 ) -> Vec<Heading> {
-    let (mut out, mut quotes) = (vec![], vec![]);
+    let mut out=vec![];
+    let source=page.regions.iter().flat_map(|r|&r.lines).collect::<Vec<_>>();
+    if source.len()!=lines.len() || source.iter().zip(lines).any(|(a,b)|!std::ptr::eq(*a,b.line)) {return vec![];}
+    let quote_lines=crate::amendment_quotes::source_lines(page);
+    let quote_states=crate::amendment_quotes::states(&quote_lines);
     for (i, l) in lines.iter().enumerate() {
-        if quotes.is_empty() && l.role == Role::Body {
+        if quote_states[i].empty && l.role == Role::Body {
             if let Some(tokens) = &l.tokens {
                 let text = tokens.concat();
                 let bases = announcement_ends(&text);
@@ -373,6 +379,7 @@ fn headings_at_source_starts(
                     if valid_tail || !continued {
                         out.push(Heading {
                             line: i,
+                            last: i,
                             financial: text[..base].ends_with("決算公告"),
                             authorized: valid_tail && !continued && !s.is_empty(),
                             styles: s,
@@ -382,17 +389,9 @@ fn headings_at_source_starts(
                 }
             }
         }
-        for c in l.line.text.chars() {
-            match c {
-                '「' => quotes.push('」'),
-                '『' => quotes.push('』'),
-                '」' | '』' if quotes.last() == Some(&c) => {
-                    quotes.pop();
-                }
-                _ => {}
-            }
-        }
+
     }
+    merge_source_caption_runs(page, lines, frames, geometric_starts, enclosures, &mut out);
     // Lexical announcement syntax inside prose does not start a new scope.
     // A title must independently lead a complete frame or fit the vertical
     // heading/body topology. Parsed titles with missing/equal styles still fence their scope.
@@ -404,15 +403,127 @@ fn headings_at_source_starts(
         !geometric_starts.is_empty()
             || frames.iter().any(|f| f.first == h.line)
             || vertical_heading(lines, h, lines.len())
+            || typographic_vertical_body(page, lines, h, lines.len())
             || horizontal_scope_heading(page, lines, h)
     });
     out
+}
+// Maximal original-font caption columns form one source span. The nominal
+// suffix can be on its last column; no connective or column-count list is used.
+fn merge_source_caption_runs(
+    page: &PageTrace,
+    lines: &[SourceLine<'_>],
+    frames: &[OwnedFrame],
+    geometric_starts: &[usize],
+    enclosures: &[Rect],
+    heads: &mut Vec<Heading>,
+) {
+    fn column(page: &PageTrace, l: &SourceLine<'_>) -> Option<(Rect, NativeStyles)> {
+        if l.role != Role::Body || !l.unquoted || l.tokens.is_none() {
+            return None;
+        }
+        let b = l.bbox?;
+        if b[3] - b[1] <= b[2] - b[0] {
+            return None;
+        }
+        let s = heading_styles(page, l, l.ids.len())?;
+        (!s.is_empty()).then_some((b, s))
+    }
+    fn adjacent(page: &PageTrace, a: &SourceLine<'_>, b: &SourceLine<'_>) -> bool {
+        let (Some((x, s)), Some((y, t))) = (column(page, a), column(page, b)) else {
+            return false;
+        };
+        a.scope == b.scope && s == t && y[2] < x[0] && y[1] == x[1]
+    }
+    let seeds = heads.clone();
+    let mut spans = Vec::<Heading>::new();
+    for seed in &seeds {
+        if column(page, &lines[seed.line]).is_none() {
+            continue;
+        }
+        let (mut first, mut last) = (seed.line, seed.line);
+        while first > 0 && adjacent(page, &lines[first - 1], &lines[first]) {
+            first -= 1;
+        }
+        while last + 1 < lines.len() && adjacent(page, &lines[last], &lines[last + 1]) {
+            last += 1;
+        }
+        if first == last
+            || spans.iter().any(|s| s.line == first && s.last == last)
+            || frames.iter().any(|f| first < f.end && f.first <= last)
+        {
+            continue;
+        }
+        // Every original occurrence in the projected caption band must be
+        // accounted for, including words omitted by normalization/layout.
+        // Known decoded whitespace cannot carry a foreign nominal fragment.
+        let members: HashSet<_> = lines[first..=last]
+            .iter()
+            .flat_map(|l| l.ids.iter().copied())
+            .collect();
+        let band = lines[first..=last]
+            .iter()
+            .map(|l| l.bbox.unwrap())
+            .reduce(|a, b| {
+                [
+                    a[0].min(b[0]),
+                    a[1].min(b[1]),
+                    a[2].max(b[2]),
+                    a[3].max(b[3]),
+                ]
+            })
+            .unwrap();
+        if enclosures.iter().any(|&frame| intersects(frame, band))
+            || page.words.iter().any(|w| {
+                if members.contains(&w.id)
+                    || !w.raw.is_empty() && w.raw.chars().all(char::is_whitespace)
+                {
+                    return false;
+                }
+                word_bounds(page, w.id).is_none_or(|b| intersects(b, band))
+            })
+        {
+            continue;
+        }
+        let Some(s) = heading_styles(page, &lines[first], lines[first].ids.len()) else {
+            continue;
+        };
+        let text = lines[first..=last]
+            .iter()
+            .flat_map(|l| l.tokens.as_ref().unwrap())
+            .cloned()
+            .collect::<String>();
+        let Some(base) = announcement_ends_nominal(&text, true)
+            .into_iter()
+            .find(|&base| qualifier_bytes(&text[base..]).is_some_and(|n| base + n == text.len()))
+        else {
+            continue;
+        };
+        let continued = first > 0
+            && !geometric_starts.contains(&first)
+            && lines[first - 1].line.table.is_none()
+            && styles(page, &lines[first - 1].ids).is_some_and(|p| !p.is_disjoint(&s));
+        let head = Heading {
+            line: first,
+            last,
+            financial: text[..base].ends_with("決算公告"),
+            styles: s,
+            after: lines[last].ids.len(),
+            authorized: !continued,
+        };
+        if typographic_vertical_body(page, lines, &head, lines.len()) {
+            spans.push(head);
+        }
+    }
+    heads.retain(|h| !spans.iter().any(|s| s.line <= h.line && h.line <= s.last));
+    heads.extend(spans);
+    heads.sort_by_key(|h| h.line);
 }
 // A role mention in a sentence is not a nominal signature. Dots used in
 // personal initials and middle dots remain valid; sentence terminators do not.
 pub(crate) fn signature_office(tail: &str) -> bool {
     !tail.contains(['。', '！', '？', '!', '?']) && [
-        "代表取締役", "取締役", "代表清算人", "清算人", "代表社員", "代表理事", "理事長", "破産管財人",
+        "代表取締役", "取締役", "代表清算人", "清算人", "代表社員", "代表理事", "理事長", "破産管財人", "日本における代表者",
     ].iter().any(|role| tail.strip_prefix(role).is_some_and(|s| !s.is_empty()))
 }
 // Date and signature must be source-token prefixes in this heading's own range.
@@ -429,7 +540,7 @@ fn witness(
     }
     let mut date_styles = NativeStyles::new();
     for (i, l) in lines.iter().enumerate().take(end).skip(head.line) {
-        if l.role != Role::Body || !l.unquoted {
+        if i < head.last || l.role != Role::Body || !l.unquoted {
             continue;
         }
         // An independently owned financial frame may publish a statement
@@ -441,7 +552,7 @@ fn witness(
         let Some(tokens) = &l.tokens else {
             continue;
         };
-        let from = if i == head.line { head.after } else { 0 };
+        let from = if i == head.last { head.after } else { 0 };
         let mut text = String::new();
         for n in from..tokens.len() {
             text.push_str(&tokens[n]);
@@ -454,7 +565,7 @@ fn witness(
                 }
             }
         }
-        if !date_styles.is_empty() && i > head.line {
+        if !date_styles.is_empty() && i > head.last {
             for start in 0..tokens.len() {
                 let tail = tokens[start..].concat();
                 if styles(page, &l.ids[start..])
@@ -469,6 +580,7 @@ fn witness(
     false
 }
 fn vertical_heading(lines: &[SourceLine<'_>], h: &Heading, end: usize) -> bool {
+    if h.last != h.line { return false; }
     let Some(a) = lines[h.line].bbox else {
         return false;
     };
@@ -486,10 +598,50 @@ fn vertical_heading(lines: &[SourceLine<'_>], h: &Heading, end: usize) -> bool {
         && b[1] <= a[3]
         && b[3] > a[3]
 }
+// A source-distinct vertical caption may be followed by a short preface or
+// a body column ending at the same baseline. Its own date/signature is still
+// required by witness; typography alone does not authorize a publication.
+// Terminal date/signature columns cannot stand in for the missing body.
+fn typographic_vertical_body(
+    page: &PageTrace,
+    lines: &[SourceLine<'_>],
+    h: &Heading,
+    end: usize,
+) -> bool {
+    let title = &lines[h.line];
+    let Some(next) = lines.get(h.last + 1).filter(|_| h.last + 1 < end) else {
+        return false;
+    };
+    let (Some(a), Some(left), Some(b), Some(tokens)) = (title.bbox, lines[h.last].bbox, next.bbox, &next.tokens) else {
+        return false;
+    };
+    if next.scope != title.scope
+        || next.role != Role::Body
+        || !next.unquoted
+        || h.styles.is_empty()
+        || !styles(page, &next.ids).is_some_and(|s| s.is_disjoint(&h.styles))
+        || !(a[3] - a[1] > a[2] - a[0]
+            && b[3] - b[1] > b[2] - b[0]
+            && b[2] < left[0]
+            && b[1] >= a[1]
+            && b[1] <= a[3])
+    {
+        return false;
+    }
+    let mut prefix = String::new();
+    for token in tokens {
+        prefix.push_str(token);
+        if date(&prefix) {
+            return false;
+        }
+    }
+    !prefix.is_empty() && !signature_office(&prefix)
+}
 // Horizontal subheadings may belong to their parent announcement while still
 // fencing its date/signature search. Typography or a writing-direction change
 // distinguishes the start of a local block from ordinary prose continuation.
 fn horizontal_scope_heading(page: &PageTrace, lines: &[SourceLine<'_>], h: &Heading) -> bool {
+    if h.last != h.line { return false; }
     let Some(a) = lines[h.line].bbox else {
         return false;
     };
@@ -577,7 +729,7 @@ fn attributed_table_header(
     // Both vertical endpoints must advance; no fixed gap or overlap allowance.
     let below = |a: Rect, b: Rect| a[1] < b[1] && a[3] < b[3];
     let title = &lines[head.line];
-    if !head.authorized || !title.unquoted || head.after != title.ids.len() {
+    if head.last != head.line || !head.authorized || !title.unquoted || head.after != title.ids.len() {
         return None;
     }
     let title_box = title.bbox.filter(|&b| horizontal(b))?;
@@ -782,7 +934,7 @@ fn divided_notice_starts(
         let Some(split) = split.filter(|&i| valid && frame.first < i && i < frame.end) else {
             continue;
         };
-        let local_heads = headings_at_source_starts(page, lines, frames, &[split]);
+        let local_heads = headings_at_source_starts(page, lines, frames, &[split], &rules.enclosures);
         let own_notice = |start, end| {
             let Some(root) = local_heads
                 .iter()
@@ -849,7 +1001,7 @@ fn decisions(page: &PageTrace, rules: &PageRules, lines: &[SourceLine<'_>]) -> V
         return vec![];
     }
     let frames = owned_frames(page, rules, lines);
-    let heads = headings(page, lines, &frames);
+    let heads = headings_at_source_starts(page, lines, &frames, &[], &rules.enclosures);
     let fences = frame_fences(page, rules, lines, &frames, &heads);
     let mut accepted = vec![];
     let mut scope = vec![];
@@ -878,6 +1030,7 @@ fn decisions(page: &PageTrace, rules: &PageRules, lines: &[SourceLine<'_>]) -> V
                     if content.is_empty() { styles(page, &lines[first].ids) } else { Some(content) }
                 }).map(|styles| Heading {
                     line: first,
+                    last: first,
                     financial: false,
                     styles,
                     after: tokens.len(),
@@ -949,11 +1102,18 @@ fn decisions(page: &PageTrace, rules: &PageRules, lines: &[SourceLine<'_>]) -> V
             continue;
         }
         let end = heads.get(n + 1).map_or(lines.len(), |h| h.line);
-        if vertical_heading(lines, h, end) && witness(page, lines, h, end, false) {
+        if (vertical_heading(lines, h, end) || typographic_vertical_body(page, lines, h, end))
+            && witness(page, lines, h, end, false)
+        {
             cuts.insert(h.line);
         }
     }
     cuts.extend(fences);
+    cuts.extend(atomic_column_roots::starts(page,rules,lines));
+    cuts.extend(section_roots::starts(page, rules, lines));
+    cuts.extend(legal_summaries::starts(page, rules, lines));
+    cuts.extend(court_records::starts(page, rules, lines));
+    cuts.extend(horizontal_publications::starts(page, rules, lines));
     cuts.extend(ruled_corrections::section_starts(page, rules, lines));
     let scopes=crate::financial_enclosures::certified_ranges(page,rules);
     cuts.retain(|&cut|!scopes.iter().any(|&(start,end)|start<cut&&cut<end));
@@ -971,6 +1131,18 @@ pub(crate) fn groups(
     pages: &[PageTrace],
     rules: &[Option<PageRules>],
 ) -> Vec<Vec<Part>> {
+    groups_impl(original,text,pages,rules,None)
+}
+pub(crate) fn groups_with_scopes(
+    original:&[String],text:&str,pages:&[PageTrace],rules:&[Option<PageRules>],
+    scopes:&crate::native_quote_scopes::Scopes<'_>,
+)->Vec<Vec<Part>> {
+    groups_impl(original,text,pages,rules,Some(scopes))
+}
+fn groups_impl(
+    original:&[String],text:&str,pages:&[PageTrace],rules:&[Option<PageRules>],
+    scopes:Option<&crate::native_quote_scopes::Scopes<'_>>,
+)->Vec<Vec<Part>> {
     let unchanged = || {
         original
             .iter()
@@ -987,24 +1159,15 @@ pub(crate) fn groups(
     }
     let (mut offset, mut table, mut nonempty) = (0usize, 0usize, false);
     let (mut breaks, mut ownership) = (BTreeSet::new(), vec![]);
-    let mut quotes = Vec::new();
+    let quote_lines=pages.iter().flat_map(crate::amendment_quotes::source_lines).collect::<Vec<_>>();
+    let quote_states=match scopes {
+        Some(s)=>crate::amendment_quotes::states_with_scopes(&quote_lines,s),
+        None=>crate::amendment_quotes::states(&quote_lines),
+    };
+    let mut quote_offset=0;
     for (pi, p) in pages.iter().enumerate() {
-        // An input page beginning inside an earlier page's quotation cannot
-        // independently authorize new articles. Retain its source ownership;
-        // resume candidates on later pages after the matching closure.
-        let continuing_quote = !quotes.is_empty();
-        for line in p.regions.iter().flat_map(|r| &r.lines) {
-            for c in line.text.chars() {
-                match c {
-                    '「' => quotes.push('」'),
-                    '『' => quotes.push('』'),
-                    '」' | '』' if quotes.last() == Some(&c) => {
-                        quotes.pop();
-                    }
-                    _ => {}
-                }
-            }
-        }
+        let continuing_quote=quote_states.get(quote_offset).is_some_and(|s|!s.empty);
+        quote_offset+=p.regions.iter().map(|r|r.lines.len()).sum::<usize>();
         let table_start = table;
         table += p.tables.len();
         if p.doc_text.is_empty() {
@@ -1044,7 +1207,11 @@ pub(crate) fn groups(
                 } else {
                     decisions(p, r, &lines)
                 } {
-                    if spans[c] >= leading && spans[c] - leading < p.doc_text.len() {
+                    if c==lines.len(){
+                        // A certified source block may end at the last line of
+                        // this page. Close it before the following page begins.
+                        breaks.insert(offset+p.doc_text.len());
+                    } else if spans[c] >= leading && spans[c] - leading < p.doc_text.len() {
                         breaks.insert(offset + spans[c] - leading);
                     }
                 }
@@ -1067,14 +1234,21 @@ pub(crate) fn groups(
     for s in original {
         let end = offset + s.len();
         let mut bounds = vec![offset];
-        bounds.extend(
-            breaks
-                .range((
-                    std::ops::Bound::Excluded(offset),
-                    std::ops::Bound::Excluded(end),
-                ))
-                .copied(),
-        );
+        for &point in breaks.range((
+            std::ops::Bound::Excluded(offset),
+            std::ops::Bound::Excluded(end),
+        )) {
+            // A category heading supplies context for its first publication;
+            // it has no independent operative body to repartition into an article.
+            // Keep every original byte with that first publication. Later roots
+            // still split once the preceding part contains real body or a table.
+            let start = *bounds.last().unwrap();
+            if text[start..point].lines().any(|line| {
+                !line.trim().is_empty() && !crate::segment::is_section_label(line)
+            }) {
+                bounds.push(point);
+            }
+        }
         bounds.push(end);
         let parts: Vec<_> = bounds
             .windows(2)
@@ -1116,9 +1290,32 @@ mod tests;
 #[path = "notice_attributed_header_tests.rs"]
 mod attributed_header_tests;
 
+#[path = "court_records.rs"]
+mod court_records;
+
+#[path = "horizontal_publications.rs"]
+mod horizontal_publications;
+
+#[cfg(test)]
+#[path = "court_record_tests.rs"]
+mod court_record_tests;
+
 #[path = "framed_publications.rs"]
 mod framed_publications;
 pub(crate) use framed_publications::restore_framed_reading_order;
 
 #[path="ruled_corrections.rs"]mod ruled_corrections;
 pub(crate) use ruled_corrections::restore_ruled_corrections;
+
+#[cfg(test)]
+#[path="horizontal_publication_tests.rs"]
+mod horizontal_publication_tests;
+
+#[path="legal_summaries.rs"]mod legal_summaries;
+#[cfg(test)]#[path="legal_summary_tests.rs"]mod legal_summary_tests;
+
+#[path = "native_section_roots.rs"]
+mod section_roots;
+
+#[path="native_atomic_column_roots.rs"]
+mod atomic_column_roots;

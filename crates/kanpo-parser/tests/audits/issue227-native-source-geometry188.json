@@ -1,0 +1,292 @@
+{
+  "issue": 227,
+  "stage": "native188",
+  "scope": "Exact original source f64 coordinate roundtrip and conservative source paint for compound rectangular CFF contours.",
+  "principle": {
+    "numeric_fidelity": "Original source coordinates must keep identical f64 bits through JSON. Enable existing serde_json float_roundtrip feature on kanpo-parser; no pt allowance or coordinate rounding. Test real source values, adjacent bits, signs/scales, finite extremes and subnormal.",
+    "actual_output_cause": [
+      {
+        "key": "20260724g001660079",
+        "whole_source_XHTML_bytes_identical_to187": true,
+        "source_XHTML_sha256": "901c25baa455115abfe2d629aabbfca18422c11b83cb43fc9c93a7c2c7eb94bd",
+        "scene_version": 2,
+        "word_obstacles": 6,
+        "glyph_obstacles": 0
+      },
+      {
+        "key": "20260826g001900055",
+        "whole_source_XHTML_bytes_identical_to187": true,
+        "source_XHTML_sha256": "520d9d2a810f3c4117a5c98eb945f4339aa7fac639eda620d12313d96e62ce84",
+        "scene_version": 2,
+        "word_obstacles": 13,
+        "glyph_obstacles": 0
+      },
+      {
+        "key": "20260902g001960132",
+        "whole_source_XHTML_bytes_identical_to187": true,
+        "source_XHTML_sha256": "693227122768ba7a324d8226f5bc9431fb9c2cb3c2cea26f5ab009af67a3b42a",
+        "scene_version": 2,
+        "word_obstacles": 1,
+        "glyph_obstacles": 0
+      },
+      {
+        "key": "20260924g002110108",
+        "whole_source_XHTML_bytes_identical_to187": true,
+        "source_XHTML_sha256": "fb9cdc9334848dd277794fc74c2afa4b1834baa1a3986977d82e19d871ca035f",
+        "scene_version": 2,
+        "word_obstacles": 10,
+        "glyph_obstacles": 0
+      }
+    ],
+    "cause_description": "All4 changed originals have complete version2 source packet and source XHTML byte-identical to187. Their previously rejected nonflow Word envelopes now match their original attribute bits. Existing numeric-slot and own-CFF-rectangle restorers are unchanged.13new marks arise from exact source-coordinate consumption, not changed label/amount vocabulary or new glyph substitutions.",
+    "compound_paint": "Type2 path construction supports any number of closed rectangular contours using original current-point semantics. All constituent contours must be independently filled rectangles. Retain their conservative union only as opaque glyph paint; holes/overlap never imply empty paint or a continuous ruling. Curves/subroutines/hints/arithmetic, malformed routes, unsupported font geometry and unproved render/fill/clip context stay unknown.",
+    "scene3": "Separate glyph_obstacles(id,bounds) from ruling rectangles. Strict complete original glyph partition across Words, original single rectangles, invisible glyphs and opaque compounds; finite positive geometry and own original Word envelopes. Absence/unknown paint never means empty. Old complete v1/v2 payload fields remain unchanged when no new opaque glyph field is needed.",
+    "no_new_dispatch": [
+      "page identities",
+      "company/title/row-label words",
+      "font names",
+      "CID/PUA values",
+      "character or neighbor-line budgets",
+      "fixed pt limits"
+    ],
+    "existing_legacy_rules_not_all_generalized": true
+  },
+  "tests": {
+    "new": {
+      "CFF_contours": 7,
+      "PDF_paint_context": 4,
+      "native_scene_consumer": 6,
+      "complete_original_API": 6,
+      "total": 23
+    },
+    "focused": "342PDF units and25native scene consumers GREEN;6complete API cases GREEN (4independent fullgolds plus absence/reversednode loops over4originals).",
+    "REDs": [
+      "Original compound-scene source capture missing on original25/26",
+      "General opaque compound envelope tests before implementation",
+      "Version3 consumer rejected original nonflow Word coordinates because JSON changed original f64 by1ULP",
+      "Explicit f64 roundtrip regression before existing feature enabled"
+    ],
+    "first_normal": {
+      "exit_code": 101,
+      "seconds": 620.7539930410001,
+      "all_sources_and_Cargo_exact": true,
+      "groups": 175,
+      "counts": [
+        4343,
+        2,
+        0
+      ]
+    },
+    "final_normal": {
+      "exit_code": 0,
+      "seconds": 387.539748375,
+      "all_sources_and_Cargo_exact": true,
+      "groups": 175,
+      "counts": [
+        4345,
+        0,
+        0
+      ]
+    },
+    "expected_only_repair": {
+      "only_changed_expectations": [
+        "crates/kanpo-parser/tests/fixtures/financial_flow/196132-before.txt",
+        "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260902g00196__20260902g001960132.pdf.snap"
+      ],
+      "old_text_and_snapshot_render_reproduced_exactly": true,
+      "source_PDF_archive_and_gold_bytes_identical": true,
+      "new_text_and_snapshot_from_independent_complete_source_gold": true,
+      "all_v2_runtime_sources_Cargo_and_newfixtures_still_exact": true,
+      "new_original_marks_on_this_page": 10,
+      "all_others_expectations_preserved": true,
+      "before_hashes": {
+        "crates/kanpo-parser/tests/fixtures/financial_flow/196132-before.txt": "85098e31fce620080c3a574214719ab603bd1304487f442db1e9b874f6ab8521",
+        "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260902g00196__20260902g001960132.pdf.snap": "871865824aa8947b477bbaa1bb018167da5d50ccb7e109b60107a4f83ecc9aca"
+      },
+      "after_hashes": {
+        "crates/kanpo-parser/tests/fixtures/financial_flow/196132-before.txt": "2e34a282951ea16aa47591ecd33d143a9e75b04ace105ca4aecd9a649bade380",
+        "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260902g00196__20260902g001960132.pdf.snap": "e3605e0641bf872f76d1a0b1ceb54ece882cfb1e3a6808ea3e6ad8994e8b87ec"
+      }
+    },
+    "all_default_examples": {
+      "exit_code": 0,
+      "seconds": 7.9217492080000005,
+      "all_native_sources_and_Cargo_exact": true
+    },
+    "controls": "Arbitrary contour counts2/3/17/65 and font/CID names; overlapping/holed contours; actual vertical/horizontal origins, nonconformal/skew/render/alpha/clip conditions, visible Unicode space, mapped/nonmapped invisible legacy ownership, malformed/downgraded packets, missing/duplicate/borrowed/out-of-range IDs, malformed bounds and one-bit Word-envelope mutation. Original absence and node reversal preserve entire old/expected output."
+  },
+  "source_QA": {
+    "renderer": "PDFium full original pages scale2; all4 changed pages visually reviewed. Original25/26/27 also reviewed for pending comparison continuation. Non-blind developer QA.",
+    "changed_originals": [
+      {
+        "key": "20260724g001660079",
+        "PDF_sha256": "d1181ec432a0630b08c91530c3f2552333ce7362cebe9b851ab43971a2c819aa",
+        "new_marks": 1
+      },
+      {
+        "key": "20260826g001900055",
+        "PDF_sha256": "a33cdd84cdae863695a0da478ed0bd4ecf2d5e0a95b7dbe4a287bb0ed92fdd57",
+        "new_marks": 1
+      },
+      {
+        "key": "20260902g001960132",
+        "PDF_sha256": "9912fd626e77cea7365c830cb1a615b24bec6f62b534689a6c472e45f596ee4f",
+        "new_marks": 10
+      },
+      {
+        "key": "20260924g002110108",
+        "PDF_sha256": "bb7cba7561342c0e9aa5d1b3735636cc00ec247eb33b4cf63422df9be1222db5",
+        "new_marks": 1
+      }
+    ],
+    "gold": "Pure prior180/183 literal old-AST transforms with frozen187 and source-curated13 slots. Publicverify_expected.py uses no188 detector/parser. All4single/4whole completegold matches verified.",
+    "complete_gold_proof": {
+      "single": [
+        {
+          "key": "20260724g001660079",
+          "complete_literal_expected_equals_actual": true,
+          "expected_sha256": "af220069eb0903671f5ff562527b02538e64b3ca4f880fa706b60404ad7379ad",
+          "placements": [
+            {
+              "page": 0,
+              "key": "20260724g001660079"
+            }
+          ]
+        },
+        {
+          "key": "20260826g001900055",
+          "complete_literal_expected_equals_actual": true,
+          "expected_sha256": "b0b3bdb90b865a406d902a888769b155de97dc32816d9a644d248d5e0038e449",
+          "placements": [
+            {
+              "page": 0,
+              "key": "20260826g001900055"
+            }
+          ]
+        },
+        {
+          "key": "20260902g001960132",
+          "complete_literal_expected_equals_actual": true,
+          "expected_sha256": "6a312085c8cced48051836269a62902b2b5c29b0919bcb9f7ba035aff18d875d",
+          "placements": [
+            {
+              "page": 0,
+              "key": "20260902g001960132"
+            }
+          ]
+        },
+        {
+          "key": "20260924g002110108",
+          "complete_literal_expected_equals_actual": true,
+          "expected_sha256": "be51115c63aea25db409ad309ef69ae9d9b4706cff17d9b4ff5c3dcf81b638a2",
+          "placements": [
+            {
+              "page": 0,
+              "key": "20260924g002110108"
+            }
+          ]
+        }
+      ],
+      "whole": [
+        {
+          "key": "20260724g00166",
+          "complete_literal_expected_equals_actual": true,
+          "expected_sha256": "9f91400f33ed0feb4d72362406ac0a24f41dbf1f4cf69afd902913ad10e8b757",
+          "placements": [
+            {
+              "page": 78,
+              "key": "20260724g001660079"
+            }
+          ]
+        },
+        {
+          "key": "20260826g00190",
+          "complete_literal_expected_equals_actual": true,
+          "expected_sha256": "a96b90abc4d7a84b64ac632a22986d8c7c7ac6e8b5eb4e4bcb1abd81862d95ff",
+          "placements": [
+            {
+              "page": 54,
+              "key": "20260826g001900055"
+            }
+          ]
+        },
+        {
+          "key": "20260902g00196",
+          "complete_literal_expected_equals_actual": true,
+          "expected_sha256": "f7a6e152a921d6572a9d976d94d59870b2878ca227c62375067499ec22a65020",
+          "placements": [
+            {
+              "page": 131,
+              "key": "20260902g001960132"
+            }
+          ]
+        },
+        {
+          "key": "20260924g00211",
+          "complete_literal_expected_equals_actual": true,
+          "expected_sha256": "6958ac200ca0236e204b8277d6b4fb0cb3575eb412527060f49d0d80988d9d2b",
+          "placements": [
+            {
+              "page": 107,
+              "key": "20260924g002110108"
+            }
+          ]
+        }
+      ]
+    },
+    "compound_source": "Original embedded Type2 has independent contours [408,-122,468,882] and[530,-122,590,882]; the opaque union is[408,-122,590,882]. CID23115 identifies only this test sample; arbitrary CID tests use identical geometry.",
+    "annotations_and_images": "Public native-source-floats/index.json; original compound PDF/CFF fixtures under kanpo-pdf/tests/data/native-compound-scene."
+  },
+  "census": {
+    "status": "All4 changed original pages source-reviewed; independent complete4single/4whole golds verified; full native4345/0/0, all default examples and actual finalrelease/CLI11992 gates passed.",
+    "single_complete_Analysis": 11992,
+    "changed_single": [
+      "20260724g001660079",
+      "20260826g001900055",
+      "20260902g001960132",
+      "20260924g002110108"
+    ],
+    "whole_complete_Analysis": 159,
+    "changed_whole": 4,
+    "changed_whole_pages": 4,
+    "all_original_sources_PDFs_binaries_prepost_exact": true,
+    "seconds": 158.398916208
+  },
+  "actual_final_release": {
+    "profile": "actual Cargo release, final W sources",
+    "single_complete_Analysis_exact_private_final": 11992,
+    "whole_complete_Analysis_exact_private_final": 159,
+    "actual_release_PDF_textdump_CLI_native_body_bytes_exact": 11992,
+    "single_duplicate_owner_pages": 0,
+    "CLI_duplicate_word_reports": 0,
+    "all_original_inputs_native_sources_Cargo_and_binaries_prepost_exact": true,
+    "seconds": 195.730927084,
+    "scope": "Actual final Cargo release over11992 original PDFs and159 whole issues. Independent complete source-constructed gold on4singles/4wholes adds13 original rectangle marks only. Allother11988singles/155wholes exact187. All original raw/ID/sourceboxes, preexisting bytes/table cells/merges/formats/article cuts preserved. Compound contours stay opaque and JSON source f64 bits exact. No OCR/models/overall accuracy claim."
+  },
+  "reuse_release_after_repair": "Only two old expectation files changed after final release_v2 validation. All v2 frozen runtime RS/Cargo/newfixtures remain exact; final normal_v3 additionally freezes the repaired old expected text and snapshot. No runtime/code/output change, so retain actual release_v2 and CLI11992 evidence.",
+  "specs": [
+    {
+      "title": "Adobe Type2 #5177 path construction",
+      "url": "https://partners.adobe.com/public/developer/en/font/5177.Type2.pdf"
+    },
+    {
+      "title": "Adobe CFF #5176",
+      "url": "https://adobe-type-tools.github.io/font-tech-notes/pdfs/5176.CFF.pdf"
+    },
+    {
+      "title": "serde_json float_roundtrip feature",
+      "url": "https://github.com/serde-rs/json/blob/master/Cargo.toml"
+    }
+  ],
+  "OCR": {
+    "explicit_opt_in": true,
+    "NDLOCR": "0.0.15",
+    "revision": "f97e930b8c3e9512f7788f258ef685da26416483"
+  },
+  "new_models": [],
+  "limitations": [
+    "No corpus-wide independent accuracy estimate or100% claim. Historical30-page score139 remains native138 history.",
+    "Compound native25/26 source scene is now retained, but headerless landscape27 still loses comparison roles; the private three-page RED remains.",
+    "Paired records7/7 vs original9/9, other monetary heading/slot problems, committee/court ownership, unknown characters and Latin wrap spaces remain."
+  ]
+}

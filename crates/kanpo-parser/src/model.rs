@@ -29,7 +29,12 @@ pub enum Block {
     /// 散文（前文・散文改め文など）。
     Paragraph { runs: Vec<Run> },
     /// 新旧対照表の 1 段。条（別表）ごとの行に分け、各行で改正後/改正前を対応させる。
-    Shinkyu { rows: Vec<ShinkyuRow> },
+    Shinkyu {
+        rows: Vec<ShinkyuRow>,
+        /// Actual source field names. Omission retains the legacy amendment pair.
+        #[serde(skip_serializing_if = "Option::is_none")]
+        labels: Option<crate::ComparisonLabels>,
+    },
 }
 
 /// 新旧対照表の 1 行（条・別表など 1 単位）。改正後/改正前のセル。
@@ -111,7 +116,11 @@ fn cell_runs(lines: &[&str]) -> Vec<Run> {
 /// 次行が構造マーカー（`第○条` / 号（一・二…/イ・ロ…/数字）/ `（見出し）` / `別表` /
 /// `附則`）で始まる箇所だけ改行を残し、それ以外は連結して読みやすくする。
 fn join_wrapped_lines(lines: &[&str]) -> String {
-    let lines: Vec<&str> = lines.iter().map(|l| l.trim()).filter(|l| !l.is_empty()).collect();
+    let trimmed: Vec<&str> = lines.iter().map(|l| l.trim()).collect();
+    // Evidence uses original boundary spaces, before legacy rendering trims them.
+    let reference_breaks = crate::quoted_references::boundaries(lines);
+    let indices: Vec<usize> = trimmed.iter().enumerate().filter_map(|(i,l)|(!l.is_empty()).then_some(i)).collect();
+    let lines: Vec<&str> = indices.iter().map(|&i|trimmed[i]).collect();
     let mut out = String::new();
     for (idx, line) in lines.iter().enumerate() {
         let starts_line = out.is_empty() || out.ends_with('\n');
@@ -129,7 +138,8 @@ fn join_wrapped_lines(lines: &[&str]) -> String {
             // 短い列のあとの数は、1 列に 1 つずつ並べた地番（「四四三番二」「四四五番二」）などの区切り。
             let wrapped_number = fills_column(&lines, idx)
                 && (continues_number(line, lines[idx + 1]) || starts_reference(lines[idx + 1]) || continues_parenthetical(line, lines[idx + 1]));
-            if ends_sentence || around_table || after_note || (starts_structural_marker(lines[idx + 1]) && !mid_word && !wrapped_number) {
+            let reference = indices[idx].checked_add(1) == Some(indices[idx+1]) && reference_breaks.contains(&indices[idx]);
+            if ends_sentence || around_table || after_note || (starts_structural_marker(lines[idx + 1]) && !mid_word && !wrapped_number && !reference) {
                 out.push('\n');
             }
         }
@@ -310,7 +320,8 @@ impl Document {
     ///
     /// 「改正後」「改正前」の独立見出し行を境に新旧対照表ブロックを作り、
     /// それ以外の連続行は段落ブロックにする。形式は [`detect_format`] で判定する。
-    pub fn from_text(text: &str) -> Document {
+    pub fn from_text(text: &str) -> Document {Self::from_text_mode(text,true)}
+    fn from_text_mode(text:&str,comparison_markers:bool)->Document {
         let format = detect_format(text);
         let lines: Vec<&str> = text.lines().collect();
         let mut blocks: Vec<Block> = Vec::new();
@@ -323,20 +334,36 @@ impl Document {
             para.clear();
         };
         let mut i = 0;
+        let mut leading_before = false;
         while i < lines.len() {
-            if lines[i].trim() == "改正後" {
+            // Unit marker streams are After-first. A leading opposite role can
+            // be ordinary Before/After prose or a detached fragment. Neither
+            // authorizes borrowing the next record's Before. Preserve the
+            // complete scope literally until an explicit table end resets it.
+            if crate::ComparisonLabels::from_before(lines[i].trim()).is_some() {leading_before=true;}
+            if let Some(labels) = crate::ComparisonLabels::from_after(lines[i].trim()).filter(|_|comparison_markers&&!leading_before).filter(|labels| {
+                // Before must belong to this marker scope. EOF, the end marker,
+                // or a fresh After may terminate a legitimate one-sided cell.
+                lines[i+1..].iter().find_map(|line| {
+                    let line=line.trim();
+                    if let Some(other)=crate::ComparisonLabels::from_before(line){Some(other==*labels)}
+                    else if line==SHINKYU_END || crate::ComparisonLabels::from_after(line).is_some(){Some(true)}
+                    else{None}
+                }).unwrap_or(true)
+            }) {
                 flush_para(&mut para, &mut blocks);
                 // 改正後セル: 次の「改正前」まで。
                 let after_start = i + 1;
                 let mut j = after_start;
-                while j < lines.len() && lines[j].trim() != "改正前" {
+                while j < lines.len() && lines[j].trim()!=SHINKYU_END && crate::ComparisonLabels::from_after(lines[j].trim()).is_none() && crate::ComparisonLabels::from_before(lines[j].trim()).is_none() {
                     j += 1;
                 }
                 let after_lines = &lines[after_start..j];
                 // 改正前セル: 次の「改正後」（次段の開始）か、表の終わりの目印まで。
-                let before_start = (j + 1).min(lines.len());
+                let paired=lines.get(j).is_some_and(|line|line.trim()==labels.before);
+                let before_start = if paired {j+1}else{j};
                 let mut k = before_start;
-                while k < lines.len() && lines[k].trim() != "改正後" && lines[k].trim() != SHINKYU_END {
+                while paired && k < lines.len() && crate::ComparisonLabels::from_after(lines[k].trim()).is_none() && crate::ComparisonLabels::from_before(lines[k].trim()).is_none() && lines[k].trim() != SHINKYU_END {
                     k += 1;
                 }
                 let before_lines = &lines[before_start..k];
@@ -375,7 +402,7 @@ impl Document {
                 // 改正後・改正前とも空の行（空白だけの帯）は作らない。
                 rows.retain(|r| !r.after.is_empty() || !r.before.is_empty());
                 if !rows.is_empty() {
-                    blocks.push(Block::Shinkyu { rows });
+                    blocks.push(Block::Shinkyu {labels:(labels!=crate::ComparisonLabels::AMENDMENT).then_some(labels), rows });
                 }
                 for runs in furisoku {
                     blocks.push(Block::Paragraph { runs });
@@ -384,6 +411,7 @@ impl Document {
             } else if lines[i].trim() == SHINKYU_END {
                 // 表の終わりの目印は本文に入れない（表の後ろに本文があればそれが段落になり、
                 // 続く表とはつながらない。ページの切れ目のように間に本文が無ければつながる）。
+                leading_before = false;
                 i += 1;
             } else {
                 para.push(lines[i]);
@@ -399,13 +427,15 @@ impl Document {
 
     /// [`Document::from_text`] と同じだが、テキスト中の表の目印（[`crate::trace::table_marker`]）を
     /// `tables` の表に置き換え、本文の流れの中の表（`Run::table`）にする。
-    pub(crate) fn from_text_with_tables(text: &str, tables: &[Table]) -> Document {
-        let mut doc = Document::from_text(text);
-        let splice = |runs: &mut Vec<Run>| *runs = join_adjacent_tables(splice_tables(std::mem::take(runs), tables));
+    pub(crate) fn from_text_with_tables(text:&str,tables:&[Table])->Document{Self::from_text_tables_mode(text,tables,true,None)}
+    pub(crate) fn from_paragraph_text_with_tables(text:&str,tables:&[Table])->Document{Self::from_text_tables_mode(text,tables,false,None)}
+    fn from_text_tables_mode(text:&str,tables:&[Table],comparison_markers:bool,scopes:Option<&crate::native_table_scopes::Scopes>)->Document {
+        let mut doc = Self::from_text_mode(text,comparison_markers);
+        let splice = |runs: &mut Vec<Run>| *runs = join_adjacent_tables(splice_tables(std::mem::take(runs), tables),scopes);
         for block in &mut doc.blocks {
             match block {
                 Block::Paragraph { runs } => splice(runs),
-                Block::Shinkyu { rows } => {
+                Block::Shinkyu { rows ,..} => {
                     for r in rows {
                         splice(&mut r.after);
                         splice(&mut r.before);
@@ -415,6 +445,9 @@ impl Document {
         }
         doc
     }
+
+    pub(crate) fn from_source_text_with_tables(text:&str,scopes:&crate::native_table_scopes::Scopes)->Document{Self::from_text_tables_mode(text,scopes.tables(),true,Some(scopes))}
+    pub(crate) fn from_source_paragraph_text_with_tables(text:&str,scopes:&crate::native_table_scopes::Scopes)->Document{Self::from_text_tables_mode(text,scopes.tables(),false,Some(scopes))}
 
     /// 構造化表現を `reconstruct_vertical` 互換のフラットテキストへ戻す。
     /// 記事分割・標題突合など既存のテキスト前提処理との後方互換に使う。
@@ -429,7 +462,7 @@ impl Document {
                         out.push(t);
                     }
                 }
-                Block::Shinkyu { rows } => {
+                Block::Shinkyu { rows, labels } => {
                     let after: String = rows
                         .iter()
                         .map(|r| runs_text(&r.after))
@@ -442,9 +475,9 @@ impl Document {
                         .filter(|s| !s.is_empty())
                         .collect::<Vec<_>>()
                         .join("\n");
-                    out.push("改正後".to_string());
+                    out.push(labels.unwrap_or(crate::ComparisonLabels::AMENDMENT).after.to_string());
                     out.push(after);
-                    out.push("改正前".to_string());
+                    out.push(labels.unwrap_or(crate::ComparisonLabels::AMENDMENT).before.to_string());
                     out.push(before);
                 }
             }
@@ -457,13 +490,128 @@ impl Document {
 ///
 /// 後ろのブロックの先頭の行が条の見出し（`（見出し）`・`別表`・`附則`）で始まらなければ、
 /// 前のブロックの最後の行（ページの切れ目で途中まで載った条）の続きとしてつなぐ。
+// A numbered legal level above an article starts new scope. A reference such
+// as 第二章に規定する... is not a declaration of an outline title.
+pub(crate) fn outline_heading(line: &str) -> bool {
+    const NUMBER: &str = "〇一二三四五六七八九十百千0123456789０１２３４５６７８９";
+    let Some(rest) = line.trim().strip_prefix('第') else {
+        return false;
+    };
+    let chars = rest.chars().collect::<Vec<_>>();
+    let n = chars.iter().take_while(|c| NUMBER.contains(**c)).count();
+    if n == 0 || !chars.get(n).is_some_and(|c| "編章節款目".contains(*c)) {
+        return false;
+    }
+    let mut end = n + 1;
+    while chars.get(end) == Some(&'の') {
+        let next = chars[end + 1..]
+            .iter()
+            .take_while(|c| NUMBER.contains(**c))
+            .count();
+        if next == 0 {
+            return false;
+        }
+        end += 1 + next;
+    }
+    chars.get(end).is_none_or(|c| c.is_whitespace())
+}
+fn attach_outline_prefix(rows: &mut Vec<ShinkyuRow>) {
+    fn title(runs: &[Run]) -> bool {
+        if runs.is_empty() {
+            return true;
+        }
+        if runs.iter().any(|r| r.table.is_some()) {
+            return false;
+        }
+        let text = runs_plain(runs);
+        let mut lines = text.lines().filter(|l| !l.trim().is_empty());
+        lines.next().is_some_and(outline_heading)
+            && !text.contains('。')
+            && lines.all(|l| !outline_heading(l) && is_row_heading(l).is_none())
+    }
+    fn article(runs: &[Run]) -> bool {
+        if runs.iter().any(|r| r.table.is_some()) {
+            return false;
+        }
+        let text = runs_plain(runs);
+        let mut body = text.trim();
+        if body.starts_with('（') {
+            let mut depth = 0;
+            let mut end = None;
+            for (i, c) in body.char_indices() {
+                if c == '（' {
+                    depth += 1
+                } else if c == '）' {
+                    depth -= 1;
+                    if depth == 0 {
+                        end = Some(i + c.len_utf8());
+                        break;
+                    }
+                }
+            }
+            let Some(end) = end else { return false };
+            if is_row_heading(&body[..end]).is_none() {
+                return false;
+            }
+            body = body[end..].trim_start();
+        }
+        body.lines()
+            .next()
+            .is_some_and(|l| article_number(l).is_some())
+    }
+    if rows.len() < 2 {
+        return;
+    }
+    let first = &rows[0];
+    let next = &rows[1];
+    if first.after_table.is_some()
+        || first.before_table.is_some()
+        || (first.after.is_empty() && first.before.is_empty())
+        || !title(&first.after)
+        || !title(&first.before)
+        || (!first.after.is_empty() && !article(&next.after))
+        || (!first.before.is_empty() && !article(&next.before))
+    {
+        return;
+    }
+    let prefix = rows.remove(0);
+    let next = &mut rows[0];
+    for (dst, mut head) in [
+        (&mut next.after, prefix.after),
+        (&mut next.before, prefix.before),
+    ] {
+        if head.is_empty() {
+            continue;
+        }
+        let mut tail = std::mem::take(dst);
+        if let (Some(last), Some(first)) = (head.last_mut(), tail.first()) {
+            if last.table.is_none() && first.table.is_none() && last.underline == first.underline {
+                if !last.text.ends_with('\n') {
+                    last.text.push('\n');
+                }
+                last.text.push_str(&first.text);
+                tail.remove(0);
+            } else if last.table.is_none() && first.table.is_none() && !last.text.ends_with('\n') {
+                last.text.push('\n');
+            }
+        }
+        head.extend(tail);
+        *dst = head;
+    }
+}
+fn declared_item_row(row:&ShinkyuRow)->bool{
+ let a=runs_plain(&row.after);let b=runs_plain(&row.before);
+ let ka=crate::native_parallel_edits::item_row_front(&a);
+ let kb=crate::native_parallel_edits::item_row_front(&b);
+ (ka==Some(true)||kb==Some(true))&&(ka.is_some()||a.trim().is_empty())&&(kb.is_some()||b.trim().is_empty())
+}
 fn merge_continued_tables(blocks: Vec<Block>) -> Vec<Block> {
     let mut out: Vec<Block> = Vec::new();
     for mut block in blocks {
         // ページの頭の行の改正後が前のページの条の続き（「４　主務大臣は…」）で、改正前が印（「（新設）」）だけなら、
         // 印は次の行（新設の条）のもの。印だけの行が続いた先に改正前の空いた行があれば、印を 1 行ずつ下へずらす。
-        if let Block::Shinkyu { rows } = &mut block {
-            let continued = |runs: &[Run]| runs.first().and_then(|r| r.text.lines().next()).is_some_and(|l| is_row_heading(l).is_none());
+        if let Block::Shinkyu { rows ,..} = &mut block {
+            let continued = |runs: &[Run]| runs.first().and_then(|r| r.text.lines().next()).is_some_and(|l| is_row_heading(l).is_none() && !outline_heading(l));
             let marks = |r: &ShinkyuRow| !only_marks(&runs_plain(&r.before)).is_empty();
             if rows.len() >= 2 && marks(&rows[0]) && continued(&rows[0].after) {
                 let j = (1..rows.len()).find(|&j| !marks(&rows[j]));
@@ -474,19 +622,22 @@ fn merge_continued_tables(blocks: Vec<Block>) -> Vec<Block> {
                 }
             }
         }
-        let (Some(Block::Shinkyu { rows: prev }), Block::Shinkyu { rows }) = (out.last_mut(), &block) else {
+        let (Some(Block::Shinkyu { rows: prev, labels: prev_labels }), Block::Shinkyu { rows, labels }) = (out.last_mut(), &block) else {
             out.push(block);
             continue;
         };
+        if prev_labels != labels {out.push(block);continue;}
         let mut rows = rows.clone();
+        attach_outline_prefix(&mut rows);
         let continues = |runs: &[Run]| {
             runs.first()
                 .and_then(|r| r.text.lines().next())
-                .is_some_and(|l| is_row_heading(l).is_none())
+                .is_some_and(|l| is_row_heading(l).is_none() && !outline_heading(l))
         };
         if let (Some(last), Some(first)) = (prev.last_mut(), rows.first()) {
             let cont = (first.after.is_empty() || continues(&first.after)) && (first.before.is_empty() || continues(&first.before));
-            if cont && (!first.after.is_empty() || !first.before.is_empty()) {
+            let next_item=declared_item_row(last)&&declared_item_row(first);
+            if cont && !next_item && (!first.after.is_empty() || !first.before.is_empty()) {
                 let first = rows.remove(0);
                 append_runs(&mut last.after, first.after);
                 append_runs(&mut last.before, first.before);
@@ -497,7 +648,7 @@ fn merge_continued_tables(blocks: Vec<Block>) -> Vec<Block> {
     // ページの切れ目でつないだ表でも、新設の条・項の号やまとめて削った条の行をまとめる（ページごとの行の
     // 対応ではページをまたぐ行が見えない）。
     for block in &mut out {
-        if let Block::Shinkyu { rows } = block {
+        if let Block::Shinkyu { rows ,..} = block {
             // 片側だけの行が残れば、つないだ表の全体で号・項・条の単位に分けて組み直す（ページの切れ目の
             // 前後で号がずれて組まれた行）。セルに表のある表は文に戻せないので除く。
             // 前のページの条の続きの行（「附則第四条第五項の…⏎４　…」）の改正前が印だけで、上へ印だけの行が続き、その上に
@@ -508,7 +659,7 @@ fn merge_continued_tables(blocks: Vec<Block>) -> Vec<Block> {
                     runs.first().and_then(|r| r.text.lines().next()).is_some_and(|l| {
                         let t = l.trim();
                         let compact: String = t.chars().filter(|c| !c.is_whitespace()).collect();
-                        is_row_heading(l).is_none() || (compact.starts_with("附則") && compact != "附則" && article_number(t).is_none())
+                        is_row_heading(l).is_none() && !outline_heading(l) || (compact.starts_with("附則") && compact != "附則" && article_number(t).is_none())
                     })
                 };
                 let marks = |r: &ShinkyuRow| !only_marks(&runs_plain(&r.before)).is_empty();
@@ -660,47 +811,78 @@ fn join_tables(a: &mut NestedTable, b: &NestedTable) -> bool {
 }
 
 /// 続けて並ぶ表の Run（本文を挟まない）で列数が同じものを 1 つの表につなぐ。
-fn join_adjacent_tables(runs: Vec<Run>) -> Vec<Run> {
-    let mut out: Vec<Run> = Vec::new();
-    for run in runs {
-        if let (Some(Run { table: Some(a), .. }), Some(b)) = (out.last_mut(), run.table.as_ref()) {
-            if join_tables(a, b) {
-                continue;
+/// The original marker identity remains attached until all source-aware joins finish.
+struct TableRun {
+    run: Run,
+    sources: Vec<usize>,
+}
+impl TableRun {
+    fn legacy(run: Run) -> Self {
+        Self {
+            run,
+            sources: vec![],
+        }
+    }
+}
+fn join_adjacent_tables(
+    runs: Vec<TableRun>,
+    scopes: Option<&crate::native_table_scopes::Scopes>,
+) -> Vec<Run> {
+    let mut out: Vec<TableRun> = vec![];
+    for next in runs {
+        if let Some(last) = out.last_mut() {
+            let permitted = scopes.is_none_or(|s| {
+                last.sources
+                    .iter()
+                    .all(|a| next.sources.iter().all(|b| s.may_join(*a, *b)))
+            });
+            if permitted {
+                if let (Some(a), Some(b)) = (last.run.table.as_mut(), next.run.table.as_ref()) {
+                    if join_tables(a, b) {
+                        last.sources.extend(next.sources);
+                        continue;
+                    }
+                }
             }
         }
-        out.push(run);
+        out.push(next);
     }
-    out
+    out.into_iter().map(|r| r.run).collect()
 }
-
-/// Run の中の表の目印の行を表の Run に置き換える（前後の本文は別の Run に分ける）。
-fn splice_tables(runs: Vec<Run>, tables: &[Table]) -> Vec<Run> {
-    let mut out: Vec<Run> = Vec::new();
+/// Replace source markers without discarding their actual table IDs.
+fn splice_tables(runs: Vec<Run>, tables: &[Table]) -> Vec<TableRun> {
+    let mut out = vec![];
     for run in runs {
-        if run.table.is_some() || !run.text.contains('\u{E000}') {
-            out.push(run);
+        if run.table.is_some() || !run.text.contains('\u{e000}') {
+            out.push(TableRun::legacy(run));
             continue;
         }
-        let mut buf: Vec<&str> = Vec::new();
-        let flush = |buf: &mut Vec<&str>, out: &mut Vec<Run>| {
-            let t = buf.concat().trim().to_string();
-            if !t.is_empty() {
-                out.push(Run::plain(t));
+        let mut buf = vec![];
+        let flush = |buf: &mut Vec<&str>, out: &mut Vec<TableRun>| {
+            let text = buf.concat().trim().to_owned();
+            if !text.is_empty() {
+                out.push(TableRun::legacy(Run::plain(text)));
             }
             buf.clear();
         };
-        // 目印は通常は独立した行だが、行の途中にあっても表に置き換える。
         let mut rest = run.text.as_str();
-        while let Some(start) = rest.find('\u{E000}') {
-            let Some(len) = rest[start..].find('\u{E001}') else { break };
-            let end = start + len + '\u{E001}'.len_utf8();
+        while let Some(start) = rest.find('\u{e000}') {
+            let Some(len) = rest[start..].find('\u{e001}') else {
+                break;
+            };
+            let end = start + len + '\u{e001}'.len_utf8();
             buf.push(&rest[..start]);
-            if let Some(t) = parse_table_marker(&rest[start..end]).and_then(|i| tables.get(i)) {
+            if let Some((id, t)) =
+                parse_table_marker(&rest[start..end]).and_then(|i| tables.get(i).map(|t| (i, t)))
+            {
                 flush(&mut buf, &mut out);
-                out.push(Run {
-                    text: String::new(),
-                    underline: false,
-                    table: Some(t.to_nested()),
+                out.push(TableRun {
+                    run: Run {
+                        text: String::new(),
+                        underline: false,
+                        table: Some(t.to_nested()),
+                    },
+                    sources: vec![id],
                 });
             }
             rest = &rest[end..];
@@ -1933,7 +2115,7 @@ fn unit_heading(line: &str) -> Option<String> {
 
 /// 行が条の書き出し（`第六条の二　…`。条番号の後に全角空白）なら条番号。列の折り返しで
 /// 行頭に来た「第三条の規定により」（空白が無い）は条の書き出しではない。
-fn article_number(line: &str) -> Option<String> {
+pub(crate) fn article_number(line: &str) -> Option<String> {
     // 横書きの告示は算用数字で書く（「第285条の３　（略）」）。
     const NUM: &str = "〇一二三四五六七八九十百千0123456789０１２３４５６７８９";
     let t = line.trim();
@@ -2120,7 +2302,7 @@ mod tests {
                 Block::Paragraph {
                     runs: vec![Run::plain("前文")]
                 },
-                Block::Shinkyu {
+                Block::Shinkyu {labels:None,
                     rows: vec![ShinkyuRow {
                         after: vec![Run::plain("甲種")],
                         before: vec![Run::plain("乙類")],
@@ -2138,7 +2320,7 @@ mod tests {
         let before = "（特例A）\n第一条旧\n（特例B）\n第二条旧";
         let doc = Document::from_text(&format!("改正後\n{after}\n改正前\n{before}"));
         let rows = match &doc.blocks[0] {
-            Block::Shinkyu { rows } => rows,
+            Block::Shinkyu { rows ,..} => rows,
             _ => panic!("shinkyu block"),
         };
         assert_eq!(rows.len(), 3);
@@ -2159,7 +2341,7 @@ mod tests {
         let before = "一\u{3000}（略）\n二\u{3000}（新設）";
         let doc = Document::from_text(&format!("改正後\n{after}\n改正前\n{before}"));
         let rows = match &doc.blocks[0] {
-            Block::Shinkyu { rows } => rows,
+            Block::Shinkyu { rows ,..} => rows,
             _ => panic!("shinkyu block"),
         };
         assert_eq!(rows.len(), 3, "{rows:?}");
@@ -2176,7 +2358,7 @@ mod tests {
                      二十一\u{3000}有価証券の引受けのうち元引受契約に係るもの\n二十二\u{3000}新しく加える号の文である";
         let before = "十七\u{3000}（略）\n十八\u{3000}特定非上場会社の議決権に係る議決権代理行使受任\n十九\u{3000}有価証券の引受けのうち元引受契約に係るもの";
         let doc = Document::from_text(&format!("改正後\n{after}\n改正前\n{before}"));
-        let Block::Shinkyu { rows } = &doc.blocks[0] else { panic!() };
+        let Block::Shinkyu { rows ,..} = &doc.blocks[0] else { panic!() };
         let text = |r: &[Run]| r.iter().map(|x| x.text.as_str()).collect::<String>();
         let row = |k: &str| rows.iter().find(|r| text(&r.after).starts_with(k)).unwrap();
         assert!(text(&row("二十\u{3000}").before).starts_with("十八"), "{rows:?}");
@@ -2531,7 +2713,7 @@ mod tests {
                     改正後\nの後半。\n（丙の規定）\n第四条　丙\n（丁の規定）\n第五条　丁\n改正前\nの後半。\n（丙の規定）\n第四条　旧丙\n（丁の規定）\n第五条　旧丁";
         let doc = Document::from_text(text);
         assert_eq!(doc.blocks.len(), 1, "{:?}", doc.blocks);
-        let Block::Shinkyu { rows } = &doc.blocks[0] else { panic!() };
+        let Block::Shinkyu { rows ,..} = &doc.blocks[0] else { panic!() };
         assert_eq!(rows.len(), 4, "{rows:?}");
         assert!(rows[1].after[0].text.contains("乙の前半の後半。"), "{rows:?}");
         assert!(rows[1].before[0].text.contains("旧乙の前半の後半。"), "{rows:?}");
@@ -2544,7 +2726,7 @@ mod tests {
         let after = "（甲の規定）\n第一条　甲\n（乙の手続）\n第二条　新";
         let before = "（甲の規定）\n第一条　甲\n（乙の申請）\n第二条　旧";
         let doc = Document::from_text(&format!("改正後\n{after}\n改正前\n{before}"));
-        let Block::Shinkyu { rows } = &doc.blocks[0] else { panic!() };
+        let Block::Shinkyu { rows ,..} = &doc.blocks[0] else { panic!() };
         assert_eq!(rows.len(), 2, "{rows:?}");
         assert!(rows[1].after[0].text.contains("新") && rows[1].before[0].text.contains("旧"));
     }
@@ -2555,7 +2737,7 @@ mod tests {
         let after = "（免許を要しない無線局）\n第六条　〔略〕\n第六条の二　法第四条第三号の総務省令で定める機能は、次のとおり。";
         let before = "（免許を要しない無線局）\n第六条　〔同上〕\n第六条の二　〔同上〕";
         let doc = Document::from_text(&format!("改正後\n{after}\n改正前\n{before}"));
-        let Block::Shinkyu { rows } = &doc.blocks[0] else { panic!() };
+        let Block::Shinkyu { rows ,..} = &doc.blocks[0] else { panic!() };
         assert_eq!(rows.len(), 2, "{rows:?}");
         assert!(rows[0].after[0].text.starts_with("（免許を要しない無線局）\n第六条"));
         assert!(rows[1].after[0].text.starts_with("第六条の二") && rows[1].before[0].text.starts_with("第六条の二"));
@@ -2567,7 +2749,7 @@ mod tests {
         let after = "附　則\n（経過措置）\n第二条　新しい条";
         let before = "附　則\n（新設）";
         let doc = Document::from_text(&format!("改正後\n{after}\n改正前\n{before}"));
-        let Block::Shinkyu { rows } = &doc.blocks[0] else { panic!() };
+        let Block::Shinkyu { rows ,..} = &doc.blocks[0] else { panic!() };
         assert_eq!(rows.len(), 2, "{rows:?}");
         assert_eq!(rows[0].before[0].text.trim(), "附　則");
         assert_eq!(rows[1].before[0].text.trim(), "（新設）");
@@ -2579,7 +2761,7 @@ mod tests {
         let after = "（甲室）\n第一条　甲\n（削る）\n（乙室）\n第二条　乙";
         let before = "（甲室及び丙室）\n第一条　甲\n２　丙\n（乙室及び丁室）\n第二条　乙";
         let doc = Document::from_text(&format!("改正後\n{after}\n改正前\n{before}"));
-        let Block::Shinkyu { rows } = &doc.blocks[0] else { panic!() };
+        let Block::Shinkyu { rows ,..} = &doc.blocks[0] else { panic!() };
         assert_eq!(rows.len(), 2, "{rows:?}");
         assert!(rows[1].after[0].text.starts_with("（乙室）") && rows[1].before[0].text.starts_with("（乙室及び丁室）"));
     }
@@ -2606,7 +2788,7 @@ mod tests {
         let doc = Document::from_text(text);
         assert_eq!(
             doc.blocks,
-            vec![Block::Shinkyu {
+            vec![Block::Shinkyu {labels:None,
                 rows: vec![ShinkyuRow {
                     after: vec![Run::plain("A1A2")],
                     before: vec![Run::plain("B1B2")],
@@ -2717,3 +2899,9 @@ mod tests {
     }
 }
 
+
+#[cfg(test)]
+#[path="model_native_heading_tests.rs"]
+mod native_heading_tests;
+
+#[cfg(test)]#[path="model_parallel_item_tests.rs"]mod parallel_item_tests;

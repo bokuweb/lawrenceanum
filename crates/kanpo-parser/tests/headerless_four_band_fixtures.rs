@@ -1,3 +1,5 @@
+#[path = "support/reviewed_comparison_boundaries.rs"]
+mod reviewed_comparison_boundaries;
 #[path = "support/legacy_analysis.rs"]
 mod legacy_analysis;
 use kanpo_parser::{Analysis,trace::{Role,WordStatus}};
@@ -32,7 +34,7 @@ const EXPECT:&str=include_str!("expected/headerless_four_bands/expected-bands.js
  assert_eq!(count,1637);
 }
 #[test]fn previous_page_has_explicit_labels_and_other_article(){let a=actual(include_bytes!("archive/pages/20261001h01799/20261001h017990002.pdf"));let e:serde_json::Value=serde_json::from_str(include_str!("expected/headerless_four_bands/20261001h017990002.analysis.json")).unwrap();assert_eq!(canonical(&a),e);}
-#[test]fn following_page_has_separate_notices(){let a=actual(include_bytes!("archive/pages/20261001h01799/20261001h017990005.pdf"));let e:serde_json::Value=serde_json::from_str(include_str!("expected/headerless_four_bands/20261001h017990005.analysis.json")).unwrap();assert_eq!(canonical(&a),e);}
+#[test]fn following_page_has_separate_notices(){let a=actual(include_bytes!("archive/pages/20261001h01799/20261001h017990005.pdf"));let e:serde_json::Value=serde_json::from_str(include_str!("expected/headerless_four_bands/20261001h017990005.analysis.json")).unwrap();assert_eq!(canonical(&a),reviewed_comparison_boundaries::preceding_supplement(e));}
 #[test]fn ordinary_four_tiers_of_similar_forest_notices_stay_exact(){let a=actual(include_bytes!("archive/pages/20260812h01766/20260812h017660002.pdf"));let e:serde_json::Value=serde_json::from_str(include_str!("expected/headerless_four_bands/20260812h017660002.analysis.json")).unwrap();assert_eq!(canonical(&a),e);}
 
 const NEIGHBOR4:&[u8]=include_bytes!("archive/pages/20261001h01799/20261001h017990004.pdf");

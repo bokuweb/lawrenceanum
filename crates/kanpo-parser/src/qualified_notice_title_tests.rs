@@ -22,7 +22,7 @@ fn push(p: &mut PageTrace, text: &str, bbox: [f32; 4], font: usize) {
     p.regions[0].lines.push(Line::text(text.into(), vec![id]));
 }
 fn sample(title: &str, title_font: usize) -> PageTrace {
-    let mut p = PageTrace {native_axes:vec![],native_rulings:vec![],
+    let mut p = PageTrace {native_comparison_labels:vec![],native_horizontal_baselines:vec![],native_atomic_columns:vec![],native_axes:vec![],native_rulings:vec![],
         width: 600.,
         height: 800.,
         layout: "tiers",

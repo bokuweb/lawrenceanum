@@ -6,9 +6,11 @@ use crate::page::Page;
 /// Rendering consumes only this bundle, never an externally paired `Page`.
 #[derive(Debug, Clone)]
 pub struct Aj1PageSources {
+    pub(crate) lineage:crate::source_lineage::Tape,
     pub(crate) original: Page,
     pub(crate) resolved: Vec<Option<char>>,
     pub(crate) ink_rects: Vec<Option<[f64;4]>>,
+    pub(crate) aliases:crate::font::source_alias::Aliases,
 }
 #[cfg(test)]
 fn same(a: &Glyph, b: &Glyph) -> bool {

@@ -478,6 +478,25 @@ fn infer(head: &Word, words: &[Word]) -> Option<Table> {
     }
     Some(table)
 }
+// Reuse the same inferred measurement table in any single logical role.
+// Source IDs certify the complete cell inventory; independently rendered lines
+// and source publication headings are never consumed or crossed.
+fn restore_parts(parts:&mut[Vec<Line>],table:&Table,ids:&BTreeSet<usize>)->bool {
+    let locations:Vec<_>=parts.iter().enumerate().flat_map(|(p,ls)|ls.iter().enumerate().map(move |(l,line)|(p,l,line))).collect();
+    let touched:Vec<_>=locations.iter().enumerate().filter(|(_,(_,_,line))|line.words.iter().any(|id|ids.contains(id))).collect();
+    let (Some((first,_)),Some((last,_)))=(touched.first(),touched.last())else{return false;};
+    if touched.iter().any(|(_,(_,_,line))|line.table.is_some()||line.words.iter().any(|id|!ids.contains(id))){return false;}
+    if locations[*first..=*last].iter().any(|(_,_,line)|line.table.is_some()||crate::segment::is_heading_mark(line.text.trim())){return false;}
+    let owned:Vec<_>=touched.iter().flat_map(|(_,(_,_,line))|line.words.iter().copied()).collect();
+    let unique:BTreeSet<_>=owned.iter().copied().collect();
+    if &unique!=ids||unique.len()!=owned.len(){return false;}
+    if counts(&touched.iter().map(|(_,(_,_,line))|line.text.as_str()).collect::<String>())!=counts(&table.render()){return false;}
+    let targets:Vec<_>=touched.iter().map(|(_, (p,l,_))|(*p,*l)).collect();
+    let (p,l)=targets[0];
+    for &(p,l) in targets.iter().rev(){parts[p].remove(l);}
+    parts[p].insert(l,Line{text:table.render(),words:vec![],table:Some(table.clone())});
+    true
+}
 pub(crate) fn restore(units: &mut [Unit], words: &[Word]) {
     for head in words.iter().filter(|w| w.text == "変更前") {
         let Some(table) = infer(head, words) else {
@@ -490,6 +509,12 @@ pub(crate) fn restore(units: &mut [Unit], words: &[Word]) {
             .copied()
             .collect::<BTreeSet<_>>();
         for unit in &mut *units {
+            if let Unit::Shinkyu{preamble,after,before,outside,..}=unit {
+                let restored=restore_parts(std::slice::from_mut(preamble),&table,&ids)
+                    ||restore_parts(after,&table,&ids)||restore_parts(before,&table,&ids)||restore_parts(outside,&table,&ids);
+                if restored{break;}
+                continue;
+            }
             let Unit::Plain(lines) = unit else {
                 continue;
             };
@@ -738,3 +763,5 @@ mod halfwidth_tests {
         }
     }
 }
+
+#[cfg(test)]#[path="comparison_role_table_tests147.rs"]mod role_table_tests147;

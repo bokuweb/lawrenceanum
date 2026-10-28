@@ -1,0 +1,209 @@
+{
+  "scope": "Original source pixels and changed boundaries reviewed by author, nonblind. Golden Analysis is a regression freeze, not an independent full-page oracle. Raster text is not restored.",
+  "cases": [
+    {
+      "case": "20260916g002060047",
+      "inputs": [
+        {
+          "key": "20260916g002060047",
+          "fixture": "data/native-caption-fields/20260916g002060047.pdf",
+          "sha256": "48689ccdcc9897d7cf104e41515f76f3156ffaf46a64af0c3c23552c10c50843"
+        }
+      ],
+      "golden": "data/native-caption-fields/20260916g002060047-reviewed134.json"
+    },
+    {
+      "case": "20260902g001960003",
+      "inputs": [
+        {
+          "key": "20260902g001960003",
+          "fixture": "data/native-caption-fields/20260902g001960003.pdf",
+          "sha256": "9467a0f022d0b9bd77305f7eb09d6870d2b132341b636c12e0bc4b4b973aaed1"
+        }
+      ],
+      "golden": "data/native-caption-fields/20260902g001960003-reviewed134.json"
+    },
+    {
+      "case": "20260902g001960002",
+      "inputs": [
+        {
+          "key": "20260902g001960002",
+          "fixture": "data/native-caption-fields/20260902g001960002.pdf",
+          "sha256": "c157917157674e7e6ddbfa7e67a669b9804e9ed580d5f98ae787a40251a8a68e"
+        }
+      ],
+      "golden": "data/native-caption-fields/20260902g001960002-reviewed134.json"
+    },
+    {
+      "case": "20260730g00171-1-7",
+      "inputs": [
+        {
+          "key": "20260730g001710001",
+          "fixture": "data/native-caption-fields/20260730g001710001.pdf",
+          "sha256": "808420ce1ab55f232fa70276305ce7f5cc85e23c62af4bd5f1d140093d9e0bd7"
+        },
+        {
+          "key": "20260730g001710002",
+          "fixture": "data/native-caption-fields/20260730g001710002.pdf",
+          "sha256": "9d620a9b46952d245c215c3680f6ae97dbdcfb6c6e4ebfcc3a1877879086e8c0"
+        },
+        {
+          "key": "20260730g001710003",
+          "fixture": "data/native-caption-fields/20260730g001710003.pdf",
+          "sha256": "617a6e95c00b76a91d573feefceb33a00c2fc797ed3ac9744eefcedfe63fb857"
+        },
+        {
+          "key": "20260730g001710004",
+          "fixture": "data/native-caption-fields/20260730g001710004.pdf",
+          "sha256": "4ae763b4cf42c42077d124146a08a0e5d33326f891e7e1d2720c0eeed6b309e4"
+        },
+        {
+          "key": "20260730g001710005",
+          "fixture": "data/native-caption-fields/20260730g001710005.pdf",
+          "sha256": "95256ca9c1dad9b5dc2925180967f8b7c6a61419af790abea4ddfd3b84f7244c"
+        },
+        {
+          "key": "20260730g001710006",
+          "fixture": "data/native-caption-fields/20260730g001710006.pdf",
+          "sha256": "85b129695fab9ed3382304f9ebc699e6414dc199f230768096dfbf84735ae5be"
+        },
+        {
+          "key": "20260730g001710007",
+          "fixture": "data/native-caption-fields/20260730g001710007.pdf",
+          "sha256": "68ddbab52b59ca9b1ede8f6bc33c7670eca5e8f417347e6993f436c52e2f76a1"
+        }
+      ],
+      "golden": "data/native-caption-fields/20260730g00171-1-7-reviewed134.json"
+    },
+    {
+      "case": "20260731g00172-68-69",
+      "inputs": [
+        {
+          "key": "20260731g001720068",
+          "fixture": "data/native-caption-fields/20260731g001720068.pdf",
+          "sha256": "77d1da5e59c58f9f82e1fc93fb1f6e04d96d5b6a452f13840e35236398a1db18"
+        },
+        {
+          "key": "20260731g001720069",
+          "fixture": "data/native-caption-fields/20260731g001720069.pdf",
+          "sha256": "cd2cbb4477b4518d2faf7b1bce7be177dced9a32310d5a8f4763bb1ec283bd93"
+        }
+      ],
+      "golden": "data/native-caption-fields/20260731g00172-68-69-reviewed134.json"
+    },
+    {
+      "case": "20260916g00206-46-47",
+      "inputs": [
+        {
+          "key": "20260916g002060046",
+          "fixture": "data/native-caption-fields/20260916g002060046.pdf",
+          "sha256": "041c9e990bafb8248c1f30e9caab0ae85454a3a8b0662d2a0d3c19b14d1d6dd7"
+        },
+        {
+          "key": "20260916g002060047",
+          "fixture": "data/native-caption-fields/20260916g002060047.pdf",
+          "sha256": "48689ccdcc9897d7cf104e41515f76f3156ffaf46a64af0c3c23552c10c50843"
+        }
+      ],
+      "golden": "data/native-caption-fields/20260916g00206-46-47-reviewed134.json"
+    },
+    {
+      "case": "20260827g00191-1-6",
+      "inputs": [
+        {
+          "key": "20260827g001910001",
+          "fixture": "data/native-caption-fields/20260827g001910001.pdf",
+          "sha256": "448a5cbf48f27815ee3b7399719cfe2c00aa2ea98afa368fb27196da5b4c925c"
+        },
+        {
+          "key": "20260827g001910002",
+          "fixture": "data/native-caption-fields/20260827g001910002.pdf",
+          "sha256": "78d5a50b0a7458634d7f1f2f52f155e00fc8fd4912da0a4894ff067bf149b600"
+        },
+        {
+          "key": "20260827g001910003",
+          "fixture": "data/native-caption-fields/20260827g001910003.pdf",
+          "sha256": "6411fa479d5db0db71b2374b8d2fe5d8165d50e762ab0750159e918611c10f97"
+        },
+        {
+          "key": "20260827g001910004",
+          "fixture": "data/native-caption-fields/20260827g001910004.pdf",
+          "sha256": "cd5b14643966a4fe97c1015738e7be7e3d7d640720b268c859b89ea537ff5543"
+        },
+        {
+          "key": "20260827g001910005",
+          "fixture": "data/native-caption-fields/20260827g001910005.pdf",
+          "sha256": "3be2206ec9052dc863ec6a7c6dc0502370caf9d9313555925ab5bde72aebddd7"
+        },
+        {
+          "key": "20260827g001910006",
+          "fixture": "data/native-caption-fields/20260827g001910006.pdf",
+          "sha256": "01ed157ff68b14eb7d7d12ec781113385b85d9f40b93fa87660c93e5e3b81cdc"
+        }
+      ],
+      "golden": "data/native-caption-fields/20260827g00191-1-6-reviewed134.json"
+    },
+    {
+      "case": "20260918g00209-63-64",
+      "inputs": [
+        {
+          "key": "20260918g002090063",
+          "fixture": "data/native-caption-fields/20260918g002090063.pdf",
+          "sha256": "ed573428714c1dcfabde57b1b24bd2bae17233edf58d6b1e958c2df5f9352e9f"
+        },
+        {
+          "key": "20260918g002090064",
+          "fixture": "data/native-caption-fields/20260918g002090064.pdf",
+          "sha256": "0397e8056aa33e79fbad2fe801439e6a8d74a11a07648b47434a052e0aca53d2"
+        }
+      ],
+      "golden": "data/native-caption-fields/20260918g00209-63-64-reviewed134.json"
+    },
+    {
+      "case": "20261009g00223-55-56",
+      "inputs": [
+        {
+          "key": "20261009g002230055",
+          "fixture": "data/native-caption-fields/20261009g002230055.pdf",
+          "sha256": "8ba100ce32401e6fb3d311bf7b7f194a8d238da95614d262c4f1d8da3938b46b"
+        },
+        {
+          "key": "20261009g002230056",
+          "fixture": "data/native-caption-fields/20261009g002230056.pdf",
+          "sha256": "4555a181e0e35b62dc3dd71749d7ecc1e966cfa13da5506a7e82156aff3f2739"
+        }
+      ],
+      "golden": "data/native-caption-fields/20261009g00223-55-56-reviewed134.json"
+    },
+    {
+      "case": "20261009g00223-64-65",
+      "inputs": [
+        {
+          "key": "20261009g002230064",
+          "fixture": "data/native-caption-fields/20261009g002230064.pdf",
+          "sha256": "d5ecae335854ec5426416adb445851a3f01683b897caeedfc32dbe2dec20ed47"
+        },
+        {
+          "key": "20261009g002230065",
+          "fixture": "data/native-caption-fields/20261009g002230065.pdf",
+          "sha256": "b6540bc317a21c4bc15135295478f647937434162e991c9a2dc896eb80a339aa"
+        }
+      ],
+      "golden": "data/native-caption-fields/20261009g00223-64-65-reviewed134.json"
+    }
+  ],
+  "changed_boundary_pixel_review": {
+    "method": "Author nonblind inspection of rendered original PDF pages; remaining input pages freeze context, not whole-page grading.",
+    "pages": [
+      "20260916g002060047",
+      "20260902g001960003",
+      "20260902g001960002",
+      "20260730g001710007",
+      "20260731g001720069",
+      "20260827g001910006",
+      "20260918g002090064",
+      "20261009g002230056",
+      "20261009g002230065"
+    ]
+  }
+}

@@ -79,7 +79,7 @@ fn visit(u: &Unit, mut f: impl FnMut(&Line)) {
             after,
             before,
             outside,
-        } => {
+        ..} => {
             for l in preamble {
                 f(l)
             }

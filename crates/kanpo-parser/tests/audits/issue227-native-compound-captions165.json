@@ -1,0 +1,683 @@
+{
+  "schema_version": 1,
+  "issue": 227,
+  "stage": "native165",
+  "baseline_local": "546f2bde38d45c9e55c6dbe253b0b48a2cee9a20",
+  "problem": "A complete native announcement title spanning multiple vertical source columns was not recognized when the announcement suffix was only on its last column or a nominal list occurred before the suffix. The next title column was treated as a continued/unauthorized separate heading, so separate procedures stayed in one Article.",
+  "source_authority": "Represent the final original title line explicitly. Extend to a maximal consecutive source-column span only with complete equal original nominal-content styles, equal original tops, nonoverlapping leftward vertical columns in the same source region, complete raw word bindings and no quotations. No connective dictionary or fixed column/character/neighbor-line budget is used. Retain original single-column title grammar. A complete top-level nominal suffix and balanced qualifiers are required, and only this verified nominal span permits the generic Japanese list comma.",
+  "ownership_authority": "Every original nonwhitespace occurrence in the projected title band must belong to the title span, including glyphs omitted by normalization and words owned elsewhere. Known decoded whitespace is not a nominal obstacle. Unknown original bounds cannot use display rectangles to prove that foreign words are outside. Any original enclosing rule intersecting the span, including a partial enclosure on a later column, prevents merging. Existing complete-frame/shared-financial/quote/source-inventory protections remain.",
+  "publication_authority": "The body begins after the final title column and needs its own distinct original typography, nonempty nonterminal body, original-token publication date and later nominal signature before another heading fence. Collapse only the source fences internal to this verified caption span. A partial caption cannot borrow the next caption date/signature.",
+  "no_source_value_dispatch": "No company, page, observed title, font-name/font-ID value, CID/PUA value, character/neighbor-line count or fixed point tolerance is selected at runtime. Existing announcement/date/role categories remain semantic grammar.",
+  "tests": {
+    "new_unit_controls": 13,
+    "new_original_API_tests": 3,
+    "private_all_parser_units": 2779,
+    "normal_native": {
+      "terminal": 0,
+      "commands": 2,
+      "integration_targets": 159,
+      "result_groups": 167,
+      "passed": 4056,
+      "failed": 0,
+      "ignored": 0,
+      "source_manifest_sha256": "c76e20ecd7beda4666210c6822e40c4dc4f488b880fac53d8663587b0a1643c9",
+      "source_and_all_existing_test_inputs_prepost_exact": true,
+      "snapshot_updates_disabled": true
+    },
+    "red_first": "Original source API8vs7 and3initial compound-caption unit failures;4additional owned/ignored-word/original-bounds/partial-enclosure failures recorded before source-ownership guards.",
+    "generality": "2/4/17/41title columns, arbitrary nominal/connective wording, a suffix only in the last column, translation/scale/font-ID renaming, missing/conflicting styles, quotes/unclosed titles, missing own date/signature, source region/geometry changes, foreign used/ignored words, unlocated original geometry, decoded whitespace and a partial enclosure. Fixtures were moved fully inside their varying page width; an invalid-placement test then became valid because of its old absolute coordinates, so its invalid position is now derived from the source column bounds.",
+    "actual_originals": "10single complete Analysis and1consecutive2page complete Analysis. Source0929 keeps3coissuers in one compound procedure and8native Articles. Its2other printed notices have0nativeWords and belong to the unchanged explicit opt-in image path; no10native-Article claim. Source20261016g002270086 preserves3opaque native tables in the preceding Article and moves no tables into the new environmental notice.",
+    "public_fixture_index": {
+      "single": [
+        {
+          "key": "20260721h017510032",
+          "pdf": "data/native-caption-scopes164/20260721h017510032.pdf",
+          "gold": "data/native-caption-scopes164/20260721h017510032.json"
+        },
+        {
+          "key": "20260722h017520032",
+          "pdf": "data/native-caption-scopes164/20260722h017520032.pdf",
+          "gold": "data/native-caption-scopes164/20260722h017520032.json"
+        },
+        {
+          "key": "20260817h017690030",
+          "pdf": "data/native-compound-captions165/20260817h017690030.pdf",
+          "gold": "data/native-compound-captions165/20260817h017690030.json"
+        },
+        {
+          "key": "20260821h017730032",
+          "pdf": "data/native-caption-scopes164/20260821h017730032.pdf",
+          "gold": "data/native-caption-scopes164/20260821h017730032.json"
+        },
+        {
+          "key": "20260828h017780031",
+          "pdf": "data/native-compound-captions165/20260828h017780031.pdf",
+          "gold": "data/native-compound-captions165/20260828h017780031.json"
+        },
+        {
+          "key": "20260901h017800032",
+          "pdf": "data/native-caption-scopes164/20260901h017800032.pdf",
+          "gold": "data/native-caption-scopes164/20260901h017800032.json"
+        },
+        {
+          "key": "20260929h017970031",
+          "pdf": "data/native-caption-scopes164/20260929h017970031.pdf",
+          "gold": "data/native-caption-scopes164/20260929h017970031.json"
+        },
+        {
+          "key": "20261001h017990032",
+          "pdf": "data/native-caption-scopes164/20261001h017990032.pdf",
+          "gold": "data/native-compound-captions165/20261001h017990032.json"
+        },
+        {
+          "key": "20261014h018070032",
+          "pdf": "data/native-compound-captions165/20261014h018070032.pdf",
+          "gold": "data/native-compound-captions165/20261014h018070032.json"
+        },
+        {
+          "key": "20261016g002270086",
+          "pdf": "data/native-compound-captions165/20261016g002270086.pdf",
+          "gold": "data/native-compound-captions165/20261016g002270086.json"
+        }
+      ],
+      "window": {
+        "key": "20260717g001600121--20260717g001600122",
+        "pdfs": [
+          "data/native-compound-captions165/20260717g001600121.pdf",
+          "archive/pages/20260717g00160/20260717g001600122.pdf"
+        ],
+        "gold": "data/native-compound-captions165/20260717g001600121--20260717g001600122.json"
+      }
+    }
+  },
+  "source_review": [
+    {
+      "key": "20260721h017510032",
+      "new_caption_starts": [
+        {
+          "region": 2,
+          "line": 0,
+          "caption": "定款変更につき通知公告並びに株式譲渡制限設定",
+          "body_first_line": "につき株券提出公告",
+          "terminal": [
+            "千葉市中央区出洲港七番二号",
+            "片岡産業株式会社",
+            "代表取締役早迫博光"
+          ],
+          "region_rect": [
+            46.0801,
+            428.8399,
+            399.0001,
+            608.8399
+          ]
+        }
+      ],
+      "original_PDFium_pixels_reviewed": true
+    },
+    {
+      "key": "20260722h017520032",
+      "new_caption_starts": [
+        {
+          "region": 1,
+          "line": 0,
+          "caption": "取得条項付新株予約権の一部取得及び取得日の通",
+          "body_first_line": "知公告",
+          "terminal": [
+            "大阪府大阪市北区中之島三丁目三番三号",
+            "株式会社旭ポリスライダー",
+            "規約型確定給付企業年金清算人舩津浩矢"
+          ],
+          "region_rect": [
+            46.1421,
+            428.8399,
+            445.2061,
+            604.8399
+          ]
+        }
+      ],
+      "original_PDFium_pixels_reviewed": true
+    },
+    {
+      "key": "20260817h017690030",
+      "new_caption_starts": [
+        {
+          "region": 2,
+          "line": 21,
+          "caption": "資金移動業の廃止に伴う、ウォレット残高返還に",
+          "body_first_line": "関する公告",
+          "terminal": [
+            "東京都千代田区紀尾井町三番六号",
+            "株式会社デジタルワレット",
+            "代表取締役宮川英治"
+          ],
+          "region_rect": [
+            45.9961,
+            428.8399,
+            475.4321,
+            604.8399
+          ]
+        }
+      ],
+      "original_PDFium_pixels_reviewed": true
+    },
+    {
+      "key": "20260821h017730032",
+      "new_caption_starts": [
+        {
+          "region": 2,
+          "line": 15,
+          "caption": "取得条項付新株予約権の一部の取得及び取得日の",
+          "body_first_line": "通知公告",
+          "terminal": [
+            "東京都港区赤坂二丁目二三番一号",
+            "株式会社ジョンマスターホールディングス",
+            "代表取締役中村彰利"
+          ],
+          "region_rect": [
+            46.1041,
+            428.8399,
+            498.2481,
+            604.8399
+          ]
+        }
+      ],
+      "original_PDFium_pixels_reviewed": true
+    },
+    {
+      "key": "20260828h017780031",
+      "new_caption_starts": [
+        {
+          "region": 0,
+          "line": 20,
+          "caption": "取得条項付新株予約権の一部取得及び取得日の通",
+          "body_first_line": "知公告",
+          "terminal": [
+            "福岡市西区九大新町四番地一",
+            "株式会社Ｋｙｕｌｕｘ",
+            "代表取締役李佶"
+          ],
+          "region_rect": [
+            46.0241,
+            60.8399,
+            549.0001,
+            240.8399
+          ]
+        }
+      ],
+      "original_PDFium_pixels_reviewed": true
+    },
+    {
+      "key": "20260901h017800032",
+      "new_caption_starts": [
+        {
+          "region": 1,
+          "line": 16,
+          "caption": "取得条項付新株予約権の一部の取得及び取得日の",
+          "body_first_line": "通知公告",
+          "terminal": [
+            "東京都千代田区内神田一－七－四晃永ビル",
+            "四階　株式会社Ｌｉｎｃ",
+            "代表取締役仲　思遥"
+          ],
+          "region_rect": [
+            46.1121,
+            428.8399,
+            514.3921,
+            604.8567
+          ]
+        }
+      ],
+      "original_PDFium_pixels_reviewed": true
+    },
+    {
+      "key": "20260929h017970031",
+      "new_caption_starts": [
+        {
+          "region": 1,
+          "line": 0,
+          "caption": "資本金及び準備金の額の減少公告、吸収分割公告",
+          "body_first_line": "並びに合併公告",
+          "terminal": [
+            "東京都千代田区四番町六番",
+            "（丙）株式会社オプト",
+            "代表取締役金澤大輔"
+          ],
+          "region_rect": [
+            46.0881,
+            244.8399,
+            241.0881,
+            420.8399
+          ]
+        }
+      ],
+      "original_PDFium_pixels_reviewed": true
+    },
+    {
+      "key": "20261001h017990032",
+      "new_caption_starts": [
+        {
+          "region": 1,
+          "line": 25,
+          "caption": "取得条項付新株予約権の一部の取得及び取得日の",
+          "body_first_line": "通知公告",
+          "terminal": [
+            "愛媛県松山市北井門二丁目一二番五号",
+            "株式会社コラボハウス",
+            "代表取締役松坂直樹"
+          ],
+          "region_rect": [
+            46.0281,
+            244.8398,
+            549.0112,
+            424.8399
+          ]
+        }
+      ],
+      "original_PDFium_pixels_reviewed": true
+    },
+    {
+      "key": "20261014h018070032",
+      "new_caption_starts": [
+        {
+          "region": 2,
+          "line": 14,
+          "caption": "資金決済に関する法律第四十七条第三号及び同法",
+          "body_first_line": "施行令第十七条第二項第二号に基づく資金移動業",
+          "terminal": [
+            "担いたします。",
+            "その他、当社が適当と認める方法により残高返",
+            "還を行うことがあります。"
+          ],
+          "region_rect": [
+            46.0161,
+            428.8398,
+            549.0001,
+            604.8399
+          ]
+        }
+      ],
+      "original_PDFium_pixels_reviewed": true
+    },
+    {
+      "key": "20261016g002270086",
+      "new_caption_starts": [
+        {
+          "region": 3,
+          "line": 0,
+          "caption": "（仮称）佐世保市鹿町町風力発電所設置計画に係",
+          "body_first_line": "る環境影響評価準備書の公告",
+          "terminal": [
+            "佐世保市鹿町町風力発電合同会社",
+            "代表社員コスモエコパワー株式会社",
+            "職務執行者久坂有史"
+          ],
+          "region_rect": [
+            45.9601,
+            428.8399,
+            549.0001,
+            608.8399
+          ]
+        }
+      ],
+      "original_PDFium_pixels_reviewed": true
+    }
+  ],
+  "additional_whole_source_root": [
+    {
+      "issue": "20260717g00160",
+      "page_index": 121,
+      "key": "20260717g001600122",
+      "region": 0,
+      "line": 0,
+      "first": [
+        "（仮称）袖ケ浦火力発電所新１〜３号機建設計画",
+        "環境影響評価方法書の公告"
+      ],
+      "rect": [
+        46.1041,
+        60.8399,
+        549.0001,
+        236.8399
+      ],
+      "public_fixture_pdf": "tests/archive/pages/20260717g00160/20260717g001600122.pdf"
+    }
+  ],
+  "complete_preservation": {
+    "single_total": 11992,
+    "single_changed": 10,
+    "single_unchanged": 11982,
+    "single_source_cuts": 10,
+    "whole_total": 159,
+    "whole_changed": 11,
+    "whole_unchanged": 148,
+    "whole_source_cuts": 11,
+    "independent_source_constructed_single": [
+      {
+        "key": "20260721h017510032",
+        "old_article_character_offsets": {
+          "5": [
+            178
+          ]
+        },
+        "all_complete_Analysis_source_constructed_exact_candidate": true
+      },
+      {
+        "key": "20260722h017520032",
+        "old_article_character_offsets": {
+          "3": [
+            348
+          ]
+        },
+        "all_complete_Analysis_source_constructed_exact_candidate": true
+      },
+      {
+        "key": "20260817h017690030",
+        "old_article_character_offsets": {
+          "5": [
+            184
+          ]
+        },
+        "all_complete_Analysis_source_constructed_exact_candidate": true
+      },
+      {
+        "key": "20260821h017730032",
+        "old_article_character_offsets": {
+          "3": [
+            276
+          ]
+        },
+        "all_complete_Analysis_source_constructed_exact_candidate": true
+      },
+      {
+        "key": "20260828h017780031",
+        "old_article_character_offsets": {
+          "1": [
+            172
+          ]
+        },
+        "all_complete_Analysis_source_constructed_exact_candidate": true
+      },
+      {
+        "key": "20260901h017800032",
+        "old_article_character_offsets": {
+          "5": [
+            288
+          ]
+        },
+        "all_complete_Analysis_source_constructed_exact_candidate": true
+      },
+      {
+        "key": "20260929h017970031",
+        "old_article_character_offsets": {
+          "4": [
+            151
+          ]
+        },
+        "all_complete_Analysis_source_constructed_exact_candidate": true
+      },
+      {
+        "key": "20261001h017990032",
+        "old_article_character_offsets": {
+          "1": [
+            608
+          ]
+        },
+        "all_complete_Analysis_source_constructed_exact_candidate": true
+      },
+      {
+        "key": "20261014h018070032",
+        "old_article_character_offsets": {
+          "7": [
+            132
+          ]
+        },
+        "all_complete_Analysis_source_constructed_exact_candidate": true
+      },
+      {
+        "key": "20261016g002270086",
+        "old_article_character_offsets": {
+          "0": [
+            836
+          ]
+        },
+        "all_complete_Analysis_source_constructed_exact_candidate": true
+      }
+    ],
+    "independent_source_constructed_whole": [
+      {
+        "key": "20260717g00160",
+        "old_article_character_offsets": {
+          "191": [
+            608
+          ]
+        },
+        "expected_complete_Analysis_sha256": "f5ab2095169a23439bf867733c46f8bfb5be80ede760d2afc686b42fe12ed492",
+        "source_cuts": 1,
+        "complete_Analysis_source_constructed_exact": true
+      },
+      {
+        "key": "20260721h01751",
+        "old_article_character_offsets": {
+          "81": [
+            178
+          ]
+        },
+        "expected_complete_Analysis_sha256": "dfe915217f619b450193dc61ac16418851e5f82b5b046b22fe133eaa55235436",
+        "source_cuts": 1,
+        "complete_Analysis_source_constructed_exact": true
+      },
+      {
+        "key": "20260722h01752",
+        "old_article_character_offsets": {
+          "67": [
+            348
+          ]
+        },
+        "expected_complete_Analysis_sha256": "9f3e193d00c4c2149853b39ffd38c45bda174f20884cfb5525999ec5e7a249cc",
+        "source_cuts": 1,
+        "complete_Analysis_source_constructed_exact": true
+      },
+      {
+        "key": "20260817h01769",
+        "old_article_character_offsets": {
+          "118": [
+            184
+          ]
+        },
+        "expected_complete_Analysis_sha256": "fab51d619c6b9c81984c67dd2451256b86ae3b69b5324b14a378e6a0c215844b",
+        "source_cuts": 1,
+        "complete_Analysis_source_constructed_exact": true
+      },
+      {
+        "key": "20260821h01773",
+        "old_article_character_offsets": {
+          "113": [
+            276
+          ]
+        },
+        "expected_complete_Analysis_sha256": "60d7135c940ac4fc5b5214079d64faeff65704cfd9d61ef04d5a053dfaa16a13",
+        "source_cuts": 1,
+        "complete_Analysis_source_constructed_exact": true
+      },
+      {
+        "key": "20260828h01778",
+        "old_article_character_offsets": {
+          "194": [
+            172
+          ]
+        },
+        "expected_complete_Analysis_sha256": "5b8c5d259a4016f0117d50204fe7f4e8fdb0f8dea95e355b4392da7b43a1060e",
+        "source_cuts": 1,
+        "complete_Analysis_source_constructed_exact": true
+      },
+      {
+        "key": "20260901h01780",
+        "old_article_character_offsets": {
+          "64": [
+            288
+          ]
+        },
+        "expected_complete_Analysis_sha256": "eca0fe0688960cc8dc19fd78de37af7c56b1e91a0ab77879917acc99bdb88acd",
+        "source_cuts": 1,
+        "complete_Analysis_source_constructed_exact": true
+      },
+      {
+        "key": "20260929h01797",
+        "old_article_character_offsets": {
+          "99": [
+            151
+          ]
+        },
+        "expected_complete_Analysis_sha256": "edd79ea4ff939eab48cc1905e4eb0dd25e5a0ad73a2c5a6073d88c7eb4689db5",
+        "source_cuts": 1,
+        "complete_Analysis_source_constructed_exact": true
+      },
+      {
+        "key": "20261001h01799",
+        "old_article_character_offsets": {
+          "95": [
+            608
+          ]
+        },
+        "expected_complete_Analysis_sha256": "77c40e275d84bf948e87a514cb0c7a786d0e812b9afcc5aa0099ec59c198c481",
+        "source_cuts": 1,
+        "complete_Analysis_source_constructed_exact": true
+      },
+      {
+        "key": "20261014h01807",
+        "old_article_character_offsets": {
+          "73": [
+            132
+          ]
+        },
+        "expected_complete_Analysis_sha256": "a2fe607828b1b7b6385b20bfa0142f330aaabc7abce0e681865f088e8bb96b19",
+        "source_cuts": 1,
+        "complete_Analysis_source_constructed_exact": true
+      },
+      {
+        "key": "20261016g00227",
+        "old_article_character_offsets": {
+          "174": [
+            3172
+          ]
+        },
+        "expected_complete_Analysis_sha256": "76e2a89edd615095093d18b78cf6c8f6e0e6ecd66e4eb1c10b1fa0b966ec591c",
+        "source_cuts": 1,
+        "complete_Analysis_source_constructed_exact": true
+      }
+    ],
+    "method": "All changed full Analysis reconstructed from old164 by only source-reviewed Article.text and original Document literal-run splits. Original formats, every run character/whitespace, all opaque table objects and all old article boundaries retained. No current document renderer or candidate output used to generate expected Analysis. All pages/Word/raw/status/coordinates/body/global format and all other fields exact.",
+    "guarded_v2_complete_corpus_equals_reviewed_v1": {
+      "single": 11992,
+      "whole": 159
+    },
+    "old_tracked_test_paths": 3433,
+    "old_test_paths_unchanged": 3427,
+    "old_source_constructed_gold_corrections": [
+      {
+        "path": "crates/kanpo-parser/tests/data/native-caption-scopes164/20260721h017510032.json",
+        "old_sha256": "f1dda7c0a42912255b704a7e96038f0556d1df16b042a2367bc8112e1466d142",
+        "new_sha256": "82ecbe5dcc21a25b9539302a03f0627a1e46917dd57310e34ca4f4e97f2529da",
+        "source_cuts": {
+          "5": [
+            178
+          ]
+        },
+        "complete_Analysis_from_old164_and_reviewed_source_only": true
+      },
+      {
+        "path": "crates/kanpo-parser/tests/data/native-caption-scopes164/20260722h017520032.json",
+        "old_sha256": "55a320302df6cea683340fb6903a9a2b319644317bf315b1f500656739c1607d",
+        "new_sha256": "dcb47e631a38d2051cf81ad40eac12970e78ae84557b6fcec0b9e2c6ceecbcb5",
+        "source_cuts": {
+          "3": [
+            348
+          ]
+        },
+        "complete_Analysis_from_old164_and_reviewed_source_only": true
+      },
+      {
+        "path": "crates/kanpo-parser/tests/data/native-caption-scopes164/20260821h017730032.json",
+        "old_sha256": "897e3e187b0c5b5c6ee8c6be8972f82c4d14ce95c812c9165d1fcbb9f4657d25",
+        "new_sha256": "e3cc0561e49728c3932df5f855b03f87b2d3c10ddd63e854e863f5b4d762202a",
+        "source_cuts": {
+          "3": [
+            276
+          ]
+        },
+        "complete_Analysis_from_old164_and_reviewed_source_only": true
+      },
+      {
+        "path": "crates/kanpo-parser/tests/data/native-caption-scopes164/20260901h017800032.json",
+        "old_sha256": "62b9d66afe275b7987d2550a2f21befe45439b0b59b291fdead9e6b17363bf3c",
+        "new_sha256": "7c59c782122d3c877db8b26f59d772059b724dcba2517abfd72b5218ed775990",
+        "source_cuts": {
+          "5": [
+            288
+          ]
+        },
+        "complete_Analysis_from_old164_and_reviewed_source_only": true
+      },
+      {
+        "path": "crates/kanpo-parser/tests/data/native-caption-scopes164/20260929h017970031.json",
+        "old_sha256": "af94e6b3f7c6b60860d77076c505dc548ef2b2fda60515eb2b76b860aa74581d",
+        "new_sha256": "d138b6f606ed2d5b7d2df79f2308e0bc66a4024e134fb1d8a49f0b9d3db242a1",
+        "source_cuts": {
+          "4": [
+            151
+          ]
+        },
+        "complete_Analysis_from_old164_and_reviewed_source_only": true
+      },
+      {
+        "path": "crates/kanpo-parser/tests/data/native-caption-scopes164/20261001h017990031--20261001h017990032.json",
+        "old_sha256": "717b41c8352c8eae12cc74f8bc14b10c5554274171002e2182e9bf81251c042b",
+        "new_sha256": "f02f0df8c827c042724beddfd759061089d13c96156c9d3f1cacd30903e18c52",
+        "source_cut": {
+          "old_article": 12,
+          "character_offset": 608
+        },
+        "complete_Analysis_from_old164_and_reviewed_source_only": true
+      }
+    ],
+    "old_snapshot_updates": 0,
+    "original_PDF_bytes_changed": 0,
+    "blanket_expected_updates": false
+  },
+  "actual_Cargo_release": {
+    "profile": "actual Cargo release, final W sources",
+    "single_complete_Analysis_exact_private_final": 11992,
+    "whole_complete_Analysis_exact_private_final": 159,
+    "actual_release_PDF_textdump_CLI_native_body_bytes_exact": 11992,
+    "single_duplicate_owner_pages": 0,
+    "CLI_duplicate_word_reports": 0,
+    "all_original_inputs_native_sources_Cargo_and_binaries_prepost_exact": true,
+    "seconds": 181.448275583,
+    "scope": "Full final actual-Cargo release public API Analysis and native CLI over original PDFs; Expected complete Analysis independently constructed from164 plus10 single/11 whole source-reviewed notice cuts; all other fields, prior cuts, Document run characters/whitespace and CLI body bytes preserved. No independent full-corpus accuracy claim."
+  },
+  "owned_candidate_sha256": {
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260721h017510032.json": "82ecbe5dcc21a25b9539302a03f0627a1e46917dd57310e34ca4f4e97f2529da",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260722h017520032.json": "dcb47e631a38d2051cf81ad40eac12970e78ae84557b6fcec0b9e2c6ceecbcb5",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260821h017730032.json": "e3cc0561e49728c3932df5f855b03f87b2d3c10ddd63e854e863f5b4d762202a",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260901h017800032.json": "7c59c782122d3c877db8b26f59d772059b724dcba2517abfd72b5218ed775990",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20260929h017970031.json": "d138b6f606ed2d5b7d2df79f2308e0bc66a4024e134fb1d8a49f0b9d3db242a1",
+    "crates/kanpo-parser/tests/data/native-caption-scopes164/20261001h017990031--20261001h017990032.json": "f02f0df8c827c042724beddfd759061089d13c96156c9d3f1cacd30903e18c52",
+    "crates/kanpo-parser/tests/data/native-compound-captions165/20260817h017690030.json": "9695809bce3eaa2508133a4a03a437ea5f802d60ea5b5791a021467d9b86c99f",
+    "crates/kanpo-parser/tests/data/native-compound-captions165/20260817h017690030.pdf": "38c855c39d84da86927658a26fcc34176050de6d986efc6ce791bafe15d0db09",
+    "crates/kanpo-parser/tests/data/native-compound-captions165/20260828h017780031.json": "333d6bdf2b7299d7db783775fb8332fa4a9cbe241e0a7d2a5a9c6399367d77b3",
+    "crates/kanpo-parser/tests/data/native-compound-captions165/20260828h017780031.pdf": "b9e9ef82a26f733abc89b383b154b8a3227d92b2e54f82dc7de4c292b625cef8",
+    "crates/kanpo-parser/tests/data/native-compound-captions165/20261001h017990032.json": "ddbe8a19ce26da86e6a169f464c4a2d4b1cf9cd99f1e36c773c56139533d9630",
+    "crates/kanpo-parser/tests/data/native-compound-captions165/20261014h018070032.json": "cca8eceae63047fd1761a8808d86dafbc03604262447a21058ced02454ec2d5c",
+    "crates/kanpo-parser/tests/data/native-compound-captions165/20261014h018070032.pdf": "7e290f2c68d82b8892b618b0f282812ce877b480a9140268bc95f548eab5d71f",
+    "crates/kanpo-parser/tests/data/native-compound-captions165/20261016g002270086.json": "c4d980c4b5ec86eb59f9be5cdfa484fc7de3ad1ddcace9309cd54a671a7b66c3",
+    "crates/kanpo-parser/tests/data/native-compound-captions165/20261016g002270086.pdf": "894ce08abef74b63f50e66ccfff009161bf15ced7ee0dbedc35ce6e011dfc53c",
+    "crates/kanpo-parser/tests/data/native-compound-captions165/20260717g001600121--20260717g001600122.json": "5f16c38400016a8d9960b6949f381384dda12e3480035825024c7926b3e32b0e",
+    "crates/kanpo-parser/tests/data/native-compound-captions165/20260717g001600121.pdf": "a2af12a356ff005e64c16f2ff1242a2baa4d9384e6cd9981e55e2a32a356648a",
+    "crates/kanpo-parser/tests/data/native-compound-captions165/index.json": "22c87923ca60dbcb96f715fec677d5606c11e45ee943873e9e36c441f7251afa",
+    "crates/kanpo-parser/src/notice_boundaries.rs": "3a68c4dd229f364b886aba4439896bf63807738a6444a65c48284504638b38e1",
+    "crates/kanpo-parser/src/native_compound_caption_tests.rs": "ceaa847141b6e9641ead3aae71c4a7c47367eaace7463b529e31c6a40029e85b",
+    "crates/kanpo-parser/src/lib.rs": "33f1aaaf8c2a4c3e915da1527d3c43153d9c18d92ab57c371633b1ceefb63eb4",
+    "crates/kanpo-parser/tests/native_compound_caption_fixtures.rs": "47cd66adbcfed89bbb9f8d28b330459bae695f35c5ec380f6baa5ea561ad2e2b"
+  },
+  "limits": "Source review is nonblind development QA and regression preservation, not an independent full-corpus accuracy estimate. Some other procedures in these and other pages remain unseparated, and unresolved characters/complex tables remain. Full227active; no100percent completion claim, no OCR/model dependency change, no timeout increase or skipped test, no merge or issue closure. Image OCR stays explicit opt-in and NDLOCR0.0.15 stays pinned."
+}

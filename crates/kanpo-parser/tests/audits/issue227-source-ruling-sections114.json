@@ -1,0 +1,397 @@
+{
+  "schema_version": 1,
+  "issue": "https://github.com/bokuweb/lawrenceanum/issues/227",
+  "phase": "第83次:元の文字枠と閉じた罫線区画",
+  "date": "2026-10-24",
+  "decision": "adopt source-owned ruling sections114v3 after all local required gates, complete11992API/CLI and full-context checks",
+  "predecessor_primary": "3bc7b18397570969bd9513f75c73c321a836d580",
+  "predecessor_published_PR237_head": "295ce63bc9d568c6a8189efd05228899d41512d4",
+  "scope": "Native reading order; NDLOCR remains0.0.15 commitf97e930b8c3e9512f7788f258ef685da26416483. No new semantic model, dependency, native/OCR fusion, glyph-ink extractor or display rectangle changes.",
+  "problem": "The Poppler-compatible WMode1 cell can cross a physical horizontal rule while the original owned glyph cell is wholly below. This vetoes the old table-bottom cut and inserts a following heading/omission into the preceding printed field. Both original rectangles already exist in native XHTML.",
+  "general_evidence": [
+    "Only a complete original Word occurrence can authorize native geometry: metadata slot/id, normalized text, Used status and the current projection rectangle must still agree. Merged/moved/dropped projections cannot borrow one constituent glyph cell.",
+    "Every projected word must have a finite positive complete native glyph cell and an explicit rightward source axis. Native cells must be strictly on one side of the candidate horizontal rule, with the same side membership as the compatibility cells. Unknown/partial/contradictory evidence retains legacy layout.",
+    "Reuse the unchanged existing table-bottom ruling geometry, including a terminating interior panel wall. Extracted full Tables remain barriers. No overlap tolerance is widened. Shared rule_cut/is_column_split and the ordinary whitespace/table/row probes retain their old evidence.",
+    "Compare candidate with an independently recomputed legacy layout. Require complete unique current-source word membership and unchanged full Table/cell multiset.",
+    "Within a physically source-certified closed section, preserve the baseline internal membership/order/contiguity of balanced delimiter spans. Each section must close its own grammar. True cross-rule or unbalanced spans cannot authorize the extra cut. Without a source section, the earlier orthogonal grammar guard keeps its old behavior."
+  ],
+  "no_result_specific_production_branches": [
+    "No source page/PDF ID, issuer/company/title or expected-output lookup.",
+    "No new Japanese-character, line, column, issuer or source-word count caps.",
+    "Text equality binds an arbitrary projection to its own original source occurrence; it is not a vocabulary classifier. Arbitrary Japanese/Latin replacements and scale/translation/order counterfactuals are tested."
+  ],
+  "source_relationships": [
+    {
+      "page": "20260731g001720151",
+      "original": "../../archive/pages/20260731g00172/20260731g001720151.pdf",
+      "PDF_sha256": "c6336da11bfdc6fa42c75c1f8884caa4cdf07fd1907c91e822e312d64ebed556",
+      "source_order_anchors": [
+        107,
+        61,
+        95,
+        96,
+        97,
+        63,
+        98,
+        99,
+        78,
+        47,
+        2,
+        34,
+        35,
+        36,
+        11,
+        37,
+        38,
+        20,
+        116,
+        103,
+        126
+      ],
+      "source_observation": "Both printed comparison halves, including their complete lower note4 blocks and final omissions, finish inside the outer bottom rule before the following full-width supplementary-provisions heading and commencement subheading. Root viewed full original source before defining this oracle.",
+      "source_oracle_timing": "Frozen before any114runtime proposal, adopted113RED confirmed.",
+      "source_review": "Root full original, non-blind development validation; not an accuracy estimate."
+    },
+    {
+      "page": "20260930g002150345",
+      "original": "20260930g002150345.pdf",
+      "PDF_sha256": "b272637a1377d275defef35443a4fb722b957e496a5101160c47889585013543",
+      "source_order_anchors": [
+        89,
+        65,
+        26,
+        2,
+        134,
+        125,
+        24
+      ],
+      "source_observation": "Root viewed the full original. Four upper-panel omissions (second and third columns in both panels) belong above the shared bottom ruling, before the printed Article 6 and its full-width amendment sentence. Adopted113 places the far-right omission between that sentence and the following comparison legend. Private114v2 moves only that omission before Article 6. All existing internal upper-panel ordering remains outside this boundary assertion.",
+      "source_oracle_timing": "Discovered during privatev2 full11992corpus. Full original independently viewed before adding this boundary assertion; runtime unchanged.",
+      "scope": "Only upper omissions vs following article boundary; existing internal upper-panel ordering is not certified.",
+      "source_review": "Root full original, non-blind development validation; not an accuracy estimate."
+    }
+  ],
+  "regressions": {
+    "added": 37,
+    "new_library": {
+      "geometry": 14,
+      "section_grammar": 6,
+      "original_occurrence_binding": 8
+    },
+    "new_portable_target": {
+      "tests": 9,
+      "original_boundaries": 2,
+      "counterfactual_tests": 6,
+      "preceding_page_context": 1,
+      "source": "crates/kanpo-parser/tests/source_ruling_sections_fixtures.rs"
+    },
+    "before_implementation_RED": {
+      "original151_on_actual113": "0passed1failed;21source anchors fixed before any114runtime",
+      "geometry_test_only_stub": "10passed4failed",
+      "old_section_guard_test_only_delegate": "4passed2failed",
+      "permissive_ownership_test_only_stub": "1passed7failed"
+    },
+    "final_portable9_on_actual113": {
+      "exit": 101,
+      "summary": [
+        "test result: FAILED. 5 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.68s",
+        ""
+      ],
+      "scope": "Final portable public9source/context/counterfactual tests run independently on adopted113 runtime. No expectations changed."
+    },
+    "candidate3_tests": {
+      "original_test_exit": 0,
+      "all_parser_lib_tests_exit": 0,
+      "portable_tests_exit": 0,
+      "source_prepost_exact": true,
+      "scope": "Private v3: same ruling/section grammar with original occurrence/unchanged projection binding. Public113 unchanged."
+    }
+  },
+  "held_prototypes": [
+    {
+      "version": 1,
+      "reason": "Correct seam detected, but old grammar guard preserved the preexisting foreign-section heading insertion. Original21anchor assertion remained RED. No golden/source change."
+    },
+    {
+      "version": 2,
+      "reason": "Complete corpus/source positives passed, but code review found original-cell ownership was not proved for merged/moved projections. Added8RED-first ownership tests and exact original Word binding before adoption. No actual original regression was observed in v2."
+    }
+  ],
+  "required_public_gates": {
+    "terminal": 0,
+    "source_manifest_sha256": "c3d7fed6c4467abc3908b8e808bffc30c8311afdb5a0253fd452d314bfac33ec",
+    "commands": 120,
+    "integration_targets": 111,
+    "passed": 2298,
+    "failed": 0,
+    "ignored": 0,
+    "result_groups": 119,
+    "no_expected_snapshot_updates": true,
+    "all_commands_exit0": true
+  },
+  "snapshots": {
+    "snapshots": 814,
+    "byte_equal_adopted113": 813,
+    "changed": [
+      "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260731g00172__20260731g001720151.pdf.snap"
+    ],
+    "source_independent_expected_receipt": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/fullwidth-annex-source114/candidate-v2/snapshot151-source-expectation/whitespace-scope-revision.json",
+    "source_oracle_21anchors_unchanged": true,
+    "scope": "Expected snapshot bytes only; readonly actual814snapshot test must complete separately.",
+    "readonly_actual_archive_tests_pass": true
+  },
+  "snapshot_expectation_scope": "Only151snapshot changed after full original review. Initial manual expected payload additionally removed the preexisting newline before numeric13; that unrelated whitespace merge was rejected. First expected payload/failure retained, revised expectation preserves that old break and exactly matches the complete unchanged snapshot formatter. The21source anchor oracle/runtime stayed unchanged. Other813snapshot bytes match adopted113.",
+  "actual_public_single_page_API": {
+    "terminal": 0,
+    "processed": 11992,
+    "inputs": 11992,
+    "changed": [
+      "20260731g001720151",
+      "20260930g002150345"
+    ],
+    "unchanged_complete_Analysis_equal113": 11990,
+    "all11992_complete_Analysis_and_text_equal_private3": true,
+    "mismatches_private3": [],
+    "changed_set_equal_reviewed_private3": true,
+    "source_inputs_references_binaries_prepost_verified": true,
+    "seconds": 664.766453583,
+    "scope": "Actual public port complete API output on every original; no excluded fields, no accuracy estimate. Source-backed private2source review only transfers when every complete Analysis/text exactly matches."
+  },
+  "actual_public_CLI": {
+    "pages": 11992,
+    "actual_CLI_all_public_API_text_bytes_equal": true,
+    "mismatches": [],
+    "public_complete_Analysis_all_private3_equal": true,
+    "references": {
+      ".cache/kanpo-227/resume90-local-recovery/public-corpus114v3/all-canonical-Analysis-hashes114v3.json": "48b205240b7ba98cb06bb93d45eb916c4401d023f590449c5e04e9218cef002e",
+      ".cache/kanpo-227/resume90-local-recovery/CLI114v3/all-text-hashes114v3.json": "fe8f598419b189efb34a961da53d5b95fd35b41dedea82d0c171f5189ec3539e",
+      ".cache/kanpo-227/resume90-local-recovery/CLI114v3/terminal114v3.json": "9871491b2b7bfd08e33084cb402be8466b7a7c28667faf470184af6c5dbec02b",
+      ".cache/kanpo-227/resume90-local-recovery/CLI114v3/lossless-plaintext-archive114v3.json": "e68bf90d89afd7d43115dacc3aae2ee3e7d3406b24df60b74f17402eca00075f",
+      ".cache/kanpo-227/resume90-local-recovery/public-corpus114v3/result114v3.json": "cff9d5fe063bfdd7300af7956920ed93a046468032a9c4c0c3b4d9b8d129f09a"
+    }
+  },
+  "private_complete_issue_validation": {
+    "issues": 159,
+    "pages": 11992,
+    "changed": [
+      "20260731g001720151"
+    ],
+    "complete_PageTrace_equal_private113v14": 11991,
+    "complete_issue_Analysis_equal_private113v14": 158,
+    "article_counts_preserved": true,
+    "source_failures": [],
+    "source_inputs_reference_binaries_verified": true,
+    "seconds": 613.813181708,
+    "scope": "Private v3 all159complete original issues against frozen adopted-private113v14 full sequence references. Every changed complete issue is then independently re-executed on actual published113 binary. No accuracy estimate."
+  },
+  "actual_public_complete_affected_issues": {
+    "rows": [
+      {
+        "issue": "20260731g00172",
+        "pages": 304,
+        "changed": [
+          "20260731g001720151"
+        ],
+        "complete_public114v3_Analysis_exact_private3": true,
+        "complete_actual_public113_Analysis_exact_frozen_baseline": true,
+        "all_Word_attrs_exact": true,
+        "all_full_Tables_exact": true,
+        "article_counts_equal": true,
+        "format_equal": true,
+        "nonwhite_chars_equal": true,
+        "source_anchor_checks": [
+          {
+            "page": "20260731g001720151",
+            "expected": [
+              107,
+              61,
+              95,
+              96,
+              97,
+              63,
+              98,
+              99,
+              78,
+              47,
+              2,
+              34,
+              35,
+              36,
+              11,
+              37,
+              38,
+              20,
+              116,
+              103,
+              126
+            ],
+            "actual": [
+              107,
+              61,
+              95,
+              96,
+              97,
+              63,
+              98,
+              99,
+              78,
+              47,
+              2,
+              34,
+              35,
+              36,
+              11,
+              37,
+              38,
+              20,
+              116,
+              103,
+              126
+            ],
+            "pass": true,
+            "baseline_actual": [
+              107,
+              61,
+              116,
+              103,
+              95,
+              96,
+              97,
+              63,
+              98,
+              99,
+              78,
+              47,
+              2,
+              34,
+              35,
+              36,
+              11,
+              37,
+              38,
+              20,
+              126
+            ]
+          }
+        ]
+      },
+      {
+        "issue": "20260930g00215",
+        "pages": 480,
+        "changed": [],
+        "complete_public114v3_Analysis_exact_private3": true,
+        "complete_actual_public113_Analysis_exact_frozen_baseline": true,
+        "all_Word_attrs_exact": true,
+        "all_full_Tables_exact": true,
+        "article_counts_equal": true,
+        "format_equal": true,
+        "nonwhite_chars_equal": true,
+        "source_anchor_checks": [
+          {
+            "page": "20260930g002150345",
+            "expected": [
+              89,
+              65,
+              26,
+              2,
+              134,
+              125,
+              24
+            ],
+            "actual": [
+              89,
+              65,
+              26,
+              2,
+              134,
+              125,
+              24
+            ],
+            "pass": true,
+            "baseline_actual": [
+              89,
+              65,
+              26,
+              2,
+              134,
+              125,
+              24
+            ]
+          }
+        ]
+      }
+    ],
+    "pages": 784,
+    "issues": 2,
+    "source_inputs_binaries_references_prepost_verified": true,
+    "seconds": 324.286541625,
+    "scope": "Actual public complete2affected issues, full Analysis matches private3 full159context run; independently rerun actual public113 baseline. Source anchor results report complete context, including preexisting unchanged behavior."
+  },
+  "source_preservation": {
+    "single_changed_pages": [
+      {
+        "page": "20260930g002150345",
+        "all_Word_attrs_exact": true,
+        "full_Table_multiset_exact": true,
+        "article_count_equal": true,
+        "format_equal": true,
+        "nonwhite_char_multiset_equal": true,
+        "baseline_repeat_complete_Analysis_exact": true
+      },
+      {
+        "page": "20260731g001720151",
+        "all_Word_attrs_exact": true,
+        "full_Table_multiset_exact": true,
+        "article_count_equal": true,
+        "format_equal": true,
+        "nonwhite_char_multiset_equal": true,
+        "baseline_repeat_complete_Analysis_exact": true
+      }
+    ],
+    "complete_changed_issue": [
+      {
+        "issue": "20260731g00172",
+        "pages": 304,
+        "actual_published113_complete_Analysis_exact_frozen_private113v14": true,
+        "all_Word_attrs_exact": true,
+        "all_full_Tables_exact": true,
+        "nonwhite_chars_equal": true,
+        "article_counts_equal": true
+      }
+    ],
+    "private3_vs2_all11992_complete_single_API_and_all159complete_issue_Analyses": "exact, ownership fence preserved both reviewed improvements and every other output"
+  },
+  "review_limits": [
+    "Root full-original review is non-blind development validation, not independent accuracy scoring. Fixed30page audit is not rescored.",
+    "Single-page source345boundary improves; in the complete480page issue that7anchor relationship already passed113, and the whole issue remains byte/structure-equivalent. Existing internal upper-panel layout is not certified by this boundary test.",
+    "Original151heading flow is corrected, but image body omissions, PUA and other section/ownership problems remain.100%notachieved. Goal remains active."
+  ],
+  "publication_CI": "This audit records pre-publication local validation. Verify the exact published head through PR237checks; final head/CI receipts are retained separately without a CI-only source commit.",
+  "receipt_SHA256": {
+    ".cache/kanpo-227/resume90-local-recovery/fullwidth-annex-source114/source-oracle-before-prototype.json": "c5ba83394a5241beda0c3ce608511fb335b33c958ec02ea5453963d190a99f83",
+    ".cache/kanpo-227/resume90-local-recovery/fullwidth-annex-source114/contract-RED/result.json": "91e1b64533336e4dd22afa1f81578b8748ddb3106f9f3e6c88ee4e4ec41f4d54",
+    ".cache/kanpo-227/resume90-local-recovery/fullwidth-annex-source114/span-RED/result.json": "c424779c29869496d7d2b50a184badf0927770ccb77a44c696cb15bcad04f917",
+    ".cache/kanpo-227/resume90-local-recovery/fullwidth-annex-source114/ownership-RED/result.json": "c83c508d792976699f8945c8c15815eb0175701830309625aca08fa2482ee613",
+    ".cache/kanpo-227/resume90-local-recovery/fullwidth-annex-source114/candidate-v1/held.json": "17d7a75623e87739bde98c09d3a4f4fe569103381085454b28b2b8a791d37803",
+    ".cache/kanpo-227/resume90-local-recovery/fullwidth-annex-source114/candidate-v2/held-after-general-ownership-review.json": "fc6569cf3ee4f17e9f1d1a28d85a8f9937b2faebee1feed7336f469b2102a3ac",
+    ".cache/kanpo-227/resume90-local-recovery/fullwidth-annex-source114/candidate-v3/test-result.json": "b7676600215b737efa564d4723459a7a319dd25deb680d1c57398b0c398ef10c",
+    ".cache/kanpo-227/resume90-local-recovery/fullwidth-annex-source114/candidate-v3/corpus/result.json": "74084cd72c3ecdbb511b61a3977a4bc6b141220bd15d7a64f8a0870c25a2f960",
+    ".cache/kanpo-227/resume90-local-recovery/fullwidth-annex-source114/candidate-v3/corpus/complete-Analysis-equivalence-v2.json": "01f22f02551bf7460eead775719b56fe4ac079f559e6f32c36d6799defec3ef4",
+    ".cache/kanpo-227/resume90-local-recovery/fullwidth-annex-source114/candidate-v3/corpus/changed-properties.json": "5869edf71dd5f1b58e93e78a321e7f0ed17a8ae07fcc041bf7dbdb0504faffcf",
+    ".cache/kanpo-227/resume90-local-recovery/fullwidth-annex-source114/candidate-v3/whole-issues/result.json": "4e3c087ebca392b5ccc4494e6255021f6591e4793ec29a7524636f4e037c5fc7",
+    ".cache/kanpo-227/resume90-local-recovery/fullwidth-annex-source114/candidate-v3/whole-issues/changed-issue-properties.json": "9277011acff9ea3138eebfd27b0c70afe095165e0b83d0db1da6f1f157328a1d",
+    ".cache/kanpo-227/resume90-local-recovery/fullwidth-annex-source114/candidate-v3/whole-issues/full-context-equivalence-v2.json": "9fcb0cffa153c6d8229d785779ad3f51cb60e6412dd215d0464a81dd2af6f40d",
+    ".cache/kanpo-227/resume90-local-recovery/fullwidth-annex-source114/candidate-v2/snapshot151-source-expectation/whitespace-scope-revision.json": "d24aa7d5574586d8e7f9ba877815244c78fb56907f617d1f4e414b0072c9e5f1",
+    ".cache/kanpo-227/resume90-local-recovery/fullwidth-annex-source114/public-port/baseline113-portable9-result.json": "e082530921ce8f138fde028713a98ee7d1522b3a61334d6c2ef2f6447cf861f0",
+    ".cache/kanpo-227/resume90-local-recovery/fullwidth-annex-source114/public-port/snapshot-byte-proof114v3.json": "e17f0709db2d9c32879848414ab24d2e419ff74df4f014ab1daa933a97d77eaf",
+    ".cache/kanpo-227/resume90-local-recovery/fullwidth-annex-source114/public-port/all2-source-review114v3.json": "1dc952c38c244fb38106b4eea7d029e9411b1db1db26b787c4f8d8dcd01ac1bc",
+    ".cache/kanpo-227/resume90-local-recovery/public-gates114v3/result114.json": "d2b89d70bde8ae00bd32df2cd0223a23c3f5f3017c8a2e5bb9f867276b0e4fe8",
+    ".cache/kanpo-227/resume90-local-recovery/public-gates114v3/source-manifest114.json": "c3d7fed6c4467abc3908b8e808bffc30c8311afdb5a0253fd452d314bfac33ec",
+    ".cache/kanpo-227/resume90-local-recovery/public-corpus114v3/result114v3.json": "cff9d5fe063bfdd7300af7956920ed93a046468032a9c4c0c3b4d9b8d129f09a",
+    ".cache/kanpo-227/resume90-local-recovery/public-corpus114v3/all-canonical-Analysis-hashes114v3.json": "48b205240b7ba98cb06bb93d45eb916c4401d023f590449c5e04e9218cef002e",
+    ".cache/kanpo-227/resume90-local-recovery/CLI114v3/all-CLI-API-equal114v3.json": "e155fc1449f708e4b5cb69254d5650f4d6fb376192c156ac7ead772f2130bafd",
+    ".cache/kanpo-227/resume90-local-recovery/CLI114v3/lossless-plaintext-archive114v3.json": "e68bf90d89afd7d43115dacc3aae2ee3e7d3406b24df60b74f17402eca00075f",
+    ".cache/kanpo-227/resume90-local-recovery/fullwidth-annex-source114/public-whole-affected114v3/result.json": "ef029ff75314f407ba4464222ea62052c8d0cf2221ed459805482960ef68eac8",
+    ".cache/kanpo-227/resume90-local-recovery/fullwidth-annex-source114/NDLOCR-pin-tests.log": "e2b10c40649dd45d20aba957c5656d7d639b196f62a1bb79cb97a30c09ebb1f8"
+  }
+}

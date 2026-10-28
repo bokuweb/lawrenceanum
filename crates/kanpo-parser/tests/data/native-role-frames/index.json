@@ -1,0 +1,254 @@
+{
+  "issue": 227,
+  "stage": "native189",
+  "source_review": "All6 changed complete original pages and printed root/neighbor pages viewed with PDFium. Roles are source annotations only; production code never uses page identities, these line counts or coordinate literals. Raster figures remain as source images; noOCR.",
+  "cases": [
+    {
+      "name": "172-four",
+      "pdfs": [
+        "tests/data/native-role-frames/20260731g001720154.pdf",
+        "tests/data/native-role-frames/20260731g001720155.pdf",
+        "tests/data/native-role-frames/20260731g001720156.pdf",
+        "tests/data/native-role-frames/20260731g001720157.pdf"
+      ],
+      "owner": 1,
+      "mode": "structural_notes",
+      "baseline": "baseline/172-four.json",
+      "expected": "expected/172-four.json",
+      "baseline_Analysis_sha256": "f64c8740d5b5a1c5df93ec4c8d7d177a72128530032d17ed77d102975222f07b",
+      "expected_Analysis_sha256": "63584d51d322b400300b91111009176fbd043dc952a3a2f1a4370203975a936d",
+      "annotations": [
+        {
+          "page": 3,
+          "after_lines": [
+            0
+          ],
+          "before_lines": [
+            1,
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "name": "192-three",
+      "pdfs": [
+        "../kanpo-pdf/tests/data/native-compound-scene/20260828g001920025.pdf",
+        "../kanpo-pdf/tests/data/native-compound-scene/20260828g001920026.pdf",
+        "tests/data/native-role-frames/20260828g001920027.pdf"
+      ],
+      "owner": 1,
+      "mode": "source_nested_tables",
+      "baseline": "baseline/192-three.json",
+      "expected": "expected/192-three.json",
+      "baseline_Analysis_sha256": "3cffd9610f4329793f25ce47fc46cd2e2d5903066f7b98e0ed6e55af72de3ad4",
+      "expected_Analysis_sha256": "b03dd142b75a6714ad68b16c047fc32311ee4a7c3f04e7ac798ffa78a1ae68a2",
+      "annotations": [
+        {
+          "page": 2,
+          "after_lines": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "before_lines": [
+            5,
+            6,
+            7,
+            8,
+            9
+          ]
+        }
+      ]
+    },
+    {
+      "name": "213-five",
+      "pdfs": [
+        "tests/data/native-role-frames/20260928g002130006.pdf",
+        "tests/data/native-role-frames/20260928g002130007.pdf",
+        "tests/data/native-role-frames/20260928g002130008.pdf",
+        "tests/data/native-role-frames/20260928g002130009.pdf",
+        "tests/data/native-role-frames/20260928g002130010.pdf"
+      ],
+      "owner": 0,
+      "mode": "frozen_canonical_tail",
+      "baseline": "baseline/213-five.json",
+      "expected": "expected/213-five.json",
+      "baseline_Analysis_sha256": "b0395f251d8c9e6fb6e062828c7e44b0ee3de308cab06ae22712daf818bc2a3e",
+      "expected_Analysis_sha256": "3a964f7c7a34fdb0a8dbfc544edc2b3e23b02f745247abe2df90f1ef56dcbdf0",
+      "annotations": [
+        {
+          "page": 1,
+          "after_lines": [
+            0,
+            1,
+            2
+          ],
+          "before_lines": [
+            3,
+            4,
+            5
+          ]
+        },
+        {
+          "page": 2,
+          "after_lines": [
+            0,
+            1
+          ],
+          "before_lines": [
+            2,
+            3
+          ]
+        },
+        {
+          "page": 3,
+          "after_lines": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "before_lines": [
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            31,
+            32,
+            33,
+            34,
+            35,
+            36,
+            37,
+            38,
+            39,
+            40
+          ]
+        },
+        {
+          "page": 4,
+          "after_lines": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19
+          ],
+          "before_lines": [
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            31,
+            32,
+            33,
+            34
+          ]
+        }
+      ]
+    }
+  ],
+  "inputs": [
+    {
+      "path": "tests/data/native-role-frames/20260731g001720154.pdf",
+      "sha256": "229d7852ff4ab61e1750ff0e015d3cd4dadcb03c58eaa1bd54e24ab925d67193"
+    },
+    {
+      "path": "tests/data/native-role-frames/20260731g001720155.pdf",
+      "sha256": "c2ab19dd5c14931186322b6410bc2aeb4170c64e225128abf9a73ff796a0ea20"
+    },
+    {
+      "path": "tests/data/native-role-frames/20260731g001720156.pdf",
+      "sha256": "7b4050ca1d2b7619b9ff311566fdd0d25930a5c4a2cd96859bd7171c9d5e061c"
+    },
+    {
+      "path": "tests/data/native-role-frames/20260731g001720157.pdf",
+      "sha256": "378410bb061a7906c30ca6b3b0d26f7dc2dcdba8e4306747fd6577e5d7ba9902"
+    },
+    {
+      "path": "../kanpo-pdf/tests/data/native-compound-scene/20260828g001920025.pdf",
+      "sha256": "c51685aef69e41cc8624b2b8f34651e6fc773f9631edd889210d9d79f24b0ca2"
+    },
+    {
+      "path": "../kanpo-pdf/tests/data/native-compound-scene/20260828g001920026.pdf",
+      "sha256": "81be6a73affb5bb9369a8c6b15194841f43c71db4fc18dea4cb555c1b312bb3f"
+    },
+    {
+      "path": "tests/data/native-role-frames/20260828g001920027.pdf",
+      "sha256": "36dfeedc959545baec69a9b5ecbbad26e247ac66af6564c54219ee23027e40d6"
+    },
+    {
+      "path": "tests/data/native-role-frames/20260928g002130006.pdf",
+      "sha256": "f88b3b420abf67f69a9eda8f267bbed7bec7bf59e6cde5486738f87a8edd7b2f"
+    },
+    {
+      "path": "tests/data/native-role-frames/20260928g002130007.pdf",
+      "sha256": "b355eb69fa5740cd970c967e9b48d2b9e351b3cf5f1757d055edc3fc4b39e8a1"
+    },
+    {
+      "path": "tests/data/native-role-frames/20260928g002130008.pdf",
+      "sha256": "1140c64e301969ace86f74501ed300755b3b292c437134933ed42fa14dbe7437"
+    },
+    {
+      "path": "tests/data/native-role-frames/20260928g002130009.pdf",
+      "sha256": "513c0c0dcd97741ab1762ba766d0592ba777d9a4e7ff970b1dd4eadccf3aaafc"
+    },
+    {
+      "path": "tests/data/native-role-frames/20260928g002130010.pdf",
+      "sha256": "cd6112ed92271df29e2e510958d2cde78fa697f0e43477d4a6aa20d411a05d7c"
+    }
+  ],
+  "reference": {
+    "reference-input-213.txt": "1594b73ab6fcf8fb76f7d197be9c07688299cd4cc44a2233b1068067202012f6",
+    "reference-output-213.json": "0890933216020ddb74d80d482fdfce6b9391e1168851120529896f403e5bc34a",
+    "reference-provenance.json": "5a83c8f82de2b7f6069d0101a073739b73ef888f8dbcc90ed022541f06ef02b2"
+  }
+}

@@ -114,7 +114,7 @@ fn finish(p: &mut PageTrace, start: usize) {
     p.tables = tables;
 }
 fn fixture(rows: usize) -> (PageTrace, PageRules) {
-    let mut p = PageTrace {native_axes:vec![],native_rulings:vec![],
+    let mut p = PageTrace {native_comparison_labels:vec![],native_horizontal_baselines:vec![],native_atomic_columns:vec![],native_axes:vec![],native_rulings:vec![],
         width: 400.,
         height: 600.,
         layout: "horizontal",

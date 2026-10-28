@@ -1,0 +1,5 @@
+Original official PDF: 20261020g002300016, Kanpo special issue 230, 2026-10-20, page 16.
+Source PDF is unchanged; no OCR or image processing is used by the parser.
+Review scope: implementing agent nonblind review of the 37 left-panel and 45 right-panel name/code associations, against the original rendered page. Not independent full-page transcription gold or an overall accuracy estimate.
+The reviewed142 Analysis is a regression contract. All 194 native Words (180 used) retain original IDs, raw/normalized text, status and geometry; row ownership is changed to keep wrapped names in their own cell.
+Original PDF SHA256: 93a39c35d1e31138d693106e5aa9ffb44649642c68fffdf81d782225185c13b8

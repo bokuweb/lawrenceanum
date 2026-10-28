@@ -1,0 +1,54 @@
+{
+  "scope": "Source order fragments manually transcribed and checked against original PDFium pixels. Full JSON expectations freeze reviewed candidate behavior for regression and are NOT independent full-accuracy oracles. Remaining raster body gaps and amendment/table ownership issues are not counted as solved.",
+  "rows": [
+    {
+      "page": "20260819h017710004",
+      "fragment": "〇海上保安庁告示第二十六号\n航路標識の設置、廃止及び一時撤去について、\n航路標識法（昭和二十四年法律第九十九号）第二\n十四条の規定により、次のように告示する。\n令和八年八月十九日\n海上保安庁長官宮澤康一\n名称津居山港東導流堤立標",
+      "reason": "Six-column preface above local ruling must finish before the record below.",
+      "PDF_sha256": "53c911070fb3c0cd0b2cef615f1c13a73c5e7581bbf646cbaf80c073295c1467",
+      "reviewed_Analysis_sha256": "5f32fee59e40ad1c354f51c5ae9b736e428df0e0790bc543cf36b2614e36bd9b"
+    },
+    {
+      "page": "20260805h017620008",
+      "ordered": [
+        "郵政民営化委員会事務局\n",
+        "郵政民営化委員会事務局次長の併任を解除する",
+        "法務省\n安藤貴世\n難民審査参与員に任命する（八月一日）",
+        "出入国在留管理庁\n",
+        "厚生労働省に出向させる"
+      ],
+      "reason": "Whole upper procedure precedes the next procedure below a partial ruling.",
+      "PDF_sha256": "10975eee14fce38b8a540ce63d8c6df1d9a0599d0741087ad0c45c497f819b32",
+      "reviewed_Analysis_sha256": "c46b2b65576e5c53852c757ba54d1eb0139fa02ef04cc75741094a44db08095d"
+    },
+    {
+      "page": "20260817h017690001",
+      "fragment": "る件（同三二〇）\n三\n〇国民年金基金令第二十条第四項の規",
+      "reason": "Page 3 physically above the tier divider belongs to the preceding entry.",
+      "PDF_sha256": "c3a9fac529da34963edf87a2c49b67d5606875a37089e71d8e0b6b22b34db54c",
+      "reviewed_Analysis_sha256": "7f12fcae7023bb8964cdb888b14c22d980ca30a21ca2f5f3efecdfdd077f85d6"
+    },
+    {
+      "page": "20260813h017670032",
+      "fragment": "においても同様\nの取扱いとする\nこと。\nにおいても同様\nの取扱いとする\nこと。",
+      "reason": "Complete each independently bounded long correction cell instead of alternating wrapped fragments.",
+      "PDF_sha256": "9feeda3048d9cd36a222cdf7a15197a4c8e7c4900836599dfa1a58f5878e7cfd",
+      "reviewed_Analysis_sha256": "1751b04370a2a4deef3ac313c8de37d7eaaa68de394df95eb31d21c2fbcfcbe9"
+    },
+    {
+      "page": "20261015g002260005",
+      "ordered": [
+        "別表第一の五の項中",
+        "別表第二の三の項中",
+        "別表第三の三の項中",
+        "附　則",
+        "環境大臣　笹川　博義",
+        "内閣総理大臣　高市　早苗",
+        "デジタル庁令・省令"
+      ],
+      "reason": "Upper appendix 1/2 amendments precede lower appendix 3, supplementary provisions and signatures. Intact original signature spacing remains verbatim.",
+      "PDF_sha256": "c18aada3f65cbab5b46c2458c751a4c90dc8baecafafcb36e6a4e675124e2151",
+      "reviewed_Analysis_sha256": "acb38f35bad1678cf4d4351697c2c9d7df92763cb0089d18e8aa3aef4d638166"
+    }
+  ]
+}

@@ -1,0 +1,121 @@
+{
+  "scope": "Read-only observational native geometry and complete original comparison membership after source review, not production constants or an adopted runtime classifier. Native parent rule frame values are recorded witnesses.",
+  "source_input_sha256": "1ac6000b13a8b888db87093561574000b810584a1ccc9d8eb39c38669aac931d",
+  "observed_frame": [
+    69.5,
+    46.0,
+    412.5,
+    412.0
+  ],
+  "observed_divider": 241.0,
+  "all_used_comparison_memberships": {
+    "after": [
+      1100,
+      1114,
+      1069,
+      1101,
+      1102,
+      1103,
+      1104,
+      1076,
+      1088,
+      1070,
+      1077,
+      1063,
+      1079,
+      1080,
+      1081,
+      1089,
+      1072,
+      1082,
+      1083,
+      1084,
+      1105,
+      1085,
+      1067,
+      1106,
+      1115,
+      1073,
+      1107,
+      1108,
+      1109,
+      1068,
+      1098,
+      1074,
+      1090,
+      1092,
+      1094,
+      1096,
+      1086
+    ],
+    "before": [
+      1040,
+      1056,
+      1026,
+      1041,
+      1042,
+      1043,
+      1044,
+      1030,
+      1038,
+      1027,
+      1031,
+      1032,
+      1039,
+      1028,
+      1033,
+      1034,
+      1035,
+      1045,
+      1036,
+      1024,
+      1046,
+      1057,
+      1029,
+      1047,
+      1048,
+      1049,
+      1025,
+      1050,
+      1037
+    ]
+  },
+  "member_counts": [
+    37,
+    29
+  ],
+  "all_members_native_axis_right": true,
+  "horizontal_top_segments": [],
+  "horizontal_bottom_segments": [
+    {
+      "y": 412.0,
+      "x0": 69.5,
+      "x1": 412.5
+    }
+  ],
+  "three_wall_segments": [
+    {
+      "x": 69.5,
+      "y0": 46.0,
+      "y1": 412.0
+    },
+    {
+      "x": 241.0,
+      "y0": 46.0,
+      "y1": 412.0
+    },
+    {
+      "x": 412.5,
+      "y0": 46.0,
+      "y1": 412.0
+    },
+    {
+      "x": 241.0,
+      "y0": 464.0,
+      "y1": 549.0
+    }
+  ],
+  "used_source_words_above_frame_in_its_projection": [],
+  "legacy_selected_global_side_by_side_divider": 609.0,
+  "uncertainty": "How to authorize previous-role inheritance using original local open-frame evidence without borrowing semantics from unrelated neighboring closed tables remains to be implemented and counterexample-tested."
+}

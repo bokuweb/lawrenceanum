@@ -69,7 +69,7 @@ fn main() {
         for b in &art.document.blocks {
             match b {
                 Block::Paragraph { runs } => show_runs("P", runs, w),
-                Block::Shinkyu { rows } => {
+                Block::Shinkyu { rows, .. } => {
                     println!("  [新旧対照表 {} 行]", rows.len());
                     for (ri, r) in rows.iter().enumerate() {
                         println!("   row {ri}");

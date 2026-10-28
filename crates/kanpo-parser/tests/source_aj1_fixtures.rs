@@ -1,3 +1,5 @@
+#[path = "support/expected_notice_sources.rs"]
+mod expected_notice_sources;
 #[path = "support/legacy_analysis.rs"]
 mod legacy_analysis;
 #[path = "support/expected_article_partitions.rs"]
@@ -247,6 +249,7 @@ fn source_20260828g001920071_complete_original() {
         e,
         include_str!("expected-native-source-order/20260828g001920071.json"),
     );
+    let e = expected_notice_sources::with_notices(e, include_str!("expected-notice-sources/20260828g001920071.json"));
     assert_eq!(a, e);
 }
 #[test]

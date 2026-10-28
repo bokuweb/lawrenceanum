@@ -1,0 +1,273 @@
+{
+  "issue": 227,
+  "iteration": "native131",
+  "status": "validated; not100%; images lower priority",
+  "problem": "Original ruled plant registration table fragmented across native Outside/Body lines, losing row/cell association. Whole continuation context fragments both left and right tables.",
+  "source_fixture": "tests/data/native-grid-fragments/20260813h017670003.pdf",
+  "manual_cell_witness": "tests/data/native-grid-fragments/source-left-cell-witnesses131.json",
+  "reviewed_goldens_are_not_independent_whole_quality_oracles": true,
+  "originals": [
+    {
+      "path": "tests/data/native-grid-fragments/20260813h017670001.pdf",
+      "sha256": "4c2da1e1153df14ee064fdf49e6405ef8025af2cec61156eeafbbdf90d707bd1"
+    },
+    {
+      "path": "tests/data/native-grid-fragments/20260813h017670002.pdf",
+      "sha256": "aa9ca08ca2f5b5637a97f1402818132c1d71bb144770c3c669301d631d5807c0"
+    },
+    {
+      "path": "tests/data/native-grid-fragments/20260813h017670003.pdf",
+      "sha256": "942339715dc0e1ba430020e8855628cdff65c1e4b58ad60cbe8523e45dfcca7a"
+    }
+  ],
+  "general_rules": [
+    "original Glyph bounds and explicitRight axes; original nonoverlapping complete grid and physical fences",
+    "all nativeUsed words belong wholly and uniquely to one source cell and one logical line",
+    "closed exclusive window of table plus orphaned body/Outside fragments only; protect After/Before/preamble/headings/blank/foreign text",
+    "preserve already single complete ownership Table; preserve every intact cell text and source-ID order",
+    "do not coarsen distinct existing logical cells solely because painted row rules are absent",
+    "no page/value/name/vocabulary selector; no new fixed character/line/distance cap; no extra semantic model"
+  ],
+  "failures_preserved": [
+    "v1 unordered source cells:16newcontractsPASS3RED; v2canonicalrow/colorder fixed",
+    "v2all11992changed525 and materialguard passed but financial original5logicalrows collapsedto3physicalrows: rejected",
+    "general no-coarsening contract first RED thenGREEN; financial actualsource REDv2GREENv3/v4",
+    "v3all11992changed249; complete table rendering and intactcellspace counterexamples bothRED; v4skipsalreadyoneTable and reusesintactcelltext",
+    "single/whole PageTrace differ with incoming continuation: initial cross-context equality guard failed; replaced it with independent originalglyph/rule proofs on each context, no source/content/style guard removed",
+    "added-target initial orchestration read batchresult beforeitexisted; Cargo target alreadypassed; normal batchfinished thenaddedtargetrerun and inventories reconciled"
+  ],
+  "new_tests": {
+    "library": 22,
+    "original_fixture_tests": 6,
+    "total": 28,
+    "old130single_source_tests": {
+      "pass": 2,
+      "fail": 3
+    },
+    "old130whole_prefix_test": {
+      "pass": 0,
+      "fail": 1
+    },
+    "private_v4_all_library": 2128
+  },
+  "native_validation": {
+    "terminal": 0,
+    "source_manifest_sha256": "115cdeb843f16a53a6643af420f00506b74362544882742ab81c1966e187d064",
+    "commands": 141,
+    "integration_targets": 132,
+    "passed": 3027,
+    "failed": 0,
+    "ignored": 0,
+    "result_groups": 140,
+    "no_expected_snapshot_updates": true,
+    "all_commands_exit0": true,
+    "validation": "Initial dynamic inventory tested all4nativepackages; then one additional original-prefix target added and tested. No initial input, runtime, test or snapshot changed. Final inventory exactly equals initial inventory plus that target.",
+    "added_command": [
+      "/Users/bokuweb/.cargo/bin/cargo",
+      "test",
+      "--locked",
+      "--no-fail-fast",
+      "-p",
+      "kanpo-parser",
+      "--test",
+      "native_grid_continuation_fixtures"
+    ],
+    "final_source_manifest": "source-manifest131-final.json",
+    "added_seconds": 0.9618315829999999
+  },
+  "impact_single": {
+    "mode": "single",
+    "items": 11992,
+    "pages": 11992,
+    "changed": 1,
+    "raw_material_guard_failures": 0,
+    "source_geometry_guard_failures": 0,
+    "source_inputs_baselines_binaries_prepost_exact": true,
+    "seconds": 268.419700208,
+    "scope": "impact only; independent source review and exact table/style/ownership verification required before adoption"
+  },
+  "impact_whole": {
+    "mode": "whole",
+    "items": 159,
+    "pages": 11992,
+    "changed": 1,
+    "raw_material_guard_failures": 0,
+    "source_geometry_guard_failures": 0,
+    "source_inputs_baselines_binaries_prepost_exact": true,
+    "seconds": 639.357996333,
+    "scope": "impact only; independent source review and exact table/style/ownership verification required before adoption"
+  },
+  "single_source_proofs": {
+    "mode": "single",
+    "checked": 1,
+    "failures": 0,
+    "rows": [
+      {
+        "key": "20260813h017670003",
+        "passed": true,
+        "source_proofs": [
+          {
+            "page": 0,
+            "replacements": [
+              {
+                "frame": [
+                  69.5,
+                  249.607,
+                  412.5,
+                  548.875
+                ],
+                "rows": 6,
+                "cols": 6,
+                "native_words": 104
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "scope": "source ownership/material/style guards; manual original image review still required"
+  },
+  "whole_source_proofs": {
+    "mode": "whole",
+    "checked": 1,
+    "failures": 0,
+    "rows": [
+      {
+        "key": "20260813h01767",
+        "passed": true,
+        "source_proofs": [
+          {
+            "page": 2,
+            "source_page": "20260813h017670003",
+            "replacements": [
+              {
+                "frame": [
+                  69.5,
+                  249.607,
+                  412.5,
+                  548.875
+                ],
+                "rows": 6,
+                "cols": 6,
+                "native_words": 104
+              },
+              {
+                "frame": [
+                  437.5,
+                  46.25,
+                  780.5,
+                  549.0
+                ],
+                "rows": 10,
+                "cols": 6,
+                "native_words": 151
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "scope": "source ownership/material/style guards; manual original image review still required"
+  },
+  "guard_calibration": {
+    "calibrated_meaningful_corruptions_rejected": 10,
+    "rows": [
+      {
+        "corruption": "source_Word_character",
+        "rejected": true,
+        "reason": "source Words/geometry"
+      },
+      {
+        "corruption": "Word_ID_JSON_type",
+        "rejected": true,
+        "reason": "source Words/geometry"
+      },
+      {
+        "corruption": "raw_character",
+        "rejected": true,
+        "reason": "raw material"
+      },
+      {
+        "corruption": "Document_underline",
+        "rejected": true,
+        "reason": "styled document characters"
+      },
+      {
+        "corruption": "Document_character",
+        "rejected": true,
+        "reason": "styled document characters"
+      },
+      {
+        "corruption": "cell_source_ID_pair",
+        "rejected": true,
+        "reason": "cell material"
+      },
+      {
+        "corruption": "Table_row_JSON_type",
+        "rejected": true,
+        "reason": "Table JSON integer type"
+      },
+      {
+        "corruption": "cell_geometry",
+        "rejected": true,
+        "reason": "cell geometry"
+      },
+      {
+        "corruption": "intact_cell_space",
+        "rejected": true,
+        "reason": "intact cell changed"
+      },
+      {
+        "corruption": "unrelated_line_space",
+        "rejected": true,
+        "reason": "unrelated source line/role changed"
+      }
+    ],
+    "actual_Run_underline_field": true
+  },
+  "actual_root": {
+    "single": {
+      "mode": "single",
+      "items": 11992,
+      "pages": 11992,
+      "all_complete_Analysis_equals_frozen_private131v4": true,
+      "source_inputs_oracles_binaries_prepost_exact": true,
+      "seconds": 389.292979709
+    },
+    "whole": {
+      "mode": "whole",
+      "items": 159,
+      "pages": 11992,
+      "all_complete_Analysis_equals_frozen_private131v4": true,
+      "source_inputs_oracles_binaries_prepost_exact": true,
+      "seconds": 446.23927970799997
+    },
+    "CLI": {
+      "terminal": 0,
+      "pages": 11992,
+      "changed_from_validated131v4_API_text": [],
+      "source_inputs_CLI_source_bbox_binary_links_prepost_exact": true,
+      "seconds": 276.78167091700004,
+      "scope": "Actual root textdump --pdf CLI on all11992originalPDFs, everytext digest checked against full-source-verified131v4API.Native reading order changes at1source-reviewed page; unchanged source Words and typed Table ownership and source styles guarded separately."
+    }
+  },
+  "snapshots": "all814existing immutable; no old fixture/expectation changed",
+  "source_review": "Author reviewed original changed plant table and sparse financial counterexample using PDFium; prefix PDFs reproduce context, not whole-page accuracy graded. Nonblind development check; not precision estimate.",
+  "known_limits": [
+    "upper separate amendment note order remains baseline",
+    "existing complete single-page right table Latin whitespace remains baseline",
+    "headerless amendment roles",
+    "neighboring sparse column caption contamination; original source test RED132 frozen",
+    "character encodings/PUA",
+    "image-only text; OCR automatic integration deferred",
+    "fixed30originals only partially reviewed; no30-page grade"
+  ],
+  "OCR": {
+    "name": "NDLOCR",
+    "version": "0.0.15",
+    "commit": "f97e930b8c3e9512f7788f258ef685da26416483",
+    "opt_in": true,
+    "automatic_integration": false
+  },
+  "evidence_cache": ".cache/kanpo-227/resume90-local-recovery/native-plant-table-rows131"
+}

@@ -1,0 +1,224 @@
+{
+  "baseline": "Frozen189 actual public API. No existing expected output changed.",
+  "source": "All5 original full pages reviewed. Annotations are source-test data only; runtime has no line-count, title, page or CID dispatch. Four success cases and one unsafe mixed-footer abstention.",
+  "cases": [
+    {
+      "name": "171-three",
+      "pdfs": [
+        {
+          "path": "tests/data/native-role-prefix/20260730g001710022.pdf",
+          "sha256": "daa621816ba00dd67f2d2b63ae41df6bfcaca032157a0037edb5b175d8efd0f1"
+        },
+        {
+          "path": "tests/data/native-role-prefix/20260730g001710023.pdf",
+          "sha256": "0b0c0f2564fe7d537f169919d34fe7d2ab95a3c872a835808c1b3bf85069be4f"
+        },
+        {
+          "path": "tests/data/native-role-prefix/20260730g001710024.pdf",
+          "sha256": "4ba7bbef7af553c0b16ae21b44bbffe90ee9c8d6e0a85f66d6259f828d3bed63"
+        }
+      ],
+      "baseline_sha256": "6b41828d0a098399654729f340de39fb9511da7370873c0f35ba526338f56aac",
+      "expected_sha256": "e65dea71deabbc856dbad4b2095f3b5648e27a147352dfe9d83684dd8fcbae1c",
+      "source_annotations": {
+        "after": [
+          0,
+          13
+        ],
+        "before": [
+          13,
+          26
+        ],
+        "owner": 4
+      },
+      "standalone_sha256": "75d01b2dc3a10adaaa2530307a00fc633402d2c9b5fe1493743f4de29960ce01"
+    },
+    {
+      "name": "192-four",
+      "pdfs": [
+        {
+          "path": "../kanpo-pdf/tests/data/native-compound-scene/20260828g001920025.pdf",
+          "sha256": "c51685aef69e41cc8624b2b8f34651e6fc773f9631edd889210d9d79f24b0ca2"
+        },
+        {
+          "path": "../kanpo-pdf/tests/data/native-compound-scene/20260828g001920026.pdf",
+          "sha256": "81be6a73affb5bb9369a8c6b15194841f43c71db4fc18dea4cb555c1b312bb3f"
+        },
+        {
+          "path": "tests/data/native-role-frames/20260828g001920027.pdf",
+          "sha256": "36dfeedc959545baec69a9b5ecbbad26e247ac66af6564c54219ee23027e40d6"
+        },
+        {
+          "path": "tests/data/native-role-prefix/20260828g001920028.pdf",
+          "sha256": "51583f73e3cdcd4f8e33f255b46817b9413a495b28fd212f115637f90abb409b"
+        }
+      ],
+      "baseline_sha256": "924d00df1f3c1362b69955835339fadb267977c2fabf6e076a265448b1b72e5d",
+      "expected_sha256": "3a826b98c657a1aea94bf1f43d38042d90d9039ed0580eaac16a96c3c64eebbc",
+      "source_annotations": {
+        "after": [
+          0,
+          3
+        ],
+        "before": [
+          3,
+          6
+        ],
+        "owner": 1
+      },
+      "standalone_sha256": "19f08936cf94aa11b5a7cf47b761f28541a852a4489c7ef58c227fd58b2f953e"
+    },
+    {
+      "name": "192-three",
+      "pdfs": [
+        {
+          "path": "tests/data/native-role-prefix/20260828g001920030.pdf",
+          "sha256": "3e932438652bd1db035eae3ed14ce15a805432f97c34a2d94e7bdcb4eac8f7e8"
+        },
+        {
+          "path": "tests/data/native-role-prefix/20260828g001920031.pdf",
+          "sha256": "6ef5e181f10ac306f113a7328f082606afdaa55dcff7750476df7a44a161de06"
+        },
+        {
+          "path": "tests/data/native-role-prefix/20260828g001920032.pdf",
+          "sha256": "615f2c29ed4ca13b7d1c31b46c095d1d57b6a15f66a0bb9f5dae0a6458c56710"
+        }
+      ],
+      "baseline_sha256": "1628eaec00a500c3fe29affb9f4a632b6150222ad244014491d5b8377df61e72",
+      "expected_sha256": "294c4aaa542734054eb7d261ee296c680b0704320dd424582aeb4b4b4d5973b6",
+      "source_annotations": {
+        "after": [
+          0,
+          17
+        ],
+        "before": [
+          17,
+          35
+        ],
+        "owner": 1
+      },
+      "standalone_sha256": "82862cf5854aba53492970bbdb4640351e566aefe440c4064419bb8a3407b8fc"
+    },
+    {
+      "name": "215-four",
+      "pdfs": [
+        {
+          "path": "tests/data/native-role-prefix/20260930g002150341.pdf",
+          "sha256": "095ad100db41acd567de5d02dcbd814247624b04925bf4f7c18fff71ab563f05"
+        },
+        {
+          "path": "tests/data/native-role-prefix/20260930g002150342.pdf",
+          "sha256": "5b4b009d560cc88427c66f79609185eb5e441f426b398d38c26854937cb5484a"
+        },
+        {
+          "path": "tests/data/native-role-prefix/20260930g002150343.pdf",
+          "sha256": "bb726dd9dd68d5da2602fe6bd05566ee58066ab319b75c433486cbce1029245d"
+        },
+        {
+          "path": "tests/data/native-role-prefix/20260930g002150344.pdf",
+          "sha256": "d7008e209fa8286cb715d988f93db615b2018b798d4a003d3df37b7d07a01723"
+        }
+      ],
+      "baseline_sha256": "b6e18a068b296551f115c62eef6e96649d6e5fd5e18b14cfd84efa5db18afb45",
+      "expected_sha256": "8ea0ce21acbd7fc3571b283c62e412ba7e12685ae327c68e9e6c2b0e0d8fc23b",
+      "source_annotations": {
+        "after": [
+          0,
+          17
+        ],
+        "before": [
+          17,
+          18
+        ],
+        "owner": 0,
+        "old_comparison_block": 2
+      },
+      "standalone_sha256": "29b7e4414c6403efc7392ab3d1429f42e3b275649a6a46e0c76fcfadbc714fc3"
+    },
+    {
+      "name": "226-three",
+      "pdfs": [
+        {
+          "path": "tests/data/native-role-prefix/20261015g002260018.pdf",
+          "sha256": "6bd0025eb2ff989da05a70a0f87872180a4b1c05bf3a78597de6ec59cdb3896d"
+        },
+        {
+          "path": "tests/data/native-role-prefix/20261015g002260019.pdf",
+          "sha256": "486e4ff8e507d7eadb4897ace98ca99886d84ebfc588a66ec4f3515557b67e55"
+        },
+        {
+          "path": "tests/data/native-role-prefix/20261015g002260020.pdf",
+          "sha256": "18d4693b6a9daf06a56c9ff680e1cb8fbc3b8db1c7608780b286009dd19d3b57"
+        }
+      ],
+      "baseline_sha256": "8f7565e11bfa1ec742cdee31b03d29d5d27f3ae1f204d000c047d4493a9cd3ae",
+      "expected_sha256": "8f7565e11bfa1ec742cdee31b03d29d5d27f3ae1f204d000c047d4493a9cd3ae",
+      "source_annotations": {
+        "abstention": "The next mixed footer is inside the old source frame; no full cap separates all its material. The191v1 unsafe trial changed this page; final proof must retain the complete189 baseline."
+      },
+      "standalone_sha256": "788aa379beacb153e9c5ff22e9eaae0554afdade39faa645ad5bce187c95e147",
+      "current_expected_path": "tests/data/native-mixed-line-fields/expected/226-three.json",
+      "current_expected_provenance": "native192 exact original Word-owned slices and native field/cap proof; historical191 baseline and expected JSON remain unchanged"
+    }
+  ],
+  "frozen190_text_only_references": [
+    {
+      "name": "171-old-tail-control",
+      "input_sha256": "68c11db6506fb3d4121537c36eefeef2c2dbb3e36619cd88e19e1b70643fe91f",
+      "output_sha256": "5de891a2967c10425469aef761c77cd4b401855eebefcb08d99f7a8b99f1108a"
+    },
+    {
+      "name": "171-paired-tail",
+      "input_sha256": "e3c5d3a71dbee504d9019226bbc4c220d8b06d83479554ad1c5c1041302f7b34",
+      "output_sha256": "3e9b8bda8f11a43645a6c54f1c60e8fd00dc415c4df1e45a4db75abc42b01ba9"
+    },
+    {
+      "name": "171-outside-note",
+      "input_sha256": "112352e632466532eba9892efc0438b36b9d6ab4acd8c7f7d072065eb827a734",
+      "output_sha256": "4f49a6d92f0495ff5ea48e63f3902ab88af5a04f8ac12c15c7abc7023a1f3f67"
+    },
+    {
+      "name": "192-whole-old-control",
+      "input_sha256": "4febb35f357a39fbef0df6cdb96d4aa8bc4486d78ba25b8db5a925deb751ea8c",
+      "output_sha256": "c760ec34acbffde96ec9c2b457fc0809d44be1a00faf8500585c0136cfb2ebce"
+    },
+    {
+      "name": "192-whole-new-reference",
+      "input_sha256": "9be960f2bad04ed22e3272a4204441fe08d816244590fb98fca78a91e9874414",
+      "output_sha256": "7bd0226613ac1f35e324e7b01e2a6a8fa6aea98868e25320d847db8e783d7b1e"
+    },
+    {
+      "name": "215-old-after-tail-control",
+      "input_sha256": "cc04043d61563b148311187bed3d939521a0c138ac89252762fa60381bf53d97",
+      "output_sha256": "944a70a0ab260e1956d7fed25d89c38b9b85790cda4ae989496acee2ba908313"
+    },
+    {
+      "name": "215-after-tail",
+      "input_sha256": "08f03eb06a9e419f90d892924abdbee79c1f4ba84fe1474609c47bbbcc1a5563",
+      "output_sha256": "e72f15532a34447a45c0a865091d2605593c98a3059602e7a25563af83bf0575"
+    }
+  ],
+  "old_model_manifest": {
+    "old_kanpo_parser_rlib": "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-target/debug/deps/libkanpo_parser-a322c925ac7c4d62.rlib",
+    "old_build_time_UTC": 1793162476.7975762,
+    "frozen_rlib_sha256": "eb1d01153c53cb414beefe4915c6818145cfba038893b5d3535f282c34852396",
+    "observer_sha256": "8206cc0088d9af5daf78763a9502cef93bf8ccea8e1f5a2ffca1b2cc16c80ebc",
+    "source_sha256": "aaec91527c4c0523b6322249f215cc0587f8e55dcf4f81ef4e6736044ac8784f",
+    "serde_sha256": "5414838911d82b2fba490bf4e81c51a520d70126b38a9b7d9c91de3f8e613fcf",
+    "command": [
+      "/Users/bokuweb/.cargo/bin/rustc",
+      "--edition=2021",
+      "-L",
+      "dependency=/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-target/debug/deps",
+      "--extern",
+      "kanpo_parser=/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-role-frames189/frozen190-model/libkanpo_parser190.rlib",
+      "--extern",
+      "serde_json=/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-target/debug/deps/libserde_json-4a81b9fa7ae4efe3.rlib",
+      "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-role-frames189/frozen190-model/from-literal-text.rs",
+      "-o",
+      "/Users/bokuweb/ghq/github.com/bokuweb/lawrenceanum/.cache/kanpo-227/resume90-local-recovery/native-role-frames189/frozen190-model/from-literal-text190"
+    ],
+    "calls": "Only frozen190 Document::from_text on literal human/source-annotated text. No source-frame detector, PDF analysis, current library or new classifier is invoked."
+  },
+  "oracle_corrections": "The first manual construction wrongly assumed a3-column tail could merge into an existing2-column table; actual original cell dimensions require two separate tables. Feeding an already-normalized last text row also changed one wrap: using complete original article context reproduced the old document exactly, then produced the corrected source reference.191 runtime remained unchanged during these oracle repairs."
+}

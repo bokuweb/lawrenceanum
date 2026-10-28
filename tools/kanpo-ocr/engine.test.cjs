@@ -14,3 +14,7 @@ test('NDLOCR failure never falls back to Tesseract',async()=>{
   await assert.rejects(run({engine:'ndlocr'}, {ndlocr:async()=>{throw new Error('NDLOCR failed');},tesseract:async()=>{legacy++;}}),/NDLOCR failed/);
   assert.equal(legacy,0);
 });
+test('NDLOCR region export cannot be requested through a different engine',()=>{
+ assert.equal(engineName({'ndlocr-regions':true}),'ndlocr');
+ assert.throws(()=>engineName({engine:'tesseract','ndlocr-regions':true}),/require --engine ndlocr/);
+});

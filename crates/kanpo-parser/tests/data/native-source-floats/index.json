@@ -1,0 +1,158 @@
+{
+  "stage": 188,
+  "cases": [
+    {
+      "key": "20260724g001660079",
+      "pdf": "tests/data/native-source-floats/20260724g001660079.pdf",
+      "PDF_sha256": "d1181ec432a0630b08c91530c3f2552333ce7362cebe9b851ab43971a2c819aa",
+      "baseline": "baseline/20260724g001660079.json",
+      "expected": "expected/20260724g001660079.json",
+      "baseline_Analysis_sha256": "3962d3c5c9355ff9741eceaa6c3483a440afe897137423088545b9d718b1cb6f",
+      "expected_Analysis_sha256": "af220069eb0903671f5ff562527b02538e64b3ca4f880fa706b60404ad7379ad",
+      "new_source_marks": 1,
+      "source_slots": {
+        "rows": [],
+        "tables": [
+          {
+            "word": 554,
+            "region": 0,
+            "line": 25,
+            "row": 7,
+            "col": 2,
+            "raw": "",
+            "source_box": [
+              186.5141,
+              372.3599,
+              194.5141,
+              380.5439
+            ]
+          }
+        ]
+      },
+      "review": "Full original visually reviewed: each selected mark is printed inside the selected original numeric slot.13marks total; all old content/format/slots remain. Non-blind source QA."
+    },
+    {
+      "key": "20260826g001900055",
+      "pdf": "tests/data/native-source-floats/20260826g001900055.pdf",
+      "PDF_sha256": "a33cdd84cdae863695a0da478ed0bd4ecf2d5e0a95b7dbe4a287bb0ed92fdd57",
+      "baseline": "baseline/20260826g001900055.json",
+      "expected": "expected/20260826g001900055.json",
+      "baseline_Analysis_sha256": "e589754215f3af0ddc7cff5e61452bc9d87497dd489135f1c62305cfa661b104",
+      "expected_Analysis_sha256": "b0b3bdb90b865a406d902a888769b155de97dc32816d9a644d248d5e0038e449",
+      "new_source_marks": 1,
+      "source_slots": {
+        "rows": [],
+        "tables": [
+          {
+            "word": 4,
+            "region": 0,
+            "line": 85,
+            "row": 7,
+            "col": 2,
+            "raw": "",
+            "source_box": [
+              525.5141,
+              740.3599,
+              533.5141,
+              748.5439
+            ]
+          }
+        ]
+      },
+      "review": "Full original visually reviewed: each selected mark is printed inside the selected original numeric slot.13marks total; all old content/format/slots remain. Non-blind source QA."
+    },
+    {
+      "key": "20260902g001960132",
+      "pdf": "tests/data/native-source-floats/20260902g001960132.pdf",
+      "PDF_sha256": "9912fd626e77cea7365c830cb1a615b24bec6f62b534689a6c472e45f596ee4f",
+      "baseline": "baseline/20260902g001960132.json",
+      "expected": "expected/20260902g001960132.json",
+      "baseline_Analysis_sha256": "4defb9c4e7443aa8f267dc1d54d2b5ff59ed0cfe031aa60c8506a45b0c091056",
+      "expected_Analysis_sha256": "6a312085c8cced48051836269a62902b2b5c29b0919bcb9f7ba035aff18d875d",
+      "new_source_marks": 10,
+      "source_slots": {
+        "rows": [
+          {
+            "source_region": 0,
+            "source_line": 25,
+            "before_token": [
+              2,
+              2
+            ],
+            "words": [
+              422,
+              328
+            ]
+          },
+          {
+            "source_region": 0,
+            "source_line": 40,
+            "before_token": [
+              2,
+              3,
+              4,
+              5
+            ],
+            "words": [
+              558,
+              372,
+              182,
+              7
+            ]
+          },
+          {
+            "source_region": 0,
+            "source_line": 43,
+            "before_token": [
+              2,
+              3,
+              4,
+              5
+            ],
+            "words": [
+              559,
+              374,
+              183,
+              9
+            ]
+          }
+        ],
+        "tables": []
+      },
+      "review": "Full original visually reviewed: each selected mark is printed inside the selected original numeric slot.13marks total; all old content/format/slots remain. Non-blind source QA."
+    },
+    {
+      "key": "20260924g002110108",
+      "pdf": "tests/data/native-source-floats/20260924g002110108.pdf",
+      "PDF_sha256": "bb7cba7561342c0e9aa5d1b3735636cc00ec247eb33b4cf63422df9be1222db5",
+      "baseline": "baseline/20260924g002110108.json",
+      "expected": "expected/20260924g002110108.json",
+      "baseline_Analysis_sha256": "5c055f62eeb9ec405400f183e226fe96046abb15117ebac23be52fecf7f976ae",
+      "expected_Analysis_sha256": "be51115c63aea25db409ad309ef69ae9d9b4706cff17d9b4ff5c3dcf81b638a2",
+      "new_source_marks": 1,
+      "source_slots": {
+        "rows": [],
+        "tables": [
+          {
+            "word": 253,
+            "region": 0,
+            "line": 50,
+            "row": 7,
+            "col": 1,
+            "raw": "",
+            "source_box": [
+              360.5,
+              727.3597,
+              368.5,
+              735.5437
+            ]
+          }
+        ]
+      },
+      "review": "Full original visually reviewed: each selected mark is printed inside the selected original numeric slot.13marks total; all old content/format/slots remain. Non-blind source QA."
+    }
+  ],
+  "scope": "13 source-reviewed original rectangle marks only; no original source raw/ID/boxes or old byte streams/table slots/merges/formats/article cuts replaced.",
+  "gold_method": "Pure prior180/183 literal old-AST transformation, frozen187 baseline and independently source-curated placements. No188 detector/parser.",
+  "non_blind_developer_QA": true
+}

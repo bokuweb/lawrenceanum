@@ -1,0 +1,680 @@
+{
+  "stage": 98,
+  "implementation": "native130",
+  "base_primary": "454017553bd6ef316227d437d5f7804943fff64d",
+  "base_publication": "5fdc67521499e5c07e1053c755a3fb83bb66f020",
+  "scope": "Source-backed local native vertical reading order, before OCR; not a claim of overall precision or100percent",
+  "implementation_evidence": [
+    "Original Glyph bounds, explicit native Down advance, unique open source horizontal rule",
+    "Full-width or one outer strip; no crossing original word, repeated row rules, vertical grid wall, ambiguous competing plan",
+    "One logical owner per source occurrence; only contiguous plain native lines explainable by their original Words",
+    "Tables, amendment roles, explicit blank lines, unknown source metadata are fences",
+    "Same original Word-ID sequence reuses original Line verbatim when moved",
+    "No page/title/name/value/text-length/line-count/absolute-distance condition or model-based decision added"
+  ],
+  "regressions": {
+    "new_parser_library_contracts": 27,
+    "original_source_fixtures": 5,
+    "normal_total": {
+      "terminal": 0,
+      "source_manifest_sha256": "415ffc1b84ec261742509eead126e63438657ad2e97630ae686dd278de388536",
+      "commands": 139,
+      "integration_targets": 130,
+      "passed": 2999,
+      "failed": 0,
+      "ignored": 0,
+      "result_groups": 138,
+      "no_expected_snapshot_updates": true,
+      "all_commands_exit0": true
+    },
+    "five_source_order_tests_on_baseline129": "0passed/5failed",
+    "five_source_order_tests_on_private130v3": "5passed/0failed",
+    "source_golden_scope": "Five full Analysis JSONs are reviewed candidate regression goldens, not independent full-accuracy oracles. Independent manually transcribed source order witnesses are stored separately in fixture metadata."
+  },
+  "private_progress_and_failures": {
+    "compatibility_v1": "still original preface RED; a compatibility Word rectangle crossed the ruling endpoint despite original glyphs lying inside",
+    "v2": "2079existing library tests+22standalonecontracts pass, but preserved-line spaces drift in original226p5",
+    "space_regression": "22passed/1failed, then original Line reuse fixed it",
+    "v3": "2106real crate library tests, five original portable tests green; all corpus verification complete"
+  },
+  "impact": {
+    "single": {
+      "mode": "single",
+      "items": 11992,
+      "pages": 11992,
+      "changed": 16,
+      "raw_material_guard_failures": 0,
+      "source_geometry_guard_failures": 0,
+      "source_inputs_baselines_binaries_prepost_exact": true,
+      "seconds": 261.917972167,
+      "scope": "impact only; independent source review and exact table/style/ownership verification required before adoption"
+    },
+    "whole": {
+      "mode": "whole",
+      "items": 159,
+      "pages": 11992,
+      "changed": 13,
+      "raw_material_guard_failures": 0,
+      "source_geometry_guard_failures": 0,
+      "source_inputs_baselines_binaries_prepost_exact": true,
+      "seconds": 505.22382375,
+      "scope": "impact only; independent source review and exact table/style/ownership verification required before adoption"
+    }
+  },
+  "strict_guards": {
+    "single": {
+      "mode": "single",
+      "changed_checked": 16,
+      "failures": 0,
+      "calibrated_corruptions_rejected": 8,
+      "rows": [
+        {
+          "key": "20260730g001710027",
+          "guards": {
+            "source_Words_all_exact": true,
+            "all_intact_lines_verbatim": true,
+            "all_typed_Tables_and_shinkyu_exact": true,
+            "Document_style_character_multiset_exact": true,
+            "raw_character_multiset_exact": true,
+            "per_Article_material_and_notice_ownership_exact_except_approved_source_Word20_TOC_transfer_and_1_to_4_section_split": true
+          },
+          "passed": true
+        },
+        {
+          "key": "20260731g001720020",
+          "guards": {
+            "source_Words_all_exact": true,
+            "all_intact_lines_verbatim": true,
+            "all_typed_Tables_and_shinkyu_exact": true,
+            "Document_style_character_multiset_exact": true,
+            "raw_character_multiset_exact": true,
+            "per_Article_material_and_notice_ownership_exact_except_approved_source_Word20_TOC_transfer_and_1_to_4_section_split": true
+          },
+          "passed": true
+        },
+        {
+          "key": "20260731g001720157",
+          "guards": {
+            "source_Words_all_exact": true,
+            "all_intact_lines_verbatim": true,
+            "all_typed_Tables_and_shinkyu_exact": true,
+            "Document_style_character_multiset_exact": true,
+            "raw_character_multiset_exact": true,
+            "per_Article_material_and_notice_ownership_exact_except_approved_source_Word20_TOC_transfer_and_1_to_4_section_split": true
+          },
+          "passed": true
+        },
+        {
+          "key": "20260805h017620008",
+          "guards": {
+            "source_Words_all_exact": true,
+            "all_intact_lines_verbatim": true,
+            "all_typed_Tables_and_shinkyu_exact": true,
+            "Document_style_character_multiset_exact": true,
+            "raw_character_multiset_exact": true,
+            "per_Article_material_and_notice_ownership_exact_except_approved_source_Word20_TOC_transfer_and_1_to_4_section_split": true
+          },
+          "passed": true
+        },
+        {
+          "key": "20260806t000370003",
+          "guards": {
+            "source_Words_all_exact": true,
+            "all_intact_lines_verbatim": true,
+            "all_typed_Tables_and_shinkyu_exact": true,
+            "Document_style_character_multiset_exact": true,
+            "raw_character_multiset_exact": true,
+            "per_Article_material_and_notice_ownership_exact_except_approved_source_Word20_TOC_transfer_and_1_to_4_section_split": true
+          },
+          "passed": true
+        },
+        {
+          "key": "20260806t000370004",
+          "guards": {
+            "source_Words_all_exact": true,
+            "all_intact_lines_verbatim": true,
+            "all_typed_Tables_and_shinkyu_exact": true,
+            "Document_style_character_multiset_exact": true,
+            "raw_character_multiset_exact": true,
+            "per_Article_material_and_notice_ownership_exact_except_approved_source_Word20_TOC_transfer_and_1_to_4_section_split": true
+          },
+          "passed": true
+        },
+        {
+          "key": "20260813h017670032",
+          "guards": {
+            "source_Words_all_exact": true,
+            "all_intact_lines_verbatim": true,
+            "all_typed_Tables_and_shinkyu_exact": true,
+            "Document_style_character_multiset_exact": true,
+            "raw_character_multiset_exact": true,
+            "per_Article_material_and_notice_ownership_exact_except_approved_source_Word20_TOC_transfer_and_1_to_4_section_split": true
+          },
+          "passed": true
+        },
+        {
+          "key": "20260817h017690001",
+          "guards": {
+            "source_Words_all_exact": true,
+            "all_intact_lines_verbatim": true,
+            "all_typed_Tables_and_shinkyu_exact": true,
+            "Document_style_character_multiset_exact": true,
+            "raw_character_multiset_exact": true,
+            "per_Article_material_and_notice_ownership_exact_except_approved_source_Word20_TOC_transfer_and_1_to_4_section_split": true
+          },
+          "passed": true
+        },
+        {
+          "key": "20260819h017710004",
+          "guards": {
+            "source_Words_all_exact": true,
+            "all_intact_lines_verbatim": true,
+            "all_typed_Tables_and_shinkyu_exact": true,
+            "Document_style_character_multiset_exact": true,
+            "raw_character_multiset_exact": true,
+            "per_Article_material_and_notice_ownership_exact_except_approved_source_Word20_TOC_transfer_and_1_to_4_section_split": true
+          },
+          "passed": true
+        },
+        {
+          "key": "20260908h017850009",
+          "guards": {
+            "source_Words_all_exact": true,
+            "all_intact_lines_verbatim": true,
+            "all_typed_Tables_and_shinkyu_exact": true,
+            "Document_style_character_multiset_exact": true,
+            "raw_character_multiset_exact": true,
+            "per_Article_material_and_notice_ownership_exact_except_approved_source_Word20_TOC_transfer_and_1_to_4_section_split": true
+          },
+          "passed": true
+        },
+        {
+          "key": "20260911g002030008",
+          "guards": {
+            "source_Words_all_exact": true,
+            "all_intact_lines_verbatim": true,
+            "all_typed_Tables_and_shinkyu_exact": true,
+            "Document_style_character_multiset_exact": true,
+            "raw_character_multiset_exact": true,
+            "per_Article_material_and_notice_ownership_exact_except_approved_source_Word20_TOC_transfer_and_1_to_4_section_split": true
+          },
+          "passed": true
+        },
+        {
+          "key": "20260928g002130008",
+          "guards": {
+            "source_Words_all_exact": true,
+            "all_intact_lines_verbatim": true,
+            "all_typed_Tables_and_shinkyu_exact": true,
+            "Document_style_character_multiset_exact": true,
+            "raw_character_multiset_exact": true,
+            "per_Article_material_and_notice_ownership_exact_except_approved_source_Word20_TOC_transfer_and_1_to_4_section_split": true
+          },
+          "passed": true
+        },
+        {
+          "key": "20261005h018010032",
+          "guards": {
+            "source_Words_all_exact": true,
+            "all_intact_lines_verbatim": true,
+            "all_typed_Tables_and_shinkyu_exact": true,
+            "Document_style_character_multiset_exact": true,
+            "raw_character_multiset_exact": true,
+            "per_Article_material_and_notice_ownership_exact_except_approved_source_Word20_TOC_transfer_and_1_to_4_section_split": true
+          },
+          "passed": true
+        },
+        {
+          "key": "20261009g002230097",
+          "guards": {
+            "source_Words_all_exact": true,
+            "all_intact_lines_verbatim": true,
+            "all_typed_Tables_and_shinkyu_exact": true,
+            "Document_style_character_multiset_exact": true,
+            "raw_character_multiset_exact": true,
+            "per_Article_material_and_notice_ownership_exact_except_approved_source_Word20_TOC_transfer_and_1_to_4_section_split": true
+          },
+          "passed": true
+        },
+        {
+          "key": "20261014g002250012",
+          "guards": {
+            "source_Words_all_exact": true,
+            "all_intact_lines_verbatim": true,
+            "all_typed_Tables_and_shinkyu_exact": true,
+            "Document_style_character_multiset_exact": true,
+            "raw_character_multiset_exact": true,
+            "per_Article_material_and_notice_ownership_exact_except_approved_source_Word20_TOC_transfer_and_1_to_4_section_split": true
+          },
+          "passed": true
+        },
+        {
+          "key": "20261015g002260005",
+          "guards": {
+            "source_Words_all_exact": true,
+            "all_intact_lines_verbatim": true,
+            "all_typed_Tables_and_shinkyu_exact": true,
+            "Document_style_character_multiset_exact": true,
+            "raw_character_multiset_exact": true,
+            "per_Article_material_and_notice_ownership_exact_except_approved_source_Word20_TOC_transfer_and_1_to_4_section_split": true
+          },
+          "passed": true
+        }
+      ],
+      "scope": "strict material/style/geometry guards, NOT a correctness oracle for order or Article ownership"
+    },
+    "whole": {
+      "mode": "whole",
+      "changed_checked": 13,
+      "failures": 0,
+      "calibrated_corruptions_rejected": 8,
+      "rows": [
+        {
+          "key": "20260731g00172",
+          "guards": {
+            "source_Words_all_exact": true,
+            "all_intact_lines_verbatim": true,
+            "all_typed_Tables_and_shinkyu_exact": true,
+            "Document_style_character_multiset_exact": true,
+            "raw_character_multiset_exact": true,
+            "per_Article_material_and_notice_ownership_exact_except_approved_source_Word20_TOC_transfer_and_1_to_4_section_split": true
+          },
+          "passed": true
+        },
+        {
+          "key": "20260805h01762",
+          "guards": {
+            "source_Words_all_exact": true,
+            "all_intact_lines_verbatim": true,
+            "all_typed_Tables_and_shinkyu_exact": true,
+            "Document_style_character_multiset_exact": true,
+            "raw_character_multiset_exact": true,
+            "per_Article_material_and_notice_ownership_exact_except_approved_source_Word20_TOC_transfer_and_1_to_4_section_split": true
+          },
+          "passed": true
+        },
+        {
+          "key": "20260806t00037",
+          "guards": {
+            "source_Words_all_exact": true,
+            "all_intact_lines_verbatim": true,
+            "all_typed_Tables_and_shinkyu_exact": true,
+            "Document_style_character_multiset_exact": true,
+            "raw_character_multiset_exact": true,
+            "per_Article_material_and_notice_ownership_exact_except_approved_source_Word20_TOC_transfer_and_1_to_4_section_split": true
+          },
+          "passed": true
+        },
+        {
+          "key": "20260813h01767",
+          "guards": {
+            "source_Words_all_exact": true,
+            "all_intact_lines_verbatim": true,
+            "all_typed_Tables_and_shinkyu_exact": true,
+            "Document_style_character_multiset_exact": true,
+            "raw_character_multiset_exact": true,
+            "per_Article_material_and_notice_ownership_exact_except_approved_source_Word20_TOC_transfer_and_1_to_4_section_split": true
+          },
+          "passed": true
+        },
+        {
+          "key": "20260817h01769",
+          "guards": {
+            "source_Words_all_exact": true,
+            "all_intact_lines_verbatim": true,
+            "all_typed_Tables_and_shinkyu_exact": true,
+            "Document_style_character_multiset_exact": true,
+            "raw_character_multiset_exact": true,
+            "per_Article_material_and_notice_ownership_exact_except_approved_source_Word20_TOC_transfer_and_1_to_4_section_split": true
+          },
+          "passed": true
+        },
+        {
+          "key": "20260819h01771",
+          "guards": {
+            "source_Words_all_exact": true,
+            "all_intact_lines_verbatim": true,
+            "all_typed_Tables_and_shinkyu_exact": true,
+            "Document_style_character_multiset_exact": true,
+            "raw_character_multiset_exact": true,
+            "per_Article_material_and_notice_ownership_exact_except_approved_source_Word20_TOC_transfer_and_1_to_4_section_split": true
+          },
+          "passed": true
+        },
+        {
+          "key": "20260908h01785",
+          "guards": {
+            "source_Words_all_exact": true,
+            "all_intact_lines_verbatim": true,
+            "all_typed_Tables_and_shinkyu_exact": true,
+            "Document_style_character_multiset_exact": true,
+            "raw_character_multiset_exact": true,
+            "per_Article_material_and_notice_ownership_exact_except_approved_source_Word20_TOC_transfer_and_1_to_4_section_split": true
+          },
+          "passed": true
+        },
+        {
+          "key": "20260911g00203",
+          "guards": {
+            "source_Words_all_exact": true,
+            "all_intact_lines_verbatim": true,
+            "all_typed_Tables_and_shinkyu_exact": true,
+            "Document_style_character_multiset_exact": true,
+            "raw_character_multiset_exact": true,
+            "per_Article_material_and_notice_ownership_exact_except_approved_source_Word20_TOC_transfer_and_1_to_4_section_split": true
+          },
+          "passed": true
+        },
+        {
+          "key": "20260928g00213",
+          "guards": {
+            "source_Words_all_exact": true,
+            "all_intact_lines_verbatim": true,
+            "all_typed_Tables_and_shinkyu_exact": true,
+            "Document_style_character_multiset_exact": true,
+            "raw_character_multiset_exact": true,
+            "per_Article_material_and_notice_ownership_exact_except_approved_source_Word20_TOC_transfer_and_1_to_4_section_split": true
+          },
+          "passed": true
+        },
+        {
+          "key": "20261005h01801",
+          "guards": {
+            "source_Words_all_exact": true,
+            "all_intact_lines_verbatim": true,
+            "all_typed_Tables_and_shinkyu_exact": true,
+            "Document_style_character_multiset_exact": true,
+            "raw_character_multiset_exact": true,
+            "per_Article_material_and_notice_ownership_exact_except_approved_source_Word20_TOC_transfer_and_1_to_4_section_split": true
+          },
+          "passed": true
+        },
+        {
+          "key": "20261009g00223",
+          "guards": {
+            "source_Words_all_exact": true,
+            "all_intact_lines_verbatim": true,
+            "all_typed_Tables_and_shinkyu_exact": true,
+            "Document_style_character_multiset_exact": true,
+            "raw_character_multiset_exact": true,
+            "per_Article_material_and_notice_ownership_exact_except_approved_source_Word20_TOC_transfer_and_1_to_4_section_split": true
+          },
+          "passed": true
+        },
+        {
+          "key": "20261014g00225",
+          "guards": {
+            "source_Words_all_exact": true,
+            "all_intact_lines_verbatim": true,
+            "all_typed_Tables_and_shinkyu_exact": true,
+            "Document_style_character_multiset_exact": true,
+            "raw_character_multiset_exact": true,
+            "per_Article_material_and_notice_ownership_exact_except_approved_source_Word20_TOC_transfer_and_1_to_4_section_split": true
+          },
+          "passed": true
+        },
+        {
+          "key": "20261015g00226",
+          "guards": {
+            "source_Words_all_exact": true,
+            "all_intact_lines_verbatim": true,
+            "all_typed_Tables_and_shinkyu_exact": true,
+            "Document_style_character_multiset_exact": true,
+            "raw_character_multiset_exact": true,
+            "per_Article_material_and_notice_ownership_exact_except_approved_source_Word20_TOC_transfer_and_1_to_4_section_split": true
+          },
+          "passed": true
+        }
+      ],
+      "scope": "strict material/style/geometry guards, NOT a correctness oracle for order or Article ownership"
+    }
+  },
+  "source_ownership_exceptions": {
+    "TOC": {
+      "source_page": "20260817h017690001",
+      "single_key": "20260817h017690001",
+      "whole_key": "20260817h01769",
+      "word_id": 20,
+      "text": "三",
+      "original_bbox": [
+        503.83167,
+        414.06973,
+        512.8317,
+        423.06973
+      ],
+      "original_horizontal_divider_y": 425,
+      "review": "Original PDFium pixels place this page number above the horizontal tier divider, at the end of the upper entry ending 同三二〇. Baseline129 incorrectly attaches it to the next lower entry. This named source witness authorizes exactly one source character to move between these two Article records, not a general relaxation of ownership preservation.",
+      "edits": [
+        {
+          "article": 10,
+          "raw_append": "\n三",
+          "Run_append": "\n三"
+        },
+        {
+          "article": 11,
+          "raw_from": "三　ることができる法人の指定を公告す",
+          "raw_to": "ることができる法人の指定を公告す",
+          "Run_from": "\n三　",
+          "Run_to": ""
+        }
+      ]
+    },
+    "labor": "Original1785p9 one mixed road/labor/announcement Article splits into4source sections. The2announcement captions have raster-only bodies still unavailable. This reviewed case is not a fullquality success."
+  },
+  "whole_to_single_source_map": [
+    {
+      "issue": "20260731g00172",
+      "directly_changed_pages": [
+        "20260731g001720020",
+        "20260731g001720157"
+      ],
+      "Article_counts_before_after": [
+        165,
+        165
+      ]
+    },
+    {
+      "issue": "20260805h01762",
+      "directly_changed_pages": [
+        "20260805h017620008"
+      ],
+      "Article_counts_before_after": [
+        61,
+        61
+      ]
+    },
+    {
+      "issue": "20260806t00037",
+      "directly_changed_pages": [
+        "20260806t000370003",
+        "20260806t000370004"
+      ],
+      "Article_counts_before_after": [
+        9,
+        9
+      ]
+    },
+    {
+      "issue": "20260813h01767",
+      "directly_changed_pages": [
+        "20260813h017670032"
+      ],
+      "Article_counts_before_after": [
+        54,
+        54
+      ]
+    },
+    {
+      "issue": "20260817h01769",
+      "directly_changed_pages": [
+        "20260817h017690001"
+      ],
+      "Article_counts_before_after": [
+        134,
+        134
+      ]
+    },
+    {
+      "issue": "20260819h01771",
+      "directly_changed_pages": [
+        "20260819h017710004"
+      ],
+      "Article_counts_before_after": [
+        70,
+        70
+      ]
+    },
+    {
+      "issue": "20260908h01785",
+      "directly_changed_pages": [
+        "20260908h017850009"
+      ],
+      "Article_counts_before_after": [
+        43,
+        46
+      ]
+    },
+    {
+      "issue": "20260911g00203",
+      "directly_changed_pages": [
+        "20260911g002030008"
+      ],
+      "Article_counts_before_after": [
+        41,
+        41
+      ]
+    },
+    {
+      "issue": "20260928g00213",
+      "directly_changed_pages": [
+        "20260928g002130008"
+      ],
+      "Article_counts_before_after": [
+        238,
+        238
+      ]
+    },
+    {
+      "issue": "20261005h01801",
+      "directly_changed_pages": [
+        "20261005h018010032"
+      ],
+      "Article_counts_before_after": [
+        86,
+        86
+      ]
+    },
+    {
+      "issue": "20261009g00223",
+      "directly_changed_pages": [
+        "20261009g002230097"
+      ],
+      "Article_counts_before_after": [
+        246,
+        246
+      ]
+    },
+    {
+      "issue": "20261014g00225",
+      "directly_changed_pages": [
+        "20261014g002250012"
+      ],
+      "Article_counts_before_after": [
+        202,
+        202
+      ]
+    },
+    {
+      "issue": "20261015g00226",
+      "directly_changed_pages": [
+        "20261015g002260005"
+      ],
+      "Article_counts_before_after": [
+        273,
+        273
+      ]
+    }
+  ],
+  "review": {
+    "reviewer": "author, nonblind; no separate agent grading",
+    "originals_viewed": [
+      "20260730g001710027",
+      "20260731g001720020",
+      "20260731g001720157",
+      "20260805h017620008",
+      "20260806t000370003",
+      "20260806t000370004",
+      "20260813h017670032",
+      "20260817h017690001",
+      "20260819h017710004",
+      "20260908h017850009",
+      "20260911g002030008",
+      "20260928g002130008",
+      "20261005h018010032",
+      "20261015g002260005",
+      "20261009g002230097",
+      "20261014g002250012"
+    ],
+    "scope": "Changes compared with original PDFium pixels, complete raw text and all-field material/style/table/source ownership guards; not all old layout problems solved",
+    "limitations": {
+      "first_preface": "native preface must complete six physical columns before first record fields; independent literal contract RED129/GREEN130v2/v3",
+      "personnel": "postal privatization secretariat + law ministry record precede separate immigration section below local ruling",
+      "TOC": "page3 lies ABOVE horizontal divider, belongs preceding upper item; baseline glued it into the lower item column; v2movesitbackabove",
+      "amendment_form157": "native top placeholder precedes lower amendment directive across source full-width separator; raster-only body remains missing, typed shinkyu roles still absent",
+      "correction32": "long quoted cells should read complete each cell rather than alternating their wrapped fragments",
+      "labor9": "labor category/citation precedes lower announcement category. New6articles include2caption-onlyArticles where raster bodies unavailable; not fullqualitysuccess",
+      "prose226p5": "appendix1, appendix2 amendments precede appendix3 + supplementary provisions and signatures, then next digital-ministry order; v2also lost existing spaces in intact moved lines. REDtest detects that, v3reuses oldLine text by exact source-word-ID sequence.",
+      "aviation97and12": "Original top after/bottom before airport captions occupy identical x columns but distinct bands separated by a horizontal rule; complete each caption within its source band. This does NOT certify current whole airport Table placement or infer amendment roles; remaining layout issues must stay reported.",
+      "raster_annotations": "Form157, deletion-directiveT37, diagram213 include raster-only large bodies; native captions still must follow source bands, but this is lower work priority and never a full-accuracy claim."
+    }
+  },
+  "actual_root": {
+    "single": {
+      "mode": "single",
+      "items": 11992,
+      "pages": 11992,
+      "all_complete_Analysis_equals_frozen_private130v3": true,
+      "source_inputs_oracles_binaries_prepost_exact": true,
+      "seconds": 396.39902975
+    },
+    "whole": {
+      "mode": "whole",
+      "items": 159,
+      "pages": 11992,
+      "all_complete_Analysis_equals_frozen_private130v3": true,
+      "source_inputs_oracles_binaries_prepost_exact": true,
+      "seconds": 617.728997167
+    },
+    "CLI": {
+      "terminal": 0,
+      "pages": 11992,
+      "changed_from_validated130v3_API_text": [],
+      "source_inputs_CLI_source_bbox_binary_links_prepost_exact": true,
+      "seconds": 283.864258583,
+      "scope": "Actual root textdump --pdf CLI on all11992originalPDFs, everytext digest checked against full-source-verified130v3API.Native reading order changes at16source-reviewed pages; unchanged source Words and typed Tables/style guarded separately."
+    },
+    "native": {
+      "terminal": 0,
+      "source_manifest_sha256": "415ffc1b84ec261742509eead126e63438657ad2e97630ae686dd278de388536",
+      "commands": 139,
+      "integration_targets": 130,
+      "passed": 2999,
+      "failed": 0,
+      "ignored": 0,
+      "result_groups": 138,
+      "no_expected_snapshot_updates": true,
+      "all_commands_exit0": true
+    }
+  },
+  "immutable_existing_inputs": "All814snapshots and preexisting corpus/raw/Document expectations unchanged; snapshot updates prohibited.27newunitcontracts +5source fixtures only. Original Words, typed Tables, styles and preserved whole lines checked, including8calibrated corruptions.",
+  "OCR": "NDLOCR0.0.15 remains pinned; no OCR integration or additional model",
+  "audit145": "30originals/outputs frozen at129; first12provisional reviews, no completed30page score",
+  "remaining": [
+    "Native plant registration long-row/cell association on1767p3, high priority",
+    "Headerless amendment roles, including206p56 standalone/context distinction",
+    "Open-column heading contamination on1756p22",
+    "Other character/PUA, table, tier, Article and notice ownership issues",
+    "Raster-only body remains lower work priority per user"
+  ],
+  "CI_tracking": "Exact publication-head native/workspace/OCR/Playground CI is tracked in PR237. This source audit records actual-root local2999tests and all11992single/159whole/PDFCLI verification; it does not substitute for publication-head CI."
+}
