@@ -9,6 +9,7 @@ pub(crate) struct Tape {
     scene_images: Vec<[f64;4]>,
     scene_backgrounds: Vec<(usize,BackgroundProgram)>,
     scene_rectangles: std::collections::BTreeMap<usize,[f64;4]>,
+    scene_glyph_obstacles: std::collections::BTreeMap<usize,[f64;4]>,
 }
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct Edge {
@@ -148,6 +149,7 @@ impl Default for Capture {
                 scene_images: vec![],
                 scene_backgrounds: vec![],
                 scene_rectangles: Default::default(),
+                scene_glyph_obstacles: Default::default(),
             },
             previous: None,
             armed: false,

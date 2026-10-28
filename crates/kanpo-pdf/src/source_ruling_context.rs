@@ -1,6 +1,8 @@
 //! Conservative drawing-context proof for source outline rectangles.
 //! This observes private state and never changes emitted Glyphs or Paths.
 use super::*;
+#[derive(Clone,Copy)]
+enum SourceOutline{InkRectangle,SceneRectangle,CompoundEnvelope}
 impl Interp<'_> {
     pub(super) fn observe_ink_op(&mut self, op: &[u8], o: &[Object], resources: &Dict) {
         if self.source_rects.is_none() {
@@ -144,12 +146,15 @@ impl Interp<'_> {
         c: &crate::font::CharCode,
         trm: &Matrix,
     ) -> Option<[f64; 4]> {
-        self.capture_outline_rectangle(font,c,trm,false)
+        self.capture_outline_geometry(font,c,trm,SourceOutline::InkRectangle)
     }
     pub(super) fn capture_scene_rectangle(&self,font:&Font,c:&crate::font::CharCode,trm:&Matrix)->Option<[f64;4]>{
-        self.capture_outline_rectangle(font,c,trm,true)
+        self.capture_outline_geometry(font,c,trm,SourceOutline::SceneRectangle)
     }
-    fn capture_outline_rectangle(&self,font:&Font,c:&crate::font::CharCode,trm:&Matrix,scene:bool)->Option<[f64;4]>{
+    pub(super) fn capture_scene_compound_envelope(&self,font:&Font,c:&crate::font::CharCode,trm:&Matrix)->Option<[f64;4]>{
+        self.capture_outline_geometry(font,c,trm,SourceOutline::CompoundEnvelope)
+    }
+    fn capture_outline_geometry(&self,font:&Font,c:&crate::font::CharCode,trm:&Matrix,kind:SourceOutline)->Option<[f64;4]>{
         if !self.gs.ink_geometry_complete
             || !self.gs.source_geometry_complete
             || self.gs.render != 0
@@ -157,9 +162,13 @@ impl Interp<'_> {
         {
             return None;
         }
-        let [x0, y0, x1, y1] = if scene {font.source_scene_rectangle(self.doc,c)?} else {font.source_rectangle(self.doc, c)?};
+        let [x0,y0,x1,y1]=match kind{
+            SourceOutline::InkRectangle=>font.source_rectangle(self.doc,c)?,
+            SourceOutline::SceneRectangle=>font.source_scene_rectangle(self.doc,c)?,
+            SourceOutline::CompoundEnvelope=>font.source_scene_compound_envelope(self.doc,c)?,
+        };
         // PDF origin1 = origin0 + v; embedded outlines use origin0.
-        let (vx,vy)=if scene&&font.vertical{let(_,vx,vy)=font.vertical_metrics(c);(vx,vy)}else{(0.,0.)};
+        let (vx,vy)=if !matches!(kind,SourceOutline::InkRectangle)&&font.vertical{let(_,vx,vy)=font.vertical_metrics(c);(vx,vy)}else{(0.,0.)};
         if !vx.is_finite()||!vy.is_finite(){return None;}
         let points = [[x0, y0], [x1, y0], [x1, y1], [x0, y1]].map(|[x, y]| {
             let (x, y) = trm.apply(x / 1000.-vx, y / 1000.-vy);

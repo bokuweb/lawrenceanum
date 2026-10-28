@@ -2,6 +2,9 @@
 use super::*;
 
 impl Capture {
+    pub(crate) fn scene_compound_obstacle(&mut self,id:usize,b:Option<[f64;4]>){
+        if let Some(b)=b{self.tape.scene_glyph_obstacles.insert(id,b);}
+    }
     pub(crate) fn scene_rectangle(&mut self, id: usize, b: Option<[f64; 4]>) {
         if let Some(b) = b {
             self.tape.scene_rectangles.insert(id, b);
@@ -30,6 +33,7 @@ impl Tape {
             }
         }
         let mut unknown = vec![];
+        let mut glyph_obstacles=vec![];
         let mut rectangles = vec![];
         let mut ignored = vec![];
         let mut rectangle_ids = vec![];
@@ -67,6 +71,8 @@ impl Tape {
             if let Some(b) = self.scene_rectangles.get(&id) {
                 rectangles.push(*b);
                 rectangle_ids.push(id);
+            } else if let Some(&b)=self.scene_glyph_obstacles.get(&id){
+                glyph_obstacles.push((id,b));
             } else {
                 unknown.push(id);
             }
@@ -112,12 +118,13 @@ impl Tape {
             at = end;
         }
         Some(crate::source_scene::Scene {
-            version: if word_obstacles.is_empty(){1}else{2},
+            version: if !glyph_obstacles.is_empty(){3}else if word_obstacles.is_empty(){1}else{2},
             glyphs: page.glyphs.len(),
             ignored,
             rectangle_ids,
             words,
             word_obstacles,
+            glyph_obstacles,
             unknown,
             rectangles,
             rulings,

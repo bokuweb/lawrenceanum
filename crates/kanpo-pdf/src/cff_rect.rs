@@ -63,13 +63,14 @@ pub(crate) fn filled_rectangle(points: &[[f64; 2]]) -> Option<[f64; 4]> {
     }
     Some(b)
 }
-fn outline(data: &[u8]) -> Option<[f64; 4]> {
+fn contours(data: &[u8]) -> Option<Vec<Vec<[f64; 2]>>> {
     // Standard Type2 implementation limits; not corpus-dependent retry caps.
     if data.is_empty() || data.len() > 65535 {
         return None;
     }
     let (mut i, mut args, mut points) = (0, Vec::<f64>::new(), Vec::<[f64; 2]>::new());
     let mut p = [0., 0.];
+    let mut paths = Vec::new();
     while i < data.len() {
         let op = data[i];
         i += 1;
@@ -106,12 +107,13 @@ fn outline(data: &[u8]) -> Option<[f64; 4]> {
         }
         match op {
             4 | 21 | 22 => {
+                let initial = paths.is_empty() && points.is_empty();
                 if !points.is_empty() {
-                    return None;
+                    paths.push(std::mem::take(&mut points));
                 }
                 let count = if op == 21 { 2 } else { 1 };
                 // The optional initial width is not a path operand.
-                if args.len() == count + 1 {
+                if initial && args.len() == count + 1 {
                     args.remove(0);
                 }
                 if args.len() != count {
@@ -148,9 +150,10 @@ fn outline(data: &[u8]) -> Option<[f64; 4]> {
                 if i != data.len() || !args.is_empty() {
                     return None;
                 }
-                return filled_rectangle(&points);
+                paths.push(points);
+                return Some(paths);
             }
-            // Curves, subroutines, multiple contours, arithmetic and hints are unknown.
+            // Curves, subroutines, arithmetic and hints are unknown.
             _ => return None,
         }
         if p.iter().any(|n| !n.is_finite()) {
@@ -158,6 +161,21 @@ fn outline(data: &[u8]) -> Option<[f64; 4]> {
         }
     }
     None
+}
+fn outline(data:&[u8])->Option<[f64;4]>{
+ let paths=contours(data)?;
+ let [points]=paths.as_slice() else{return None;};
+ filled_rectangle(points)
+}
+fn compound_outline(data:&[u8])->Option<[f64;4]>{
+ let paths=contours(data)?;
+ if paths.len()<2{return None;}
+ let mut envelope:Option<[f64;4]>=None;
+ for path in paths{
+  let b=filled_rectangle(&path)?;
+  envelope=Some(match envelope{None=>b,Some(a)=>[a[0].min(b[0]),a[1].min(b[1]),a[2].max(b[2]),a[3].max(b[3])]});
+ }
+ envelope
 }
 fn default_geometry(d: &BTreeMap<u16, Vec<Option<i64>>>) -> bool {
     // Explicit matrices require a separate proof; never assume the default.
@@ -168,7 +186,9 @@ fn default_geometry(d: &BTreeMap<u16, Vec<Option<i64>>>) -> bool {
             .iter()
             .all(|(op, want)| d.get(op).is_none_or(|v| v.as_slice() == [Some(*want)]))
 }
-pub(crate) fn rectangles(data: &[u8]) -> Option<BTreeMap<u16, [f64; 4]>> {
+pub(crate) fn rectangles(data:&[u8])->Option<BTreeMap<u16,[f64;4]>>{map_outlines(data,outline)}
+pub(crate) fn compound_envelopes(data:&[u8])->Option<BTreeMap<u16,[f64;4]>>{map_outlines(data,compound_outline)}
+fn map_outlines(data: &[u8],parse:fn(&[u8])->Option<[f64;4]>) -> Option<BTreeMap<u16, [f64; 4]>> {
     if data.get(..2)? != [1, 0] {
         return None;
     }
@@ -253,10 +273,13 @@ pub(crate) fn rectangles(data: &[u8]) -> Option<BTreeMap<u16, [f64; 4]>> {
     Some(
         cids.into_iter()
             .zip(programs)
-            .filter_map(|(cid, p)| outline(p).map(|b| (cid, b)))
+            .filter_map(|(cid, p)| parse(p).map(|b| (cid, b)))
             .collect(),
     )
 }
 #[cfg(test)]
 #[path = "cff_rect_tests.rs"]
 pub(crate) mod tests;
+
+
+#[cfg(test)]#[path="cff_compound_tests.rs"]mod compound_tests;

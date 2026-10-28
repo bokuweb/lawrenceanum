@@ -238,3 +238,49 @@ fn original_amount_marks_have_their_exact_embedded_word_outlines() {
     }
     assert_eq!(count, 12);
 }
+
+fn compound_font188(cid:u16)->Vec<u8>{
+    // Original Type2 path instructions, routed through an arbitrary charset CID.
+    let program=vec![248,44,250,6,21,254,128,199,250,128,79,7,247,14,22,254,128,199,250,128,79,7,14];
+    font(cid,program,"Arbitrary","Any","Other",&[],&[])
+}
+#[test]
+fn compound_contours_are_opaque_paint_and_never_a_continuous_ruling(){
+    for cid in [73,43021]{for encoding in ["Identity-H","Identity-V"]{
+        let bytes=pdf_scene(cid,compound_font188(cid),"","","",encoding,false);
+        let sources=extract_pages_with_aj1_sources(&bytes).unwrap();let scene=crate::source_scene::capture(&sources[0]).unwrap();
+        assert_eq!(scene.version,3);assert!(scene.unknown.is_empty());assert_eq!(scene.glyph_obstacles.iter().map(|x|x.0).collect::<Vec<_>>(),vec![0,1,2]);
+        assert!(scene.rectangles.is_empty()&&scene.rulings.is_empty()&&scene.rectangle_obstacles.is_empty());
+        let(vx,vy)=if encoding=="Identity-V"{(0.5,0.88)}else{(0.,0.)};
+        let want=[20.+8.*(0.408-vx),50.-8.*(0.882-vy),20.+8.*(0.590-vx),50.-8.*(-0.122-vy)];
+        assert_eq!(scene.glyph_obstacles[0].1,want);
+        assert!(!has_rule(&bbox::bbox_layout_with_native_styles(&sources)));
+    }}
+}
+#[test]
+fn unsupported_compound_paint_contexts_cannot_become_empty_or_known_paint(){
+    for(prefix,text,gs)in[("1 0.5 0 1 0 0 cm","",""),("","1 Tr",""),("/ArbitraryState gs","","/ca 0.5"),("18 42 5 5 re W n","","")]{
+        let bytes=pdf_scene(81,compound_font188(81),prefix,text,gs,"Identity-V",false);
+        let source=extract_pages_with_aj1_sources(&bytes).unwrap();let scene=crate::source_scene::capture(&source[0]);
+        if !gs.is_empty(){assert!(scene.is_none());continue;}
+        let scene=scene.unwrap();assert!(scene.glyph_obstacles.is_empty());assert_eq!(scene.unknown,vec![0,1,2],"{prefix} {text}");
+    }
+}
+#[test]
+fn visible_compound_paint_is_retained_even_when_Unicode_says_space(){
+    let bytes=pdf_scene_unicode(73,compound_font188(73),"","","",("Identity-V",true,"0020",""));
+    let sources=extract_pages_with_aj1_sources(&bytes).unwrap();let scene=crate::source_scene::capture(&sources[0]).unwrap();
+    assert_eq!(scene.version,3);assert_eq!(scene.glyph_obstacles.len(),3);assert!(scene.ignored.is_empty()&&scene.unknown.is_empty());
+}
+#[test]
+fn owned_words_and_invisible_glyphs_do_not_receive_duplicate_compound_ownership(){
+    // Legacy bbox retains a mapped invisible word as its own opaque occurrence;
+    // an unmapped invisible glyph has no Word and uses the ignored partition.
+    for(text,mapped,version,ignored)in[("",true,1,false),("3 Tr",false,1,true),("3 Tr",true,2,false)]{
+        let bytes=pdf_scene(73,compound_font188(73),"",text,"","Identity-H",mapped);
+        let sources=extract_pages_with_aj1_sources(&bytes).unwrap();let scene=crate::source_scene::capture(&sources[0]).unwrap();
+        assert_eq!(scene.version,version);assert!(scene.glyph_obstacles.is_empty()&&scene.unknown.is_empty());
+        if ignored{assert_eq!(scene.ignored,vec![0,1,2]);}else{assert_eq!(scene.words.len(),1);}
+        let value=serde_json::to_value(&scene).unwrap();assert!(value.get("glyph_obstacles").is_none(),"old complete version1 packets keep their payload fields");
+    }
+}

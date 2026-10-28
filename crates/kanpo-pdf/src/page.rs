@@ -599,7 +599,8 @@ impl Interp<'_> {
             let bbox = bounds(&trm, bbox_pts);
             let ink_rect=if self.source_rects.is_some(){self.capture_ink_rectangle(&font,&c,&trm)}else{None};
             let scene_rect=if self.source_lineage.is_some(){if font.vertical&&!crate::bbox::readable_ordering(font.ordering.as_deref(),font.has_to_unicode){self.capture_scene_rectangle(&font,&c,&trm)}else{ink_rect}}else{None};
-            if let Some(tape)=self.source_lineage.as_mut(){tape.scene_rectangle(self.glyphs.len(),scene_rect);}
+            let compound=if self.source_lineage.is_some()&&scene_rect.is_none(){self.capture_scene_compound_envelope(&font,&c,&trm)}else{None};
+            if let Some(tape)=self.source_lineage.as_mut(){tape.scene_rectangle(self.glyphs.len(),scene_rect);tape.scene_compound_obstacle(self.glyphs.len(),compound);}
             self.tm = advance.then(&self.tm);
             self.glyphs.push(Glyph {
                 text: font.unicode(&c),

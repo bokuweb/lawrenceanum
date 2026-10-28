@@ -67,6 +67,7 @@ pub struct Font {
     source_charset: OnceLock<Option<Vec<u16>>>,
     source_cid0: bool,
     source_rectangles: OnceLock<Option<std::collections::BTreeMap<u16,[f64;4]>>>,
+    source_compound_envelopes: OnceLock<Option<std::collections::BTreeMap<u16,[f64;4]>>>,
     source_alias_program: OnceLock<Option<source_alias::Program>>,
 }
 
@@ -114,6 +115,7 @@ impl Font {
             source_charset: OnceLock::new(),
             source_cid0: false,
             source_rectangles: OnceLock::new(),
+            source_compound_envelopes: OnceLock::new(),
             source_alias_program: OnceLock::new(),
         };
         if subtype == "Type0" {
@@ -390,6 +392,17 @@ impl Font {
         self.source_rectangles.get_or_init(||{
             let bytes=doc.decode_stream(self.source_cff.as_ref()?).ok()?;
             crate::cff_aj1::rectangles::rectangles(&bytes)
+        }).as_ref()?.get(&cid).copied()
+    }
+
+    // Compound rectilinear contours supply only opaque scene bounds. They are
+    // never a single filled rectangle, a ruling or a Unicode certificate.
+    pub(crate) fn source_scene_compound_envelope(&self,doc:&Document,c:&CharCode)->Option<[f64;4]>{
+        if !self.composite||!self.source_cid0||!self.identity_encoding{return None;}
+        let cid=u16::try_from(c.cid).ok()?;
+        self.source_compound_envelopes.get_or_init(||{
+            let bytes=doc.decode_stream(self.source_cff.as_ref()?).ok()?;
+            crate::cff_aj1::rectangles::compound_envelopes(&bytes)
         }).as_ref()?.get(&cid).copied()
     }
 

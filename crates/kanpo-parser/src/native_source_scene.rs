@@ -11,6 +11,8 @@ struct Certificate {
     words: Vec<(usize, usize, String, Rect)>,
     #[serde(default)]
     word_obstacles: Vec<(usize, usize, Rect)>,
+    #[serde(default)]
+    glyph_obstacles: Vec<(usize,Rect)>,
     unknown: Vec<usize>,
     rectangles: Vec<Rect>,
     rulings: Vec<Rect>,
@@ -32,8 +34,12 @@ fn contains(a: Rect, b: Rect) -> bool {
 }
 pub(crate) fn for_page(page: scraper::ElementRef, rules: &PageRules) -> Option<Scene> {
     let c: Certificate = serde_json::from_str(page.value().attr("data-native-scene")?).ok()?;
-    if !matches!(c.version,1|2)
-        || (c.version==1)!=c.word_obstacles.is_empty()
+    if !match c.version{
+        1=>c.word_obstacles.is_empty()&&c.glyph_obstacles.is_empty(),
+        2=>!c.word_obstacles.is_empty()&&c.glyph_obstacles.is_empty(),
+        3=>!c.glyph_obstacles.is_empty(),
+        _=>false,
+    }
         || !c.unknown.is_empty()
         || page
             .value()
@@ -51,6 +57,10 @@ pub(crate) fn for_page(page: scraper::ElementRef, rules: &PageRules) -> Option<S
             return None;
         }
         ranges.push((*id, id + 1));
+    }
+    for &(id,b) in &c.glyph_obstacles{
+        if id>=c.glyphs||!valid(b){return None;}
+        ranges.push((id,id+1));
     }
     let mut words = vec![];
     let actual = page
@@ -78,7 +88,7 @@ pub(crate) fn for_page(page: scraper::ElementRef, rules: &PageRules) -> Option<S
     for w in actual {
         let a = w.value();
         let (first,after,obstacle)=if let Some(source)=a.attr("data-native-source-occurrence"){
-            if c.version!=2||a.attr("data-native-flow-first-glyph").is_some()||a.attr("data-native-flow-after-glyph").is_some(){return None}
+            if c.version<2||a.attr("data-native-flow-first-glyph").is_some()||a.attr("data-native-flow-after-glyph").is_some(){return None}
             let v=source.split_whitespace().collect::<Vec<_>>();
             if v.len()!=7||v[0]!="1"{return None}
             let first=v[1].parse::<usize>().ok()?;let after=v[2].parse::<usize>().ok()?;
@@ -145,6 +155,7 @@ pub(crate) fn for_page(page: scraper::ElementRef, rules: &PageRules) -> Option<S
     }
     let mut obstacles = c.images;
     obstacles.extend(c.fills);
+    obstacles.extend(c.glyph_obstacles.into_iter().map(|(_,b)|b));
     obstacles.extend(c.rectangle_obstacles);
     obstacles.extend(c.word_obstacles.into_iter().map(|(_,_,b)|b));
     let mut lines = vec![];
@@ -293,3 +304,7 @@ mod interior_tests;
 #[cfg(test)]
 #[path="native_scene_occurrence_tests.rs"]
 mod occurrence_tests;
+
+#[cfg(test)]
+#[path="native_scene_compound_tests.rs"]
+mod compound_tests;

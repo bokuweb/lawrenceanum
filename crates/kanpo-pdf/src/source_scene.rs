@@ -10,6 +10,8 @@ pub(crate) struct Scene {
     pub words: Vec<(usize, usize, String, [f64; 4])>,
     #[serde(skip_serializing_if="Vec::is_empty")]
     pub word_obstacles: Vec<(usize, usize, [f64;4])>,
+    #[serde(skip_serializing_if="Vec::is_empty")]
+    pub glyph_obstacles: Vec<(usize,[f64;4])>,
     pub unknown: Vec<usize>,
     pub rectangles: Vec<[f64; 4]>,
     pub rulings: Vec<[f64; 4]>,
