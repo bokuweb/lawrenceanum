@@ -545,6 +545,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         if let Some(r)=rules.get(pi).and_then(|r|r.as_ref()){let b=crate::native_word_flow::horizontal_baselines(&native_bounds,&native_axes,&native_flows);crate::native_numeric_frames::restore(&mut units,&words,r,&b);crate::native_numeric_frames::restore_matrix_with_terminal(&mut units,&words,r,&b,||crate::native_terminal_glyph::for_words(page,&words)); }
             if prev_table {crate::comparison_labels::inherit(&mut units,prev_comparison_labels,explicit_comparison_label);}
             prev_comparison_labels=match units.last(){Some(Unit::Shinkyu{labels,..})=>*labels,_=>None};
+            crate::native_latin_wraps::restore(&mut units,&words,&native_bounds,&native_axes);
             let text = units.iter().map(Unit::text).filter(|t| !t.is_empty()).collect::<Vec<_>>().join("\n");
             let (doc_text, tables) = doc_text_of(&units, &mut table_count);
             prev_table = crate::legacy_comparison_scope::continues(&units);
@@ -922,6 +923,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         if let Some(r)=rules.get(pi).and_then(|r|r.as_ref()){let b=crate::native_word_flow::horizontal_baselines(&native_bounds,&native_axes,&native_flows);crate::native_numeric_frames::restore(&mut units,&words,r,&b);crate::native_numeric_frames::restore_matrix_with_terminal(&mut units,&words,r,&b,||crate::native_terminal_glyph::for_words(page,&words)); }
         if prev_table {crate::comparison_labels::inherit(&mut units,prev_comparison_labels,explicit_comparison_label);}
         prev_comparison_labels=match units.last(){Some(Unit::Shinkyu{labels,..})=>*labels,_=>None};
+        crate::native_latin_wraps::restore(&mut units,&words,&native_bounds,&native_axes);
         let text = units
             .iter()
             .map(Unit::text)

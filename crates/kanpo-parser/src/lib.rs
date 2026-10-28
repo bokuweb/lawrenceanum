@@ -725,6 +725,7 @@ mod native_caption_tiers;
 mod native_parallel_edits;
 
 mod native_cell_text;
+mod native_latin_wraps;
 
 mod native_cell_origin;
 

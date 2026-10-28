@@ -68,7 +68,7 @@ fn mutation(change: impl FnOnce(&mut Value)) {
     assert_eq!(actual(&i), gold(false));
 }
 #[test]
-fn original_source_keeps_only_the_three_independently_verified_cuts() {
+fn original_source_keeps_only_the_five_independently_verified_cuts() {
     assert_eq!(actual(&inputs("original")), gold(true));
 }
 #[test]

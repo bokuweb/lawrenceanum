@@ -141,10 +141,44 @@ fn join_wrapped_lines(lines: &[&str]) -> String {
             let reference = indices[idx].checked_add(1) == Some(indices[idx+1]) && reference_breaks.contains(&indices[idx]);
             if ends_sentence || around_table || after_note || (starts_structural_marker(lines[idx + 1]) && !mid_word && !wrapped_number && !reference) {
                 out.push('\n');
+            } else if latin_prose_wrap(line, lines[idx + 1]) {
+                out.push(' ');
             }
         }
     }
     out.trim().to_string()
+}
+
+/// 欧文の文の行末で語間が改行になったか（「…GREAT BRITAIN」＋「AND NORTHERN IRELAND」）。
+///
+/// 欧文は語の途中で区切るときにハイフンを付け、語間で改行する。改行の前後の英字が、どちらも
+/// 行の中に欧文の語間（元の字の空きから復元した半角空白）を持つ欧文の続きにあるときだけ、
+/// 消えた語間を戻す。語間の無い URL や記号の列（「…/sustainabi」＋「lity/…」）、
+/// 和文の中の 1 語（「英字表記：Hedayatullah」）は推測しない。頁・行の番号だけの欄に全角空白で続く
+/// 表の欄の欧文（正誤表の「八三　八〜九　CAUTION-MAY CONTAIN FLA」＋「MMABLE VAPOUR」）は、
+/// 狭い欄で語の途中を区切ることがあるので戻さない。括弧付きの項目番号に続く本文（「（５）　The place」）は表ではない。
+fn latin_prose_wrap(line: &str, next: &str) -> bool {
+    let latin = |c: char| c.is_ascii_alphanumeric() || " .,;:'’()&/-‑".contains(c);
+    let spaced = |run: &str| {
+        let cs: Vec<char> = run.chars().collect();
+        cs.windows(3).any(|w| (w[0].is_ascii_alphabetic() || ".,;:".contains(w[0])) && w[1] == ' ' && w[2].is_ascii_alphabetic())
+    };
+    let tail: String = {
+        let mut cs: Vec<char> = line.chars().rev().take_while(|&c| latin(c)).collect();
+        cs.reverse();
+        cs.into_iter().collect()
+    };
+    let head: String = next.chars().take_while(|&c| latin(c)).collect();
+    let before = &line[..line.len() - tail.len()];
+    let locator = before.strip_suffix('\u{3000}').is_some_and(|b| {
+        let field = b.rsplit('\u{3000}').next().unwrap_or("");
+        !field.is_empty() && field.chars().all(|c| "〇一二三四五六七八九十百千0123456789０１２３４５６７８９〜～・、".contains(c))
+    });
+    !locator
+        && line.ends_with(|c: char| c.is_ascii_alphabetic())
+        && next.starts_with(|c: char| c.is_ascii_alphabetic())
+        && spaced(&tail)
+        && spaced(&head)
 }
 
 /// 行頭が条文の構造マーカー（条・号・見出し・別表・附則・省略の印）か。列折り返し結合で改行を残す判定に使う。
@@ -2288,6 +2322,29 @@ mod tests {
                 runs: vec![Run::plain("第一条中「甲」を「乙」に改める。")]
             }]
         );
+    }
+
+    #[test]
+    fn a_latin_prose_wrap_restores_its_word_space() {
+        let text = join_wrapped_lines(&["UNITED KINGDOM OF GREAT BRITAIN", "AND NORTHERN IRELAND"]);
+        assert_eq!(text, "UNITED KINGDOM OF GREAT BRITAIN AND NORTHERN IRELAND");
+        let text = join_wrapped_lines(&["（５）\u{3000}The place specified by", "President of the University"]);
+        assert_eq!(text, "（５）\u{3000}The place specified by President of the University");
+    }
+
+    #[test]
+    fn unspaced_latin_tokens_and_table_fields_keep_the_original_join() {
+        for (a, b) in [
+            // URL や和文の中の 1 語には語間の根拠が無い。
+            ("当社ホームページhttps://www.example.co.jp/sustainabi", "lity/environment/index.html"),
+            ("氏名の英字表記：Hedayatullah", "Hedayat、2025年７月29日に失効"),
+            // 頁・行の番号に続く正誤表の欄は、狭い欄で語の途中を区切る。
+            ("八三\u{3000}八〜九\u{3000}CAUTION-MAY CONTAIN FLA", "MMABLE VAPOUR"),
+            // 一方の行に欧文の語間が無い。
+            ("OVC‑HEVs", "chargedepleting Type 1 tests."),
+        ] {
+            assert_eq!(join_wrapped_lines(&[a, b]), format!("{a}{b}"), "{a}|{b}");
+        }
     }
 
     #[test]

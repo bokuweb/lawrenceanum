@@ -1,5 +1,5 @@
 {
-  "scope": "Original source and derived original-PDF paint controls. Gold is independently constructed from baseline167 with three original marker-supported cuts; 9/9 remains unresolved.",
+  "scope": "Original source and derived original-PDF paint controls. Gold is independently constructed from baseline167 with three original counterpart-marker cuts and two whole-record omission cuts; 9/9 remains unresolved.",
   "fixtures": [
     {
       "file": "source.pdf",
@@ -58,6 +58,26 @@
   ],
   "derived_annotation_policy": "Annotations omitted because pypdf cannot decrypt original annotation strings. Native content/fonts and complete baseline Analysis verified unchanged before testing the new pass.",
   "gold_annotation": {
+    "after_old_row1": [
+      [
+        [
+          31
+        ],
+        [
+          32
+        ]
+      ],
+      [
+        [
+          35,
+          39
+        ],
+        [
+          36,
+          40
+        ]
+      ]
+    ],
     "after_old_row4": [
       [
         [
@@ -84,6 +104,26 @@
         ]
       ]
     ],
+    "before_old_row1": [
+      [
+        [
+          33
+        ],
+        [
+          34
+        ]
+      ],
+      [
+        [
+          37,
+          41
+        ],
+        [
+          38,
+          42
+        ]
+      ]
+    ],
     "before_old_row2": [
       [
         [
@@ -104,5 +144,5 @@
     ]
   },
   "baseline_sha256": "795aae37ac8603ab58c36e15dcfd24b61c08b9281828784f3b11ace45c71d5fa",
-  "expected_sha256": "8d3645f86e738a1bca27525cc910484826f9e5a07790bdc6362c6b9bfbe3c645"
+  "expected_sha256": "cf3b470f5a35161d0f26be3f883c56ab188ef65647e15c2dc68351fbab7b1c21"
 }

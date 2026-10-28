@@ -5014,6 +5014,15 @@ fn render_line(words: &[Col]) -> String {
             let letters = s.chars().last().is_some_and(|c| c.is_ascii_alphabetic() || matches!(c, ';' | ','))
                 && w.text.chars().next().is_some_and(|c| c.is_ascii_alphabetic());
             let wide = if letters { em * 2.0 } else { em * 0.75 };
+            // 和文の行の中でも、英字と英字の間の空きは欧文の語間（「英字表記：Noor Mohammed」）。
+            // 字の種類の切り替えの空きを詰める下限は、英字どうしには使わない。
+            let space_em = if s.chars().last().is_some_and(|c| c.is_ascii_alphabetic())
+                && w.text.chars().next().is_some_and(|c| c.is_ascii_alphabetic())
+            {
+                LATIN_SPACE_EM
+            } else {
+                space_em
+            };
             // 欧文の行では、読点の後の数・数の後の語も語間を空ける（「September 18, 2026」
             // 「162, 2830 Willebroek」。金額の桁区切りの後には空きが無い）。
             let comma_number = latin_line && s.ends_with(',') && w.text.starts_with(|c: char| c.is_ascii_digit());
@@ -5122,6 +5131,19 @@ mod tests {
             y1: y + 8.0,
             text: text.to_string(),
         }
+    }
+
+    #[test]
+    fn latin_letters_in_a_mixed_line_keep_their_source_word_space() {
+        // 和文の行の中の欧文の語間（0.25em）。字の種類の切り替えの下限（0.3em）は英字どうしに使わない。
+        let words = [w(0.0, 80.0, 0.0, "英字表記：Noor"), w(82.0, 126.0, 0.0, "Mohammed"), w(128.0, 180.0, 0.0, "Saqeb、氏名")];
+        assert_eq!(render_line(&words), "英字表記：Noor Mohammed Saqeb、氏名");
+        // 英字と和文・数字の間の同じ空きは従来どおり詰める。
+        let words = [w(0.0, 80.0, 0.0, "〇30 by 30"), w(82.0, 100.0, 0.0, "目標")];
+        assert_eq!(render_line(&words), "〇30 by 30目標");
+        // 空きの無い語（下付きの字など）は語間にしない。
+        let words = [w(0.0, 20.0, 0.0, "東京W"), w(20.0, 40.0, 0.0, "corr")];
+        assert_eq!(render_line(&words), "東京Wcorr");
     }
 
     #[test]
