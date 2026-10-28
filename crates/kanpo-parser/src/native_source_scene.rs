@@ -9,6 +9,8 @@ struct Certificate {
     ignored: Vec<usize>,
     rectangle_ids: Vec<usize>,
     words: Vec<(usize, usize, String, Rect)>,
+    #[serde(default)]
+    word_obstacles: Vec<(usize, usize, Rect)>,
     unknown: Vec<usize>,
     rectangles: Vec<Rect>,
     rulings: Vec<Rect>,
@@ -30,7 +32,8 @@ fn contains(a: Rect, b: Rect) -> bool {
 }
 pub(crate) fn for_page(page: scraper::ElementRef, rules: &PageRules) -> Option<Scene> {
     let c: Certificate = serde_json::from_str(page.value().attr("data-native-scene")?).ok()?;
-    if c.version != 1
+    if !matches!(c.version,1|2)
+        || (c.version==1)!=c.word_obstacles.is_empty()
         || !c.unknown.is_empty()
         || page
             .value()
@@ -58,6 +61,10 @@ pub(crate) fn for_page(page: scraper::ElementRef, rules: &PageRules) -> Option<S
     }
     // Original ranges identify occurrences; XHTML node order is not identity.
     let mut records = std::collections::BTreeMap::new();
+    let mut opaque = std::collections::BTreeMap::new();
+    for &(first,after,b) in &c.word_obstacles {
+        if first>=after||after>c.glyphs||!valid(b)||opaque.insert((first,after),b).is_some(){return None}
+    }
     for (first, after, raw, b) in &c.words {
         if first >= after
             || *after > c.glyphs
@@ -70,14 +77,20 @@ pub(crate) fn for_page(page: scraper::ElementRef, rules: &PageRules) -> Option<S
     }
     for w in actual {
         let a = w.value();
-        let first = a
-            .attr("data-native-flow-first-glyph")?
-            .parse::<usize>()
-            .ok()?;
-        let after = a
-            .attr("data-native-flow-after-glyph")?
-            .parse::<usize>()
-            .ok()?;
+        let (first,after,obstacle)=if let Some(source)=a.attr("data-native-source-occurrence"){
+            if c.version!=2||a.attr("data-native-flow-first-glyph").is_some()||a.attr("data-native-flow-after-glyph").is_some(){return None}
+            let v=source.split_whitespace().collect::<Vec<_>>();
+            if v.len()!=7||v[0]!="1"{return None}
+            let first=v[1].parse::<usize>().ok()?;let after=v[2].parse::<usize>().ok()?;
+            let b=[v[3].parse().ok()?,v[4].parse().ok()?,v[5].parse().ok()?,v[6].parse().ok()?];
+            if !valid(b)||opaque.remove(&(first,after))?!=b{return None}
+            (first,after,Some(b))
+        }else{
+            let first=a.attr("data-native-flow-first-glyph")?.parse::<usize>().ok()?;
+            let after=a.attr("data-native-flow-after-glyph")?.parse::<usize>().ok()?;
+            if opaque.contains_key(&(first,after)){return None}
+            (first,after,None)
+        };
         let (raw, b) = records.remove(&(first, after))?;
         let number = |s| a.attr(s)?.parse::<f32>().ok();
         let legacy = [
@@ -89,9 +102,10 @@ pub(crate) fn for_page(page: scraper::ElementRef, rules: &PageRules) -> Option<S
         if b.map(|x| x as f32) != legacy || w.text().collect::<String>() != *raw {
             return None;
         }
+        if obstacle.is_some_and(|envelope|!contains(envelope,*b)){return None}
         words.push((raw.clone(), legacy));
     }
-    if !records.is_empty() {
+    if !records.is_empty() || !opaque.is_empty() {
         return None;
     }
     ranges.sort_unstable();
@@ -132,6 +146,7 @@ pub(crate) fn for_page(page: scraper::ElementRef, rules: &PageRules) -> Option<S
     let mut obstacles = c.images;
     obstacles.extend(c.fills);
     obstacles.extend(c.rectangle_obstacles);
+    obstacles.extend(c.word_obstacles.into_iter().map(|(_,_,b)|b));
     let mut lines = vec![];
     for (center, paint) in c.lines {
         if !valid(paint) || !center.iter().all(|x| x.is_finite()) || !contains(paint, center) {
@@ -158,6 +173,31 @@ pub(crate) fn for_page(page: scraper::ElementRef, rules: &PageRules) -> Option<S
     })
 }
 impl Scene {
+    /// Exclude only the actual paint of complete original grid boundaries.
+    /// Opaque glyphs, images and fills are checked over the whole original strip.
+    /// Callers must retain their complete glyph bounds inside the returned area.
+    pub(crate) fn interior_strip(&self,b:[f32;4],grid:&crate::grid::Grid)->Option<[f32;4]>{
+        if grid.xs.len()<2||grid.ys.len()<2||grid.xs.iter().chain(&grid.ys).any(|v|!v.is_finite())
+            ||grid.xs.windows(2).any(|w|w[0]>=w[1])||grid.ys.windows(2).any(|w|w[0]>=w[1]){return None}
+        let overlaps=|a:Rect|a[0]<(b[2]as f64)&&(b[0]as f64)<a[2]&&a[1]<(b[3]as f64)&&(b[1]as f64)<a[3];
+        if !valid(b.map(f64::from))||self.obstacles.iter().any(|&a|overlaps(a)){return None}
+        let upper=|x:f64|{let v=x as f32;if (v as f64)<x{v.next_up()}else{v}};
+        let lower=|x:f64|{let v=x as f32;if (v as f64)>x{v.next_down()}else{v}};
+        let mut out=b;
+        for &(center,paint,_) in &self.lines{
+            if center[0]==center[2]&&center[1]==grid.top()as f64&&center[3]==grid.bottom()as f64
+                && grid.xs.iter().any(|&x|x as f64==center[0]){
+                if center[0]==b[0]as f64{out[0]=out[0].max(upper(paint[2]));}
+                if center[0]==b[2]as f64{out[2]=out[2].min(lower(paint[0]));}
+            }
+            if center[1]==center[3]&&center[0]==grid.left()as f64&&center[2]==grid.right()as f64
+                && grid.ys.iter().any(|&y|y as f64==center[1]){
+                if center[1]==b[1]as f64{out[1]=out[1].max(upper(paint[3]));}
+                if center[1]==b[3]as f64{out[3]=out[3].min(lower(paint[1]));}
+            }
+        }
+        valid(out.map(f64::from)).then_some(out)
+    }
     pub(crate) fn unobstructed(&self, b: [f32; 4]) -> bool {
         let b = b.map(f64::from);
         let overlaps = |a: Rect| a[0] < b[2] && b[0] < a[2] && a[1] < b[3] && b[1] < a[3];
@@ -222,3 +262,11 @@ impl Scene {
         }
     }
 }
+
+#[cfg(test)]
+#[path="native_scene_interior_tests.rs"]
+mod interior_tests;
+
+#[cfg(test)]
+#[path="native_scene_occurrence_tests.rs"]
+mod occurrence_tests;

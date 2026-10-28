@@ -25,7 +25,7 @@ use std::path::{Path, PathBuf};
 // Original glyph/envelope/font-size contracts are tested in kanpo-pdf.
 fn source_payload(actual: &str, expected: &str) -> String {
     let mut out = actual.to_owned();
-    for needle in [" data-native-cell-origin=\"", " data-native-advance-band=\"", " data-native-terminal-glyph=\"", " data-native-font-aliases=\"", " data-native-lineage-coverage=\"", " data-native-lineage-obstacles=\"", " data-native-lineage-ink=\"", " data-native-line-moves=\"", " data-native-scene=\""] {
+    for needle in [" data-native-cell-origin=\"", " data-native-advance-band=\"", " data-native-terminal-glyph=\"", " data-native-font-aliases=\"", " data-native-lineage-coverage=\"", " data-native-lineage-obstacles=\"", " data-native-lineage-ink=\"", " data-native-line-moves=\"", " data-native-scene=\"", " data-native-source-occurrence=\""] {
         if expected.contains(needle) {
             continue;
         }
@@ -280,4 +280,12 @@ fn native_scene_metadata_preserves_legacy_bytes_and_checks_every_current_field()
   assert_ne!(source_payload(&changed,&historical),historical);
   assert_ne!(source_payload(&changed,&current),current);
  }
+}
+
+#[test]
+fn source_occurrence_metadata183_preserves_legacy_bytes_and_checks_every_current_field(){
+ let old="<word xmin='10' data-native-axis='right'>a b</word>";
+ let current=old.replace(" data-native-axis"," data-native-source-occurrence=\"1 3 6 9 19 31 41\" data-native-axis");
+ assert_eq!(source_payload(&current,old),old);assert_eq!(source_payload(&current,&current),current);
+ for changed in [current.replace("1 3 6","2 3 6"),current.replace("1 3 6","1 4 6"),current.replace("1 3 6","1 3 7"),current.replace("9 19 31 41","8 19 31 41"),current.replace("9 19 31 41","9 18 31 41"),current.replace("9 19 31 41","9 19 32 41"),current.replace("9 19 31 41","9 19 31 42"),current.replace("a b","ab"),current.replace("xmin='10'","xmin='11'"),current.replace("'right'","'left'"),current.replace(" data-native-axis"," data-native-unrecognized=\"changed\" data-native-axis")]{assert_ne!(source_payload(&changed,&current),current);}
 }

@@ -33,10 +33,15 @@ impl Tape {
         let mut rectangles = vec![];
         let mut ignored = vec![];
         let mut rectangle_ids = vec![];
+        let mut word_obstacles=vec![];
         let words = native_words
             .iter()
             .map(|w| {
-                let (a, z) = crate::bbox::native_glyph_range(page, w)?;
+                let (a,z)=if let Some(range)=crate::bbox::native_glyph_range(page,w){range}else{
+                    let o=crate::bbox::native_source_occurrence(page,w)?;
+                    word_obstacles.push((o.first,o.after,o.bounds));
+                    (o.first,o.after)
+                };
                 Some((
                     a,
                     z,
@@ -107,11 +112,12 @@ impl Tape {
             at = end;
         }
         Some(crate::source_scene::Scene {
-            version: 1,
+            version: if word_obstacles.is_empty(){1}else{2},
             glyphs: page.glyphs.len(),
             ignored,
             rectangle_ids,
             words,
+            word_obstacles,
             unknown,
             rectangles,
             rulings,

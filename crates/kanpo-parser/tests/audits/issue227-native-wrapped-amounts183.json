@@ -1,0 +1,538 @@
+{
+  "issue": 227,
+  "stage": "native183",
+  "scope": "Original source occurrence identity independent of flow; native empty numeric table slots and complete source rectangle marks.",
+  "principle": {
+    "source_identity": "Contiguous original glyph occurrences, raw text and exact existing bbox projection are required. Nonflow source occurrences do not receive flow/baseline certificates; their complete native glyph envelope plus public numeric encoding are opaque obstacles in scene v2. Complete old v1 packets retain bytes.",
+    "numeric_slot": "Original known horizontal glyphs/terminals, own-word rectangle, exact source grid/table geometry, complete nonoverlapping physical partition and nonoverlapping logical slots. Only one original label hull owns the whole symbol advance box; original physical numeric column has a compatible native size set and exact source rightedge witness. Symbol font identity can differ from numeric fonts.",
+    "field_interior": "Actual paint width of complete original grid boundaries; retain all glyph bounds inside the derived interior. Check opaque words/images/fills over the entire untrimmed strip. Existing Scene.clear unchanged; adjacent/nonboundary/partial lines stay obstacles. Directed f32 encoding supplies no pt allowance.",
+    "no_new_special_cases": [
+      "label/title/company vocabulary",
+      "page/font-name/CID/PUA dispatch",
+      "character or neighbor-row budgets",
+      "fixed pt thresholds"
+    ],
+    "label_wording_not_evidence_or_veto": true,
+    "existing_rules_not_all_generalized": true
+  },
+  "tests": {
+    "new": {
+      "PDF_occurrences": 11,
+      "scene_interior": 10,
+      "scene_v2_consumer": 9,
+      "wrapped_slot_ownership": 15,
+      "original_API": 12,
+      "corpus_metadata": 1,
+      "total": 58
+    },
+    "normal": {
+      "exit_code": 0,
+      "seconds": 597.526726958,
+      "all_sources_and_Cargo_exact": true,
+      "groups": 173,
+      "counts": [
+        4267,
+        0,
+        0
+      ]
+    },
+    "initial_normal": {
+      "exit_code": 101,
+      "seconds": 571.508215,
+      "all_sources_and_Cargo_exact": true,
+      "groups": 173,
+      "counts": [
+        4254,
+        2,
+        0
+      ]
+    },
+    "RED_controls": "Original missing amount API; invalid grid interior; duplicate empty logical slots/malformed native grid; invalid existing empty subcell outside its original parent or excluding the source symbol; unnecessary label lexical veto all failed before fixes. Field transfer/missing/duplicate records, every opaque envelope, true nonflow obstacles, source raw/order/box/finite geometry, partial/interior/wide borders, images, scale/translation and original word-node reversal are tested.",
+    "API": "Full source-constructed gold on10 original pages plus original ownership and emission-order reversal,12 checks total. No ignored tests/assert removal.",
+    "source_attribute_compatibility": "Optional source-occurrence metadata registered only for historical missing attributes; every current field/text/box/axis and unknown attribute remains checked."
+  },
+  "source_review": {
+    "renderer": "PDFium full original pages atscale2; all10 changed pages visually reviewed. Non-blind developer QA, not accuracy estimate.",
+    "originals": [
+      {
+        "key": "20260716g001590094",
+        "PDF_sha256": "00767602289867dfd848e17981402265da7d0b4bbe824c9a588f1dfe7b1429c8",
+        "renderer": "PDFium scale2; full original page"
+      },
+      {
+        "key": "20260723g001630226",
+        "PDF_sha256": "57da552e819810fc024b14b1bb8840b9cbf97632747bdb86ee3e0d5fa75a69f2",
+        "renderer": "PDFium scale2; full original page"
+      },
+      {
+        "key": "20260727g001670084",
+        "PDF_sha256": "4fb9d8d90efe79cafb219a61685296779812cafebfb2055af019ad98ec06c9ca",
+        "renderer": "PDFium scale2; full original page"
+      },
+      {
+        "key": "20260730g001710158",
+        "PDF_sha256": "646b5652edc08d8327f9d77c54493d06186c98458454603d70b6d76b7727c10e",
+        "renderer": "PDFium scale2; full original page"
+      },
+      {
+        "key": "20260731g001720300",
+        "PDF_sha256": "ab613a442cf28f81483e488b11d5cc5d796f44c1cac823c69da08cd879c0eea2",
+        "renderer": "PDFium scale2; full original page"
+      },
+      {
+        "key": "20260731g001720302",
+        "PDF_sha256": "ccdec955410aef43ea2c6b40ab40e5586af8bbbf76e66cda3e247a56d3bc2b1c",
+        "renderer": "PDFium scale2; full original page"
+      },
+      {
+        "key": "20260807g001780121",
+        "PDF_sha256": "6a82d94a612c42a2c93bda9eda4f731e880f0bd6b0fddd4b58dce57676cf84c2",
+        "renderer": "PDFium scale2; full original page"
+      },
+      {
+        "key": "20260902g001960131",
+        "PDF_sha256": "8da3f5cf29b6835fd089b1206d019865a5507ab74db224acbe813ffdc03865f8",
+        "renderer": "PDFium scale2; full original page"
+      },
+      {
+        "key": "20261005g002190073",
+        "PDF_sha256": "8a14e1ab386700b9114036de0a876f3ec823886ae29a947b3a29e639d63320ad",
+        "renderer": "PDFium scale2; full original page"
+      },
+      {
+        "key": "20261014g002250071",
+        "PDF_sha256": "79c56b8ed72690855b1e11ffe5cc4197a6fbb76e9d2023ef077de2a57f996741",
+        "renderer": "PDFium scale2; full original page"
+      }
+    ],
+    "reviewed_slots": {
+      "20260716g001590094": {
+        "tables": [
+          {
+            "region": 0,
+            "line": 17,
+            "row": 8,
+            "col": 2,
+            "word": 3,
+            "raw": "",
+            "source_box": [
+              525.5141,
+              188.3598,
+              533.5141,
+              196.5438
+            ]
+          }
+        ],
+        "rows": []
+      },
+      "20260723g001630226": {
+        "tables": [
+          {
+            "region": 0,
+            "line": 18,
+            "row": 8,
+            "col": 2,
+            "word": 5,
+            "raw": "",
+            "source_box": [
+              525.5141,
+              198.3599,
+              533.5141,
+              206.5439
+            ]
+          }
+        ],
+        "rows": []
+      },
+      "20260727g001670084": {
+        "tables": [
+          {
+            "region": 0,
+            "line": 7,
+            "row": 1,
+            "col": 2,
+            "word": 568,
+            "raw": "",
+            "source_box": [
+              186.5061,
+              139.3598,
+              194.5061,
+              147.5438
+            ]
+          }
+        ],
+        "rows": []
+      },
+      "20260730g001710158": {
+        "tables": [
+          {
+            "region": 0,
+            "line": 58,
+            "row": 7,
+            "col": 2,
+            "word": 3,
+            "raw": "",
+            "source_box": [
+              525.52,
+              556.3557,
+              533.52,
+              564.5397
+            ]
+          }
+        ],
+        "rows": []
+      },
+      "20260731g001720300": {
+        "tables": [],
+        "rows": [
+          {
+            "source_region": 0,
+            "source_line": 58,
+            "words": [
+              478
+            ],
+            "before_token": [
+              2
+            ]
+          },
+          {
+            "source_region": 0,
+            "source_line": 67,
+            "words": [
+              482
+            ],
+            "before_token": [
+              2
+            ]
+          },
+          {
+            "source_region": 0,
+            "source_line": 9,
+            "words": [
+              1230
+            ],
+            "before_token": [
+              2
+            ]
+          },
+          {
+            "source_region": 0,
+            "source_line": 15,
+            "words": [
+              1233
+            ],
+            "before_token": [
+              1
+            ]
+          },
+          {
+            "source_region": 0,
+            "source_line": 17,
+            "words": [
+              1234
+            ],
+            "before_token": [
+              2
+            ]
+          },
+          {
+            "source_region": 0,
+            "source_line": 35,
+            "words": [
+              1240
+            ],
+            "before_token": [
+              2
+            ]
+          },
+          {
+            "source_region": 0,
+            "source_line": 40,
+            "words": [
+              1243
+            ],
+            "before_token": [
+              2
+            ]
+          }
+        ]
+      },
+      "20260731g001720302": {
+        "tables": [],
+        "rows": [
+          {
+            "source_region": 0,
+            "source_line": 62,
+            "words": [
+              531,
+              395,
+              252,
+              27
+            ],
+            "before_token": [
+              1,
+              1,
+              1,
+              2
+            ]
+          }
+        ]
+      },
+      "20260807g001780121": {
+        "tables": [
+          {
+            "region": 0,
+            "line": 17,
+            "row": 4,
+            "col": 1,
+            "word": 0,
+            "raw": "",
+            "source_box": [
+              531.5,
+              138.3597,
+              539.5,
+              146.5437
+            ]
+          }
+        ],
+        "rows": []
+      },
+      "20260902g001960131": {
+        "tables": [],
+        "rows": [
+          {
+            "source_region": 0,
+            "source_line": 34,
+            "words": [
+              434,
+              263,
+              89
+            ],
+            "before_token": [
+              1,
+              2,
+              3
+            ]
+          }
+        ]
+      },
+      "20261005g002190073": {
+        "tables": [
+          {
+            "region": 0,
+            "line": 72,
+            "row": 8,
+            "col": 2,
+            "word": 463,
+            "raw": "",
+            "source_box": [
+              186.5141,
+              750.3599,
+              194.5141,
+              758.5439
+            ]
+          }
+        ],
+        "rows": []
+      },
+      "20261014g002250071": {
+        "tables": [
+          {
+            "region": 0,
+            "line": 32,
+            "row": 9,
+            "col": 2,
+            "word": 332,
+            "raw": "",
+            "source_box": [
+              186.5141,
+              380.3599,
+              194.5141,
+              388.5439
+            ]
+          }
+        ],
+        "rows": []
+      }
+    },
+    "new_original_PDFs": 9,
+    "reused_original_PDFs": 1
+  },
+  "independent_gold": {
+    "method": "Non-blind PDFium original review of all10 changed pages. Literal old181 AST/trace insertion of21 original source rectangles at source-curated numeric slots. No new detector or Rust parser used in the verifier. Full11992/159 actual release corpus compared independently. Whole9 expected outputs constructed with the same source placements and retained privately. Not a corpus accuracy estimate.",
+    "public_index": "../data/native-wrapped-amounts/index.json",
+    "public_verifier": "../data/native-wrapped-amounts/verify_expected.py",
+    "single_complete": [
+      {
+        "key": "20260716g001590094",
+        "complete_expected_equals_candidate": true,
+        "expected_sha256": "7700e7568e5797e17691465af2c397abe2aa3b0eada4aec5a7ef515e5e52a24d",
+        "new_source_marks": 1
+      },
+      {
+        "key": "20260723g001630226",
+        "complete_expected_equals_candidate": true,
+        "expected_sha256": "a216f91669ba70e38f6cfa3717cbfdc4fd43e4224a6dbc1db19aed17e165ae77",
+        "new_source_marks": 1
+      },
+      {
+        "key": "20260727g001670084",
+        "complete_expected_equals_candidate": true,
+        "expected_sha256": "18b4cb9057c1b75d6b77a6d9a080279ccc766449f8da8faf353682d9bbf6d385",
+        "new_source_marks": 1
+      },
+      {
+        "key": "20260730g001710158",
+        "complete_expected_equals_candidate": true,
+        "expected_sha256": "e8d6df3db2d5978016cd8b5d0330a15a3b930c4612394496702ff3fcde11e07c",
+        "new_source_marks": 1
+      },
+      {
+        "key": "20260731g001720300",
+        "complete_expected_equals_candidate": true,
+        "expected_sha256": "b0b0c895ab613f55953ea73436740d6883c9f1fbeada0fdeb4d6cc466d639da3",
+        "new_source_marks": 7
+      },
+      {
+        "key": "20260731g001720302",
+        "complete_expected_equals_candidate": true,
+        "expected_sha256": "87bef6d7cc05d09926d8e21ffa39e35d104aefcec26cf89574e1e3f2e74ed7cc",
+        "new_source_marks": 4
+      },
+      {
+        "key": "20260807g001780121",
+        "complete_expected_equals_candidate": true,
+        "expected_sha256": "6a301b40f24deabd28ab373f6e5df5a842e33c4521086c6d431d2dcbd82fd3e6",
+        "new_source_marks": 1
+      },
+      {
+        "key": "20260902g001960131",
+        "complete_expected_equals_candidate": true,
+        "expected_sha256": "c3de8fd6226fc9a099a5019ec73cab2ebbbea3a6a3e3951dbd3464ed25f43447",
+        "new_source_marks": 3
+      },
+      {
+        "key": "20261005g002190073",
+        "complete_expected_equals_candidate": true,
+        "expected_sha256": "efde698b7f779ad4f93cff2b3e1b7f34bdd4f7daaa871c2331d769550a7ed227",
+        "new_source_marks": 1
+      },
+      {
+        "key": "20261014g002250071",
+        "complete_expected_equals_candidate": true,
+        "expected_sha256": "a337b360cdab37f5ff9e70c603062cd712453c03bf2bcbc4b1b6d252b3e28b8a",
+        "new_source_marks": 1
+      }
+    ],
+    "whole_complete": [
+      {
+        "key": "20260716g00159",
+        "complete_expected_equals_candidate": true,
+        "expected_sha256": "723bd001ddade29c8994036e9a21e16ef841db0da7e03f8b5af48b908dbe8a1d",
+        "changed_pages": 1
+      },
+      {
+        "key": "20260723g00163",
+        "complete_expected_equals_candidate": true,
+        "expected_sha256": "e936343aca52ef94ffbb424591a6e57f39eeb106f0c9c30abaf144aa9503f6a1",
+        "changed_pages": 1
+      },
+      {
+        "key": "20260727g00167",
+        "complete_expected_equals_candidate": true,
+        "expected_sha256": "ea0b51f378b5018906ad217ca6a821355ceddd96c39adb8dadf138dc375000ce",
+        "changed_pages": 1
+      },
+      {
+        "key": "20260730g00171",
+        "complete_expected_equals_candidate": true,
+        "expected_sha256": "a19b711b1354c62e6ff61e5ed14c4866c75ed5e5f1a3af2b8f665b3428335c58",
+        "changed_pages": 1
+      },
+      {
+        "key": "20260731g00172",
+        "complete_expected_equals_candidate": true,
+        "expected_sha256": "76b768e37d75f2044a1cab8c56574b124a1dfd8ed30210b02ade9fb41c82cf4f",
+        "changed_pages": 2
+      },
+      {
+        "key": "20260807g00178",
+        "complete_expected_equals_candidate": true,
+        "expected_sha256": "cd4b955dcc1b58a6f7de9b4f26ef5967ba915743926337f6cbe96de71c0506c5",
+        "changed_pages": 1
+      },
+      {
+        "key": "20260902g00196",
+        "complete_expected_equals_candidate": true,
+        "expected_sha256": "cee00df4704925b9145faf05b40c3e521b57a671564bed844785107f507b5475",
+        "changed_pages": 1
+      },
+      {
+        "key": "20261005g00219",
+        "complete_expected_equals_candidate": true,
+        "expected_sha256": "b4d7d98eb97a4fe9db721737e2f0e650ca4c0b1561eb93f2fd922d973cb6f5c4",
+        "changed_pages": 1
+      },
+      {
+        "key": "20261014g00225",
+        "complete_expected_equals_candidate": true,
+        "expected_sha256": "81961473c9f55bd154f979d356c7a5625d3d73e9eff5c27213659ddb68d34cf7",
+        "changed_pages": 1
+      }
+    ],
+    "all_old_cells_merges_characters_separators_formats_and_article_cuts_retained": true,
+    "no_new_detector_or_parser_used_in_gold_constructor": true
+  },
+  "impact_vs181": {
+    "single_count": 11992,
+    "changed_single": 10,
+    "unchanged_complete_single": 11982,
+    "whole_count": 159,
+    "changed_whole": 9,
+    "unchanged_complete_whole": 150,
+    "new_source_marks": 21,
+    "all_old_Word_raw_ID_source_boxes_retained": true,
+    "only_empty_to_used_and_dash_text_for21_Words": true,
+    "new_logical_numeric_table_cells": 7,
+    "plain_source_row_marks": 14,
+    "duplicate_word_owners": 0,
+    "complete_changed_outputs_equal_independent_source_constructions": true
+  },
+  "expected_changes": [
+    {
+      "path": "crates/kanpo-parser/tests/horizontal_fixtures.rs",
+      "old_sha256": "2abc6a5513073fa1827c67e877f02630078c15910de1f7a5317ad68f1ba6e8cd",
+      "new_sha256": "09e82781db6159eca477d2a3b595016bc4e0c4bf347feca04e3bb8afabead311",
+      "basis": "Original PDFium121 source rectangle Word0 and independent complete sourcegold; one row amount plus Doc table cell only. Other snapshot/test bytes preserved. No runtime parser used for expectation edits."
+    },
+    {
+      "path": "crates/kanpo-parser/tests/snapshots/archive_snapshots__archive_pages@20260807g00178__20260807g001780121.pdf.snap",
+      "old_sha256": "dd7c5508b52b3f55d4883c2ddf359af8f1cd3cc8b68b78dd6d57e9975c4fd8ed",
+      "new_sha256": "1cfbbcfd47792e9bb416983f412d4d0f4945564b8eec4a04fd4e4c2b533a8804",
+      "basis": "Original PDFium121 source rectangle Word0 and independent complete sourcegold; one row amount plus Doc table cell only. Other snapshot/test bytes preserved. No runtime parser used for expectation edits."
+    }
+  ],
+  "verification": {
+    "actual_final_Cargo_release_and_nativeCLI": {
+      "profile": "actual Cargo release, final W sources",
+      "single_complete_Analysis_exact_private_final": 11992,
+      "whole_complete_Analysis_exact_private_final": 159,
+      "actual_release_PDF_textdump_CLI_native_body_bytes_exact": 11992,
+      "single_duplicate_owner_pages": 0,
+      "CLI_duplicate_word_reports": 0,
+      "all_original_inputs_native_sources_Cargo_and_binaries_prepost_exact": true,
+      "seconds": 215.569120042,
+      "scope": "Actual final Cargo release complete Analysis and nativeCLI over original PDFs. Frozen183-v14 matches independently source-constructed full outputs for10 single pages and9 whole issues, adding21 original rectangle marks only. Other11982singles/150wholes exact181. All old Word raw/ID/sourceboxes, all old bytes/separators/table cells/merges, formats and article cuts retained; only21 text/status/ownership changes and their corresponding source table/plain row and Doc fields. No OCR/model or corpus-wide accuracy claim."
+    },
+    "default_examples": {
+      "exit_code": 0,
+      "seconds": 17.160929083,
+      "all_native_sources_and_Cargo_exact": true
+    },
+    "final_normal_source_and_fixture_manifest_sha256": "b246814606f3507ce3636cdc74784bc0ea5d16529cc6008d0d92b7d81ab2b655",
+    "final_release_source_manifest_sha256": "2b4d9dd56a6f4620928add84803e42ea017bfa64c7d5864a8cc791b674d07a1e",
+    "proof_preserving_optimization": "Exit before parsing primitive metadata when no word has an own-source rectangle certificate; final actual release complete outputs equal fully audited v14 after this change.",
+    "CI": "Exact published-head workflows tracked separately on draftPR237; local success alone does not assert CI success. No workflow/timeout changes."
+  },
+  "limitations": "Not100%. Whole172 report still joins preceding legal article (165articles versus source-desired166); independent failing original requirement retained privately. Original paired9/9 records remain7/7. Headerless landscape roles, other financial headers/bars, committee/court ownership and unknown characters remain. Source occurrence identity is not a flow or generic Unicode certificate. Images lower priority; OCR explicit opt-in, NDLOCR0.0.15 f97e930b8c3e9512f7788f258ef685da26416483. No RURI/ModernBERT or other new model."
+}

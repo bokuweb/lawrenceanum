@@ -475,6 +475,9 @@ fn layout<'a>(pages: impl IntoIterator<Item=(&'a Page,Option<&'a [Option<char>]>
             let terminal=if emit_styles {native_terminal_glyph::from_word(page,&word)
                 .map(|t|format!(" data-native-terminal-glyph=\"{}\"",t.attribute())).unwrap_or_default()}else{String::new()};
             let range=if emit_styles{native_glyph_range(page,&word).map(|(first,after)|format!(" data-native-flow-first-glyph=\"{first}\" data-native-flow-after-glyph=\"{after}\"")).unwrap_or_default()}else{String::new()};
+            let occurrence=if emit_styles && native_glyph_range(page,&word).is_none(){
+                native_source_occurrence(page,&word).map(|o|format!(" data-native-source-occurrence=\"1 {} {} {} {} {} {}\"",o.first,o.after,o.bounds[0],o.bounds[1],o.bounds[2],o.bounds[3])).unwrap_or_default()
+            }else{String::new()};
             let content = if emit_styles {
                 let value = native_content_styles(page, &word, resolved_source).unwrap_or_else(|| "unknown".into());
                 format!(" data-native-content-styles=\"{value}\"")
@@ -487,7 +490,7 @@ fn layout<'a>(pages: impl IntoIterator<Item=(&'a Page,Option<&'a [Option<char>]>
             let resolved = if resolved_aj1_word(page, &word) { " data-unicode-aj1=\"1\"" } else { "" };
             let _ = writeln!(
                 s,
-                "    <flow>\n      <block {attrs}>\n        <line {attrs}>\n          <word {attrs}{native}{resolved}{source_attr}{styles}{content}{axis}{ruling}{flow}{range}{cell_origin}{advance_band}{terminal}{alias}{moves}{outline}>{}</word>\n        </line>\n      </block>\n    </flow>",
+                "    <flow>\n      <block {attrs}>\n        <line {attrs}>\n          <word {attrs}{native}{resolved}{source_attr}{styles}{content}{axis}{ruling}{flow}{range}{occurrence}{cell_origin}{advance_band}{terminal}{alias}{moves}{outline}>{}</word>\n        </line>\n      </block>\n    </flow>",
                 escape(&word.text)
             );
         }
@@ -770,6 +773,39 @@ pub(crate) fn native_glyph_range(page:&Page,word:&Word)->Option<(usize,usize)>{
     let first=*word.glyphs.first()?;let after=word.glyphs.last()?.checked_add(1)?;
     (after<=page.glyphs.len()&&word.glyphs.iter().enumerate().all(|(i,&id)|first.checked_add(i)==Some(id))).then_some((first,after))
 }
+
+/// Original occurrence identity does not require a common source baseline.
+/// Such words stay opaque obstacles; this supplies no layout-flow certificate.
+pub(crate) struct SourceOccurrence {
+    pub first: usize,
+    pub after: usize,
+    pub bounds: [f64;4],
+}
+pub(crate) fn native_source_occurrence(page:&Page,word:&Word)->Option<SourceOccurrence>{
+    let first=*word.glyphs.first()?;
+    let after=word.glyphs.last()?.checked_add(1)?;
+    if after>page.glyphs.len() || !word.glyphs.iter().enumerate().all(|(i,&id)|first.checked_add(i)==Some(id)){return None}
+    let valid=|b:[f64;4]|b.iter().all(|n|n.is_finite())&&b[0]<b[2]&&b[1]<b[3];
+    let mut projected=poppler_box(page.glyphs.get(first)?);
+    let mut bounds=projected;
+    let mut text=String::new();
+    for &id in &word.glyphs{
+        let g=page.glyphs.get(id)?;let b=poppler_box(g);
+        if !valid(b)||![g.x,g.y,g.end_x,g.end_y].iter().all(|n|n.is_finite()){return None}
+        bounds=[bounds[0].min(b[0]),bounds[1].min(b[1]),bounds[2].max(b[2]),bounds[3].max(b[3])];
+        // Reproduce the existing bbox projection exactly, including its retained
+        // cross-axis extent. Full glyph bounds are retained separately above.
+        if (g.end_x-g.x).abs()>=(g.end_y-g.y).abs(){projected[0]=projected[0].min(b[0]);projected[2]=projected[2].max(b[2]);}
+        else{projected[1]=projected[1].min(b[1]);projected[3]=projected[3].max(b[3]);}
+        text.push_str(&glyph_text(g,&page.fonts));
+    }
+    if text!=word.text || projected!=[word.x_min,word.y_min,word.x_max,word.y_max]{return None}
+    // Include the exact public six-decimal encoding, rather than adding a pt
+    // tolerance when its rounding falls just outside an original glyph bound.
+    let encoded=projected.map(|v|format!("{v:.6}").parse::<f64>().ok()).into_iter().collect::<Option<Vec<_>>>()?;
+    bounds=[bounds[0].min(encoded[0]),bounds[1].min(encoded[1]),bounds[2].max(encoded[2]),bounds[3].max(encoded[3])];
+    valid(bounds).then_some(SourceOccurrence{first,after,bounds})
+}
 #[cfg(test)]
 #[path="native_projected_flow_tests.rs"]
 mod native_projected_flow_tests;
@@ -781,3 +817,7 @@ mod native_advance_band;
 
 #[path="native_terminal_glyph.rs"]
 mod native_terminal_glyph;
+
+#[cfg(test)]
+#[path="source_occurrence_tests.rs"]
+mod source_occurrence_tests;
