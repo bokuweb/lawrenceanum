@@ -156,7 +156,9 @@
       "source_annotations": {
         "abstention": "The next mixed footer is inside the old source frame; no full cap separates all its material. The191v1 unsafe trial changed this page; final proof must retain the complete189 baseline."
       },
-      "standalone_sha256": "788aa379beacb153e9c5ff22e9eaae0554afdade39faa645ad5bce187c95e147"
+      "standalone_sha256": "788aa379beacb153e9c5ff22e9eaae0554afdade39faa645ad5bce187c95e147",
+      "current_expected_path": "tests/data/native-mixed-line-fields/expected/226-three.json",
+      "current_expected_provenance": "native192 exact original Word-owned slices and native field/cap proof; historical191 baseline and expected JSON remain unchanged"
     }
   ],
   "frozen190_text_only_references": [

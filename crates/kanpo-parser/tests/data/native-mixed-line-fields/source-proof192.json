@@ -1,0 +1,9 @@
+{
+  "source": "Original full20 reviewed191; exact native Word ids124/97/56/36 and raw/source-box/glyph ranges257..271, actual left/right source fields. Literal source-test annotations;192runtime uses none of these ids/texts/counts. Entire frozen189/unchanged191 source Analysis + unchanged original nested cells/merges and exact old joins. No192 classifier/runtime called.",
+  "whole_baseline_sha256": "8cd2448747491e95efb5281c79f50c0292c28fd909a020c5f56a8b6c00ae8683",
+  "whole_expected_sha256": "1faeacbfb382b137a7fdf6cd41f181346ea95854fb9b6055d72a90a99220293b",
+  "window_baseline_sha256": "8f7565e11bfa1ec742cdee31b03d29d5d27f3ae1f204d000c047d4493a9cd3ae",
+  "window_expected_sha256": "e0cddd5f9073b89e112454060d3d47f02a266363a97b8dadd581d0e2d47b940f",
+  "owner_window": 2,
+  "candidate_read_or_used": false
+}

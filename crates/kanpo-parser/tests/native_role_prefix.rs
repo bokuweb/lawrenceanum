@@ -27,13 +27,24 @@ fn actual(input: &[kanpo_parser::PageInput]) -> serde_json::Value {
 }
 fn stored(folder: &str, name: &str) -> serde_json::Value {
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
-    serde_json::from_str(
-        &std::fs::read_to_string(root.join(format!(
+    let index: serde_json::Value =
+        serde_json::from_str(include_str!("data/native-role-prefix/index.json")).unwrap();
+    let current = (folder == "expected")
+        .then(|| {
+            index["cases"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .find(|c| c["name"] == name)
+                .and_then(|c| c["current_expected_path"].as_str())
+        })
+        .flatten();
+    let path = current.map(|p| root.join(p)).unwrap_or_else(|| {
+        root.join(format!(
             "tests/data/native-role-prefix/{folder}/{name}.json"
-        )))
-        .unwrap(),
-    )
-    .unwrap()
+        ))
+    });
+    serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap()
 }
 #[test]
 fn complete_original_radio_comparison_closes_before_the_next_notice() {
@@ -52,8 +63,8 @@ fn complete_original_medical_table_tail_closes_before_the_next_article() {
     assert!(actual(&inputs("215-four")) == stored("expected", "215-four"));
 }
 #[test]
-fn mixed_footer_inside_the_old_frame_keeps_the_entire_original_abstention() {
-    assert!(actual(&inputs("226-three")) == stored("baseline", "226-three"));
+fn mixed_footer_uses_only_its_complete_source_owned_word_slices() {
+    assert!(actual(&inputs("226-three")) == stored("expected", "226-three"));
 }
 #[test]
 fn missing_current_original_scene_keeps_the_complete_original_output() {
@@ -116,4 +127,14 @@ fn complete_source_golds_survive_reversed_word_node_order() {
         }
         assert!(actual(&input) == stored("expected", name), "{name}");
     }
+}
+
+#[test]
+fn a_mixed_footer_without_its_original_scene_keeps_the_entire_previous_abstention() {
+    let mut input = inputs("226-three");
+    let last = input.last_mut().unwrap();
+    last.xhtml = last
+        .xhtml
+        .replace(" data-native-scene=", " data-missing-scene=");
+    assert!(actual(&input) == stored("baseline", "226-three"));
 }

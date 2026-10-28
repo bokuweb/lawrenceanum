@@ -1,6 +1,8 @@
 //! An earlier printed frame can own an initial part of a later preamble.
 //! The new printed comparison remains an independent source root.
 use super::*;
+#[path = "native_line_field_spans.rs"]
+mod line_spans;
 
 // Reconstruct only canonical existing units. This is a lossless container
 // conversion: every original line, part, role and label must round-trip.
@@ -148,19 +150,26 @@ pub(super) fn restore(
             let Some(q) = aligned_cuts(token, &fences, size) else {
                 break;
             };
-            let Some(field) = side(&material[&ids[0]], axis, q) else {
+            let Some(sides) = ids
+                .iter()
+                .map(|id| side(&material[id], axis, q))
+                .collect::<Option<Vec<_>>>()
+            else {
                 break;
             };
-            if ids
-                .iter()
-                .any(|id| side(&material[id], axis, q) != Some(field))
-            {
-                break;
+            if sides.iter().all(|&s| s == sides[0]) {
+                fields[sides[0]].push(line.clone());
+            } else {
+                let Some(parts) = line_spans::partition(line, &p.words, &sides) else {
+                    break;
+                };
+                for (field, part) in parts.into_iter().enumerate() {
+                    fields[field].push(part?);
+                }
             }
             supports.extend(own);
             cuts = Some(q);
             retained.extend(ids.iter().map(|id| &material[id]));
-            fields[field].push(line.clone());
             count += 1;
         }
         let Some(next) = first.lines.get(count) else {
