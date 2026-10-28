@@ -186,7 +186,7 @@ fn side(m: &Material, axis: NativeAxis, q: [f64; 3]) -> Option<usize> {
 }
 pub(crate) struct Observation {
     pub(crate) printed: bool,
-    pub(crate) unit: Option<Unit>,
+    pub(crate) units: Option<Vec<Unit>>,
 }
 fn aligned_cuts(token: &Token, fences: &[f64], size: f64) -> Option<[f64; 3]> {
     let mut q = [0.; 3];
@@ -227,6 +227,8 @@ impl State {
             bounds: &p.native_bounds,
             axes: &p.native_axes,
         });
+        let prefix = printed.and_then(|_| self.token.as_ref())
+            .and_then(|token| prefix::restore(p, node, rules, token));
         // A printed root cannot relabel its own already classified page.
         // At input end its geometric certificate has no future consumer.
         // An active earlier scope still proves an unlabelled final page.
@@ -234,12 +236,12 @@ impl State {
             self.clear();
             return Observation {
                 printed: true,
-                unit: None,
+                units: prefix,
             };
         }
         Observation {
             printed: printed.is_some(),
-            unit: self.prove(p, node, rules, printed),
+            units: self.prove(p, node, rules, printed).map(|unit| vec![unit]).or(prefix),
         }
     }
     #[cfg(test)]
@@ -249,7 +251,8 @@ impl State {
         node: scraper::ElementRef<'_>,
         rules: &PageRules,
     ) -> Option<Unit> {
-        self.observe(p, node, rules, true).unit
+        self.observe(p, node, rules, true).units
+            .and_then(|mut units| (units.len() == 1).then(|| units.remove(0)))
     }
     /// Failure consumes the open scope. Inferred roles cannot create a root.
     fn prove(
@@ -464,3 +467,6 @@ mod geometry_tests {
         assert_eq!(aligned_cuts(&huge, &huge.cuts, 16.), None);
     }
 }
+
+#[path="native_role_prefix.rs"]
+mod prefix;

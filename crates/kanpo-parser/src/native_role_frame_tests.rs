@@ -151,3 +151,5 @@ fn public_sequence_restores_the_landscape_fields_without_editing_nested_lines() 
 }
 
 include!("native_role_frame_countertests.rs");
+
+include!("native_role_prefix_tests.rs");

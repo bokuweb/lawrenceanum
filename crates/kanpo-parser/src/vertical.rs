@@ -975,17 +975,17 @@ fn restore_native_comparison_frame(
         return crate::native_role_continuation::explicit_page(page);
     };
     let observed = state.observe(page, source, rules, has_next_page);
-    let Some(unit) = observed.unit else { return observed.printed; };
+    let Some(units) = observed.units else { return observed.printed; };
     let Some(start) = table_count.checked_sub(page.tables.len()) else {
         state.clear(); return observed.printed;
     };
-    let labels = match &unit { Unit::Shinkyu{labels,..} => *labels, _ => None };
-    let text = unit.text();
+    let labels = units.iter().map(|unit| match unit { Unit::Shinkyu{labels,..} => *labels, _ => None }).collect();
+    let text = units.iter().map(Unit::text).filter(|t| !t.is_empty()).collect::<Vec<_>>().join("\n");
     let mut count = start;
-    let (doc_text, tables) = doc_text_of(std::slice::from_ref(&unit), &mut count);
+    let (doc_text, tables) = doc_text_of(&units, &mut count);
     if count != *table_count { state.clear(); return observed.printed; }
-    page.native_comparison_labels = vec![labels];
-    page.regions = unit.regions(0);
+    page.native_comparison_labels = labels;
+    page.regions = units.into_iter().enumerate().flat_map(|(i,u)| u.regions(i)).collect();
     page.text = text;
     page.doc_text = doc_text;
     page.tables = tables;

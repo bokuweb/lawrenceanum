@@ -58,6 +58,51 @@ impl Scene {
 }
 
 impl Scene {
+    // Missing support is not an article boundary. A real perpendicular source
+    // cap must meet all three fences and separate every retained glyph from
+    // every glyph in the next line, including opaque physical envelopes.
+    pub(crate) fn cross_cap_separates(
+        &self,
+        axis: crate::native_word_axes::NativeAxis,
+        q: [f64; 3],
+        retained: &[Rect],
+        next: &[Rect],
+    ) -> bool {
+        use crate::native_word_axes::NativeAxis::{Down, Right};
+        if !matches!(axis, Down | Right)
+            || retained.is_empty()
+            || next.is_empty()
+            || !q.iter().all(|v| v.is_finite())
+            || !(q[0] < q[1] && q[1] < q[2])
+            || !retained.iter().chain(next).all(|&b| valid(b))
+        {
+            return false;
+        }
+        let cross = usize::from(axis == Right);
+        let other = if axis == Right { Down } else { Right };
+        let lo = retained
+            .iter()
+            .map(|m| m[cross])
+            .fold(f64::INFINITY, f64::min);
+        let hi = retained
+            .iter()
+            .map(|m| m[cross + 2])
+            .fold(f64::NEG_INFINITY, f64::max);
+        self.parallel_fences(other, &[[q[0], q[2]]])
+            .into_iter()
+            .any(|cap| {
+                if !((hi <= cap && next.iter().all(|m| m[cross + 2] > cap))
+                    || (cap <= lo && next.iter().all(|m| m[cross] < cap)))
+                {
+                    return false;
+                }
+                let fences = self.parallel_fences(axis, &[[cap, cap]]);
+                q.iter().all(|cut| fences.contains(cut))
+            })
+    }
+}
+
+impl Scene {
     pub(crate) fn opaque_crosses_fence(
         &self,
         axis: crate::native_word_axes::NativeAxis,
@@ -92,6 +137,108 @@ mod role_fence_tests {
                     (c, paint, false)
                 })
                 .collect(),
+        }
+    }
+    fn cap_scene(axis: crate::native_word_axes::NativeAxis) -> (Scene, impl Fn(Rect) -> Rect) {
+        let project = move |b: Rect| {
+            if axis == Down {
+                [b[1], b[0], b[3], b[2]]
+            } else {
+                b
+            }
+        };
+        let lines = vec![
+            [2., 0., 2., 20.],
+            [7., 0., 7., 20.],
+            [13., 0., 13., 20.],
+            [2., 10., 13., 10.],
+        ];
+        (scene(lines.into_iter().map(project).collect()), project)
+    }
+    #[test]
+    fn a_real_cross_cap_separates_all_material_on_both_axes_and_reading_directions() {
+        for axis in [Down, Right] {
+            let (s, p) = cap_scene(axis);
+            for (retained, next) in [
+                ([3., 1., 5., 2.], [3., 11., 5., 12.]),
+                ([3., 11., 5., 12.], [3., 1., 5., 2.]),
+            ] {
+                assert!(s.cross_cap_separates(axis, [2., 7., 13.], &[p(retained)], &[p(next)]));
+            }
+        }
+    }
+    #[test]
+    fn source_caps_are_invariant_under_finite_scale_translation_and_material_counts() {
+        for axis in [Down, Right] {
+            for scale in [0.125, 1., 64.] {
+                for offset in [-32., 0., 256.] {
+                    let (s, p) = cap_scene(axis);
+                    let t = |v: f64| v * scale + offset;
+                    let s = scene(s.lines.iter().map(|(b, _, _)| b.map(t)).collect());
+                    for count in [1, 2, 17, 1009] {
+                        assert!(s.cross_cap_separates(
+                            axis,
+                            [2., 7., 13.].map(t),
+                            &vec![p([3., 1., 5., 2.]).map(t); count],
+                            &vec![p([3., 11., 5., 12.]).map(t); count]
+                        ));
+                    }
+                }
+            }
+        }
+    }
+    #[test]
+    fn a_cross_cap_cannot_hide_old_material_in_the_next_mixed_line() {
+        for axis in [Down, Right] {
+            let (s, p) = cap_scene(axis);
+            let old = p([3., 1., 5., 2.]);
+            let new = p([3., 11., 5., 12.]);
+            assert!(!s.cross_cap_separates(axis, [2., 7., 13.], &[old], &[new, old]));
+            assert!(!s.cross_cap_separates(axis, [2., 7., 13.], &[old, new], &[new]));
+            assert!(!s.cross_cap_separates(axis, [2., 7., 13.], &[old], &[p([3., 9., 5., 10.])]));
+            assert!(s.cross_cap_separates(
+                axis,
+                [2., 7., 13.],
+                &[old],
+                &[p([3., 9., 5., f64::from_bits(10f64.to_bits() + 1)])]
+            ));
+        }
+    }
+    #[test]
+    fn a_cap_needs_all_fence_intersections_and_a_continuous_original_cross_span() {
+        for axis in [Down, Right] {
+            let (s, p) = cap_scene(axis);
+            let old = p([3., 1., 5., 2.]);
+            let new = p([3., 11., 5., 12.]);
+            for missing in 0..4 {
+                let mut bad = scene(s.lines.iter().map(|(b, _, _)| *b).collect());
+                bad.lines.remove(missing);
+                assert!(!bad.cross_cap_separates(axis, [2., 7., 13.], &[old], &[new]));
+            }
+            let mut bad = scene(s.lines.iter().map(|(b, _, _)| *b).collect());
+            bad.lines.pop();
+            for b in [
+                [2., 10., 7., 10.],
+                [f64::from_bits(7f64.to_bits() + 1), 10., 13., 10.],
+            ] {
+                let b = p(b);
+                bad.lines.push((b, b, false));
+            }
+            assert!(!bad.cross_cap_separates(axis, [2., 7., 13.], &[old], &[new]));
+        }
+    }
+    #[test]
+    fn absent_invalid_or_unknown_material_never_certifies_a_cap() {
+        let (s, p) = cap_scene(Right);
+        let old = p([3., 1., 5., 2.]);
+        let new = p([3., 11., 5., 12.]);
+        assert!(!s.cross_cap_separates(Unknown, [2., 7., 13.], &[old], &[new]));
+        for q in [[2., 7., f64::INFINITY], [2., 7., 7.], [2., f64::NAN, 13.]] {
+            assert!(!s.cross_cap_separates(Right, q, &[old], &[new]));
+        }
+        for material in [vec![], vec![[0., 0., 0., 1.]], vec![[0., 0., f64::NAN, 1.]]] {
+            assert!(!s.cross_cap_separates(Right, [2., 7., 13.], &material, &[new]));
+            assert!(!s.cross_cap_separates(Right, [2., 7., 13.], &[old], &material));
         }
     }
     #[test]

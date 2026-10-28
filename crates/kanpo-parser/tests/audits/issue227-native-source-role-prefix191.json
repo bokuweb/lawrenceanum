@@ -1,0 +1,179 @@
+{
+  "issue": 227,
+  "stage": "native191",
+  "baseline": {
+    "local_root": "987bfeec1cb8ffa5d62076dda1e9f627053b1b9b",
+    "local_W": "40a414b2f08ae2c3e9858df184b35fd20cf5bc6f",
+    "publication": "4b2ec8d4b00b61cf192edce993a485b289bebc48",
+    "all5_CI_success": true,
+    "native_counts": [
+      4380,
+      0,
+      0
+    ],
+    "native_job_seconds": 1076
+  },
+  "problem": "An initial earlier comparison and its enactment/outside notes were treated as the preamble of a later printed comparison on the same page.",
+  "principles": {
+    "root": "An earlier typed printed source root is required; inferred roles do not create scope. The current page must have its own actual printed caption pair, independently proving the new root.",
+    "source": "Require complete source scene, strict glyph partition/matches, original positive dimensions, actual normalized fence footprint and each original raw/box/axis/bounds. Existing source paragraphs, table cells and merges remain unchanged.",
+    "prefix": "Only an initial complete sequence of existing Lines/Tables may move. All used Word owners throughout the page must be unique, exhaustive and retain current line/cell character material. Each complete line must fit one proven original field with native continuous support.",
+    "end": "A missing segment does not prove an article boundary. Require an actual continuous perpendicular source cap across all three original fences, exact fence intersections, all retained physical glyph envelopes on one side and every glyph of the next unproved line extending outside. A mixed line containing old material cannot end a shorter comparison. No paint hull or epsilon bridges even a1ULP gap.",
+    "conservation": "Existing page units first round-trip through their original regions/parts/roles/labels. Remove only the certified prefix, add its old Shinkyu unit, retain all remaining preamble/fields/outside and every original Line/Table. Rebuild global markers with exactly the original table count. Prove the new printed root independently even when old prefix proof fails.",
+    "no_new_dispatch": [
+      "page identity",
+      "company/title/body phrase",
+      "font name",
+      "CID/PUA value",
+      "Japanese character length",
+      "neighbor-line budget",
+      "fixed point threshold"
+    ],
+    "semantic_grammar": "Existing actual field-caption and formal publication-heading grammar remains. No new model or body phrase list. Legacy heuristics elsewhere are not all generalized."
+  },
+  "REDs": [
+    "Original Aug28 page28: old3/3 source lines remained in the next notice preamble.",
+    "First trial could stop early when a line mixed old-frame material and following body. New counterexample failed, then an original cross-cap certificate fixed it.",
+    "The first broad trial also changed an Oct15 mixed footer still inside the old frame; final cap proof abstains and the complete original baseline is a public API regression."
+  ],
+  "tests": {
+    "new_original_prefix_and_counterexamples": 10,
+    "new_source_cap_geometry": 5,
+    "new_complete_API": 8,
+    "new_total": 23,
+    "role_related_passed": 166,
+    "API_positive_cases": 4,
+    "API_counterexamples": [
+      "mixed footer retains complete baseline",
+      "missing current scene retains complete baseline",
+      "standalone pages retain complete frozen189 Analysis",
+      "reversed Word nodes retain complete golds"
+    ],
+    "geometry": [
+      "both source axes",
+      "both cross-axis reading directions",
+      "finite scaling and translation",
+      "any material count",
+      "all cap/fence intersections",
+      "1ULP centerline gaps",
+      "all physical envelopes, including a mixed next line",
+      "unknown/empty/nonfinite/degenerate inputs"
+    ]
+  },
+  "independent_golds": {
+    "public_cases": [
+      {
+        "name": "171-three",
+        "baseline_sha256": "6b41828d0a098399654729f340de39fb9511da7370873c0f35ba526338f56aac",
+        "expected_sha256": "e65dea71deabbc856dbad4b2095f3b5648e27a147352dfe9d83684dd8fcbae1c"
+      },
+      {
+        "name": "192-four",
+        "baseline_sha256": "924d00df1f3c1362b69955835339fadb267977c2fabf6e076a265448b1b72e5d",
+        "expected_sha256": "3a826b98c657a1aea94bf1f43d38042d90d9039ed0580eaac16a96c3c64eebbc"
+      },
+      {
+        "name": "192-three",
+        "baseline_sha256": "1628eaec00a500c3fe29affb9f4a632b6150222ad244014491d5b8377df61e72",
+        "expected_sha256": "294c4aaa542734054eb7d261ee296c680b0704320dd424582aeb4b4b4d5973b6"
+      },
+      {
+        "name": "215-four",
+        "baseline_sha256": "b6e18a068b296551f115c62eef6e96649d6e5fd5e18b14cfd84efa5db18afb45",
+        "expected_sha256": "8ea0ce21acbd7fc3571b283c62e412ba7e12685ae327c68e9e6c2b0e0d8fc23b"
+      },
+      {
+        "name": "226-three",
+        "baseline_sha256": "8f7565e11bfa1ec742cdee31b03d29d5d27f3ae1f204d000c047d4493a9cd3ae",
+        "expected_sha256": "8f7565e11bfa1ec742cdee31b03d29d5d27f3ae1f204d000c047d4493a9cd3ae"
+      }
+    ],
+    "original_PDFs": 17,
+    "whole_issues": [
+      {
+        "key": "20260730g00171",
+        "baseline_sha256": "a19b711b1354c62e6ff61e5ed14c4866c75ed5e5f1a3af2b8f665b3428335c58",
+        "expected_sha256": "2603dc91e7259937cb9285847e4e6e348d25f8ef122e05ca3c41045af010f0e1",
+        "source": "Independent original-page annotations, frozen189 full Analysis, unchanged original Lines/Tables/cells/merges and frozen190 text-only grammar with exact old-component controls. No191 classifier or candidate output read.",
+        "candidate_read_or_used": false
+      },
+      {
+        "key": "20260828g00192",
+        "baseline_sha256": "0ccc5c497966d941654932a02a7779d253add0330ff65a9d64e2910f1d3b945e",
+        "expected_sha256": "6605752f09da7fc564d2c7d02063424f1c5a04d410958e683dc97c17531f520f",
+        "source": "Independent original-page annotations, frozen189 full Analysis, unchanged original Lines/Tables/cells/merges and frozen190 text-only grammar with exact old-component controls. No191 classifier or candidate output read.",
+        "candidate_read_or_used": false
+      },
+      {
+        "key": "20260930g00215",
+        "baseline_sha256": "1e0cc995d0071fb99ff2fd1edf19b596cb80363c40190bc0f9c06281cfdbc3d1",
+        "expected_sha256": "a53f9e400b891c8863103f4e288d304cd3913eeccc438bf8f5fe4f1aac05467e",
+        "source": "Independent original-page annotations, frozen189 full Analysis, unchanged original Lines/Tables/cells/merges and frozen190 text-only grammar with exact old-component controls. No191 classifier or candidate output read.",
+        "candidate_read_or_used": false
+      }
+    ],
+    "construction": "Frozen189 complete Analysis, literal original roles, original table cells/merges and frozen190 text-only formatting. Exact old-component controls first. No191 detector was called to construct expected values. Public Python stdlib verifier replays all5 complete windows, original PDF hashes, standalone baselines and7 frozen references.",
+    "oracle_repairs": "The first manual construction wrongly assumed a3-column tail could merge into an existing2-column table; actual original cell dimensions require two separate tables. Feeding an already-normalized last text row also changed one wrap: using complete original article context reproduced the old document exactly, then produced the corrected source reference.191 runtime remained unchanged during these oracle repairs.",
+    "public_API_encoding": "Compare the actual serialized public JSON, as existing integration tests do. The first to_value harness widened f32 before JSON serialization and failed all8; corrected only the harness, with no runtime/expected-value changes.",
+    "not_a_blind_accuracy_estimate": true
+  },
+  "corpus": {
+    "single_Analysis_exact189": 11992,
+    "whole_issues": 159,
+    "whole_Analysis_exact189": 156,
+    "changed_whole_issues": 3,
+    "changed_pages": [
+      "20260730g001710024",
+      "20260828g001920028",
+      "20260828g001920032",
+      "20260930g002150344"
+    ],
+    "all_original_Word_values_retained": true,
+    "all_original_Lines_Tables_cells_merges_retained": true,
+    "article_counts_unchanged": [
+      340,
+      240,
+      201
+    ],
+    "duplicate_original_owners": 0,
+    "all3_complete_whole_Analysis_independent_gold_exact": true,
+    "actual_release_final": {
+      "profile": "actual Cargo release, final W sources",
+      "single_complete_Analysis_exact_private_final": 11992,
+      "whole_complete_Analysis_exact_private_final": 159,
+      "actual_release_PDF_textdump_CLI_native_body_bytes_exact": 11992,
+      "single_duplicate_owner_pages": 0,
+      "CLI_duplicate_word_reports": 0,
+      "all_original_inputs_native_sources_Cargo_and_binaries_prepost_exact": true,
+      "seconds": 300.63687075,
+      "scope": "Source-cap prefix:11992singles and156wholeissues exact189; only4role pages in3wholeissues changed, all3complete independent source golds exact. Mixed-footer226 remains complete189 baseline. Finalrelease matches private191-v2 corpus hashes and11992CLI bodies. No overall accuracy claim."
+    },
+    "source_QA": "All4 changed full pages, plus the abstained Oct15 page20, rendered by PDFium and viewed. Public sequences include their source roots/neighbors. No image OCR."
+  },
+  "normal_final": {
+    "exit_code": 0,
+    "seconds": 845.595054792,
+    "all_sources_and_Cargo_exact": true,
+    "groups": 177,
+    "counts": [
+      4403,
+      0,
+      0
+    ]
+  },
+  "workflow_policy": "No existing expected output, test selection, workflow, timeout or OCR default changed. Current exact-head CI required after publication.",
+  "CI_at_publication": "Pending; previous189 all5 success verified.",
+  "remaining": [
+    "Mixed footer still inside a comparison frame is retained rather than split.",
+    "Existing old native cell/numbered-form/record granularity and formula/Latin wrap/unknown character recovery remain.",
+    "Other financial/court/estate/article boundaries remain.",
+    "No whole-corpus accuracy or100% completion claim."
+  ],
+  "OCR": {
+    "mode": "explicit opt-in",
+    "package": "NDLOCR",
+    "version": "0.0.15",
+    "revision": "f97e930b8c3e9512f7788f258ef685da26416483",
+    "additional_models": []
+  }
+}
