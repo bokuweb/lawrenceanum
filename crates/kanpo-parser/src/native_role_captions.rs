@@ -1,6 +1,7 @@
 // Semantic captions are publication grammar;
 // no body wording, page identity, expected data or spacing/count score is used.
-pub(crate) fn explicit_pair(source: RoleSource<'_>) -> bool {
+pub(crate) fn explicit_pair(source: RoleSource<'_>) -> bool { printed_pair(source).is_some() }
+pub(crate) fn printed_pair(source: RoleSource<'_>) -> Option<crate::ComparisonLabels> {
     use std::collections::{HashMap, HashSet};
     type Rect = [f32; 4];
     fn positive(b: Rect) -> bool {
@@ -43,19 +44,20 @@ pub(crate) fn explicit_pair(source: RoleSource<'_>) -> bool {
     ];
     struct Label {
         stem: &'static str,
+        pair: crate::ComparisonLabels,
         role: Role,
         axis: NativeAxis,
         ids: Vec<usize>,
         bounds: Rect,
     }
     if source.words.len() != source.bounds.len() || source.words.len() != source.axes.len() {
-        return false;
+        return None;
     }
     if source.regions.windows(2).any(|r| r[0].unit > r[1].unit) {
-        return false;
+        return None;
     }
     let Some(last) = source.regions.last() else {
-        return false;
+        return None;
     };
     let unit = last.unit;
     let mut owners = HashMap::new();
@@ -64,7 +66,7 @@ pub(crate) fn explicit_pair(source: RoleSource<'_>) -> bool {
         for l in &r.lines {
             for id in line_ids(l) {
                 if id >= source.words.len() || owners.insert(id, (r.unit, r.role)).is_some() {
-                    return false;
+                    return None;
                 }
                 if r.unit == unit {
                     match r.role {
@@ -74,7 +76,7 @@ pub(crate) fn explicit_pair(source: RoleSource<'_>) -> bool {
                         Role::Before => {
                             fields[1].insert(id);
                         }
-                        Role::Body | Role::Outside => return false,
+                        Role::Body | Role::Outside => return None,
                         Role::Preamble => {}
                     }
                 }
@@ -82,12 +84,12 @@ pub(crate) fn explicit_pair(source: RoleSource<'_>) -> bool {
         }
     }
     if fields.iter().any(|f| f.is_empty()) {
-        return false;
+        return None;
     }
     let mut boxes = HashMap::new();
     for (i, w) in source.words.iter().enumerate() {
         if w.id != i {
-            return false;
+            return None;
         }
         let omitted_noise = w.status == WordStatus::Noise && !owners.contains_key(&i);
         if !matches!(w.status, WordStatus::Used | WordStatus::HeaderLabel) && !omitted_noise {
@@ -103,10 +105,10 @@ pub(crate) fn explicit_pair(source: RoleSource<'_>) -> bool {
         // Used constituents from earlier legacy merges may lack a direct root.
         // They remain opaque source obstacles, never semantic caption evidence.
         if w.status == WordStatus::HeaderLabel && owners.contains_key(&i) {
-            return false;
+            return None;
         }
         let NativeBounds::Glyphs(b) = source.bounds[i] else {
-            return false;
+            return None;
         };
         if !positive(b)
             || !omitted_noise
@@ -115,13 +117,13 @@ pub(crate) fn explicit_pair(source: RoleSource<'_>) -> bool {
                     NativeAxis::Unknown | NativeAxis::Compatibility
                 )
         {
-            return false;
+            return None;
         }
         boxes.insert(i, b);
     }
     // A role cannot borrow a current occurrence whose source status was dropped.
     if owners.keys().any(|id| !boxes.contains_key(id)) {
-        return false;
+        return None;
     }
     let mut labels = Vec::new();
     for (&seed, &b) in &boxes {
@@ -162,7 +164,11 @@ pub(crate) fn explicit_pair(source: RoleSource<'_>) -> bool {
             if compact(&crate::normalize::word_text(&w.raw)) != compact(&w.text) {
                 break;
             }
-            if [w.x0, w.y0, w.x1, w.y1] != w.source_box || !positive(w.source_box) {
+            // Display normalization can select this occurrence's original
+            // glyph frame instead of its legacy projected source rectangle.
+            // Neither frame authorizes an arbitrary reconstructed position.
+            let display=[w.x0,w.y0,w.x1,w.y1];
+            if (display!=w.source_box && display!=boxes[&id]) || !positive(w.source_box) {
                 break;
             }
             if let Some(&(full, stem, role)) = GRAMMAR.iter().find(|g| g.0 == text) {
@@ -173,6 +179,7 @@ pub(crate) fn explicit_pair(source: RoleSource<'_>) -> bool {
                 if valid {
                     labels.push(Label {
                         stem,
+                        pair: crate::ComparisonLabels::from_after(full).or_else(||crate::ComparisonLabels::from_before(full))?,
                         role,
                         axis,
                         ids: ids.clone(),
@@ -265,7 +272,7 @@ pub(crate) fn explicit_pair(source: RoleSource<'_>) -> bool {
             !field.contains(id) && !label.ids.contains(id) && intersects(corridor, *b)
         })
     };
-    let mut proofs = 0;
+    let mut proofs = Vec::new();
     for a in labels.iter().filter(|l| l.role == Role::After) {
         for b in labels.iter().filter(|l| l.role == Role::Before) {
             if a.stem != b.stem || a.axis != b.axis {
@@ -287,9 +294,10 @@ pub(crate) fn explicit_pair(source: RoleSource<'_>) -> bool {
                     && ea[2] <= eb[0]
             };
             if ordered {
-                proofs += 1;
+                proofs.push(a.pair);
             }
         }
     }
-    proofs == 1
+    let [only] = proofs.as_slice() else { return None; };
+    Some(*only)
 }

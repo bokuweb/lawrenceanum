@@ -192,3 +192,10 @@ pub(crate) fn restore(
         continues,
     }
 }
+
+#[cfg(test)]
+#[path="native_role_frame_tests.rs"]
+mod frame_tests;
+
+#[path="native_role_frames.rs"]
+pub(crate) mod frames;

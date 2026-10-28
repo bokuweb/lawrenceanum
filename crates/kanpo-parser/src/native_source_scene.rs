@@ -308,3 +308,5 @@ mod occurrence_tests;
 #[cfg(test)]
 #[path="native_scene_compound_tests.rs"]
 mod compound_tests;
+
+include!("native_scene_role_fences.rs");

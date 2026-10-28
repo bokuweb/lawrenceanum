@@ -1,0 +1,135 @@
+{
+  "issue": 227,
+  "stage": "native189",
+  "baseline": "Adopted190, public62a8ffc1dd8d7114320f8b6e7b854ed27bfa61df.189 prototype was completed after190 CI performance recovery.",
+  "scope": "Continue actual printed comparison roles across matching original parent frames, including page-axis rotation, while retaining complete existing Lines, Tables and Words.",
+  "principles": {
+    "source_caption": "The complete existing publication grammar supplies typed ComparisonLabels. Each actual caption occurrence must retain its normalized original raw text, native axis and own original source/glyph frame. A display may equal its legacy projection or its own original glyph box; an arbitrary shifted display cannot borrow another occurrence. Inferred role metadata never seeds scope.",
+    "complete_source": "Require a complete versioned native scene, strict glyph identity partition and original raw/source-box matches. Unknown or absent paint never means empty. Compound paint and nonflow words remain opaque. Raster images are retained without OCR.",
+    "frame_root": "Nearest native stroke-center fences enclose the two existing source role fields; the middle original fence must be unique. Three boundaries express two semantic roles, not a record/line/word budget. Source PageRules/grid hulls are insufficient when original parent paths exist separately.",
+    "support": "Every material needs real continuous centerline segments across its own cross support. Actual bound Down reading paths or Right baselines supply their original cross-axis point; otherwise keep the full native/opaque source envelope. Full physical primary-axis material must belong wholly to one field. No epsilon or paint hull bridges missing centerline intervals, including a1ULP gap.",
+    "continuation": "An earlier printed root supplies a private typed token. Require the same normalized original three-fence footprint on exactly one supported page axis, finite products, explicit finite positive original page dimensions and the appropriate original/transposed orthogonal paper basis. Display defaults cannot supply missing source extents.",
+    "conservation": "Whole existing Lines/Tables must have exclusive original Word owners and retain current line/cell character material. Never split a mixed-field line or change a nested table cell/merge. Missing/ambiguous identity, source paint, dimensions, geometry, independent heading or unit/outside interruption consumes the open scope. Keep table-marker numbering global and unchanged.",
+    "evaluation_cost": "A printed root cannot change its own already classified page. With no next page, keep the same printed provenance flag while skipping an unused future geometric certificate. An earlier active scope still validates an unlabelled final page.",
+    "no_new_dispatch": [
+      "page identity",
+      "company/title/row-label wording",
+      "font names",
+      "CID/PUA values",
+      "Japanese character lengths",
+      "neighbor line counts",
+      "fixed point tolerances"
+    ],
+    "semantic_grammar": "Actual amendment/change field captions and the existing formal publication-heading grammar remain necessary semantic evidence. No new body phrase dictionary or similarity score is introduced. Existing legacy heuristics have not all been generalized."
+  },
+  "new_tests": {
+    "caption_and_original_scope_plus_counterexamples": 21,
+    "frame_ratio_and_primary_material_geometry": 2,
+    "native_fence_support": 5,
+    "complete_public_API": 6,
+    "total": 34,
+    "focused": "151role-related tests passed, including existing contracts. Six complete public API tests passed; full4package gate below is final."
+  },
+  "REDs": [
+    "Actual25 printed captions failed provenance when its normalized display selected its own native glyph frame rather than the old projected box.",
+    "Public original25/26/27 sequence left landscape27 as Body before integration.",
+    "Missing original width was incorrectly allowed to borrow current display defaults. A too-strict first extent guard also rejected legitimate paper/device axis exchange; original-axis binding fixed it."
+  ],
+  "source_golds": {
+    "public_windows": [
+      {
+        "name": "172-four",
+        "pages": 4,
+        "expected_sha256": "63584d51d322b400300b91111009176fbd043dc952a3a2f1a4370203975a936d"
+      },
+      {
+        "name": "192-three",
+        "pages": 3,
+        "expected_sha256": "b03dd142b75a6714ad68b16c047fc32311ee4a7c3f04e7ac798ffa78a1ae68a2"
+      },
+      {
+        "name": "213-five",
+        "pages": 5,
+        "expected_sha256": "3a964f7c7a34fdb0a8dbfc544edc2b3e23b02f745247abe2df90f1ef56dcbdf0"
+      }
+    ],
+    "original_PDFs": 12,
+    "public_replay": "tests/data/native-role-frames/verify_expected.py reconstructs complete expected outputs from frozen190/unchanged187 baseline ASTs, literal source-reviewed roles, original table cells/merges and a frozen190 text-only reference. It calls no Rust/parser/detector. All12PDF and reference hashes verified.",
+    "frozen_reference": "Only old190 public Document::from_text on literal source annotations; no189 classifier/PDF analysis is called. The unchanged old component is reproduced exactly first and all field characters match original fragments ignoring whitespace. Public reference input/output/provenance are retained.",
+    "direct_nested_table_gold": "Original27 first5/last5 source lines are test annotations only. The continued numbered source table rows append to each own old side, and the second/third tables retain all original cells and merges. Runtime uses no such counts or table-title strings.",
+    "whole_issues": [
+      {
+        "key": "20260731g00172",
+        "expected_sha256": "5ed22f67363573ac18bf098399b846896e21e646af159464790cc9073d778e23",
+        "complete_expected_equals_actual": true
+      },
+      {
+        "key": "20260828g00192",
+        "expected_sha256": "0ccc5c497966d941654932a02a7779d253add0330ff65a9d64e2910f1d3b945e",
+        "complete_expected_equals_actual": true
+      },
+      {
+        "key": "20260928g00213",
+        "expected_sha256": "326d60aab8f6150a64e1d1ece55323cdb01c37c7e50a821d34f08864531bade0",
+        "complete_expected_equals_actual": true
+      }
+    ],
+    "oracle_repairs": "Initial whole-gold construction made two formatter assumptions: omitted a structural-note newline and treated a numbered form heading as a new old-model row. Corrected only the oracle by frozen190 grammar with exact old-component controls;189 runtime was unchanged between those comparisons. Form-heading row granularity is explicitly not fixed here.",
+    "not_a_blind_accuracy_estimate": true
+  },
+  "corpus": {
+    "single_Analysis_exact190": 11992,
+    "whole_issues": 159,
+    "whole_Analysis_exact190": 156,
+    "changed_whole_issues": 3,
+    "changed_pages": [
+      "20260731g001720157",
+      "20260828g001920027",
+      "20260928g002130007",
+      "20260928g002130008",
+      "20260928g002130009",
+      "20260928g002130010"
+    ],
+    "article_counts_preserved": [
+      166,
+      240,
+      238
+    ],
+    "all_Word_values_on_changed_pages_exact": true,
+    "all_original_Lines_Tables_cells_merges_retained": true,
+    "all3_changed_whole_Analysis_independent_gold_exact": true,
+    "duplicate_original_owners": 0,
+    "QA": "All6 changed complete original pages and printed roots/neighbors viewed with PDFium.10current renders plus earlier25/26source QA cover all12fixture PDFs. Images stay as source images.",
+    "actual_release_final": {
+      "profile": "actual Cargo release, final W sources",
+      "single_complete_Analysis_exact_private_final": 11992,
+      "whole_complete_Analysis_exact_private_final": 159,
+      "actual_release_PDF_textdump_CLI_native_body_bytes_exact": 11992,
+      "single_duplicate_owner_pages": 0,
+      "CLI_duplicate_word_reports": 0,
+      "all_original_inputs_native_sources_Cargo_and_binaries_prepost_exact": true,
+      "seconds": 204.713686167,
+      "scope": "Source frame continuation:11992singles and156wholeissues exact190; only6role pages in3wholeissues changed, all3complete independent source golds exact. Finalrelease matches private189 corpus hashes and11992CLI bodies. No overall accuracy claim."
+    }
+  },
+  "normal_final": {
+    "exit_code": 0,
+    "seconds": 674.9502307920001,
+    "all_sources_and_Cargo_exact": true,
+    "groups": 176,
+    "counts": [
+      4380,
+      0,
+      0
+    ]
+  },
+  "workflow_policy": "No existing expected output, selected test, workflow, timeout or OCR default was changed. Require all5 exact-head CI workflows before claiming CI success.",
+  "CI_at_publication": "Pending. Prior190 all5success, native4346/0/0; native job1007seconds with unchanged20minute limit.",
+  "remaining": [
+    "Old comparison prefix coexisting with a new publication on original028 is still Preamble; this patch handles whole current continuation units.",
+    "Existing numbered-form heading row granularity, other record partitions and financial/article boundaries remain.",
+    "Unknown characters and Latin wrap spacing remain.",
+    "No overall100percent or full generalization claim."
+  ],
+  "OCR": "Explicit opt-in only; NDLOCR0.0.15 revf97e930b8c3e9512f7788f258ef685da26416483 unchanged. No new RURI/ModernBERT/model dependency."
+}

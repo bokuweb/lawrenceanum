@@ -82,7 +82,10 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
     let mut prev_mid: Option<f32> = None;
     // Only printed native caption evidence or a certified continuation can carry this scope.
     let mut prev_native_roles = false;
-    for (pi, page) in doc.select(&page_sel).enumerate() {
+    let mut native_frame_scope = crate::native_role_continuation::frames::State::default();
+    let source_pages = doc.select(&page_sel).collect::<Vec<_>>();
+    let source_page_count = source_pages.len();
+    for (pi, page) in source_pages.into_iter().enumerate() {
         let (width, height) = page_size(page);
         let line_moves=crate::native_cell_lineage::for_page(page);
         let ((cols, mut words, rotated, sideways, merged, minus, native_styles, native_bounds, native_content_styles, native_axes, native_rulings, inline_merged, native_flows, projected_flows, cell_origins),advance_bands) = page_words_with_styles_and_bands(page, width, height, rules.get(pi).and_then(|r| r.as_ref()));
@@ -570,8 +573,8 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                 doc_text,
                 tables,
             });
-            prev_native_roles = native_carry
-                || crate::native_role_continuation::explicit_page(pages.last().unwrap());
+            let printed = restore_native_comparison_frame(&mut native_frame_scope, pages.last_mut().unwrap(), page, page_rules, &mut table_count, pi + 1 < source_page_count);
+            prev_native_roles = native_carry || printed;
             continue;
         }
         // 多ページ新旧対照表の継続ページ（2 ページ目以降）は「改正後/改正前」の欄見出しを
@@ -951,10 +954,42 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             doc_text,
             tables,
         });
-        prev_native_roles = crate::native_role_continuation::explicit_page(pages.last().unwrap());
+        prev_native_roles = restore_native_comparison_frame(&mut native_frame_scope, pages.last_mut().unwrap(), page, rules.get(pi).and_then(Option::as_ref), &mut table_count, pi + 1 < source_page_count);
     }
     crate::notice_boundaries::restore_framed_reading_order(&mut pages, rules);
     pages
+}
+
+// Reuse each original Line/Table and its source occurrence ownership. Only
+// source-certified role scope changes; table-marker numbering remains global.
+fn restore_native_comparison_frame(
+    state: &mut crate::native_role_continuation::frames::State,
+    page: &mut PageTrace,
+    source: scraper::ElementRef<'_>,
+    rules: Option<&PageRules>,
+    table_count: &mut usize,
+    has_next_page: bool,
+) -> bool {
+    let Some(rules) = rules else {
+        state.clear();
+        return crate::native_role_continuation::explicit_page(page);
+    };
+    let observed = state.observe(page, source, rules, has_next_page);
+    let Some(unit) = observed.unit else { return observed.printed; };
+    let Some(start) = table_count.checked_sub(page.tables.len()) else {
+        state.clear(); return observed.printed;
+    };
+    let labels = match &unit { Unit::Shinkyu{labels,..} => *labels, _ => None };
+    let text = unit.text();
+    let mut count = start;
+    let (doc_text, tables) = doc_text_of(std::slice::from_ref(&unit), &mut count);
+    if count != *table_count { state.clear(); return observed.printed; }
+    page.native_comparison_labels = vec![labels];
+    page.regions = unit.regions(0);
+    page.text = text;
+    page.doc_text = doc_text;
+    page.tables = tables;
+    observed.printed
 }
 
 /// 横倒しのページの罫線の表で、行を区切る罫線の無いまま 1 つのセルに複数の行が入っているか（「クボタ浄化槽」
