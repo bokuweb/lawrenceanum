@@ -3024,6 +3024,27 @@ fn merge_warichu(cols: &mut Vec<Col>, protected: &std::collections::HashSet<usiz
     merged
 }
 
+// These are the existing name/spacing grammar, evaluated without allocating
+// a character vector or a temporary String for every candidate column.
+fn warichu_name_character(c: char) -> bool {
+    ('\u{4E00}'..='\u{9FFF}').contains(&c) || ('\u{3041}'..='\u{30FF}').contains(&c)
+}
+fn warichu_spaced_part(text: &str, extended: bool) -> bool {
+    let mut chars = text.chars();
+    let (Some(first), second, third, fourth) =
+        (chars.next(), chars.next(), chars.next(), chars.next()) else { return false; };
+    if !warichu_name_character(first) || fourth.is_some() {
+        return false;
+    }
+    let comma = |c| matches!(c, '、' | '・' | '，' | '︑' | '︐');
+    match (second, third) {
+        (None, None) => true,
+        (Some(c), None) => matches!(c, '、' | '・' | '，') || (extended && comma(c)),
+        (Some(c), Some(last)) => extended && comma(c) && warichu_name_character(last),
+        _ => false,
+    }
+}
+
 /// [`merge_warichu`] の 1 回分。`ext` のときは、残った語から三段の割注だけを、字間を空けた段の語を広く
 /// （読点を挟んだ「府、総」も）、中の段を字間を空けずに組んだ 1 語（「文部科学省、厚生労働省、農林水産省、」）も
 /// 見て探す（本文の中の「（平成二十六年内閣府、総務省、…環境省告示第一号）」）。先に広く見ると、標題の
@@ -3045,12 +3066,6 @@ fn merge_warichu_pass(cols: &mut Vec<Col>, ext: bool, protected: &std::collectio
         // 字間を空けた続きの語（「総」の後の「務」「省、」、読点を挟んだ「府、総」）。読点の付いた 3 字まで
         // （縦組みの読点「︑」も）。
         let comma = |c: char| matches!(c, '、' | '・' | '，' | '︑' | '︐');
-        let spaced_part = |t: &str| {
-            let cs: Vec<char> = t.chars().collect();
-            name_char(t)
-                || (cs.len() == 2 && name_char(&cs[0].to_string()) && (matches!(cs[1], '、' | '・' | '，') || (ext && comma(cs[1]))))
-                || (ext && cs.len() == 3 && name_char(&cs[0].to_string()) && comma(cs[1]) && name_char(&cs[2].to_string()))
-        };
         let mut spaced = vec![i];
         // 右半分の頭が複数字の語（「国家公安委員会、総」）でも、続きが字間を空けた語なら同じようにまとめる。
         let head_ok = name_char(&cols[i].text) || cols[i].y1 - cols[i].y >= w * 1.5;
@@ -3059,11 +3074,11 @@ fn merge_warichu_pass(cols: &mut Vec<Col>, ext: bool, protected: &std::collectio
                 let last = &cols[*spaced.last().unwrap()];
                 let next = (0..cols.len()).find(|&j| {
                     !spaced.contains(&j) && !protected.contains(&cols[j].id)
-                        && spaced_part(&cols[j].text)
                         && near(cols[j].x, last.x)
                         && near(cols[j].x1, last.x1)
                         && cols[j].y > last.y1 - w * 0.1
                         && cols[j].y - last.y1 <= w * 1.5
+                        && warichu_spaced_part(&cols[j].text, ext)
                 });
                 match next {
                     Some(j) => spaced.push(j),
@@ -3095,7 +3110,7 @@ fn merge_warichu_pass(cols: &mut Vec<Col>, ext: bool, protected: &std::collectio
             .any(|(j, p)| j != i && ((p.x + p.x1) / 2.0 - r.x).abs() < w * 0.3 && (p.y1 - r.y).abs() < w * 0.75 && p.y < r.y);
         // 左半分: 左端が右半分の 1 字分左で、右半分の範囲に掛かる語。字間を空けた右半分と同じ字の幅・同じ上下の
         // 範囲で、少し（半字分まで）離して組んだ機関名の語（「内　閣　府」と「農林水産省」）も。
-        let organ = |t: &str| t.chars().count() >= 2 && t.ends_with(['省', '庁', '府', '会']) && t.chars().all(|c| name_char(&c.to_string()));
+        let organ = |t: &str| t.chars().nth(1).is_some() && t.ends_with(['省', '庁', '府', '会']) && t.chars().all(warichu_name_character);
         let left: Vec<usize> = (0..cols.len())
             .filter(|&j| {
                 let c = &cols[j];
@@ -4301,8 +4316,7 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
         sorted.sort_by(|a, b| a.y.total_cmp(&b.y));
         let x = (sorted[0].x + sorted[0].x1) / 2.0;
         let one_column = sorted.iter().all(|c| ((c.x + c.x1) / 2.0 - x).abs() < 4.0);
-        let text: String = sorted.iter().map(|c| c.text.as_str()).collect();
-        if one_column && crate::segment::is_section_label(&text) {
+        if one_column && crate::segment::is_section_label(&sorted.iter().map(|c| c.text.as_str()).collect::<String>()) {
             out.push(cols);
             return;
         }
@@ -6745,3 +6759,7 @@ fn signatures(order:&[usize])->std::collections::BTreeMap<usize,(usize,usize)>{l
 mod native_band_binding_tests;
 
 #[path="native_marker_records.rs"]mod native_marker_records;
+
+#[cfg(test)]
+#[path = "vertical_candidate_cost_tests.rs"]
+mod candidate_cost_tests;
