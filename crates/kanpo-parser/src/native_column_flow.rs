@@ -55,6 +55,13 @@ pub(crate) fn from_word(word: scraper::ElementRef<'_>, total: Option<usize>) -> 
     out.belongs(b).then_some(out)
 }
 impl AxisFlow {
+    pub(crate) fn source_range(self) -> (usize, usize) {
+        (self.first, self.after)
+    }
+    pub(crate) fn vertical_steps(self, bounds: [f32; 4]) -> Option<[f64; 3]> {
+        self.vertical_path(bounds)?;
+        Some([self.flow.leading, self.flow.trailing, self.flow.prefix])
+    }
     /// Bound every vertical glyph center from the complete source column and
     /// original em sizes. Mixed sizes are valid when their conservative center
     /// envelope stays in one cell; no average size or point tolerance is used.

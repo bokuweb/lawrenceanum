@@ -173,6 +173,29 @@ pub(crate) fn for_page(page: scraper::ElementRef, rules: &PageRules) -> Option<S
     })
 }
 impl Scene {
+    /// Native em boxes stay within the original geometric frame. Its complete
+    /// border paint may extend inward; that does not shrink the authored text
+    /// capacity. All interior paint and opaque material still prevent proof.
+    pub(crate) fn paragraph_frame(&self, b: [f32; 4]) -> Option<[f64; 2]> {
+        let b=b.map(f64::from);
+        if !valid(b) {return None;}
+        let fences=self.lines.iter().filter(|&&(center,_,_)|
+            center[1]==center[3] && center[0]<=b[0] && b[2]<=center[2]).collect::<Vec<_>>();
+        let top=fences.iter().filter_map(|&&(center,_,_)|(center[1]<=b[1]).then_some(center[1])).max_by(f64::total_cmp)?;
+        let bottom=fences.iter().filter_map(|&&(center,_,_)|(b[3]<=center[1]).then_some(center[1])).min_by(f64::total_cmp)?;
+        // Never jump an unclassified nearer physical fence to borrow an
+        // enclosing page/header fence. Coincident ambiguous paint also refuses.
+        if top>=bottom||fences.iter().any(|&&(center,_,ruled)|
+            (center[1]==top||center[1]==bottom)&&!ruled) {return None;}
+        let frame=[b[0],top,b[2],bottom];
+        let overlaps=|a:Rect|a[0]<frame[2]&&frame[0]<a[2]&&a[1]<frame[3]&&frame[1]<a[3];
+        if self.obstacles.iter().any(|&a|overlaps(a)) {return None;}
+        for &(center,paint,ruled) in &self.lines {
+            if overlaps(paint)&&!(ruled&&center[1]==center[3]
+                &&center[0]<=b[0]&&b[2]<=center[2]&&(center[1]==top||center[1]==bottom)) {return None;}
+        }
+        Some([top,bottom])
+    }
     /// Exclude only the actual paint of complete original grid boundaries.
     /// Opaque glyphs, images and fills are checked over the whole original strip.
     /// Callers must retain their complete glyph bounds inside the returned area.

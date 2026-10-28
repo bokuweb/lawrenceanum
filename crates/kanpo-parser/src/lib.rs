@@ -32,6 +32,7 @@
 
 use anyhow::Result;
 mod notice_boundaries;
+mod native_quote_scopes;
 mod company_document_parts;
 mod facility_continuations;
 mod framed_band_continuations;
@@ -154,7 +155,9 @@ pub fn analyze_with_rules(xhtml: &str, rules: &[Option<lines::PageRules>]) -> An
     let mut segments = segment_articles(&doc_text);
     wrapped_notice_titles::repair_wrapped_notice_titles(&mut segments, &pages);
     financial_enclosures::repair_segments(&mut segments,&pages,rules);
-    let groups=notice_boundaries::groups(&segments,&doc_text,&pages,rules);
+    let quote_scopes=native_quote_scopes::Scopes::for_pages(xhtml,&pages,rules);
+    let groups=if quote_scopes.is_empty(){notice_boundaries::groups(&segments,&doc_text,&pages,rules)}
+        else{notice_boundaries::groups_with_scopes(&segments,&doc_text,&pages,rules,&quote_scopes)};
     let certificates=notice_sources::certificates(&pages,rules);
     let mut articles=Vec::new();
     let mut article_sources=Vec::new();

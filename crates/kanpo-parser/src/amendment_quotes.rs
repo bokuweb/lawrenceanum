@@ -272,10 +272,27 @@ pub(crate) fn source_lines(page: &crate::trace::PageTrace) -> Vec<(&str, bool)> 
 }
 
 pub(crate) fn states(lines: &[(&str, bool)]) -> Vec<State> {
+    states_impl(lines, None)
+}
+pub(crate) fn states_with_scopes(
+    lines: &[(&str, bool)],
+    scopes: &crate::native_quote_scopes::Scopes<'_>,
+) -> Vec<State> {
+    states_impl(
+        lines,
+        (!scopes.is_empty() && scopes.matches(lines)).then_some(scopes),
+    )
+}
+fn states_impl(
+    lines: &[(&str, bool)],
+    scopes: Option<&crate::native_quote_scopes::Scopes<'_>>,
+) -> Vec<State> {
     let mut chars = vec![];
     let mut rows = vec![];
     let mut allowed = vec![];
+    let mut row_starts=vec![];
     for (row, &(text, eligible)) in lines.iter().enumerate() {
+        if scopes.is_some() {row_starts.push(chars.len());}
         for c in text.chars().filter(|c| !c.is_whitespace()) {
             chars.push(c);
             rows.push(row);
@@ -300,7 +317,8 @@ pub(crate) fn states(lines: &[(&str, bool)]) -> Vec<State> {
             });
             row += 1;
         }
-        if valid && allowed[at] && location(&chars, at).is_some() {
+        if valid && allowed[at] && (location(&chars, at).is_some()
+            || scopes.is_some_and(|s|row_starts[rows[at]]==at&&s.end(rows[at]).is_some()&&literal_operations::can_start(&chars,at))) {
             let stop = (at..chars.len())
                 .find(|&i| !allowed[i])
                 .unwrap_or(chars.len());
@@ -309,7 +327,23 @@ pub(crate) fn states(lines: &[(&str, bool)]) -> Vec<State> {
                 lists: HashMap::new(),
                 clauses: HashMap::new(),
             };
-            if let Some(end) = parser.certificate(at) {
+            let end = parser.certificate(at).or_else(|| {
+                let scopes = scopes?;
+                if row_starts[rows[at]] != at {
+                    return None;
+                }
+                let last = scopes.end(rows[at])?;
+                if last <= rows[at] || last > lines.len() {
+                    return None;
+                }
+                let bound = row_starts
+                    .get(last)
+                    .copied()
+                    .unwrap_or(chars.len())
+                    .min(stop);
+                literal_operations::endpoint(&chars, at, bound)
+            });
+            if let Some(end) = end {
                 for r in rows[at] + 1..=rows[end - 1] {
                     out[r] = Some(State {
                         empty: false,
@@ -344,6 +378,9 @@ pub(crate) fn states(lines: &[(&str, bool)]) -> Vec<State> {
     }
     out.into_iter().map(Option::unwrap).collect()
 }
+
+#[path = "native_literal_operations.rs"]
+mod literal_operations;
 
 #[cfg(test)]
 mod tests {

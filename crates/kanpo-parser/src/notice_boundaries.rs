@@ -1131,6 +1131,18 @@ pub(crate) fn groups(
     pages: &[PageTrace],
     rules: &[Option<PageRules>],
 ) -> Vec<Vec<Part>> {
+    groups_impl(original,text,pages,rules,None)
+}
+pub(crate) fn groups_with_scopes(
+    original:&[String],text:&str,pages:&[PageTrace],rules:&[Option<PageRules>],
+    scopes:&crate::native_quote_scopes::Scopes<'_>,
+)->Vec<Vec<Part>> {
+    groups_impl(original,text,pages,rules,Some(scopes))
+}
+fn groups_impl(
+    original:&[String],text:&str,pages:&[PageTrace],rules:&[Option<PageRules>],
+    scopes:Option<&crate::native_quote_scopes::Scopes<'_>>,
+)->Vec<Vec<Part>> {
     let unchanged = || {
         original
             .iter()
@@ -1148,7 +1160,10 @@ pub(crate) fn groups(
     let (mut offset, mut table, mut nonempty) = (0usize, 0usize, false);
     let (mut breaks, mut ownership) = (BTreeSet::new(), vec![]);
     let quote_lines=pages.iter().flat_map(crate::amendment_quotes::source_lines).collect::<Vec<_>>();
-    let quote_states=crate::amendment_quotes::states(&quote_lines);
+    let quote_states=match scopes {
+        Some(s)=>crate::amendment_quotes::states_with_scopes(&quote_lines,s),
+        None=>crate::amendment_quotes::states(&quote_lines),
+    };
     let mut quote_offset=0;
     for (pi, p) in pages.iter().enumerate() {
         let continuing_quote=quote_states.get(quote_offset).is_some_and(|s|!s.empty);
