@@ -67,6 +67,54 @@ fn prose_content(page: &PageTrace, line: &SourceLine<'_>) -> Option<NativeStyles
     (!styles.is_empty()).then_some(styles)
 }
 
+fn region_bounds(page: &PageTrace, lines: &[SourceLine<'_>], scope: usize) -> Option<Rect> {
+    let mut out: Option<Rect> = None;
+    for l in lines.iter().filter(|l| l.scope == scope) {
+        let b = native(page, l)?;
+        out = Some(out.map_or(b, |a| union(a, b)));
+    }
+    out
+}
+
+// The source page's own region order puts a column's last line directly before
+// the next column's first line. Prose continues there only when the two regions
+// are separated by one original vertical column rule that both lines touch, and
+// reading moves up to the top of the following column. No distance, line count
+// or wording decides this.
+fn column_continues(
+    page: &PageTrace,
+    rules: &PageRules,
+    lines: &[SourceLine<'_>],
+    at: usize,
+) -> bool {
+    let (Some(p), Some(n)) = (at.checked_sub(1).map(|i| &lines[i]), lines.get(at)) else {
+        return false;
+    };
+    let (Some(pb), Some(nb)) = (native(page, p), native(page, n)) else {
+        return false;
+    };
+    let (Some(pr), Some(nr)) = (page.regions.get(p.scope), page.regions.get(n.scope)) else {
+        return false;
+    };
+    if n.scope != p.scope + 1 || pr.unit == nr.unit || nb[1] >= pb[1] {
+        return false;
+    }
+    let (Some(pc), Some(nc)) = (
+        region_bounds(page, lines, p.scope),
+        region_bounds(page, lines, n.scope),
+    ) else {
+        return false;
+    };
+    if pc[3] != pb[3] || nc[1] != nb[1] || pc[2] >= nc[0] {
+        return false;
+    }
+    let touches = |r: &kanpo_pdf::rules::VRule, b: Rect| r.y0 < b[3] && b[1] < r.y1;
+    rules
+        .vertical
+        .iter()
+        .any(|r| pc[2] <= r.x && r.x <= nc[0] && touches(r, pb) && touches(r, nb))
+}
+
 fn signed(
     page: &PageTrace,
     rules: &PageRules,
@@ -78,6 +126,11 @@ fn signed(
     let mut body_bounds: Option<Rect> = None;
     let mut body_styles: Option<NativeStyles> = None;
     let mut complete_sentence = false;
+    let mut scope = lines[head.first].scope;
+    // The horizontal extent this instrument occupies in its current column.
+    let mut column = head.bounds;
+    // Body lines in the current column; the date and office are placed there.
+    let mut column_body: Option<Rect> = None;
     let mut at = head.end;
     while at < end {
         let line = &lines[at];
@@ -87,10 +140,23 @@ fn signed(
         let Some(s) = prose_content(page, line) else {
             return false;
         };
-        if line.scope != lines[head.first].scope
+        // Unfinished prose may continue at the top of the next source column.
+        if line.scope != scope
+            && body_bounds.is_some()
+            && column_continues(page, rules, lines, at)
+        {
+            let Some(next) = region_bounds(page, lines, line.scope) else {
+                return false;
+            };
+            scope = line.scope;
+            column = next;
+            column_body = None;
+            previous = [b[0], f32::NEG_INFINITY, b[2], f32::NEG_INFINITY];
+        }
+        if line.scope != scope
             || b[1] <= previous[1]
-            || b[0] >= head.bounds[2]
-            || b[2] <= head.bounds[0]
+            || b[0] >= column[2]
+            || b[2] <= column[0]
             || closed_by_frame(rules, b)
             || !s.is_disjoint(&head.styles)
         {
@@ -98,15 +164,17 @@ fn signed(
         }
         let text = line.tokens.as_ref().unwrap().concat();
         if date(&text) {
-            let (Some(body), Some(bs)) = (body_bounds, body_styles.as_ref()) else {
+            let (Some(whole), Some(body), Some(bs)) =
+                (body_bounds, column_body, body_styles.as_ref())
+            else {
                 return false;
             };
             if !complete_sentence
                 || !line.quote_state.strict()
                 || source_baseline(page, line).is_none()
                 || *bs != s
-                || head.bounds[0] < body[0]
-                || head.bounds[2] > body[2]
+                || head.bounds[0] < whole[0]
+                || head.bounds[2] > whole[2]
                 || b[0] < body[0]
                 || b[2] > body[2]
             {
@@ -145,12 +213,24 @@ fn signed(
                 && signature[2] <= body[2]
                 && signature[2] >= head.bounds[2];
         }
-        if body_styles.as_ref().is_some_and(|prior| prior != &s) {
-            return false;
-        }
+        // Prose keeps one shared original body face. A line may add another
+        // face only at that same type size, e.g. Latin words within a sentence.
+        let shared = match body_styles {
+            None => s,
+            Some(prior) => {
+                let shared: NativeStyles = prior.intersection(&s).copied().collect();
+                if shared.is_empty()
+                    || !s.iter().all(|(_, size)| prior.iter().any(|(_, p)| p == size))
+                {
+                    return false;
+                }
+                shared
+            }
+        };
         complete_sentence |= text.ends_with('。');
-        body_styles = Some(s);
+        body_styles = Some(shared);
         body_bounds = Some(body_bounds.map_or(b, |old| union(old, b)));
+        column_body = Some(column_body.map_or(b, |old| union(old, b)));
         previous = b;
         at += 1;
     }

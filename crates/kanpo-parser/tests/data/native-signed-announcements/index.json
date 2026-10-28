@@ -21,7 +21,7 @@
       "PDF": "tests/data/native-signed-announcements/20260729h017570006.pdf",
       "PDF_sha256": "6af4a3e0978ab656c107b581315b989caa39bdb8dd6a795c8cf839cfba2002df",
       "baseline_sha256": "e39ee3285c3298f47304f115aba5c00fa34ace7c9b4ef20f8e38567fbebe8429",
-      "expected_sha256": "d6f85608b01d6433f459d21cec805fa35674aa34324dd5136241c7a5bee51084",
+      "expected_sha256": "cac64a366e43d67124f0d6d147bb415a73f48f822c379416529d13f030c541a9",
       "source": {
         "title": "財部町土地改良区の定款変更\nの認可の公告",
         "witness": "財部町土地改良区の定款変更\nの認可の公告\n土地改良法（昭和24年法律第195号）第30条第",
@@ -30,7 +30,18 @@
           24,
           25
         ]
-      }
+      },
+      "column_continued_sources": [
+        {
+          "title": "金融商品取引業者に対する行\n政処分の公告",
+          "witness": "金融商品取引業者に対する行\n政処分の公告\n金融商品取引法（昭和23年法律第25号）第52条",
+          "page_line": 111,
+          "source_words": [
+            77,
+            78
+          ]
+        }
+      ]
     },
     {
       "key": "20260807g001780069",

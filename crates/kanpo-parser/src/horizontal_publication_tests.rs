@@ -1143,3 +1143,103 @@ fn source_fonts_remain_opaque_for_a_signed_announcement() {
     for c in &mut p.native_content_styles {if let ContentStyles::Glyphs(s)=c {*s=s.iter().map(|&(f,n)|(f^0x511,n)).collect();}}
     assert_eq!(cuts(&p,&Default::default()),vec![1]);
 }
+
+// An instrument whose prose ends one source column and continues at the top of
+// the next column, beyond an original vertical column rule.
+fn column_instrument(dy: f32) -> (PageTrace, PageRules) {
+    let mut p = empty();
+    add(&mut p, "以前の別件の本文。", [50., 10., 350., 18.], 1, 8.);
+    add(&mut p, "任意の手続", [100., 300., 220., 309.], 2, 9.);
+    add(&mut p, "根拠となる制度に基づいて本件を", [50., 320., 350., 328.], 1, 8.);
+    add(&mut p, "定めたので、公告する。", [50., 330., 230., 338.], 1, 8.);
+    let first = p.words.len();
+    add(&mut p, "記", [560., 20. + dy, 568., 28. + dy], 1, 8.);
+    add(&mut p, "１ 内容を示す", [420., 30. + dy, 720., 38. + dy], 1, 8.);
+    add(&mut p, "2026年7月1日", [430., 50. + dy, 530., 58. + dy], 1, 8.);
+    let role = add(&mut p, "任意機関長", [600., 70. + dy, 660., 78. + dy], 1, 8.);
+    let name = add(&mut p, "任意", [680., 70. + dy, 720., 78. + dy], 1, 8.);
+    p.regions[0].lines.truncate(first);
+    let mut next = vec![];
+    for id in first..first + 3 {
+        next.push(Line::text(p.words[id].text.clone(), vec![id]));
+    }
+    next.push(Line::text("任意機関長 任意".into(), vec![role, name]));
+    let id = add(&mut p, "１ 手続", [420., 90. + dy, 520., 98. + dy], 1, 8.);
+    p.regions[0].lines.pop();
+    next.push(Line::text(p.words[id].text.clone(), vec![id]));
+    p.regions.push(Region {
+        role: Role::Body,
+        unit: 1,
+        part: 0,
+        lines: next,
+    });
+    p.native_horizontal_baselines = p
+        .native_bounds
+        .iter()
+        .map(|b| match b {
+            NativeBounds::Glyphs(b) => Some(f64::from(b[1] + b[3]) / 2.),
+            _ => None,
+        })
+        .collect();
+    refresh(&mut p);
+    let mut r = PageRules::default();
+    r.vertical.push(crate::lines::VRule {
+        x: 385.,
+        y0: 5.,
+        y1: 345.,
+    });
+    (p, r)
+}
+#[test]
+fn native_instrument_roots_continue_prose_across_an_original_column_rule() {
+    let (p, r) = column_instrument(0.);
+    assert_eq!(cuts(&p, &r), vec![1]);
+    assert!(cuts(&p, &Default::default()).is_empty(), "no column rule");
+}
+#[test]
+fn native_instrument_roots_need_a_rule_that_separates_both_column_ends() {
+    for rule in [
+        crate::lines::VRule { x: 385., y0: 40., y1: 345. },
+        crate::lines::VRule { x: 385., y0: 5., y1: 320. },
+        crate::lines::VRule { x: 500., y0: 5., y1: 345. },
+        crate::lines::VRule { x: 40., y0: 5., y1: 345. },
+    ] {
+        let (p, mut r) = column_instrument(0.);
+        r.vertical = vec![rule];
+        assert!(cuts(&p, &r).is_empty(), "{rule:?}");
+    }
+}
+#[test]
+fn native_instrument_roots_continue_only_upward_from_a_column_end_to_a_column_top() {
+    // The following region starts below the end of this column.
+    let (p, mut r) = column_instrument(330.);
+    r.vertical[0].y1 = 700.;
+    assert!(cuts(&p, &r).is_empty());
+    // A line of the following region above the continuation is not its top.
+    let (mut p, r) = column_instrument(0.);
+    let id = add(&mut p, "上の行", [420., 8., 470., 16.], 1, 8.);
+    p.regions[0].lines.pop();
+    p.regions[1].lines.push(Line::text("上の行".into(), vec![id]));
+    p.native_horizontal_baselines.push(Some(12.));
+    refresh(&mut p);
+    assert!(cuts(&p, &r).is_empty());
+}
+#[test]
+fn native_instrument_roots_need_the_shared_body_face_in_the_next_column() {
+    let face = |p: &mut PageTrace, id: usize, s: NativeStyles| {
+        p.native_styles[id] = Some(s.clone());
+        p.native_content_styles[id] = ContentStyles::Glyphs(s);
+    };
+    // Another face alone is not this instrument's prose.
+    let (mut p, r) = column_instrument(0.);
+    face(&mut p, 4, NativeStyles::from([(3, 8f64.to_bits())]));
+    assert!(cuts(&p, &r).is_empty());
+    // An additional face at the body size, such as Latin words, is prose.
+    let (mut p, r) = column_instrument(0.);
+    face(&mut p, 5, NativeStyles::from([(1, 8f64.to_bits()), (3, 8f64.to_bits())]));
+    assert_eq!(cuts(&p, &r), vec![1]);
+    // An additional face at another size is not.
+    let (mut p, r) = column_instrument(0.);
+    face(&mut p, 5, NativeStyles::from([(1, 8f64.to_bits()), (3, 7f64.to_bits())]));
+    assert!(cuts(&p, &r).is_empty());
+}

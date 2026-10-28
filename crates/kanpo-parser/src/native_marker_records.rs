@@ -321,9 +321,6 @@ fn repair(t: &Table, peer: &Table, g: &Grid, pg: &Grid, s: &Source) -> Option<Ta
         }
         anchors.push(s.axis(cells.iter().flat_map(|c| c.words.iter().copied()))?);
     }
-    if anchors.is_empty() {
-        return None;
-    }
     let mut result = t.clone();
     result.cells.clear();
     let mut next = 0usize;
@@ -343,6 +340,24 @@ fn repair(t: &Table, peer: &Table, g: &Grid, pg: &Grid, s: &Source) -> Option<Ta
             for i in 0..n {
                 axes.push(s.axis(groups.iter().flat_map(|v| v[i].iter().copied()))?);
             }
+            let texts = cells
+                .iter()
+                .zip(&groups)
+                .map(|(c, v)| chunks(c, v, s.words))
+                .collect::<Option<Vec<_>>>()?;
+            // One source text column whose every field is the same single
+            // omission Word is a whole unchanged record. Nothing wraps into or
+            // out of it, so it is delimited on both sides without counterparts.
+            let mut own = BTreeSet::new();
+            for i in 0..n {
+                let label = material(&texts[0][i]);
+                if super::ruled_marker_bands::marker(&label) == Some(false)
+                    && groups.iter().all(|v| v[i].len() == 1)
+                    && texts.iter().all(|t| material(&t[i]) == label)
+                {
+                    own.extend([i, i + 1]);
+                }
+            }
             let mut matches = vec![0usize; n];
             for &(a, b) in &anchors {
                 let hits = (0..n)
@@ -361,24 +376,19 @@ fn repair(t: &Table, peer: &Table, g: &Grid, pg: &Grid, s: &Source) -> Option<Ta
                 .filter(|(_, n)| **n == 1)
                 .map(|(i, _)| i)
                 .collect::<BTreeSet<_>>();
-            let first = *cuts.first()?;
             // A marker cannot certify a partial wrapped remainder. Every column from
             // the first transferred head to the old endpoint needs its own counterpart.
-            if (first..n).any(|i| !cuts.contains(&i)) {
+            if cuts.first().is_some_and(|&first| (first..n).any(|i| !cuts.contains(&i))) {
                 return None;
             }
             let mut cuts = cuts;
+            cuts.extend(own);
             cuts.insert(0);
             cuts.insert(n);
             let cuts = cuts.into_iter().collect::<Vec<_>>();
             if cuts.len() < 3 {
                 return None;
             }
-            let texts = cells
-                .iter()
-                .zip(&groups)
-                .map(|(c, v)| chunks(c, v, s.words))
-                .collect::<Option<Vec<_>>>()?;
             let mut out = vec![];
             for pair in cuts.windows(2) {
                 for (ci, c) in cells.iter().enumerate() {

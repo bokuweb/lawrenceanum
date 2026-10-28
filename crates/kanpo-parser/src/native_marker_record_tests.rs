@@ -482,3 +482,70 @@ fn one_broad_marker_axis_cannot_certify_multiple_original_record_columns() {
     }
     unchanged(f);
 }
+fn rewrite_own(f: &mut F, record: usize, fields: &[usize], text: &str) {
+    let Unit::Shinkyu { after, .. } = &mut f.units[0] else {
+        panic!()
+    };
+    let t = after[0][0].table.as_mut().unwrap();
+    let n = t.cells.len();
+    for &field in fields {
+        let id = record * n + field;
+        f.words[id].text = text.into();
+        f.words[id].raw = text.into();
+    }
+    for c in &mut t.cells {
+        c.text = c
+            .words
+            .iter()
+            .map(|&id| f.words[id].text.as_str())
+            .collect::<Vec<_>>()
+            .join("\n");
+    }
+    after[0][0].text = t.render();
+}
+// Records 0..3 share one legacy row; only the last has a counterpart witness.
+fn omission_fixture() -> F {
+    let mut f = fixture(4, 2, "途中");
+    for row in 0..3 {
+        for col in 0..2 {
+            rewrite_peer(&mut f, row, col, "文章の続き");
+        }
+    }
+    f
+}
+fn record_words(f: &F) -> Vec<Vec<usize>> {
+    let t = &tables(f)[0];
+    (0..t.rows)
+        .map(|r| {
+            t.cells
+                .iter()
+                .filter(|c| c.row == r && c.col == 0)
+                .flat_map(|c| c.words.clone())
+                .collect()
+        })
+        .collect()
+}
+#[test]
+fn an_omission_marker_filling_every_field_is_its_own_record() {
+    let mut f = omission_fixture();
+    run(&mut f);
+    assert_eq!(record_words(&f), vec![vec![0, 2, 4], vec![6]]);
+    let mut f = omission_fixture();
+    rewrite_own(&mut f, 0, &[0, 1], "（略）");
+    run(&mut f);
+    // The lines between the omission and the witnessed record stay one record.
+    assert_eq!(record_words(&f), vec![vec![0], vec![2, 4], vec![6]]);
+    let mut f = omission_fixture();
+    rewrite_own(&mut f, 1, &[0, 1], "（略）");
+    run(&mut f);
+    assert_eq!(record_words(&f), vec![vec![0], vec![2], vec![4], vec![6]]);
+}
+#[test]
+fn a_partial_omission_or_a_changed_marker_does_not_delimit_its_own_record() {
+    for (fields, text) in [(&[0][..], "（略）"), (&[1][..], "（略）"), (&[0, 1][..], "（新設）")] {
+        let mut f = omission_fixture();
+        rewrite_own(&mut f, 0, fields, text);
+        run(&mut f);
+        assert_eq!(record_words(&f), vec![vec![0, 2, 4], vec![6]], "{fields:?}{text}");
+    }
+}
