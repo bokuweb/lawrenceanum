@@ -44984,49 +44984,67 @@
     97209
   ],
   "pending": {
-    "96026": {
-      "first_seen": "2026-10-27",
+    "96087": {
+      "first_seen": "2026-10-28",
       "attempts": 1,
       "status": "summary_incomplete",
       "origin": "backfill",
-      "next_attempt": "2026-10-28",
+      "next_attempt": "2026-10-29",
       "selection_reason": "shared_article",
       "refresh": false
     },
     "96841": {
       "first_seen": "2026-10-27",
-      "attempts": 1,
+      "attempts": 2,
       "status": "summary_incomplete",
       "origin": "backfill",
-      "next_attempt": "2026-10-28",
+      "next_attempt": "2026-10-31",
       "selection_reason": "shared_article",
       "refresh": false
     },
-    "96904": {
-      "first_seen": "2026-10-27",
+    "97044": {
+      "first_seen": "2026-10-28",
       "attempts": 1,
       "status": "summary_incomplete",
       "origin": "backfill",
-      "next_attempt": "2026-10-28",
-      "selection_reason": "shared_article",
+      "next_attempt": "2026-10-29",
+      "selection_reason": "corpus_cursor",
       "refresh": false
     },
-    "96914": {
-      "first_seen": "2026-10-27",
+    "97075": {
+      "first_seen": "2026-10-28",
       "attempts": 1,
       "status": "summary_incomplete",
       "origin": "backfill",
-      "next_attempt": "2026-10-28",
-      "selection_reason": "shared_article",
+      "next_attempt": "2026-10-29",
+      "selection_reason": "corpus_cursor",
+      "refresh": false
+    },
+    "97174": {
+      "first_seen": "2026-10-28",
+      "attempts": 1,
+      "status": "no_case_text",
+      "origin": "backfill",
+      "next_attempt": "2026-10-29",
+      "selection_reason": "corpus_cursor",
+      "refresh": false
+    },
+    "97189": {
+      "first_seen": "2026-10-28",
+      "attempts": 1,
+      "status": "summary_incomplete",
+      "origin": "backfill",
+      "next_attempt": "2026-10-29",
+      "selection_reason": "corpus_cursor",
       "refresh": false
     }
   },
-  "backfill_cursor": 97172,
+  "backfill_cursor": 97133,
   "daily": {
-    "date": "2026-10-27",
-    "new_planned": 1,
+    "date": "2026-10-28",
+    "new_planned": 0,
     "backfill_planned": 20,
-    "new_probes": 1,
-    "backfill_probes": 20
+    "new_probes": 0,
+    "backfill_probes": 21
   }
 }
