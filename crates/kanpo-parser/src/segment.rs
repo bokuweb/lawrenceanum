@@ -101,8 +101,9 @@ pub(crate) fn is_heading_mark(t: &str) -> bool {
         // 助数詞の後に漢字が続かない（「〇円、」「〇年」）のは数。「〇人事院規則」は見出し。
         Some(c) if "年月日円人件個度倍分時点種級番歳回台".contains(c) => chars.next().is_some_and(kanji),
         Some(c) if kanji(c) && !NUMERALS.contains(c) => true,
-        // 機関名がかなで始まる見出し（「〇こども家庭庁告示第十三号」）は、見出しの形（「第…号」で終わる 1 行）のときだけ。
-        Some(c) if ('\u{3041}'..='\u{3096}').contains(&c) => {
+        // 機関名がかなで始まる見出し（「〇こども家庭庁告示第十三号」「〇デジタル庁告示第八号」）は、
+        // 見出しの形（「第…号」で終わる 1 行）のときだけ。
+        Some(c) if ('\u{3041}'..='\u{3096}').contains(&c) || ('\u{30A1}'..='\u{30FA}').contains(&c) => {
             let t = t.trim_end();
             t.ends_with('号') && t.contains('第') && t.chars().count() <= 40 && !t.contains(['、', '。', '「', '」'])
         }
@@ -150,6 +151,19 @@ mod tests {
         assert_eq!(arts.len(), 2);
         assert!(arts[0].contains("電波法"));
         assert!(arts[1].contains("規格を廃止"));
+    }
+
+    #[test]
+    fn a_katakana_agency_heading_starts_its_own_article() {
+        let text = "〇デジタル庁告示第八号\n給付を定める。\n附則\nこの告示は、公布の日から適用する。\n〇デジタル庁・総務省告示第三十号\n事務を定める。";
+        let arts = segment_articles(text);
+        assert_eq!(arts.len(), 2);
+        assert!(arts[1].starts_with("〇デジタル庁・総務省告示第三十号"));
+        assert!(is_heading_mark("〇カジノ管理委員会規則・国土交通省令第二号"));
+        // The heading form is still required for a katakana start.
+        for t in ["〇メートル以上のもの", "〇キロワット第一号、第二号", "〇センチメートル（第三号）"] {
+            assert!(!is_heading_mark(t), "{t}");
+        }
     }
 
     #[test]

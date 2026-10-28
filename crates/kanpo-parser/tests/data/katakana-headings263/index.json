@@ -1,0 +1,26 @@
+{
+  "scope": "Katakana-initial 〇 headings (「〇デジタル庁告示第八号」「〇デジタル庁・総務省告示第三十八号」) start their own articles. Each gold is the previous frozen gold cut at the original heading line; historical files are unchanged.",
+  "cases": [
+    {
+      "name": "226-three",
+      "source": "tests/data/native-mixed-line-fields/expected/226-three.json",
+      "anchor": "〇デジタル庁・総務省告示第三十八号",
+      "source_sha256": "e0cddd5f9073b89e112454060d3d47f02a266363a97b8dadd581d0e2d47b940f",
+      "expected_sha256": "78bca6f54f5a977c8f2d916b20871a3338b71b0a419a66781826be022f9dbea8"
+    },
+    {
+      "name": "226-three-missing-scene",
+      "source": "tests/data/native-role-prefix/baseline/226-three.json",
+      "anchor": "〇デジタル庁・総務省告示第三十八号",
+      "source_sha256": "8f7565e11bfa1ec742cdee31b03d29d5d27f3ae1f204d000c047d4493a9cd3ae",
+      "expected_sha256": "f06a9878f48b72a8f65c13ee93a9c9aa003d07ba5fe4e54f26611d6762ff664b"
+    },
+    {
+      "name": "20261015g002260005",
+      "source": "tests/data/partial-rule-columns/20261015g002260005-reviewed147.json",
+      "anchor": "〇デジタル庁・総務省令第二十一号",
+      "source_sha256": "52fc0076b9d39f253ae88650f3bb773a993e21c157c56f94b655b8f80eb89de7",
+      "expected_sha256": "24421ad11dcf3235cb16fce2d777ac5bfd7bae49e32e50355227a1e38880f8b0"
+    }
+  ]
+}
