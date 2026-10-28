@@ -6,7 +6,7 @@ struct Candidate {
     end: usize,
     bounds: Rect,
     styles: NativeStyles,
-    announcement: bool,
+    invalid_announcement: bool,
 }
 
 fn candidates(page: &PageTrace, lines: &[SourceLine<'_>]) -> Vec<Candidate> {
@@ -35,8 +35,11 @@ fn candidates(page: &PageTrace, lines: &[SourceLine<'_>]) -> Vec<Candidate> {
                 end,
                 bounds,
                 styles,
-                // Existing announcement grammar keeps its original authorization.
-                announcement: !announcement_ends(&text).is_empty(),
+                // A signed root cannot repair incomplete announcement grammar.
+                // A complete existing announcement title can use the same own
+                // prose/date/office certificate as any other nominal instrument.
+                invalid_announcement: !announcement_ends(&text).is_empty()
+                    && title_end(&text).is_none(),
             });
         }
         first = end;
@@ -161,7 +164,7 @@ pub(super) fn starts(page: &PageTrace, rules: &PageRules, lines: &[SourceLine<'_
         .enumerate()
         .filter_map(|(i, h)| {
             let end = heads.get(i + 1).map_or(lines.len(), |next| next.first);
-            if h.announcement
+            if h.invalid_announcement
                 || closed_by_frame(rules, h.bounds)
                 || !signed(page, rules, lines, h, end)
             {

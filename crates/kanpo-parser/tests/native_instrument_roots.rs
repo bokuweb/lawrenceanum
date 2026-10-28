@@ -18,7 +18,15 @@ fn case(key: &str) -> Value {
         .clone()
 }
 fn gold(case: &Value, field: &str) -> Value {
-    serde_json::from_slice(&std::fs::read(fixture(case[field].as_str().unwrap())).unwrap()).unwrap()
+    let path = if field == "expected" {
+        case["current_expected"]
+            .as_str()
+            .or_else(|| case[field].as_str())
+    } else {
+        case[field].as_str()
+    }
+    .unwrap();
+    serde_json::from_slice(&std::fs::read(fixture(path)).unwrap()).unwrap()
 }
 fn inputs(case: &Value) -> Vec<kanpo_parser::PageInput> {
     case["pdfs"]

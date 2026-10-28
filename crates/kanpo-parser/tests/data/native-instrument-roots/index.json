@@ -151,7 +151,9 @@
           "source_role": "independently viewed printed root with its own date/office; category hierarchy included where present"
         }
       ],
-      "source_review": "Column1: new mental-health welfare exam root follows the distinct social-worker exam committee list. Own bold title, legal/delegation paragraph, full date and minister signature precede its own exam details in columns2-4. Only this new cut verified, not full page independent accuracy."
+      "source_review": "Column1: new mental-health welfare exam root follows the distinct social-worker exam committee list. Own bold title, legal/delegation paragraph, full date and minister signature precede its own exam details in columns2-4. Only this new cut verified, not full page independent accuracy.",
+      "current_expected": "../native-signed-announcements/expected/20260807g001780069.json",
+      "current_expected_provenance": "native195 complete signed announcement source gold; historical179 expected and baseline JSON unchanged"
     },
     {
       "key": "20260901g001950035",

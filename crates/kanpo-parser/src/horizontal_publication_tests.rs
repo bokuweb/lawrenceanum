@@ -1098,3 +1098,48 @@ fn native_instrument_roots_do_not_join_different_source_date_baselines() {
     refresh(&mut p);
     assert!(cuts(&p, &Default::default()).is_empty());
 }
+
+#[test]
+fn complete_signed_announcements_use_own_native_prose_date_and_office() {
+    for title in ["任意の公告","別名公告","任意の公告（対象補足）"] {
+        for office in ["任意機関長","任意担当大臣"] {
+            assert_eq!(cuts(&native_instrument(title,office),&Default::default()),vec![1],"{title}/{office}");
+        }
+    }
+}
+#[test]
+fn a_signed_certificate_does_not_repair_incomplete_announcement_grammar() {
+    for title in ["公告対象の説明","公告に関する参考","任意公告（未閉鎖","任意公告（補足）について"] {
+        assert!(cuts(&native_instrument(title,"任意機関長"),&Default::default()).is_empty(),"{title}");
+    }
+}
+#[test]
+fn signed_announcement_roots_require_their_actual_complete_body_and_date() {
+    for case in 0..6 {
+        let mut p=native_instrument("任意の公告","任意機関長");
+        match case {
+            0=>replace(&mut p,2,"名詞の断片"),
+            1=>replace(&mut p,3,"別の記載"),
+            2=>p.native_horizontal_baselines[3]=None,
+            3=>p.native_content_styles[2]=ContentStyles::Unknown,
+            4=>p.native_bounds[2]=NativeBounds::Unknown,
+            _=>replace(&mut p,2,"引用「未完の本文。"),
+        }
+        assert!(cuts(&p,&Default::default()).is_empty(),"case{case}");
+    }
+}
+#[test]
+fn a_signed_announcement_cannot_borrow_an_independent_following_heading_date() {
+    let mut p=native_instrument("任意の公告","任意機関長");
+    add(&mut p,"次の独立した見出し",[50.,75.,220.,84.],2,9.);
+    let l=p.regions[0].lines.pop().unwrap();p.regions[0].lines.insert(3,l);
+    p.native_horizontal_baselines.push(Some(79.5));refresh(&mut p);
+    assert!(cuts(&p,&Default::default()).is_empty());
+}
+#[test]
+fn source_fonts_remain_opaque_for_a_signed_announcement() {
+    let mut p=native_instrument("任意の公告","任意機関長");
+    for s in p.native_styles.iter_mut().filter_map(Option::as_mut) {*s=s.iter().map(|&(f,n)|(f^0x511,n)).collect();}
+    for c in &mut p.native_content_styles {if let ContentStyles::Glyphs(s)=c {*s=s.iter().map(|&(f,n)|(f^0x511,n)).collect();}}
+    assert_eq!(cuts(&p,&Default::default()),vec![1]);
+}
