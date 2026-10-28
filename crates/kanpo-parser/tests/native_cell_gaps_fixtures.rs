@@ -58,10 +58,10 @@ fn original_symbol_and_alphanumeric_gaps_preserve_all_other_cell_text() {
     );
     let c = cells(&a);
     assert!(
-        c.contains(&"BARBERET & BLANC, S.A.Camino Viejo 205, 30890 PuertoLumbreras, Murcia, Spain")
+        c.contains(&"BARBERET & BLANC, S.A. Camino Viejo 205, 30890 Puerto Lumbreras, Murcia, Spain")
     );
     assert!(
-        c.contains(&"Hyfryd Plants\nCefn Hyfryd, Kerry, Newtown,Powys, SY16 4DX, United King‑dom")
+        c.contains(&"Hyfryd Plants\nCefn Hyfryd, Kerry, Newtown, Powys, SY16 4DX, United King‑dom")
     );
 }
 
