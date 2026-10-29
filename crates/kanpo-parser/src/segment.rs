@@ -130,6 +130,8 @@ const SECTION_HEADERS: &[&str] = &[
     "条約",
     "庁令",
     "訓令",
+    // 人事院規則は「〇」の見出しを持たず、区分見出し「規則」の後に制定文から始まる。
+    "規則",
     "国会事項",
     "官庁報告",
     "皇室事項",
@@ -143,6 +145,15 @@ const FIELD_HEADERS: &[&str] = &["官庁事項", "人事異動", "労働", "法�
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn rules_section_label_starts_an_article_without_circle_heading() {
+        let text = "〇内閣官房令第七号\n…内閣官房令を次のように定める。\n附則\nこの内閣官房令は、公布の日から施行する。\n規則\n人事院は、国家公務員法に基づき、次の人事院規則を制定する。\n人事院規則一七－〇－一五三";
+        let arts = segment_articles(text);
+        assert_eq!(arts.len(), 2);
+        assert!(arts[0].ends_with("公布の日から施行する。"));
+        assert!(arts[1].starts_with("規則\n人事院は、"));
+    }
 
     #[test]
     fn segments_articles_on_circle_heading() {

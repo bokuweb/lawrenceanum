@@ -36,7 +36,10 @@ let mut chars:Vec<_>=a.text.chars().collect();let mut before:Vec<_>=old["text"].
 #[test]fn all_fourteen_source_words_bind_to_the_original_vertical_glyphs_once(){let a=actual(PDF0);let native=kanpo_pdf::extract_pages(PDF0).unwrap();let mut seen=std::collections::BTreeSet::new();let mut total=0;for id in SOURCE_IDS{let w=&a.pages[0].words[id];let gs:Vec<_>=native[0].glyphs.iter().enumerate().filter(|(_,g)|{let b=g.bbox;let x=(b[0]+b[2])*0.5;let y=(b[1]+b[3])*0.5;x>=w.x0 as f64-0.01&&x<w.x1 as f64+0.01&&y>=w.y0 as f64-0.01&&y<w.y1 as f64+0.01}).collect();assert_eq!(gs.iter().map(|(_,g)|g.text.as_str()).collect::<String>(),w.raw);for(i,g)in gs{assert!(seen.insert(i));assert!(g.vertical);assert!((g.size-8.).abs()<0.001);total+=1;}}assert_eq!(total,226);}
 #[test]fn preceding_page_has_its_own_paired_change_bands(){let a=actual(PDF1);let old:serde_json::Value=serde_json::from_str(BASE1).unwrap();assert_eq!(canonical(&a),old);}
 #[test]fn following_page_has_separate_notices(){let a=actual(PDF2);let old:serde_json::Value=serde_json::from_str(BASE2).unwrap();assert_eq!(canonical(&a),reviewed_comparison_boundaries::preceding_supplement(old));}
-#[test]fn full_height_frame_finishes_before_next_article(){let a=actual(PDF3);let old:serde_json::Value=serde_json::from_str(BASE3).unwrap();assert_eq!(canonical(&a),old);}
+// The printed section label 規則 ends the frame article as its own label-only article.
+#[test]fn full_height_frame_finishes_before_next_article(){let a=actual(PDF3);let old:serde_json::Value=serde_json::from_str(BASE3).unwrap();let now=canonical(&a);
+ let reviewed:serde_json::Value=serde_json::from_str(include_str!("expected/framed_after_continuation/20260810g001790057-rules263f.analysis.json")).unwrap();assert_eq!(now,reviewed);
+ assert_eq!(now["pages"],old["pages"]);assert_eq!(now["text"],old["text"]);assert_eq!(now["articles"][2],old["articles"][1]);}
 #[test]fn another_change_frame_stays_inside_its_own_notice(){
  let a=actual(PDF4);let old:serde_json::Value=serde_json::from_str(BASE4).unwrap();let now=canonical(&a);
  let reviewed:serde_json::Value=serde_json::from_str(include_str!("expected/framed_after_continuation/20260902g001960024-reviewed147.analysis.json")).unwrap();
