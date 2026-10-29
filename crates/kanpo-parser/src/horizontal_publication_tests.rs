@@ -1288,27 +1288,13 @@ fn untitled(second_sentence: &str, second_office: &str, first_signed: bool) -> P
     refresh(&mut p);
     p
 }
+// Untitled signed statements printed as one series are one item in the
+// official table of contents. Each statement's own sentence, date and office
+// row is not a root: splitting would leave the item with only its first one.
 #[test]
-fn an_untitled_statement_after_a_signed_statements_table_has_its_own_root() {
-    let p = untitled("別の規定により次のとおり公告する。", "任意担当大臣", true);
-    assert_eq!(cuts(&p, &Default::default()), vec![3]);
-}
-#[test]
-fn an_untitled_statement_needs_both_complete_signed_statements() {
-    // The earlier statement is not yet signed before its table.
-    let p = untitled("別の規定により次のとおり公告する。", "任意機関長", false);
-    assert!(cuts(&p, &Default::default()).is_empty());
-    // A note after the table without its own complete sentence.
-    let p = untitled("備考　価格は税込み", "任意機関長", true);
-    assert!(cuts(&p, &Default::default()).is_empty());
-    // A date and name without an office.
-    let p = untitled("別の規定により次のとおり公告する。", "任意者", true);
-    assert!(cuts(&p, &Default::default()).is_empty());
-    // A signature row in another typeface is not the same signed series.
-    let mut p = untitled("別の規定により次のとおり公告する。", "任意機関長", true);
-    let id = p.regions[0].lines[4].words[1];
-    let s = NativeStyles::from([(5, 8f64.to_bits())]);
-    p.native_styles[id] = Some(s.clone());
-    p.native_content_styles[id] = ContentStyles::Glyphs(s);
-    assert!(cuts(&p, &Default::default()).is_empty());
+fn untitled_signed_statements_of_one_series_stay_in_one_article() {
+    for office in ["任意担当大臣", "任意機関長"] {
+        let p = untitled("別の規定により次のとおり公告する。", office, true);
+        assert!(cuts(&p, &Default::default()).is_empty());
+    }
 }
