@@ -139,8 +139,9 @@ const SECTION_HEADERS: &[&str] = &[
 ];
 
 /// 官庁報告・公告の中の欄見出し（目次の小見出し）。独立行で現れたら別記事の開始とみなす。
-/// 「資料」「産業」のように本文の単独行と紛れやすい語は入れない。
-const FIELD_HEADERS: &[&str] = &["官庁事項", "人事異動", "労働", "法務", "国家試験", "公聴会", "諸事項"];
+/// 「資料」のように本文の単独行と紛れやすい語は入れない（原本の組版で確かめる）。
+/// 「産業」は全頁の単独行がすべて欄見出しで、目次にも「労働」と同じ小見出しとして載る。
+const FIELD_HEADERS: &[&str] = &["官庁事項", "人事異動", "労働", "産業", "法務", "国家試験", "公聴会", "諸事項"];
 
 #[cfg(test)]
 mod tests {
@@ -153,6 +154,15 @@ mod tests {
         assert_eq!(arts.len(), 2);
         assert!(arts[0].ends_with("公布の日から施行する。"));
         assert!(arts[1].starts_with("規則\n人事院は、"));
+    }
+
+    #[test]
+    fn industry_field_label_starts_an_article() {
+        let text = "官庁事項\n東北地方整備局公示\n…次のとおり公示する。\n（七）図面縦覧場所東北地方整備局\n産業\n日本産業規格\n…規定に基づき公示する。";
+        let arts = segment_articles(text);
+        assert_eq!(arts.len(), 2);
+        assert!(arts[0].ends_with("図面縦覧場所東北地方整備局"));
+        assert!(arts[1].starts_with("産業\n日本産業規格"));
     }
 
     #[test]
