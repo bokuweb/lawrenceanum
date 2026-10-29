@@ -158,6 +158,25 @@ fn typeset_titles(page: &PageTrace) -> Vec<(usize, Vec<String>)> {
         }
         out
     };
+    // A neighbor only has to show that its fonts differ from the title's: its
+    // Words need a known native writing direction (the title's) and fonts.
+    let direction = |line: &crate::trace::Line| -> Option<bool> {
+        use crate::native_word_axes::NativeAxis;
+        let mut out = None;
+        for &id in &line.words {
+            page.words.get(id).filter(|w| w.id == id && w.status == WordStatus::Used)?;
+            let down = match page.native_axes.get(id)? {
+                NativeAxis::Right => false,
+                NativeAxis::Down => true,
+                _ => return None,
+            };
+            if out.is_some_and(|d| d != down) {
+                return None;
+            }
+            out = Some(down);
+        }
+        out
+    };
     let mut found = Vec::new();
     // At the top of a column the line above in reading order ends the previous column.
     let mut last: Option<&crate::trace::Line> = None;
@@ -172,13 +191,13 @@ fn typeset_titles(page: &PageTrace) -> Vec<(usize, Vec<String>)> {
         let mut i = 0;
         while i < r.lines.len() {
             let prior = if i == 0 { last } else { r.lines.get(i - 1) };
-            let (Some(above), Some(style), Some(first), Some(_)) =
-                (prior.and_then(fonts), fonts(&r.lines[i]), left(&r.lines[i]), prior.and_then(left))
+            let (Some(above), Some(style), Some(first)) =
+                (prior.and_then(fonts), fonts(&r.lines[i]), left(&r.lines[i]))
             else {
                 i += 1;
                 continue;
             };
-            if !above.is_disjoint(&style) {
+            if !above.is_disjoint(&style) || prior.and_then(direction) != Some(first.0) {
                 i += 1;
                 continue;
             }
@@ -198,7 +217,7 @@ fn typeset_titles(page: &PageTrace) -> Vec<(usize, Vec<String>)> {
                 && !matches!(title.as_str(), "公示" | "公告")
                 && !title.contains(|c: char| c.is_whitespace() || "。、「」『』".contains(c))
                 && body.and_then(fonts).is_some_and(|b| b.is_disjoint(&style))
-                && body.and_then(left).is_some()
+                && body.and_then(direction) == Some(first.0)
                 && body.is_some_and(|b| compact(&b.text).chars().count() >= 20)
             {
                 found.push((base + i, text));

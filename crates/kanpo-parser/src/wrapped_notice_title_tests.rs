@@ -109,3 +109,13 @@
   let joined=lines.iter().map(|l|l.0).collect::<Vec<_>>().join("\n");
   let mut a=vec![joined];split_typeset_notice_titles(&mut a,&[typeset(&lines)],&[None]);assert_eq!(a.len(),1);
  }
+ #[test]fn a_neighbor_only_needs_known_direction_and_fonts(){
+  // An item marker above the title may have unknown content fonts; it still differs.
+  let lines=[REPORT,("（七）図面縦覧場所四国地方整備局及び同局香川河川国道事務所",1),("基本測量関係事項公告",0),BODY];
+  let mut page=typeset(&lines);page.native_content_styles[1]=ContentStyles::Unknown;
+  let joined=lines.iter().map(|l|l.0).collect::<Vec<_>>().join("\n");
+  let mut a=vec![joined.clone()];split_typeset_notice_titles(&mut a,&[page],&[Some(crate::lines::PageRules::default())]);assert_eq!(a.len(),2);
+  // An unknown writing direction of the neighbor is still not evidence.
+  let mut page=typeset(&lines);page.native_axes[1]=crate::native_word_axes::NativeAxis::Unknown;
+  let mut a=vec![joined];split_typeset_notice_titles(&mut a,&[page],&[Some(crate::lines::PageRules::default())]);assert_eq!(a.len(),1);
+ }
