@@ -272,11 +272,22 @@ pub fn pick_article(title: &str, articles: &[ArticleAnalysis]) -> Option<usize> 
         let markers = ["の規定に基づき", "次のように", "に改める", "を加える", "定める"];
         markers.iter().filter(|m| s.contains(*m)).count() * 1000 + s.chars().count()
     };
+    // 似た標題の告示（「保安林の指定をする件（農林水産一〇〇一）」「保安林の指定を解除する件（同一〇〇二）」）は
+    // 同じ鍵に合うので、鍵に合う記事のうち見出しの号数が標題の番号と合うものがあれば、それを採る。
+    let number = title_number(title);
     let best = |keys: &[String], texts: &[String]| {
-        articles
+        let matched: Vec<(usize, &ArticleAnalysis)> = articles
             .iter()
             .enumerate()
             .filter(|(i, _)| keys.iter().any(|k| texts[*i].contains(k.as_str())))
+            .collect();
+        let numbered: Vec<(usize, &ArticleAnalysis)> = matched
+            .iter()
+            .copied()
+            .filter(|(_, a)| number.as_ref().is_some_and(|(agencies, n)| has_number(a, agencies, *n)))
+            .collect();
+        (if numbered.is_empty() { matched } else { numbered })
+            .into_iter()
             .max_by_key(|(_, a)| body_score(&a.text))
             .map(|(i, _)| i)
     };
@@ -296,6 +307,18 @@ pub fn pick_article(title: &str, articles: &[ArticleAnalysis]) -> Option<usize> 
 /// 別に告示する無線設備を定める件」）。見出しの号数が合う記事が 1 つだけのときに限る。機関名（「同」でなければ）
 /// が標題にあれば、見出しにもあるものだけ。
 fn pick_by_number(title: &str, articles: &[ArticleAnalysis]) -> Option<usize> {
+    let (agencies, n) = title_number(title)?;
+    let matched: Vec<usize> = articles
+        .iter()
+        .enumerate()
+        .filter(|(_, a)| has_number(a, &agencies, n))
+        .map(|(i, _)| i)
+        .collect();
+    (matched.len() == 1).then(|| matched[0])
+}
+
+/// 標題の末尾の番号の機関名（「同」なら無し）と先頭の号数。
+fn title_number(title: &str) -> Option<(Vec<&str>, u64)> {
     let open = title.rfind('（')?;
     let inner = title[open + '（'.len_utf8()..].trim_end_matches('）');
     let digit = |c: char| "〇一二三四五六七八九".find(c).map(|i| i / '〇'.len_utf8());
@@ -308,16 +331,13 @@ fn pick_by_number(title: &str, articles: &[ArticleAnalysis]) -> Option<usize> {
     let agency = &inner[..start];
     let n = inner[start..].chars().map_while(digit).fold(0u64, |n, d| n * 10 + d as u64);
     let agencies: Vec<&str> = if agency == "同" { Vec::new() } else { agency.split('・').filter(|a| !a.is_empty()).collect() };
-    let matched: Vec<usize> = articles
-        .iter()
-        .enumerate()
-        .filter(|(_, a)| {
-            let head = a.text.lines().find(|l| !l.trim().is_empty()).unwrap_or("");
-            heading_number(head) == Some(n) && agencies.iter().all(|ag| head.contains(ag))
-        })
-        .map(|(i, _)| i)
-        .collect();
-    (matched.len() == 1).then(|| matched[0])
+    Some((agencies, n))
+}
+
+/// 記事の見出しの号数が `n` で、標題の機関名をすべて含むか。
+fn has_number(a: &ArticleAnalysis, agencies: &[&str], n: u64) -> bool {
+    let head = a.text.lines().find(|l| !l.trim().is_empty()).unwrap_or("");
+    heading_number(head) == Some(n) && agencies.iter().all(|ag| head.contains(ag))
 }
 
 /// 見出しの「第二百八十五号」「第26号」の号数。
@@ -550,6 +570,19 @@ mod tests {
         assert_eq!(pick_article(&title.replace("（同二八五）", "（同二八六）"), &a), None);
         assert_eq!(heading_number("〇国土交通省告示第千百八十七号"), Some(1187));
         assert_eq!(heading_number("人事院公示第26号"), Some(26));
+    }
+
+    #[test]
+    fn similar_titles_pick_the_article_with_their_own_number() {
+        // 似た標題の告示は同じ鍵に合う。号数の合う記事を採り、本文の長い隣の告示を採らない。
+        let a = arts(&[
+            "〇農林水産省告示第千一号\n森林法第二十五条第一項の規定により、次のように保安林の指定をする。\n保安林の所在場所\n指定の目的\n指定施業要件",
+            "〇農林水産省告示第千二号\n森林法第二十六条第一項の規定により、次のように保安林の指定を解除する。",
+        ]);
+        assert_eq!(pick_article("保安林の指定をする件（農林水産一〇〇一）", &a), Some(0));
+        assert_eq!(pick_article("保安林の指定を解除する件（同一〇〇二）", &a), Some(1));
+        // 号数の合う記事が鍵に合わなければ、従来どおり鍵で選ぶ。
+        assert_eq!(pick_article("保安林の指定を解除する件（同一〇〇三）", &a), Some(0));
     }
 
     #[test]
