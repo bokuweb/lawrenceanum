@@ -1,0 +1,25 @@
+{
+  "scope": "Notice titles typeset in their own original font and wrapped over several lines (「…の登録事項の変更に関」＋「する公示」) start their own articles under 官庁報告. Each gold is the previous frozen gold with literal cuts at the title's first line, or a literal move of an old boundary at the title's last line (a standalone 「公示」) to its first line; historical files are unchanged.",
+  "cases": [
+    {
+      "name": "20260728h017560010",
+      "source": "tests/data/native-instrument-roots/expected/20260728h017560010.json",
+      "steps": [
+        [
+          "cut",
+          "登録海技免許講習実施機関の登録事項の変更に関する公示"
+        ],
+        [
+          "move",
+          "登録船舶職員養成施設の登録事項の変更に関する"
+        ],
+        [
+          "cut",
+          "登録電子海図情報表示装置講習実施機関の登録事項の変更に関する公示"
+        ]
+      ],
+      "source_sha256": "f5d5838eee1d6bad1207a6d2c03483c51d8c099c2c139309ba09ea00136cf915",
+      "expected_sha256": "b8daa8466ec8130b759184a308af47fb8a44b434308fbb23b0ed516625e21e08"
+    }
+  ]
+}

@@ -24,3 +24,50 @@
  #[test]fn three_original_title_lines_are_supported(){let(mut w,mut r)=source();w[0].text="年度業務実績及び".into();w[0].raw=w[0].text.clone();w[0].x1=181.;r[0].lines[0].text=w[0].text.clone();let mut next=w[0].clone();next.id=3;next.text="令和九年度財務諸表に関する".into();next.raw=next.text.clone();next.y0+=9.;next.y1+=9.;w.push(next);r[0].lines.insert(1,Line::text("令和九年度財務諸表に関する".into(),vec![3]));w[1].y0+=9.;w[1].y1+=9.;w[2].y0+=9.;w[2].y1+=9.;assert_eq!(prefixes(&w,&r,"公告"),vec!["年度業務実績及び\n令和九年度財務諸表に関する"]);}
  #[test]fn new_old_table_region_is_not_a_body_notice(){no(|_,r|r[0].role=Role::After);}
  #[test]fn aligned_larger_original_title_is_a_candidate(){let(w,r)=source();assert_eq!(prefixes(&w,&r,"公告"),vec!["年度業務実績及び財務諸表に関する"]);}
+
+ // A notice title set in its own original font, after the previous notice's last line.
+ fn typeset(lines:&[(&str,usize)])->PageTrace{
+  let mut words=vec![];let mut out=vec![];let mut styles=vec![];
+  for(i,(t,font))in lines.iter().enumerate(){let y=50.+10.*i as f32;let x=if i==0{110.}else{100.};words.push(Word{source_box:[x,y,x+8.*t.chars().count() as f32,y+8.],id:i,x0:x,y0:y,x1:x+8.*t.chars().count() as f32,y1:y+8.,raw:t.to_string(),text:t.to_string(),status:WordStatus::Used});out.push(Line::text(t.to_string(),vec![i]));styles.push(Some([(*font,8)].into_iter().collect()));}
+  PageTrace{native_comparison_labels:vec![],native_horizontal_baselines:vec![],native_atomic_columns:vec![],native_axes:vec![],native_rulings:vec![],width:600.,height:800.,layout:"tiers",words,native_styles:styles,native_bounds:vec![],native_content_styles:vec![],regions:vec![Region{role:Role::Body,unit:0,part:0,lines:out}],text:String::new(),doc_text:String::new(),tables:vec![]}
+ }
+ const REPORT:(&str,usize)=("官庁報告",3);
+ const PREVIOUS:(&str,usize)=("三変更年月日令和八年四月一日",1);
+ const BODY:(&str,usize)=("船舶職員及び小型船舶操縦者法（昭和二十六年法律第百四十九号）第十七条の五の規定に基づき",1);
+ fn split(lines:&[(&str,usize)],articles:&[&str])->Vec<String>{let page=typeset(lines);let mut a:Vec<String>=articles.iter().map(|s|s.to_string()).collect();split_typeset_notice_titles(&mut a,&[page],&[]);a}
+ #[test]fn wrapped_title_in_its_own_font_starts_an_article(){
+  let lines=[REPORT,PREVIOUS,("登録海技免許講習実施機関の登録事項の変更に関",0),("する公示",0),BODY];
+  let joined=lines.iter().map(|l|l.0).collect::<Vec<_>>().join("\n");
+  assert_eq!(split(&lines,&[&joined]),vec![format!("{}\n{}",REPORT.0,PREVIOUS.0),lines[2..].iter().map(|l|l.0).collect::<Vec<_>>().join("\n")]);
+ }
+ #[test]fn label_split_inside_a_title_moves_to_the_title_start(){
+  let lines=[PREVIOUS,("登録船舶職員養成施設の登録事項の変更に関する",0),("公示",0),BODY];
+  let got=split(&lines,&[&format!("{}\n{}",PREVIOUS.0,lines[1].0),&format!("公示\n{}",BODY.0)]);
+  assert_eq!(got,vec![PREVIOUS.0.to_string(),format!("{}\n公示\n{}",lines[1].0,BODY.0)]);
+ }
+ #[test]fn three_title_lines_start_at_the_first(){
+  let lines=[REPORT,PREVIOUS,("一般社団法人及び一般財団法",0),("人に関する法律第百四十九条第一",0),("項の届出に関する公告",0),BODY];
+  let joined=lines.iter().map(|l|l.0).collect::<Vec<_>>().join("\n");
+  assert_eq!(split(&lines,&[&joined])[1].lines().next(),Some(lines[2].0));
+ }
+ #[test]fn body_font_line_is_not_a_title(){
+  let lines=[REPORT,PREVIOUS,("登録海技免許講習実施機関の登録事項の変更に関",1),("する公示",1),BODY];
+  let joined=lines.iter().map(|l|l.0).collect::<Vec<_>>().join("\n");
+  assert_eq!(split(&lines,&[&joined]).len(),1);
+ }
+ #[test]fn title_under_a_field_label_stays_with_the_label(){
+  let lines=[("官庁事項",2),("登録海技免許講習実施機関の登録事項の変更に関",0),("する公示",0),BODY];
+  let joined=lines.iter().map(|l|l.0).collect::<Vec<_>>().join("\n");
+  assert_eq!(split(&lines,&[&joined]).len(),1);
+ }
+ #[test]fn repeated_title_text_is_ambiguous(){
+  let lines=[REPORT,PREVIOUS,("登録海技免許講習実施機関の登録事項の変更に関",0),("する公示",0),BODY];
+  let joined=lines.iter().map(|l|l.0).collect::<Vec<_>>().join("\n");
+  assert_eq!(split(&lines,&[&joined,&joined]).len(),2);
+ }
+ #[test]fn titles_in_the_public_notice_section_are_not_split(){
+  // The table of contents groups several notices of the 公告 section into one item.
+  let lines=[REPORT,("公告",3),("諸事項",2),PREVIOUS,("登録を受けたクレジットカード番号等取扱契約締結事業者の営業の",0),("廃止に関する公示",0),BODY];
+  let joined=lines.iter().map(|l|l.0).collect::<Vec<_>>().join("\n");
+  assert_eq!(split(&lines,&[&joined]).len(),1);
+ }

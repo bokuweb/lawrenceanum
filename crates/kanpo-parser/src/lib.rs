@@ -154,6 +154,7 @@ pub fn analyze_with_rules(xhtml: &str, rules: &[Option<lines::PageRules>]) -> An
     let tables=table_scopes.tables();
     let mut segments = segment_articles(&doc_text);
     wrapped_notice_titles::repair_wrapped_notice_titles(&mut segments, &pages);
+    wrapped_notice_titles::split_typeset_notice_titles(&mut segments, &pages, rules);
     financial_enclosures::repair_segments(&mut segments,&pages,rules);
     let quote_scopes=native_quote_scopes::Scopes::for_pages(xhtml,&pages,rules);
     let groups=if quote_scopes.is_empty(){notice_boundaries::groups(&segments,&doc_text,&pages,rules)}
