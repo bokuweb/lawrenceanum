@@ -46,15 +46,32 @@ fn joined(mut old: Value, index: usize) -> Value {
     child["document"]["blocks"] = blocks.into();
     old
 }
+// On the first page the typeset title 「北海道開発局公示」 also starts its own article
+// (native263h). Its gold replays the masthead join, then cuts at that title line;
+// the joined stream of article texts is unchanged.
+fn adopted(case: usize, old: Value, i: usize) -> Value {
+    let joined = joined(old, i);
+    if case != 0 {
+        return joined;
+    }
+    let cut: Value =
+        serde_json::from_str(include_str!("data/wrapped-titles263/20260730h017580006.json")).unwrap();
+    let stream = |v: &Value| {
+        v["articles"].as_array().unwrap().iter().map(|a| a["text"].as_str().unwrap()).collect::<Vec<_>>().join("\n")
+    };
+    assert_eq!(stream(&cut), stream(&joined));
+    assert_eq!(cut["articles"].as_array().unwrap().len(), joined["articles"].as_array().unwrap().len() + 1);
+    cut
+}
 #[test]
 fn original_vertical_masthead_attaches_to_its_field_and_keeps_all_other_material() {
     let (input, old, i) = cases().into_iter().next().unwrap();
-    assert_eq!(value(&input), joined(old, i));
+    assert_eq!(value(&input), adopted(0, old, i));
 }
 #[test]
 fn original_horizontal_masthead_preserves_the_preceding_complete_shinkyu_article() {
     let (input, old, i) = cases().into_iter().nth(1).unwrap();
-    assert_eq!(value(&input), joined(old, i));
+    assert_eq!(value(&input), adopted(1, old, i));
 }
 fn words(input: &[PageInput]) -> Vec<String> {
     let mut rest = input[0].xhtml.as_str();
@@ -76,19 +93,19 @@ fn wrap(input: &mut [PageInput], words: &[String]) {
 }
 #[test]
 fn native_word_emission_order_does_not_select_masthead_ownership() {
-    for (mut input, old, i) in cases() {
+    for (case, (mut input, old, i)) in cases().into_iter().enumerate() {
         let mut words = words(&input);
         words.reverse();
         wrap(&mut input, &words);
-        assert_eq!(value(&input), joined(old, i));
+        assert_eq!(value(&input), adopted(case, old, i));
     }
 }
 #[test]
 fn presentation_flow_wrappers_do_not_select_masthead_ownership() {
-    for (mut input, old, i) in cases() {
+    for (case, (mut input, old, i)) in cases().into_iter().enumerate() {
         let words = words(&input);
         wrap(&mut input, &words);
-        assert_eq!(value(&input), joined(old, i));
+        assert_eq!(value(&input), adopted(case, old, i));
     }
 }
 fn remove_attr(input: &mut [PageInput], name: &str) {

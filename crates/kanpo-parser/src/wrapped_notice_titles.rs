@@ -1,5 +1,5 @@
 //! Restore only the article boundary inside an original multi-line notice title.
-use crate::trace::{PageTrace, Region, Role, Word, WordStatus};
+use crate::trace::{ContentStyles, NativeBounds, PageTrace, Region, Role, Word, WordStatus};
 
 /// The page text, its line/word ownership and every source Word remain untouched.
 /// A standalone notice label can be the last line of a larger printed title.
@@ -28,7 +28,8 @@ pub(crate) fn repair_wrapped_notice_titles(articles: &mut [String], pages: &[Pag
 }
 
 /// A notice title typeset in its own font can wrap at any character
-/// (「…の登録事項の変更に関」＋「する公示」). Its extent is the maximal run of aligned
+/// (「…の登録事項の変更に関」＋「する公示」) or end in a bare 公示/公告 noun
+/// (「北海道開発局公示」「基本測量関係事項公告」). Its extent is the maximal run of aligned
 /// lines whose original fonts share nothing with the line above and the body below;
 /// no line count of the previous notice or wording of its last line is used.
 /// The article starts at the first title line, and no boundary remains inside it.
@@ -39,13 +40,16 @@ pub(crate) fn split_typeset_notice_titles(
     rules: &[Option<crate::lines::PageRules>],
 ) -> usize {
     let mut titles: Vec<Vec<String>> = Vec::new();
-    let default = crate::lines::PageRules::default();
     for (n, page) in pages.iter().enumerate() {
+        // Without the page's original rules the native boundaries cannot be checked.
+        let Some(rules) = rules.get(n).and_then(|r| r.as_ref()) else {
+            continue;
+        };
         let found = typeset_titles(page);
         if found.is_empty() {
             continue;
         }
-        let native = crate::notice_boundaries::cuts(page, rules.get(n).and_then(|r| r.as_ref()).unwrap_or(&default));
+        let native = crate::notice_boundaries::cuts(page, rules);
         titles.extend(found.into_iter().filter(|(line, _)| !native.contains(line)).map(|(_, title)| title));
     }
     let mut lines: Vec<&str> = Vec::new();
@@ -73,12 +77,13 @@ pub(crate) fn split_typeset_notice_titles(
         // A boundary already inside the title moves to its first line.
         let inner = before.range(first + 1..end).next().is_some();
         // The table of contents lists each notice under 官庁報告 as its own item,
-        // but groups several notices of the 公告 section into one item.
+        // but groups several notices of the 公告 section into one item. The 公告
+        // section begins at its own label or at its first field 「諸事項」.
         let report = (0..first)
             .rev()
             .filter(|&j| !inside(j))
             .map(|j| compact(lines[j]))
-            .find(|t| t == "官庁報告" || t == "公告")
+            .find(|t| matches!(t.as_str(), "官庁報告" | "公告" | "諸事項"))
             .is_some_and(|t| t == "官庁報告");
         if !inner && !report {
             continue;
@@ -122,15 +127,34 @@ fn typeset_titles(page: &PageTrace) -> Vec<(usize, Vec<String>)> {
         }
         (!out.is_empty()).then_some(out)
     };
-    // Left edge and glyph height of a line's own used source Words.
-    let left = |line: &crate::trace::Line| -> Option<(f32, f32)> {
-        let mut out: Option<(f32, f32)> = None;
-        for id in &line.words {
-            let w = page.words.get(*id).filter(|w| w.id == *id && w.status == WordStatus::Used)?;
-            if ![w.x0, w.y0, w.x1, w.y1].iter().all(|v| v.is_finite()) || w.y1 <= w.y0 {
+    // Writing direction, line-start edge and glyph size of a line's own used
+    // source Words: the left edge and height for horizontal text, the top edge
+    // and width for vertical text. Every Word needs complete native evidence;
+    // compatibility boxes, unknown axes or unknown content fonts never stand in
+    // for the original typesetting.
+    let left = |line: &crate::trace::Line| -> Option<(bool, f32, f32)> {
+        use crate::native_word_axes::NativeAxis;
+        let mut out: Option<(bool, f32, f32)> = None;
+        for &id in &line.words {
+            page.words.get(id).filter(|w| w.id == id && w.status == WordStatus::Used)?;
+            let (Some(axis), Some(NativeBounds::Glyphs(b)), Some(ContentStyles::Glyphs(_))) =
+                (page.native_axes.get(id), page.native_bounds.get(id), page.native_content_styles.get(id))
+            else {
+                return None;
+            };
+            if !b.iter().all(|v| v.is_finite()) || b[0] >= b[2] || b[1] >= b[3] {
                 return None;
             }
-            out = Some(out.map_or((w.x0, w.y1 - w.y0), |(x, h)| (x.min(w.x0), h.max(w.y1 - w.y0))));
+            let (down, start, size) = match axis {
+                NativeAxis::Right => (false, b[0], b[3] - b[1]),
+                NativeAxis::Down => (true, b[1], b[2] - b[0]),
+                _ => return None,
+            };
+            out = match out {
+                None => Some((down, start, size)),
+                Some((d, s, z)) if d == down => Some((d, s.min(start), z.max(size))),
+                Some(_) => return None,
+            };
         }
         out
     };
@@ -148,8 +172,8 @@ fn typeset_titles(page: &PageTrace) -> Vec<(usize, Vec<String>)> {
         let mut i = 0;
         while i < r.lines.len() {
             let prior = if i == 0 { last } else { r.lines.get(i - 1) };
-            let (Some(above), Some(style), Some(first)) =
-                (prior.and_then(fonts), fonts(&r.lines[i]), left(&r.lines[i]))
+            let (Some(above), Some(style), Some(first), Some(_)) =
+                (prior.and_then(fonts), fonts(&r.lines[i]), left(&r.lines[i]), prior.and_then(left))
             else {
                 i += 1;
                 continue;
@@ -161,7 +185,7 @@ fn typeset_titles(page: &PageTrace) -> Vec<(usize, Vec<String>)> {
             let mut end = i + 1;
             while end < r.lines.len()
                 && fonts(&r.lines[end]).as_ref() == Some(&style)
-                && left(&r.lines[end]).is_some_and(|(x, _)| (x - first.0).abs() <= 0.35 * first.1)
+                && left(&r.lines[end]).is_some_and(|(d, x, _)| d == first.0 && (x - first.1).abs() <= 0.35 * first.2)
             {
                 end += 1;
             }
@@ -170,9 +194,11 @@ fn typeset_titles(page: &PageTrace) -> Vec<(usize, Vec<String>)> {
             let title = text.concat();
             let body = r.lines.get(end);
             if run.len() <= 3
-                && (title.ends_with("に関する公示") || title.ends_with("に関する公告"))
+                && (title.ends_with("公示") || title.ends_with("公告"))
+                && !matches!(title.as_str(), "公示" | "公告")
                 && !title.contains(|c: char| c.is_whitespace() || "。、「」『』".contains(c))
                 && body.and_then(fonts).is_some_and(|b| b.is_disjoint(&style))
+                && body.and_then(left).is_some()
                 && body.is_some_and(|b| compact(&b.text).chars().count() >= 20)
             {
                 found.push((base + i, text));

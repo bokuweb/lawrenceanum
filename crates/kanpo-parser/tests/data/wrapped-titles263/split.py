@@ -5,7 +5,9 @@ A notice title can wrap at any character (「…の登録事項の変更に関�
 split of the signed-announcement golds. `move` handles an old boundary at the
 title's last line (a standalone 「公示」): the earlier title lines leave the end
 of the previous article and its last Run, and lead the next article and its first
-Run. Text and Document format labels are otherwise retained.
+Run. `join` replays an earlier adopted relation in a test (a printed masthead
+article joined to the next one): its text and Blocks lead the next article.
+Text and Document format labels are otherwise retained.
 """
 from pathlib import Path
 import copy,importlib.util,sys
@@ -34,4 +36,9 @@ def move(doc,prefix):
  first=b['document']['blocks'][0];head=first['runs'][0]
  assert first['kind']=='paragraph' and set(head)=={'text'}
  head['text']=prefix+head['text']
+ return out
+def join(doc,index):
+ out=copy.deepcopy(doc);arts=out['articles'];parent=arts.pop(index);child=arts[index]
+ child['text']=parent['text']+'\n'+child['text']
+ child['document']['blocks']=parent['document']['blocks']+child['document']['blocks']
  return out

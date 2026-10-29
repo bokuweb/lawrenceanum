@@ -55,10 +55,16 @@ macro_rules! fixture {
     };
 }
 fixture!(preface_finishes_before_lower_record, "20260819h017710004");
-fixture!(
-    personnel_procedures_finish_within_each_ruled_band,
-    "20260805h017620008"
-);
+#[test]
+fn personnel_procedures_finish_within_each_ruled_band() {
+    // The typeset title 「国土調査の成果の認証の公告」 starts its own article (native263h).
+    // The gold is reviewed130 cut at that title line, replayed without the parser.
+    check(
+        "20260805h017620008",
+        include_bytes!("data/partial-rule-columns/20260805h017620008.pdf"),
+        include_str!("data/wrapped-titles263/20260805h017620008.json"),
+    );
+}
 fixture!(
     toc_page_number_stays_above_the_original_divider,
     "20260817h017690001"

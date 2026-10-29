@@ -1,5 +1,5 @@
 {
-  "scope": "Notice titles typeset in their own original font and wrapped over several lines (「…の登録事項の変更に関」＋「する公示」) start their own articles under 官庁報告. Each gold is the previous frozen gold with literal cuts at the title's first line, or a literal move of an old boundary at the title's last line (a standalone 「公示」) to its first line; historical files are unchanged.",
+  "scope": "Notice titles typeset in their own original font and wrapped over several lines (「…の登録事項の変更に関」＋「する公示」) start their own articles under 官庁報告, as do one-line titles ending in a bare 公示/公告 noun (「北海道開発局公示」). Each gold is the previous frozen gold with literal cuts at the title's first line, or a literal move of an old boundary at the title's last line (a standalone 「公示」) to its first line; historical files are unchanged.",
   "cases": [
     {
       "name": "20260728h017560010",
@@ -20,6 +20,34 @@
       ],
       "source_sha256": "f5d5838eee1d6bad1207a6d2c03483c51d8c099c2c139309ba09ea00136cf915",
       "expected_sha256": "b8daa8466ec8130b759184a308af47fb8a44b434308fbb23b0ed516625e21e08"
+    },
+    {
+      "name": "20260730h017580006",
+      "source": "tests/data/section-context/20260730h017580006-baseline124.json",
+      "steps": [
+        [
+          "join",
+          4
+        ],
+        [
+          "cut",
+          "北海道開発局公示"
+        ]
+      ],
+      "source_sha256": "a3afed97d86cb6c97ee92b2c7000e65c4e91996faa52d5bd0a3f0765223df2cf",
+      "expected_sha256": "3023b38ac4224d3664db1adfee6260749202690917290c2b1e62cbacc7782e04"
+    },
+    {
+      "name": "20260805h017620008",
+      "source": "tests/data/partial-rule-columns/20260805h017620008-reviewed130.json",
+      "steps": [
+        [
+          "cut",
+          "国土調査の成果の認証の公告"
+        ]
+      ],
+      "source_sha256": "0e16f21d0f3ed9dbb728b49116468757875cee1162de770fdb728d93b33e9eb7",
+      "expected_sha256": "878c698269c0dbb5e25dbb9872057586092b9a50200274760f661d237f212ff0"
     }
   ]
 }
