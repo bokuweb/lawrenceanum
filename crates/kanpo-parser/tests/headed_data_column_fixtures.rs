@@ -25,7 +25,11 @@ fn find_table<'a>(a:&'a Analysis,code:&str)->Option<&'a Table>{a.pages.iter().fl
  let a=actual(PDF);let v=value(&a);let b:serde_json::Value=serde_json::from_str(BASE).unwrap();
  let btables:Vec<_>=b["pages"][0]["regions"][0]["lines"].as_array().unwrap().iter().filter_map(|l|l.get("table")).collect();
  for idx in [0,2]{let t=btables[idx];assert!(v["pages"][0]["regions"][0]["lines"].as_array().unwrap().iter().any(|l|l.get("table")==Some(t)));}
- assert_eq!(v["articles"][1],b["articles"][1]);assert_eq!(a.articles.len(),2);
+ // 欄見出し「産業」が記事の境界になり、区分見出し「官庁報告」は独立の段落になる。
+ // 新しい期待値は旧期待値の先頭段落を「官庁報告」で分けただけで、本文と残りの段落は同じ。
+ let jis:serde_json::Value=serde_json::from_str(include_str!("expected/headed_data_columns/20261020g002300011-jis-article-sangyo263g.json")).unwrap();
+ assert_eq!(jis["text"],b["articles"][1]["text"]);assert_eq!(jis["document"]["blocks"].as_array().unwrap()[2..],b["articles"][1]["document"]["blocks"].as_array().unwrap()[1..]);
+ assert_eq!(v["articles"][1],jis);assert_eq!(a.articles.len(),2);
 }
 #[test]fn all_original_words_and_existing_unique_owner_counts_are_preserved(){
  let a=actual(PDF);let v=value(&a);let b:serde_json::Value=serde_json::from_str(BASE).unwrap();assert_eq!(v["pages"][0]["words"],b["pages"][0]["words"]);
