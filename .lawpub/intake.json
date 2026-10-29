@@ -1,6 +1,6 @@
 {
-  "date": "2026-10-28",
-  "since": "2026-09-13",
+  "date": "2026-10-29",
+  "since": "2026-09-14",
   "entries": {
     "kokkai:122104037X00220260826": "summary_pending",
     "kokkai:122203895X00120261005": "source_unchanged",
@@ -20,7 +20,7 @@
     "kokkai:122205261X00120261009": "no_substantive_text",
     "kokkai:122205367X00120261005": "source_unchanged",
     "kokkai:122205387X00120261005": "source_unchanged",
-    "kokkai:122214024X00120261005": "completed",
+    "kokkai:122214024X00120261005": "source_unchanged",
     "kokkai:122214024X00220261008": "source_unchanged",
     "kokkai:122214024X00320261009": "source_unchanged",
     "kokkai:122214292X00120261009": "no_substantive_text",
@@ -32,9 +32,8 @@
     "kokkai:122215383X00120261005": "source_unchanged",
     "kokkai:122215384X00120261005": "source_unchanged",
     "kokkai:122215385X00120261005": "source_unchanged",
-    "kokkai:122215386X00120261005": "completed",
-    "shingikai:mhlw_shingi-hosho_191001_20260914_85": "completed",
-    "shingikai:mhlw_shingi-kousei_206844_20260901_68": "completed",
+    "kokkai:122215386X00120261005": "source_unchanged",
+    "shingikai:mhlw_shingi-hosho_191001_20260914_85": "source_unchanged",
     "shingikai:shingi03500044_00016": "source_unchanged"
   },
   "scope": "日付窓内の未完了会議・処理済み会議の原資料再取得と旧形式ページ。取得・要約件数に上限があり、窓外の現行形式ページ・未収集資料は集計外。source_unchanged は取得時点の比較結果、planned は完了ではない。"

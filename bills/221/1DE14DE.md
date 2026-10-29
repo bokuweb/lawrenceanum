@@ -17,6 +17,7 @@ proposer_groups: []
 stages: [{"date":"2026-02-20","kind":"received","label":"衆議院で受理"},{"date":"2026-03-05","kind":"referred","label":"衆議院 総務に付託"},{"date":"2026-03-13","kind":"committee","label":"衆議院 委員会で可決"},{"date":"2026-03-13","kind":"plenary","label":"衆議院 本会議で可決"},{"date":"2026-03-13","kind":"received","label":"参議院で受理"},{"date":"2026-03-23","kind":"referred","label":"参議院 総務に付託"},{"date":"2026-03-31","kind":"committee","label":"参議院 委員会で可決"},{"date":"2026-03-31","kind":"plenary","label":"参議院 本会議で可決"},{"date":"2026-03-31","kind":"promulgated","label":"公布（法律第3号）"}]
 tags: []
 render_version: 3
+llm_latest_date: "2026-03-31"
 ---
 
 # 地方交付税法等の一部を改正する法律案
@@ -24,6 +25,22 @@ render_version: 3
 ## 概要と経緯
 
 <!-- llm:begin -->
+**提出理由**: 地方財政の状況等に鑑み、令和八年度分の地方交付税の総額の特例措置を講ずる必要があるとされた[^1]。
+
+**主な内容**
+- 各種の制度改正等に伴って必要となる行政経費の財源を措置するため、地方交付税の単位費用等を改正するとされた[^2]。
+- 軽油引取税、自動車税、軽自動車税及び地方揮発油譲与税の減収額を埋めるため、減収補填特例交付金を創設するとされた[^3]。
+
+**審議の経過**
+- 2026-02-20 衆議院で受理。2026-03-05 総務委員会に付託。
+- 2026-03-13 衆議院の委員会・本会議で可決（賛成: 自由民主党・無所属の会、中道改革連合・無所属、日本維新の会、国民民主党・無所属クラブ、参政党、チームみらい／反対: 日本共産党）。同日参議院で受理。
+- 2026-03-23 参議院総務委員会に付託。2026-03-31 参議院の委員会・本会議で可決。収録資料に附帯決議はない。
+
+**結果**: 2026-03-31 成立・公布（令和八年法律第三号）。
+
+[^1]: [gian:221/1DE14DE#reason](https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/houan/g22109005.htm) 「令和八年度分の地方交付税の総額の特例措置を講ずる」
+[^2]: [gian:221/1DE14DE#reason](https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/houan/g22109005.htm) 「地方交付税の単位費用等の改正を行う」
+[^3]: [gian:221/1DE14DE#reason](https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/houan/g22109005.htm) 「軽油引取税、自動車税、軽自動車税及び地方揮発油譲与税の減収額を埋めるため」
 <!-- llm:end -->
 
 <!-- lawpub:begin meta -->
