@@ -127,6 +127,21 @@ fn typeset_titles(page: &PageTrace) -> Vec<(usize, Vec<String>)> {
         }
         (!out.is_empty()).then_some(out)
     };
+    // A title line's fonts are those of its content glyphs, so punctuation set in
+    // the body font (「、」) does not join the title to the body.
+    let content = |line: &crate::trace::Line| -> Option<crate::trace::NativeStyles> {
+        if line.table.is_some() || line.words.is_empty() {
+            return None;
+        }
+        let mut out = crate::trace::NativeStyles::new();
+        for &id in &line.words {
+            let ContentStyles::Glyphs(s) = page.native_content_styles.get(id)? else {
+                return None;
+            };
+            out.extend(s.iter().copied());
+        }
+        (!out.is_empty()).then_some(out)
+    };
     // Writing direction, line-start edge and glyph size of a line's own used
     // source Words: the left edge and height for horizontal text, the top edge
     // and width for vertical text. Every Word needs complete native evidence;
@@ -192,7 +207,7 @@ fn typeset_titles(page: &PageTrace) -> Vec<(usize, Vec<String>)> {
         while i < r.lines.len() {
             let prior = if i == 0 { last } else { r.lines.get(i - 1) };
             let (Some(above), Some(style), Some(first)) =
-                (prior.and_then(fonts), fonts(&r.lines[i]), left(&r.lines[i]))
+                (prior.and_then(fonts), content(&r.lines[i]), left(&r.lines[i]))
             else {
                 i += 1;
                 continue;
@@ -203,7 +218,7 @@ fn typeset_titles(page: &PageTrace) -> Vec<(usize, Vec<String>)> {
             }
             let mut end = i + 1;
             while end < r.lines.len()
-                && fonts(&r.lines[end]).as_ref() == Some(&style)
+                && content(&r.lines[end]).as_ref() == Some(&style)
                 && left(&r.lines[end]).is_some_and(|(d, x, _)| d == first.0 && (x - first.1).abs() <= 0.35 * first.2)
             {
                 end += 1;
@@ -215,7 +230,7 @@ fn typeset_titles(page: &PageTrace) -> Vec<(usize, Vec<String>)> {
             if run.len() <= 3
                 && (title.ends_with("公示") || title.ends_with("公告"))
                 && !matches!(title.as_str(), "公示" | "公告")
-                && !title.contains(|c: char| c.is_whitespace() || "。、「」『』".contains(c))
+                && !title.contains(|c: char| c.is_whitespace() || "。「」『』".contains(c))
                 && body.and_then(fonts).is_some_and(|b| b.is_disjoint(&style))
                 && body.and_then(direction) == Some(first.0)
                 && body.is_some_and(|b| compact(&b.text).chars().count() >= 20)
