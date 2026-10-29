@@ -27,6 +27,163 @@ pub(crate) fn repair_wrapped_notice_titles(articles: &mut [String], pages: &[Pag
     changed
 }
 
+/// A notice title typeset in its own font can wrap at any character
+/// (「…の登録事項の変更に関」＋「する公示」). Its extent is the maximal run of aligned
+/// lines whose original fonts share nothing with the line above and the body below;
+/// no line count of the previous notice or wording of its last line is used.
+/// The article starts at the first title line, and no boundary remains inside it.
+/// A title the native notice boundaries already cut at is left to them.
+pub(crate) fn split_typeset_notice_titles(
+    articles: &mut Vec<String>,
+    pages: &[PageTrace],
+    rules: &[Option<crate::lines::PageRules>],
+) -> usize {
+    let mut titles: Vec<Vec<String>> = Vec::new();
+    let default = crate::lines::PageRules::default();
+    for (n, page) in pages.iter().enumerate() {
+        let found = typeset_titles(page);
+        if found.is_empty() {
+            continue;
+        }
+        let native = crate::notice_boundaries::cuts(page, rules.get(n).and_then(|r| r.as_ref()).unwrap_or(&default));
+        titles.extend(found.into_iter().filter(|(line, _)| !native.contains(line)).map(|(_, title)| title));
+    }
+    let mut lines: Vec<&str> = Vec::new();
+    let mut starts = std::collections::BTreeSet::new();
+    let mut spans = std::collections::HashMap::new();
+    for (n, article) in articles.iter().enumerate() {
+        starts.insert(lines.len());
+        let first = lines.len();
+        lines.extend(article.lines());
+        spans.insert((first, lines.len()), n);
+    }
+    let mut found = Vec::new();
+    for title in &titles {
+        let at: Vec<usize> = (0..lines.len().saturating_sub(title.len() - 1))
+            .filter(|&i| title.iter().zip(&lines[i..]).all(|(t, l)| l.trim() == t))
+            .collect();
+        // Repeated titles at different source positions are ambiguous.
+        if at.len() == 1 && titles.iter().filter(|t| *t == title).count() == 1 {
+            found.push((at[0], at[0] + title.len()));
+        }
+    }
+    let inside = |j: usize| found.iter().any(|&(a, b)| a <= j && j < b);
+    let before = starts.clone();
+    for &(first, end) in &found {
+        // A boundary already inside the title moves to its first line.
+        let inner = before.range(first + 1..end).next().is_some();
+        // The table of contents lists each notice under 官庁報告 as its own item,
+        // but groups several notices of the 公告 section into one item.
+        let report = (0..first)
+            .rev()
+            .filter(|&j| !inside(j))
+            .map(|j| compact(lines[j]))
+            .find(|t| t == "官庁報告" || t == "公告")
+            .is_some_and(|t| t == "官庁報告");
+        if !inner && !report {
+            continue;
+        }
+        starts.retain(|&s| s <= first || s >= end);
+        // A title right under a section or field label stays in that label's article.
+        if first > 0 && !crate::segment::is_section_label(lines[first - 1]) {
+            starts.insert(first);
+        }
+    }
+    if starts == before {
+        return 0;
+    }
+    let bounds: Vec<usize> = starts.iter().copied().chain([lines.len()]).collect();
+    // Articles whose own line range is unchanged keep their exact text. The
+    // joined stream stays byte-identical, so native source ownership still applies.
+    let rebuilt: Vec<String> = bounds
+        .windows(2)
+        .map(|w| match spans.get(&(w[0], w[1])) {
+            Some(&n) => articles[n].clone(),
+            None => lines[w[0]..w[1]].join("\n"),
+        })
+        .collect();
+    if rebuilt.join("\n") != articles.join("\n") || rebuilt.iter().any(|a| a.trim().is_empty()) {
+        return 0;
+    }
+    *articles = rebuilt;
+    starts.difference(&before).count() + before.difference(&starts).count()
+}
+
+/// Each title with its first line's index across all of the page's regions,
+/// the index the native notice boundaries use.
+fn typeset_titles(page: &PageTrace) -> Vec<(usize, Vec<String>)> {
+    let fonts = |line: &crate::trace::Line| -> Option<crate::trace::NativeStyles> {
+        if line.table.is_some() || line.words.is_empty() {
+            return None;
+        }
+        let mut out = crate::trace::NativeStyles::new();
+        for &id in &line.words {
+            out.extend(page.native_styles.get(id)?.as_ref()?.iter().copied());
+        }
+        (!out.is_empty()).then_some(out)
+    };
+    // Left edge and glyph height of a line's own used source Words.
+    let left = |line: &crate::trace::Line| -> Option<(f32, f32)> {
+        let mut out: Option<(f32, f32)> = None;
+        for id in &line.words {
+            let w = page.words.get(*id).filter(|w| w.id == *id && w.status == WordStatus::Used)?;
+            if ![w.x0, w.y0, w.x1, w.y1].iter().all(|v| v.is_finite()) || w.y1 <= w.y0 {
+                return None;
+            }
+            out = Some(out.map_or((w.x0, w.y1 - w.y0), |(x, h)| (x.min(w.x0), h.max(w.y1 - w.y0))));
+        }
+        out
+    };
+    let mut found = Vec::new();
+    // At the top of a column the line above in reading order ends the previous column.
+    let mut last: Option<&crate::trace::Line> = None;
+    let mut offset = 0;
+    for r in &page.regions {
+        let base = offset;
+        offset += r.lines.len();
+        if r.role != Role::Body {
+            last = None;
+            continue;
+        }
+        let mut i = 0;
+        while i < r.lines.len() {
+            let prior = if i == 0 { last } else { r.lines.get(i - 1) };
+            let (Some(above), Some(style), Some(first)) =
+                (prior.and_then(fonts), fonts(&r.lines[i]), left(&r.lines[i]))
+            else {
+                i += 1;
+                continue;
+            };
+            if !above.is_disjoint(&style) {
+                i += 1;
+                continue;
+            }
+            let mut end = i + 1;
+            while end < r.lines.len()
+                && fonts(&r.lines[end]).as_ref() == Some(&style)
+                && left(&r.lines[end]).is_some_and(|(x, _)| (x - first.0).abs() <= 0.35 * first.1)
+            {
+                end += 1;
+            }
+            let run = &r.lines[i..end];
+            let text: Vec<String> = run.iter().map(|l| l.text.trim().to_string()).collect();
+            let title = text.concat();
+            let body = r.lines.get(end);
+            if run.len() <= 3
+                && (title.ends_with("に関する公示") || title.ends_with("に関する公告"))
+                && !title.contains(|c: char| c.is_whitespace() || "。、「」『』".contains(c))
+                && body.and_then(fonts).is_some_and(|b| b.is_disjoint(&style))
+                && body.is_some_and(|b| compact(&b.text).chars().count() >= 20)
+            {
+                found.push((base + i, text));
+            }
+            i = end;
+        }
+        last = r.lines.last();
+    }
+    found
+}
+
 #[derive(Clone, Copy)]
 struct Box2 { x0:f32, y0:f32, x1:f32, y1:f32, em:f32 }
 fn compact(s:&str)->String { s.chars().filter(|c|!c.is_whitespace()).collect() }
