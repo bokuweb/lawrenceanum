@@ -27,14 +27,15 @@
 
  // A notice title set in its own original font, after the previous notice's last line.
  fn typeset(lines:&[(&str,usize)])->PageTrace{
-  let mut words=vec![];let mut out=vec![];let mut styles=vec![];
-  for(i,(t,font))in lines.iter().enumerate(){let y=50.+10.*i as f32;let x=if i==0{110.}else{100.};words.push(Word{source_box:[x,y,x+8.*t.chars().count() as f32,y+8.],id:i,x0:x,y0:y,x1:x+8.*t.chars().count() as f32,y1:y+8.,raw:t.to_string(),text:t.to_string(),status:WordStatus::Used});out.push(Line::text(t.to_string(),vec![i]));styles.push(Some([(*font,8)].into_iter().collect()));}
-  PageTrace{native_comparison_labels:vec![],native_horizontal_baselines:vec![],native_atomic_columns:vec![],native_axes:vec![],native_rulings:vec![],width:600.,height:800.,layout:"tiers",words,native_styles:styles,native_bounds:vec![],native_content_styles:vec![],regions:vec![Region{role:Role::Body,unit:0,part:0,lines:out}],text:String::new(),doc_text:String::new(),tables:vec![]}
+  let mut words=vec![];let mut out=vec![];let mut styles=vec![];let mut bounds=vec![];let mut content=vec![];
+  for(i,(t,font))in lines.iter().enumerate(){let y=50.+10.*i as f32;let x=if i==0{110.}else{100.};let r=x+8.*t.chars().count() as f32;words.push(Word{source_box:[x,y,r,y+8.],id:i,x0:x,y0:y,x1:r,y1:y+8.,raw:t.to_string(),text:t.to_string(),status:WordStatus::Used});out.push(Line::text(t.to_string(),vec![i]));let s:NativeStyles=[(*font,8)].into_iter().collect();styles.push(Some(s.clone()));bounds.push(NativeBounds::Glyphs([x,y,r,y+8.]));content.push(ContentStyles::Glyphs(s));}
+  let axes=vec![crate::native_word_axes::NativeAxis::Right;words.len()];
+  PageTrace{native_comparison_labels:vec![],native_horizontal_baselines:vec![],native_atomic_columns:vec![],native_axes:axes,native_rulings:vec![],width:600.,height:800.,layout:"tiers",words,native_styles:styles,native_bounds:bounds,native_content_styles:content,regions:vec![Region{role:Role::Body,unit:0,part:0,lines:out}],text:String::new(),doc_text:String::new(),tables:vec![]}
  }
  const REPORT:(&str,usize)=("官庁報告",3);
  const PREVIOUS:(&str,usize)=("三変更年月日令和八年四月一日",1);
  const BODY:(&str,usize)=("船舶職員及び小型船舶操縦者法（昭和二十六年法律第百四十九号）第十七条の五の規定に基づき",1);
- fn split(lines:&[(&str,usize)],articles:&[&str])->Vec<String>{let page=typeset(lines);let mut a:Vec<String>=articles.iter().map(|s|s.to_string()).collect();split_typeset_notice_titles(&mut a,&[page],&[]);a}
+ fn split(lines:&[(&str,usize)],articles:&[&str])->Vec<String>{let page=typeset(lines);let mut a:Vec<String>=articles.iter().map(|s|s.to_string()).collect();split_typeset_notice_titles(&mut a,&[page],&[Some(crate::lines::PageRules::default())]);a}
  #[test]fn wrapped_title_in_its_own_font_starts_an_article(){
   let lines=[REPORT,PREVIOUS,("登録海技免許講習実施機関の登録事項の変更に関",0),("する公示",0),BODY];
   let joined=lines.iter().map(|l|l.0).collect::<Vec<_>>().join("\n");
@@ -70,4 +71,51 @@
   let lines=[REPORT,("公告",3),("諸事項",2),PREVIOUS,("登録を受けたクレジットカード番号等取扱契約締結事業者の営業の",0),("廃止に関する公示",0),BODY];
   let joined=lines.iter().map(|l|l.0).collect::<Vec<_>>().join("\n");
   assert_eq!(split(&lines,&[&joined]).len(),1);
+ }
+ #[test]fn one_line_title_ending_in_the_bare_notice_noun_starts_an_article(){
+  let lines=[REPORT,("（七）図面縦覧場所四国地方整備局及び同局香川河川国道事務所",1),("基本測量関係事項公告",0),BODY];
+  let joined=lines.iter().map(|l|l.0).collect::<Vec<_>>().join("\n");
+  assert_eq!(split(&lines,&[&joined])[1].lines().next(),Some("基本測量関係事項公告"));
+  // A standalone section label is not a title.
+  let lines=[REPORT,PREVIOUS,("公示",0),BODY];
+  let joined=lines.iter().map(|l|l.0).collect::<Vec<_>>().join("\n");
+  assert_eq!(split(&lines,&[&joined]).len(),1);
+ }
+ #[test]fn unknown_native_evidence_does_not_prove_a_title(){
+  let lines=[REPORT,PREVIOUS,("登録海技免許講習実施機関の登録事項の変更に関",0),("する公示",0),BODY];
+  let joined=lines.iter().map(|l|l.0).collect::<Vec<_>>().join("\n");
+  for spoil in 0..3 {
+   let mut page=typeset(&lines);
+   match spoil {0=>page.native_axes[2]=crate::native_word_axes::NativeAxis::Unknown,1=>page.native_bounds[2]=NativeBounds::Compatibility,_=>page.native_content_styles[2]=ContentStyles::Unknown}
+   let mut a=vec![joined.clone()];split_typeset_notice_titles(&mut a,&[page],&[Some(crate::lines::PageRules::default())]);assert_eq!(a.len(),1,"{spoil}");
+  }
+ }
+ #[test]fn vertical_title_columns_align_on_their_top_edge(){
+  let lines=[REPORT,PREVIOUS,("登録海技免許講習実施機関の登録事項の変更に関",0),("する公示",0),BODY];
+  let mut page=typeset(&lines);
+  // Columns run right to left; each title column starts at the same top edge.
+  for(i,(t,_))in lines.iter().enumerate(){let x=500.-10.*i as f32;let y=if i==1{60.}else{50.};page.native_bounds[i]=NativeBounds::Glyphs([x,y,x+8.,y+8.*t.chars().count() as f32]);page.native_axes[i]=crate::native_word_axes::NativeAxis::Down;}
+  let joined=lines.iter().map(|l|l.0).collect::<Vec<_>>().join("\n");
+  let mut a=vec![joined];split_typeset_notice_titles(&mut a,&[page],&[Some(crate::lines::PageRules::default())]);
+  assert_eq!(a[1].lines().next(),Some(lines[2].0));
+ }
+ #[test]fn the_public_notice_field_without_its_section_label_is_not_split(){
+  let lines=[REPORT,("諸事項",2),PREVIOUS,("訂正公告",0),BODY];
+  let joined=lines.iter().map(|l|l.0).collect::<Vec<_>>().join("\n");
+  assert_eq!(split(&lines,&[&joined]).len(),1);
+ }
+ #[test]fn a_page_without_original_rules_is_left_alone(){
+  let lines=[REPORT,PREVIOUS,("登録海技免許講習実施機関の登録事項の変更に関",0),("する公示",0),BODY];
+  let joined=lines.iter().map(|l|l.0).collect::<Vec<_>>().join("\n");
+  let mut a=vec![joined];split_typeset_notice_titles(&mut a,&[typeset(&lines)],&[None]);assert_eq!(a.len(),1);
+ }
+ #[test]fn a_neighbor_only_needs_known_direction_and_fonts(){
+  // An item marker above the title may have unknown content fonts; it still differs.
+  let lines=[REPORT,("（七）図面縦覧場所四国地方整備局及び同局香川河川国道事務所",1),("基本測量関係事項公告",0),BODY];
+  let mut page=typeset(&lines);page.native_content_styles[1]=ContentStyles::Unknown;
+  let joined=lines.iter().map(|l|l.0).collect::<Vec<_>>().join("\n");
+  let mut a=vec![joined.clone()];split_typeset_notice_titles(&mut a,&[page],&[Some(crate::lines::PageRules::default())]);assert_eq!(a.len(),2);
+  // An unknown writing direction of the neighbor is still not evidence.
+  let mut page=typeset(&lines);page.native_axes[1]=crate::native_word_axes::NativeAxis::Unknown;
+  let mut a=vec![joined];split_typeset_notice_titles(&mut a,&[page],&[Some(crate::lines::PageRules::default())]);assert_eq!(a.len(),1);
  }
