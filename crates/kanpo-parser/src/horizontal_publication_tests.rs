@@ -1243,3 +1243,72 @@ fn native_instrument_roots_need_the_shared_body_face_in_the_next_column() {
     face(&mut p, 5, NativeStyles::from([(1, 8f64.to_bits()), (3, 7f64.to_bits())]));
     assert!(cuts(&p, &r).is_empty());
 }
+
+// Two untitled signed statements: sentence, date/office/name row, table.
+fn untitled(second_sentence: &str, second_office: &str, first_signed: bool) -> PageTrace {
+    let mut p = empty();
+    let row = |p: &mut PageTrace, y: f32, office: &str| {
+        let date = add(p, "2026年7月22日", [60., y, 140., y + 8.], 1, 8.);
+        let role = add(p, office, [300., y, 340., y + 8.], 1, 8.);
+        let name = add(p, "任意", [350., y, 380., y + 8.], 1, 8.);
+        for _ in 0..3 {
+            p.regions[0].lines.pop();
+        }
+        p.regions[0]
+            .lines
+            .push(Line::text(format!("2026年7月22日 {office} 任意"), vec![date, role, name]));
+    };
+    let table = |p: &mut PageTrace, y: f32| {
+        let a = add(p, "品目", [60., y, 100., y + 8.], 1, 8.);
+        let b = add(p, "価格", [200., y, 240., y + 8.], 1, 8.);
+        p.regions[0].lines.pop();
+        p.regions[0].lines.pop();
+        let cell = |col: usize, id: usize, x0: f32| TableCell {
+            row: 0, col, rowspan: 1, colspan: 1, x0, y0: y - 2., x1: x0 + 120., y1: y + 10., text: p.words[id].text.clone(), words: vec![id],
+        };
+        let t = Table { x0: 50., y0: y - 2., x1: 380., y1: y + 10., rows: 1, cols: 2, cells: vec![cell(0, a, 50.), cell(1, b, 180.)] };
+        p.regions[0].lines.push(Line { text: t.render(), words: vec![], table: Some(t) });
+    };
+    add(&mut p, "任意の法律の規定により次のとおり公告する。", [50., 10., 380., 18.], 1, 8.);
+    if first_signed {
+        row(&mut p, 22., "任意機関長");
+    }
+    table(&mut p, 40.);
+    add(&mut p, second_sentence, [50., 60., 380., 68.], 1, 8.);
+    row(&mut p, 72., second_office);
+    table(&mut p, 90.);
+    p.native_horizontal_baselines = p
+        .native_bounds
+        .iter()
+        .map(|b| match b {
+            NativeBounds::Glyphs(b) => Some(f64::from(b[1] + b[3]) / 2.),
+            _ => None,
+        })
+        .collect();
+    refresh(&mut p);
+    p
+}
+#[test]
+fn an_untitled_statement_after_a_signed_statements_table_has_its_own_root() {
+    let p = untitled("別の規定により次のとおり公告する。", "任意担当大臣", true);
+    assert_eq!(cuts(&p, &Default::default()), vec![3]);
+}
+#[test]
+fn an_untitled_statement_needs_both_complete_signed_statements() {
+    // The earlier statement is not yet signed before its table.
+    let p = untitled("別の規定により次のとおり公告する。", "任意機関長", false);
+    assert!(cuts(&p, &Default::default()).is_empty());
+    // A note after the table without its own complete sentence.
+    let p = untitled("備考　価格は税込み", "任意機関長", true);
+    assert!(cuts(&p, &Default::default()).is_empty());
+    // A date and name without an office.
+    let p = untitled("別の規定により次のとおり公告する。", "任意者", true);
+    assert!(cuts(&p, &Default::default()).is_empty());
+    // A signature row in another typeface is not the same signed series.
+    let mut p = untitled("別の規定により次のとおり公告する。", "任意機関長", true);
+    let id = p.regions[0].lines[4].words[1];
+    let s = NativeStyles::from([(5, 8f64.to_bits())]);
+    p.native_styles[id] = Some(s.clone());
+    p.native_content_styles[id] = ContentStyles::Glyphs(s);
+    assert!(cuts(&p, &Default::default()).is_empty());
+}

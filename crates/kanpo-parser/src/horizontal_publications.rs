@@ -393,6 +393,7 @@ pub(super) fn starts(page: &PageTrace, rules: &PageRules, lines: &[SourceLine<'_
         })
         .collect::<Vec<_>>();
     starts.extend(instrument_roots::starts(page, rules, lines));
+    starts.extend(instrument_roots::untitled_statements(page, rules, lines));
     starts
 }
 

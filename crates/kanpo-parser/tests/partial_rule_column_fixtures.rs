@@ -73,7 +73,7 @@ fn appendix_order_and_intact_signature_spaces() {
     check(
         "20261015g002260005",
         PDF,
-        include_str!("data/partial-rule-columns/20261015g002260005-reviewed147.json"),
+        include_str!("data/katakana-headings263/20261015g002260005.json"),
     );
     let a = kanpo_parser::analyze_item(&kanpo_parser::page_inputs(PDF).unwrap());
     let actual: serde_json::Value =
@@ -86,8 +86,9 @@ fn appendix_order_and_intact_signature_spaces() {
         actual["pages"][0]["words"], old["pages"][0]["words"],
         "every original Word payload and status stays exact"
     );
+    // The katakana-initial heading 〇デジタル庁・総務省令 is now article 1.
     assert_eq!(
-        actual["articles"].as_array().unwrap()[1..],
+        actual["articles"].as_array().unwrap()[2..],
         old["articles"].as_array().unwrap()[1..]
     );
     let table = a.pages[0]
@@ -117,8 +118,13 @@ fn appendix_order_and_intact_signature_spaces() {
     let new_blocks = actual["articles"][0]["document"]["blocks"]
         .as_array()
         .unwrap();
+    // The following notice starts its own article at its katakana heading.
+    let next_blocks = actual["articles"][1]["document"]["blocks"]
+        .as_array()
+        .unwrap();
+    assert_eq!(new_blocks.len(), 1);
     assert_eq!(
-        new_blocks[1..],
+        next_blocks[1..],
         old_blocks[1..],
         "all later comparison rows remain exact"
     );
@@ -128,5 +134,17 @@ fn appendix_order_and_intact_signature_spaces() {
         .split_once('\n')
         .unwrap()
         .1;
-    assert_eq!(new_blocks[0]["runs"][1]["text"], remaining, "the appendix, signatures, and following notice retain their previous exact text and spacing");
+    assert_eq!(
+        format!(
+            "{}{}",
+            new_blocks[0]["runs"][1]["text"].as_str().unwrap(),
+            next_blocks[0]["runs"][0]["text"].as_str().unwrap()
+        ),
+        remaining,
+        "the appendix, signatures, and following notice retain their previous exact text and spacing"
+    );
+    assert!(next_blocks[0]["runs"][0]["text"]
+        .as_str()
+        .unwrap()
+        .starts_with("〇デジタル庁・総務省令第二十一号"));
 }

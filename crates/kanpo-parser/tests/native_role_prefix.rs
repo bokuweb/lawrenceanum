@@ -136,5 +136,10 @@ fn a_mixed_footer_without_its_original_scene_keeps_the_entire_previous_abstentio
     last.xhtml = last
         .xhtml
         .replace(" data-native-scene=", " data-missing-scene=");
-    assert!(actual(&input) == stored("baseline", "226-three"));
+    // The historical abstention cut only at the later katakana heading.
+    let expected: serde_json::Value = serde_json::from_str(include_str!(
+        "data/katakana-headings263/226-three-missing-scene.json"
+    ))
+    .unwrap();
+    assert!(actual(&input) == expected);
 }
