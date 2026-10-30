@@ -310,13 +310,23 @@ pub fn pick_article(title: &str, articles: &[ArticleAnalysis]) -> Option<usize> 
             .map(|(i, _)| i)
     };
     let texts: Vec<String> = articles.iter().map(|a| unify(&a.text)).collect();
-    best(&keys_of(&cores), &texts)
-        .or_else(|| {
-            let cores: Vec<String> = cores.iter().map(|c| loose(c)).filter(|c| c.chars().count() >= 6).collect();
-            let texts: Vec<String> = articles.iter().map(|a| loose(&a.text)).collect();
-            best(&keys_of(&cores), &texts)
-        })
-        .or_else(|| pick_by_number(title, articles))
+    let picked = best(&keys_of(&cores), &texts).or_else(|| {
+        let cores: Vec<String> = cores.iter().map(|c| loose(c)).filter(|c| c.chars().count() >= 6).collect();
+        let texts: Vec<String> = articles.iter().map(|a| loose(&a.text)).collect();
+        best(&keys_of(&cores), &texts)
+    });
+    // 本文に標題を載せない告示（「〇消防庁告示第十四号」の下に本文だけ）は、鍵が号外の 1 ページ目の目次の項目か、似た標題の
+    // 別の告示（「熊本県の一部の地域における…を延長する件」が並ぶ号外）にしか合わない。鍵に合った記事が目次の項目か、
+    // 見出しに別の号数を持つ記事で、見出しの号数が合う記事が 1 つだけあれば、そちらを採る。見出しに号数の無い記事
+    // （区分見出しで見出しと本文が分かれた「告示 / …を改正する告示」）はそのまま。
+    let other_number = |a: &ArticleAnalysis, n: u64| heading_number(a.text.lines().find(|l| !l.trim().is_empty()).unwrap_or("")).is_some_and(|m| m != n);
+    match picked {
+        Some(i) if number.as_ref().is_some_and(|(agencies, n)| !has_number(&articles[i], agencies, *n) && !has_number_line(&articles[i], agencies, *n)
+            && (is_toc_entry(&articles[i]) || other_number(&articles[i], *n))) => {
+            pick_by_number(title, articles).or(picked)
+        }
+        _ => picked.or_else(|| pick_by_number(title, articles)),
+    }
 }
 
 /// 標題の末尾の番号（「（同二八五）」「（総務二八五）」）と記事の見出しの号数（「〇総務省告示第二百八十五号」）で
@@ -333,6 +343,19 @@ fn pick_by_number(title: &str, articles: &[ArticleAnalysis]) -> Option<usize> {
         .map(|(i, _)| i)
         .collect();
     (matched.len() == 1).then(|| matched[0])
+}
+
+/// 目次の項目か。目次は標題を番号（「（消防庁一四）」「（同一五）」）まで載せ、その後に頁（「　一」）を置く。本文の行は
+/// 標題の番号で終わらない。
+fn is_toc_entry(a: &ArticleAnalysis) -> bool {
+    a.text.lines().any(|l| {
+        let l = l.trim();
+        let tagged = l.trim_end_matches(|c: char| "〇一二三四五六七八九十百千".contains(c)).trim_end();
+        tagged.ends_with('）') && title_number(tagged).is_some_and(|(_, n)| n > 0) && {
+            let inner = &tagged[tagged.rfind('（').unwrap() + '（'.len_utf8()..];
+            !inner.starts_with(|c: char| "〇一二三四五六七八九".contains(c))
+        }
+    })
 }
 
 /// 標題の末尾の番号の機関名（「同」なら無し）と先頭の号数。
@@ -622,6 +645,31 @@ mod tests {
         ]);
         assert_eq!(pick_article("登録低引火点燃料船学科講習実施機関の登録（国土交通省）", &a), Some(0));
         assert_eq!(pick_article("登録低引火点燃料船安全担当者講習実施機関の登録（同）", &a), Some(1));
+    }
+
+    #[test]
+    fn untitled_notices_pick_their_number_over_toc_entries_and_similar_notices() {
+        // 本文に標題を載せない告示は、鍵が号外の 1 ページ目の目次の項目にしか合わない（号外第 1787 号）。
+        let a = arts(&[
+            "〇消防法施行規則第三十一条の五第四\n項に規定する登録認定機関の代表者\nの氏名の変更に関する件\n（消防庁一四）　一",
+            "〇消防法施行規則第三十一条の七第二\n項に規定する登録講習機関の代表者\nの氏名の変更に関する件（同一五）",
+            "〇消防庁告示第十四号\n消防法施行規則第三十一条の五第四項において読み替えて準用する同令の規定に基づき、届出があったので公示する。",
+            "〇消防庁告示第十五号\n消防法施行規則第三十一条の七第二項において読み替えて準用する同令の規定に基づき、届出があったので公示する。",
+        ]);
+        assert_eq!(pick_article("消防法施行規則第三十一条の五第四項に規定する登録認定機関の代表者の氏名の変更に関する件（消防庁一四）", &a), Some(2));
+        assert_eq!(pick_article("消防法施行規則第三十一条の七第二項に規定する登録講習機関の代表者の氏名の変更に関する件（同一五）", &a), Some(3));
+        // 似た標題の別の告示（号外第 39 号の熊本県の延長の告示）は、見出しの号数で選び直す。
+        let a = arts(&[
+            "〇国税庁告示第二十一号\n令和八年熊本地震の被害に伴い、熊本県の一部の地域における国税に関する申告期限等を延長する。",
+            "〇厚生労働省告示第三百十三号\n熊本県の一部の地域における事業主掛金及び企業型年金加入者掛金の納付の特例を定める件の規定に基づき、次のように定める。熊本県の一部の地域における社会保険料及び労働保険料等に関する納期限等を延長する件",
+        ]);
+        assert_eq!(pick_article("熊本県の一部の地域における国税に関する申告期限等を延長する件（国税庁二一）", &a), Some(0));
+        // 見出しに号数の無い記事（区分見出しで見出しと分かれた本文）は、号数の見出しだけの断片に替えない。
+        let a = arts(&[
+            "〇文部科学省告示第百八号\nに定める。",
+            "告示\n学校法人の寄附行為及び寄附行為の変更の認可に関する審査基準の一部を改正する告示を次のように定める。",
+        ]);
+        assert_eq!(pick_article("学校法人の寄附行為及び寄附行為の変更の認可に関する審査基準の一部を改正する告示（文部科学一〇八）", &a), Some(1));
     }
 
     #[test]
