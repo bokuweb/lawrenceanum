@@ -180,6 +180,14 @@
   let (pages,joined)=next_page(&[REPORT,("（３）縦覧の場所",0)],"気仙沼市役所及び宮城県庁");
   assert_eq!(split_pages(&pages,&joined).len(),1);
  }
+ #[test]fn a_title_under_a_table_row_starts_an_article(){
+  // The previous notice ends in a table (a register of names); no title wraps out of a row.
+  let lines=[REPORT,("沖縄県知事第00937号　上原金融",1),("試験事務を行う登録実施機関について",0),BODY];
+  let joined=lines.iter().map(|l|l.0).collect::<Vec<_>>().join("\n");
+  let mut page=typeset(&lines);page.regions[0].lines[1].table=Some(Table{x0:0.,y0:0.,x1:1.,y1:1.,rows:1,cols:1,cells:vec![]});
+  let mut a=vec![joined];split_typeset_notice_titles(&mut a,&[page],&[Some(crate::lines::PageRules::default())]);
+  assert_eq!(a,vec![format!("{}\n{}",REPORT.0,lines[1].0),format!("{}\n{}",lines[2].0,BODY.0)]);
+ }
  #[test]fn a_page_without_original_rules_is_left_alone(){
   let lines=[REPORT,PREVIOUS,("登録海技免許講習実施機関の登録事項の変更に関",0),("する公示",0),BODY];
   let joined=lines.iter().map(|l|l.0).collect::<Vec<_>>().join("\n");
