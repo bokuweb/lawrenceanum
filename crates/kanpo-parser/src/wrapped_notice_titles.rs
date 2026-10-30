@@ -213,7 +213,14 @@ fn typeset_titles(page: &PageTrace, carry: Option<Above>) -> (Vec<(usize, Vec<St
         }
         out
     };
-    let above = |line: &crate::trace::Line| Some((fonts(line)?, direction(line)?));
+    // A table row above shares no font with a title and no title wraps out of it;
+    // it has no writing direction of its own to compare.
+    let above = |line: &crate::trace::Line| {
+        if line.table.is_some() {
+            return Some((crate::trace::NativeStyles::new(), None));
+        }
+        Some((fonts(line)?, Some(direction(line)?)))
+    };
     // The previous page may be set in the other direction (a vertical page before a
     // horizontal one); across pages only its fonts are compared.
     let mut last = carry.map(|(f, _)| (f, None));
@@ -229,7 +236,7 @@ fn typeset_titles(page: &PageTrace, carry: Option<Above>) -> (Vec<(usize, Vec<St
         }
         let mut i = 0;
         while i < r.lines.len() {
-            let prior = if i == 0 { last.clone() } else { above(&r.lines[i - 1]).map(|(f, d)| (f, Some(d))) };
+            let prior = if i == 0 { last.clone() } else { above(&r.lines[i - 1]) };
             let (Some((above, down)), Some(style), Some(first)) =
                 (prior, content(&r.lines[i]), left(&r.lines[i]))
             else {
@@ -261,7 +268,7 @@ fn typeset_titles(page: &PageTrace, carry: Option<Above>) -> (Vec<(usize, Vec<St
             }
             i = end;
         }
-        last = r.lines.last().and_then(above).map(|(f, d)| (f, Some(d)));
+        last = r.lines.last().and_then(above);
     }
     (found, last.and_then(|(f, d)| Some((f, d?))))
 }
