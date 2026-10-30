@@ -434,8 +434,9 @@ fn title_numbers(title: &str) -> Option<(Vec<&str>, Vec<u64>)> {
 /// - 選んだ記事に続く見出しの無い記事（頁をまたいだ告示の続き）と、号数の無い `〇` で始まる行の記事
 ///   （折り返した「〇番三まで」）は、その告示の続きとして含める。
 /// 号数が 1 つの項目や、最初の記事が最初の号数の見出しを持たないときは [`pick_article`] の 1 記事だけ。
+/// [`pick_article`] がどの記事も選ばない欄の項目（「会社決算公告」）は [`pick_series`] で選ぶ。
 pub fn pick_articles(title: &str, articles: &[ArticleAnalysis]) -> Vec<usize> {
-    let Some(first) = pick_article(title, articles) else { return Vec::new() };
+    let Some(first) = pick_article(title, articles) else { return pick_series(title, articles) };
     let Some((agencies, numbers)) = title_numbers(title) else { return vec![first] };
     if !has_number(&articles[first], &agencies, numbers[0]) {
         return vec![first];
@@ -467,6 +468,30 @@ pub fn pick_articles(title: &str, articles: &[ArticleAnalysis]) -> Vec<usize> {
     }
     // 最後の号数の告示の後ろの見出しの無い記事は含めない（号数が 1 つの項目の [`pick_article`] と同じ）。
     picked
+}
+
+/// 同じ種類の公告を並べた欄の目次の項目（「会社決算公告」）は、欄の名前の後ろの方（「決算公告」）で終わる見出し
+/// （「第12期決算公告」「令和７年度決算公告」）の記事をすべて選ぶ。見出しの後ろに日付が続く（「第38期決算公告
+/// 令和８年６月29日」）ので、見出しの行の最初の語で比べる。[`pick_article`] がどの記事も選ばないときだけ使う。
+/// 欄の名前は番号も括弧も無い短い名前で、比べる後ろの方は 4 字以上・名前の半分以上。
+fn pick_series(title: &str, articles: &[ArticleAnalysis]) -> Vec<usize> {
+    let name: Vec<char> = title.trim().chars().collect();
+    if name.len() > 10 || name.iter().any(|c| "（）、・".contains(*c)) || title.ends_with("関係") {
+        return Vec::new();
+    }
+    let heads: Vec<String> = articles
+        .iter()
+        .map(|a| a.text.lines().find(|l| !l.trim().is_empty()).unwrap_or("").split_whitespace().next().unwrap_or("").to_string())
+        .collect();
+    let min = 4.max(name.len().div_ceil(2));
+    for len in (min..=name.len()).rev() {
+        let tail: String = name[name.len() - len..].iter().collect();
+        let picked: Vec<usize> = (0..articles.len()).filter(|&i| heads[i].ends_with(&tail)).collect();
+        if !picked.is_empty() {
+            return picked;
+        }
+    }
+    Vec::new()
 }
 
 /// 記事の見出しの号数が `n` で、標題の機関名をすべて含むか。
@@ -801,6 +826,21 @@ mod tests {
         assert_eq!(pick_articles("砂防法第二条の土地を指定する件（同九九二、九九六、九九七）", &a), vec![1, 8]);
         // 号数が 1 つの項目は 1 記事。
         assert_eq!(pick_articles("砂防法第二条の土地を指定する件（国土交通九九二）", &a), vec![1]);
+    }
+
+    #[test]
+    fn a_section_of_same_kind_notices_picks_every_notice_ending_with_its_name() {
+        // 号外第170号52ページ: 会社その他の公告の後に、会社決算公告の欄の決算公告が続く。
+        let a = arts(&[
+            "解散公告（第三回）\n当社は、…解散いたしました。",
+            "第12期決算公告\n貸借対照表の要旨",
+            "第52期決算公告　令和８年５月21日\n貸借対照表の要旨",
+            "令和７年度決算公告\n…",
+        ]);
+        assert_eq!(pick_article("会社決算公告", &a), None);
+        assert_eq!(pick_articles("会社決算公告", &a), vec![1, 2, 3]);
+        // 「…関係」の項目や長い標題には使わない。
+        assert!(pick_articles("行旅死亡人関係", &a).is_empty());
     }
 
     #[test]
