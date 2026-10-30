@@ -241,6 +241,20 @@ pub fn pick_article(title: &str, articles: &[ArticleAnalysis]) -> Option<usize> 
     if headings.len() == 1 {
         return Some(headings[0]);
     }
+    // 人事異動の目次名は欄に載る機関を空白で並べる（「内閣 財務省 最高裁判所」）。先頭の機関が冒頭見出しで、
+    // どの機関も独立した行（長い機関名は 2 行に折り返す: 「特定複合観光施設区域整備推進本」「部事務局」）として載る記事を採る。
+    let agencies: Vec<String> = title.split_whitespace().map(unify).collect();
+    if agencies.len() > 1 {
+        let listed: Vec<usize> = articles.iter().enumerate().filter(|(_, a)| {
+            let lines: Vec<String> = a.text.lines().map(unify).filter(|l| !l.is_empty()).collect();
+            let listed = |ag: &String| (0..lines.len()).any(|i| lines[i] == *ag || lines.get(i + 1).is_some_and(|next| format!("{}{next}", lines[i]) == *ag));
+            lines.iter().take_while(|l| segment::is_section_label(l) || **l == agencies[0]).any(|l| *l == agencies[0])
+                && agencies[1..].iter().all(listed)
+        }).map(|(i, _)| i).collect();
+        if listed.len() == 1 {
+            return Some(listed[0]);
+        }
+    }
     let mut core = unify(&title_core(title));
     if core.chars().count() < 4 {
         core = unify(title.rfind('（').map_or(title, |p| &title[..p]));
@@ -608,6 +622,21 @@ mod tests {
         ]);
         assert_eq!(pick_article("登録低引火点燃料船学科講習実施機関の登録（国土交通省）", &a), Some(0));
         assert_eq!(pick_article("登録低引火点燃料船安全担当者講習実施機関の登録（同）", &a), Some(1));
+    }
+
+    #[test]
+    fn personnel_titles_listing_agencies_pick_the_personnel_section() {
+        // 人事異動の目次名は欄に載る機関を空白で並べる（号外第 1753 号「内閣 財務省 最高裁判所 福岡県」）。
+        // 長い機関名は 2 行に折り返す（本紙第 190 号）。
+        let a = arts(&[
+            "国会事項\n内閣に関する質問",
+            "人事異動\n内閣\n〇防衛大臣臨時代理\n指定する\n財務省\n任命する\n特定複合観光施設区域整備推進本\n部事務局\n併任する\n福岡県\n〇監査委員選任\n選任された。",
+            "皇室事項\n御祝電",
+        ]);
+        assert_eq!(pick_article("内閣 財務省 福岡県", &a), Some(1));
+        assert_eq!(pick_article("内閣 特定複合観光施設区域整備推進本部事務局", &a), Some(1));
+        // 欄に載らない機関があれば採らない。
+        assert_eq!(pick_article("内閣 最高裁判所", &a), None);
     }
 
     #[test]
