@@ -188,6 +188,54 @@
   let mut a=vec![joined];split_typeset_notice_titles(&mut a,&[page],&[Some(crate::lines::PageRules::default())]);
   assert_eq!(a,vec![format!("{}\n{}",REPORT.0,lines[1].0),format!("{}\n{}",lines[2].0,BODY.0)]);
  }
+ // Instruments amended through comparison tables: each table unit's regions in reading order.
+ fn comparison(lines:&[(&str,Role,usize)])->(Vec<PageTrace>,String){
+  let mut page=typeset(&lines.iter().map(|l|(l.0,1)).collect::<Vec<_>>());
+  let mut regions:Vec<Region>=vec![];
+  for(i,(t,role,unit))in lines.iter().enumerate(){
+   match regions.last_mut(){Some(r) if r.role==*role&&r.unit==*unit=>r.lines.push(Line::text(t.to_string(),vec![i])),_=>regions.push(Region{role:*role,unit:*unit,part:0,lines:vec![Line::text(t.to_string(),vec![i])]})}
+  }
+  page.regions=regions;
+  (vec![page],lines.iter().map(|l|l.0).collect::<Vec<_>>().join("\n"))
+ }
+ const RULE_A:[(&str,Role,usize);8]=[("人事院は、一般職の職員の給与に関する法律に基づき、次の人事院規則を制定する。",Role::Preamble,0),("令和八年十月一日　人事院総裁川本裕子",Role::Preamble,0),("人事院規則九－一七－一七九",Role::Preamble,0),("人事院規則九－一七の一部を改正する人事院規則",Role::Preamble,0),("（俸給の特別調整額）",Role::After,0),("（俸給の特別調整額）",Role::Before,0),("附則",Role::Outside,0),("この規則は、公布の日から施行する。",Role::Outside,0)];
+ #[test]fn an_instrument_heading_its_own_comparison_table_starts_an_article(){
+  let lines:Vec<_>=RULE_A.iter().copied().chain([("人事院は、一般職の職員の給与に関する法律に基づき、次の人事院規則を制定する。",Role::Preamble,1),("令和八年十月一日　人事院総裁川本裕子",Role::Preamble,1),("人事院規則九－一二三－四八",Role::Preamble,1),("人事院規則九－一二三の一部を改正する人事院規則",Role::Preamble,1),("（本府省業務調整手当）",Role::After,1)]).collect();
+  let (pages,joined)=comparison(&lines);
+  let a=split_pages(&pages,&joined);
+  assert_eq!(a.len(),2);assert!(a[1].starts_with("人事院は、")&&a[1].contains("九－一二三－四八")&&!a[0].contains("九－一二三－四八"));
+ }
+ #[test]fn an_instrument_starts_at_its_enactment_inside_a_shared_preamble_region(){
+  // The previous instrument's 附則 article shares the preamble region; the next one starts at its enactment.
+  let lines:Vec<_>=RULE_A[..6].iter().copied().chain([("第二条令和八年九月二日から同月三十日までの間に支給する手当について適用する。",Role::Preamble,1),("人事院は、一般職の職員の給与に関する法律に基づき、",Role::Preamble,1),("次の人事院規則を制定する。",Role::Preamble,1),("令和八年九月一日　人事院総裁川本裕子",Role::Preamble,1),("人事院規則九－五五－一五八",Role::Preamble,1),("（特地勤務手当）",Role::After,1)]).collect();
+  let (pages,joined)=comparison(&lines);
+  let a=split_pages(&pages,&joined);
+  assert_eq!(a.len(),2);assert!(a[0].ends_with("適用する。")&&a[1].starts_with("人事院は、"));
+ }
+ #[test]fn a_preamble_read_after_an_unfinished_line_does_not_start_an_instrument(){
+  // A joint notice's signatures are read in between its own preamble lines.
+  let lines:Vec<_>=RULE_A[..6].iter().copied().chain([("についての開示事項（平成十九年",Role::Body,1),("農林水産省",Role::Preamble,2),("令和八年八月二十四日",Role::Preamble,2),("（定義）",Role::After,2)]).collect();
+  let (pages,joined)=comparison(&lines);
+  assert_eq!(split_pages(&pages,&joined).len(),1);
+  // Its enactment ends before the agencies' names, not right above the date.
+  let lines:Vec<_>=RULE_A[..6].iter().copied().chain([("告示第四号）の一部を次のように改正し、令和九年三月三十一日から適用する。",Role::Body,1),("農林水産省",Role::Preamble,2),("令和八年八月二十四日",Role::Preamble,2),("（定義）",Role::After,2)]).collect();
+  let (pages,joined)=comparison(&lines);
+  assert_eq!(split_pages(&pages,&joined).len(),1);
+ }
+ #[test]fn a_comparison_preamble_without_its_own_date_continues_the_instrument(){
+  // A second table of the same instrument is introduced without an enactment date.
+  let lines:Vec<_>=RULE_A.iter().copied().chain([("次の表により、改正前欄に掲げる規定を改正後欄に掲げる規定のように改める。",Role::Preamble,1),("（本府省業務調整手当）",Role::After,1)]).collect();
+  let (pages,joined)=comparison(&lines);
+  assert_eq!(split_pages(&pages,&joined).len(),1);
+ }
+ #[test]fn a_comparison_preamble_under_its_heading_stays_with_it(){
+  // The 〇 heading already starts the instrument; its preamble does not move the start.
+  let lines:Vec<_>=RULE_A.iter().copied().chain([("〇内閣府令第六十二号",Role::Preamble,1),("令和八年十月一日　内閣総理大臣高市早苗",Role::Preamble,1),("投資法人の計算に関する規則の一部を改正する内閣府令",Role::Preamble,1),("（定義）",Role::After,1)]).collect();
+  let (pages,joined)=comparison(&lines);
+  let mut articles=vec![RULE_A.iter().map(|l|l.0).collect::<Vec<_>>().join("\n"),lines[8..].iter().map(|l|l.0).collect::<Vec<_>>().join("\n")];
+  let before=articles.clone();split_typeset_notice_titles(&mut articles,&pages,&[Some(crate::lines::PageRules::default())]);
+  assert_eq!(articles,before);let _=joined;
+ }
  #[test]fn a_page_without_original_rules_is_left_alone(){
   let lines=[REPORT,PREVIOUS,("登録海技免許講習実施機関の登録事項の変更に関",0),("する公示",0),BODY];
   let joined=lines.iter().map(|l|l.0).collect::<Vec<_>>().join("\n");
