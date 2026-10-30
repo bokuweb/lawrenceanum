@@ -9,8 +9,10 @@ fn cases() -> [(Vec<PageInput>, Value, usize); 2] {
                 "data/section-context/20260730h017580006.pdf"
             ))
             .unwrap(),
+            // baseline124 cut at the bare title line 「北海道開発局公示」 (native263u), which no
+            // longer needs the typeset title evidence.
             serde_json::from_str(include_str!(
-                "data/section-context/20260730h017580006-baseline124.json"
+                "data/section-context/20260730h017580006-baseline124-agency263u.json"
             ))
             .unwrap(),
             4,
@@ -46,22 +48,17 @@ fn joined(mut old: Value, index: usize) -> Value {
     child["document"]["blocks"] = blocks.into();
     old
 }
-// On the first page the typeset title 「北海道開発局公示」 also starts its own article
-// (native263h). Its gold replays the masthead join, then cuts at that title line;
-// the joined stream of article texts is unchanged.
+// On the first page the title 「北海道開発局公示」 also starts its own article. Its
+// baseline already carries that cut (native263u), so replaying the masthead join alone
+// gives the native263h gold.
 fn adopted(case: usize, old: Value, i: usize) -> Value {
     let joined = joined(old, i);
-    if case != 0 {
-        return joined;
+    if case == 0 {
+        let cut: Value =
+            serde_json::from_str(include_str!("data/wrapped-titles263/20260730h017580006.json")).unwrap();
+        assert_eq!(joined, cut);
     }
-    let cut: Value =
-        serde_json::from_str(include_str!("data/wrapped-titles263/20260730h017580006.json")).unwrap();
-    let stream = |v: &Value| {
-        v["articles"].as_array().unwrap().iter().map(|a| a["text"].as_str().unwrap()).collect::<Vec<_>>().join("\n")
-    };
-    assert_eq!(stream(&cut), stream(&joined));
-    assert_eq!(cut["articles"].as_array().unwrap().len(), joined["articles"].as_array().unwrap().len() + 1);
-    cut
+    joined
 }
 #[test]
 fn original_vertical_masthead_attaches_to_its_field_and_keeps_all_other_material() {
@@ -172,7 +169,7 @@ fn unavailable_source_rules_do_not_authorize_the_relationship() {
         input[0].rules = None;
         let old: Value = serde_json::from_str(
             [
-                include_str!("data/section-context/20260730h017580006-no-rules-baseline124.json"),
+                include_str!("data/section-context/20260730h017580006-no-rules-baseline124-agency263u.json"),
                 include_str!("data/section-context/20260717g001600069-no-rules-baseline124.json"),
             ][index],
         )

@@ -196,16 +196,13 @@ fn composition() -> Vec<PageInput> {
 fn literal_replacement_scope_and_physical_order_precede_the_independent_fiscal_root() {
     let p = composition();
     let a = value(&p);
-    let mut e: Value =
+    let e: Value =
         serde_json::from_str(include_str!("data/native-column-flow/expected475-126.json")).unwrap();
-    // Root splitting retains the original containing Article's format. The
-    // original126three-page composition is prose; isolated475is unknown.
-    let old: Value = serde_json::from_str(include_str!(
-        "data/native-column-flow/composition-format126.json"
-    ))
-    .unwrap();
-    e["articles"].as_array_mut().unwrap().last_mut().unwrap()["document"]["format"] =
-        old["original_containing_format"].clone();
+    // Root splitting retains the containing Article's format. The bare
+    // 「関東地方整備局公示」 title on 475 now starts its own Article in the
+    // composition too, so the root's containing Article is the same 475
+    // notice as in isolation (unknown), not the 131 Cabinet order (prose,
+    // composition-format126.json).
     assert_eq!(
         a["articles"].as_array().unwrap().last(),
         e["articles"].as_array().unwrap().last()
