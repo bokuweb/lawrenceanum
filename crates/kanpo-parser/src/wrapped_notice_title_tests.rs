@@ -155,6 +155,31 @@
   let joined=lines.iter().map(|l|l.0).collect::<Vec<_>>().join("\n");
   assert_eq!(split(&lines,&[&joined]).len(),1);
  }
+ // A title at the top of a page, under the previous page's last body line.
+ fn next_page(previous:&[(&str,usize)],title:&str)->(Vec<PageTrace>,String){
+  let mut top=typeset(&[(title,0),BODY]);top.native_bounds[0]=NativeBounds::Glyphs([100.,50.,100.+8.*title.chars().count() as f32,58.]);
+  let joined=previous.iter().map(|l|l.0).chain([title,BODY.0]).collect::<Vec<_>>().join("\n");
+  (vec![typeset(previous),top],joined)
+ }
+ fn split_pages(pages:&[PageTrace],joined:&str)->Vec<String>{let mut a=vec![joined.to_string()];split_typeset_notice_titles(&mut a,pages,&vec![Some(crate::lines::PageRules::default());pages.len()]);a}
+ #[test]fn a_title_at_the_top_of_a_page_is_compared_with_the_previous_page(){
+  let (pages,joined)=next_page(&[REPORT,PREVIOUS],"基本測量関係事項公告");
+  assert_eq!(split_pages(&pages,&joined),vec![format!("{}\n{}",REPORT.0,PREVIOUS.0),format!("基本測量関係事項公告\n{}",BODY.0)]);
+  // The previous page may be vertical; its fonts still differ from the title's.
+  let (mut pages,joined)=next_page(&[REPORT,PREVIOUS],"基本測量関係事項公告");
+  pages[0].native_axes=vec![crate::native_word_axes::NativeAxis::Down;2];
+  assert_eq!(split_pages(&pages,&joined).len(),2);
+  // Without the previous page there is no line above to compare.
+  let (pages,joined)=next_page(&[REPORT,PREVIOUS],"基本測量関係事項公告");
+  assert_eq!(split_pages(&pages[1..],&joined).len(),1);
+  // A previous page without original rules is not evidence either.
+  let (pages,joined)=next_page(&[REPORT,PREVIOUS],"基本測量関係事項公告");
+  let mut a=vec![joined];split_typeset_notice_titles(&mut a,&pages,&[None,Some(crate::lines::PageRules::default())]);assert_eq!(a.len(),1);
+ }
+ #[test]fn a_line_in_the_previous_page_s_font_continues_it(){
+  let (pages,joined)=next_page(&[REPORT,("（３）縦覧の場所",0)],"気仙沼市役所及び宮城県庁");
+  assert_eq!(split_pages(&pages,&joined).len(),1);
+ }
  #[test]fn a_page_without_original_rules_is_left_alone(){
   let lines=[REPORT,PREVIOUS,("登録海技免許講習実施機関の登録事項の変更に関",0),("する公示",0),BODY];
   let joined=lines.iter().map(|l|l.0).collect::<Vec<_>>().join("\n");

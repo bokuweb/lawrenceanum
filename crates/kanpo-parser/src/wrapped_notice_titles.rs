@@ -43,12 +43,17 @@ pub(crate) fn split_typeset_notice_titles(
     rules: &[Option<crate::lines::PageRules>],
 ) -> usize {
     let mut titles: Vec<Vec<String>> = Vec::new();
+    // The last body line of the previous page is the line above a title at the top
+    // of the next page.
+    let mut carry = None;
     for (n, page) in pages.iter().enumerate() {
         // Without the page's original rules the native boundaries cannot be checked.
         let Some(rules) = rules.get(n).and_then(|r| r.as_ref()) else {
+            carry = None;
             continue;
         };
-        let found = typeset_titles(page);
+        let found;
+        (found, carry) = typeset_titles(page, carry);
         if found.is_empty() {
             continue;
         }
@@ -130,7 +135,9 @@ pub(crate) fn split_typeset_notice_titles(
 
 /// Each title with its first line's index across all of the page's regions,
 /// the index the native notice boundaries use.
-fn typeset_titles(page: &PageTrace) -> Vec<(usize, Vec<String>)> {
+/// `carry` is the fonts and writing direction of the line above the page's first line,
+/// and the page's own last body line is returned the same way.
+fn typeset_titles(page: &PageTrace, carry: Option<Above>) -> (Vec<(usize, Vec<String>)>, Option<Above>) {
     let fonts = |line: &crate::trace::Line| -> Option<crate::trace::NativeStyles> {
         if line.table.is_some() || line.words.is_empty() {
             return None;
@@ -206,9 +213,12 @@ fn typeset_titles(page: &PageTrace) -> Vec<(usize, Vec<String>)> {
         }
         out
     };
+    let above = |line: &crate::trace::Line| Some((fonts(line)?, direction(line)?));
+    // The previous page may be set in the other direction (a vertical page before a
+    // horizontal one); across pages only its fonts are compared.
+    let mut last = carry.map(|(f, _)| (f, None));
     let mut found = Vec::new();
     // At the top of a column the line above in reading order ends the previous column.
-    let mut last: Option<&crate::trace::Line> = None;
     let mut offset = 0;
     for r in &page.regions {
         let base = offset;
@@ -219,14 +229,14 @@ fn typeset_titles(page: &PageTrace) -> Vec<(usize, Vec<String>)> {
         }
         let mut i = 0;
         while i < r.lines.len() {
-            let prior = if i == 0 { last } else { r.lines.get(i - 1) };
-            let (Some(above), Some(style), Some(first)) =
-                (prior.and_then(fonts), content(&r.lines[i]), left(&r.lines[i]))
+            let prior = if i == 0 { last.clone() } else { above(&r.lines[i - 1]).map(|(f, d)| (f, Some(d))) };
+            let (Some((above, down)), Some(style), Some(first)) =
+                (prior, content(&r.lines[i]), left(&r.lines[i]))
             else {
                 i += 1;
                 continue;
             };
-            if !above.is_disjoint(&style) || prior.and_then(direction) != Some(first.0) {
+            if !above.is_disjoint(&style) || down.is_some_and(|d| d != first.0) {
                 i += 1;
                 continue;
             }
@@ -251,10 +261,12 @@ fn typeset_titles(page: &PageTrace) -> Vec<(usize, Vec<String>)> {
             }
             i = end;
         }
-        last = r.lines.last();
+        last = r.lines.last().and_then(above).map(|(f, d)| (f, Some(d)));
     }
-    found
+    (found, last.and_then(|(f, d)| Some((f, d?))))
 }
+
+type Above = (crate::trace::NativeStyles, bool);
 
 #[derive(Clone, Copy)]
 struct Box2 { x0:f32, y0:f32, x1:f32, y1:f32, em:f32 }
