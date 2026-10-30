@@ -35,8 +35,10 @@ fn removing_the_original_scene_keeps_the_complete_legacy_abstention() {
     let start = at + needle.len();
     let end = start + h[start..].find('"').unwrap() + 1;
     h.replace_range(at..end, "");
+    // baseline-three183 cut at the spaced 「資　料」 heading (native263w), which starts the
+    // report from the text alone (`data/spaced-materials263w/split.py`, the report `unknown`).
     let old: serde_json::Value = serde_json::from_str(include_str!(
-        "data/native-source-paragraphs/baseline-three183.json"
+        "data/native-source-paragraphs/baseline-three183-materials263w.json"
     ))
     .unwrap();
     assert!(actual(&inputs)==old,"missing source paint must not be replaced with inferred paragraph geometry or a forced quote reset");
