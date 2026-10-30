@@ -55,6 +55,15 @@ fn a_bottom_line_beside_the_right_column_is_not_below_it() {
     ws[5].y = 86.;
     ws[5].y1 = 94.;
     assert_eq!(bottom_title_cut(&ws, &[], 96.5, &styles), None);
+    // A glyph box reaching 2pt above the right column's bottom still lies below it.
+    let (mut ws, styles) = page(3);
+    ws[6].y = 79.;
+    ws[6].y1 = 87.;
+    assert!(bottom_title_cut(&ws, &[], 93., &styles).is_some());
+    let (mut ws, styles) = page(3);
+    ws[6].y = 76.;
+    ws[6].y1 = 84.;
+    assert_eq!(bottom_title_cut(&ws, &[], 96.5, &styles), None);
 }
 #[test]
 fn an_indented_bottom_line_is_not_a_title() {

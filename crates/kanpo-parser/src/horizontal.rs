@@ -2968,6 +2968,7 @@ fn order_region(mut words: Vec<Col>, blocks: &[Block], ctx: &Context, boxed: boo
             return;
         }
         if let Some(cut) = divider_end_cut(&words, blocks, vrules) {
+            let cut = bottom_title_cut(&words, blocks, cut, ctx.source.styles).unwrap_or(cut);
             let (top, bottom): (Vec<Col>, Vec<Col>) = words.into_iter().partition(|w| y_center(w) < cut);
             let (bt, bb): (Vec<Block>, Vec<Block>) = blocks.iter().partition(|b| (b.1 + b.3) / 2.0 < cut);
             order_region(top, &bt, ctx, boxed, column, out);
@@ -4977,7 +4978,7 @@ fn band_cut(lines: &[Line], blocks: &[Block]) -> Option<f32> {
     best.map(|(_, cut)| cut)
 }
 
-/// [`band_cut`] が列組みの段の下で切るとき、左の列の最後の行（1〜3 行）が段の下の全幅の段の標題なら、
+/// [`band_cut`] や [`divider_end_cut`]（段の境の縦の罫線の下端）が列組みの段の下で切るとき、左の列の最後の行（1〜3 行）が段の下の全幅の段の標題なら、
 /// その標題の上で切り直す。標題は左の列の行頭から始まり、右の列のどの行よりも下にあり、原本の字形の
 /// 書体が上の行（左の列の本文）とも下の全幅の段の最初の行とも重ならない（「四国地方整備局公示」が左の列の
 /// 最後の行に読まれ、右の列の前の公示の続きより前に読まれていた）。奇数行の段で左の列に 1 行多く
@@ -4997,9 +4998,9 @@ fn bottom_title_cut(words: &[Col], blocks: &[Block], cut: f32, styles: &[trace::
     let rows = group_lines(&top);
     let right_bottom = top.iter().filter(|w| w.x >= gx).map(|w| w.y1).fold(f32::NEG_INFINITY, f32::max);
     let left_x = top.iter().filter(|w| w.x1 <= gx).map(|w| w.x).fold(f32::INFINITY, f32::min);
-    // 左の列だけにあり、右の列の下端より下にある最後の行。
+    // 左の列だけにあり、右の列の下端より下にある最後の行（行の中心で比べる。字面の枠は行間に少しはみ出す）。
     let mut k = rows.len();
-    while k > 0 && rows.len() - k < 3 && rows[k - 1].words.iter().all(|w| w.x1 <= gx) && rows[k - 1].y0 >= right_bottom {
+    while k > 0 && rows.len() - k < 3 && rows[k - 1].words.iter().all(|w| w.x1 <= gx) && rows[k - 1].center() >= right_bottom {
         k -= 1;
     }
     if k == rows.len() || k == 0 || !right_bottom.is_finite() {
