@@ -249,6 +249,21 @@ pub fn pick_article(title: &str, articles: &[ArticleAnalysis]) -> Option<usize> 
     if headings.is_empty() && titled.len() == 1 && title_number(title).is_none() && title_code(title).is_none() {
         return Some(titled[0]);
     }
+    // 公告の標題が「…清算人就任」＋「公告」と折り返し、「公告」の行が区分見出しとして記事を分けると、標題の頭の行は
+    // 前の記事の最後に残る（本紙第1761号31ページ）。目次の標題（「…関係」を除く）と同じ行で終わる記事の次の記事が
+    // 「公告」「公示」の行から始まるなら、その記事を採る。
+    let wrapped_head = unify(title.strip_suffix("関係").unwrap_or(title));
+    if wrapped_head.chars().count() >= 6 {
+        let follows: Vec<usize> = (1..articles.len())
+            .filter(|&i| {
+                articles[i - 1].text.lines().rev().find(|l| !l.trim().is_empty()).is_some_and(|l| unify(l) == wrapped_head)
+                    && articles[i].text.lines().find(|l| !l.trim().is_empty()).is_some_and(|l| matches!(l.trim(), "公告" | "公示"))
+            })
+            .collect();
+        if follows.len() == 1 {
+            return Some(follows[0]);
+        }
+    }
     // 人事異動の目次名は欄に載る機関を空白で並べる（「内閣 財務省 最高裁判所」）。先頭の機関が冒頭見出しで、
     // どの機関も独立した行（長い機関名は 2 行に折り返す: 「特定複合観光施設区域整備推進本」「部事務局」）として載る記事を採る。
     let agencies: Vec<String> = title.split_whitespace().map(unify).collect();
@@ -718,6 +733,17 @@ mod tests {
         // 規則の番号の頭が別の番号の続き（「九－一二三－四八」で終わる「一九－一二三－四八」）なら合わない。
         assert!(!has_code_line(&arts(&["人事院規則一九－一二三－四八"])[0], "九－一二三－四八"));
         assert_eq!(title_code("…件（総務二八五）"), None);
+    }
+
+    #[test]
+    fn a_wrapped_notice_title_picks_the_body_after_its_lone_label() {
+        // 本紙第1761号31ページ: 標題「石炭鉱業年金基金清算人就任」＋「公告」が折り返し、「公告」の行で記事が分かれる。
+        let a = arts(&[
+            "所有者不明専有部分管理命令\nに関する異議の催告\n石炭鉱業年金基金清算人就任",
+            "公告\n当基金は、…解散いたしましたので、…次のとおり公告します。\n理事長菊地靖則",
+            "会社その他の公告\n合併公告",
+        ]);
+        assert_eq!(pick_article("石炭鉱業年金基金清算人就任関係", &a), Some(1));
     }
 
     #[test]
