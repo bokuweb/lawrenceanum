@@ -9,21 +9,25 @@
 pub fn segment_articles(text: &str) -> Vec<String> {
     let mut articles: Vec<String> = Vec::new();
     let mut cur: Vec<&str> = Vec::new();
-    for line in text.lines() {
+    let lines: Vec<&str> = text.lines().collect();
+    for (i, &line) in lines.iter().enumerate() {
+        // 公布文が「…政令をここ」「に公布する。」と句の途中で折り返すと、どちらの行も句を含まない。
+        // 句が始まる行を公布文の行とする（号外第 178 号 6 ページの政令第二百五十二号）。
+        let promulgation = line.contains(PROMULGATION) || lines.get(i + 1).is_some_and(|next| wraps_promulgation(line, next));
         let prev = cur.iter().rev().find(|l| !l.trim().is_empty()).copied();
         // 区分見出しに直結する丸印の小見出しも本文に含める。
         // 「人事異動 / 内閣 / 〇財務大臣臨時代理」「叙位・叙勲 / 〇叙勲」を分断しない。
         let heading_prefix = is_heading_mark(line.trim())
             && cur.iter().find(|l| !l.trim().is_empty()).is_some_and(|l| matches!(l.trim(), "人事異動" | "叙位・叙勲"))
             && cur.iter().all(|l| l.trim().is_empty() || is_section_label(l) || l.trim() == "内閣");
-        if (is_article_boundary(line) || is_notice_title(line, prev)) && !cur.is_empty() && !heading_prefix {
+        if (is_article_boundary(line) || promulgation || is_notice_title(line, prev)) && !cur.is_empty() && !heading_prefix {
             // 公布の件名が長く折り返すと（「…に関する政」＋「令の一部を改正する政令をここに公布する。」）、
             // 件名の頭の行（文末でない長い行）は前の記事の末尾にある。新しい記事へ移す。
             let mut carried: Vec<&str> = Vec::new();
-            if line.contains("をここに公布する") && !is_heading_mark(line.trim()) {
+            if promulgation && !is_heading_mark(line.trim()) {
                 while carried.len() < 4 {
                     let Some(last) = cur.last().map(|l| l.trim()) else { break };
-                    if last.chars().count() < 25 || last.ends_with(['。', '」', '）']) || is_article_boundary(last) || last.contains("をここに公布する") {
+                    if last.chars().count() < 25 || last.ends_with(['。', '」', '）']) || is_article_boundary(last) || last.contains(PROMULGATION) {
                         break;
                     }
                     carried.insert(0, cur.pop().unwrap());
@@ -43,6 +47,19 @@ pub fn segment_articles(text: &str) -> Vec<String> {
         }
     }
     articles
+}
+
+/// 法律・政令の公布文の句。
+const PROMULGATION: &str = "をここに公布する";
+
+/// `line` から始まる公布文の句が、`next` の行へ折り返しているか（「…政令をここ」「に公布する。」）。
+fn wraps_promulgation(line: &str, next: &str) -> bool {
+    let (line, next) = (line.trim(), next.trim());
+    if line.contains(PROMULGATION) || next.contains(PROMULGATION) || line.ends_with('。') {
+        return false;
+    }
+    let joined = format!("{line}{next}");
+    joined.find(PROMULGATION).is_some_and(|at| at < line.len())
 }
 
 /// その行が新しい記事の先頭か。
@@ -271,6 +288,19 @@ mod tests {
         assert_eq!(arts.len(), 2);
         assert!(arts[0].contains("労働組合法施行令") && !arts[0].contains("美容師"));
         assert!(arts[1].contains("美容師法施行令") && !arts[1].contains("労働組合"));
+    }
+
+    #[test]
+    fn segments_on_a_promulgation_phrase_wrapped_mid_phrase() {
+        // 公布文が「…政令をここ」「に公布する。」と句の途中で折り返す（号外第 178 号 6 ページ）。
+        let text = "この政令は、公布の日から施行する。\n内閣総理大臣高市早苗\n更生保護制度の充実を図るための保護司法等の一部を改正する法律の施行期日を定める政令をここ\nに公布する。\n御名御璽\n政令第二百五十二号";
+        let arts = segment_articles(text);
+        assert_eq!(arts.len(), 2, "{arts:?}");
+        assert!(arts[0].ends_with("内閣総理大臣高市早苗"));
+        assert!(arts[1].starts_with("更生保護制度の充実") && arts[1].ends_with("政令第二百五十二号"));
+        // 句が次の行だけにあれば、その行が公布文の行。文末の行は公布文の頭ではない。
+        assert!(!wraps_promulgation("内閣総理大臣高市早苗", "地方税法施行令の一部を改正する政令をここに公布する。"));
+        assert!(!wraps_promulgation("この政令は、公布の日から施行する。", "をここに公布する。"));
     }
 
     #[test]

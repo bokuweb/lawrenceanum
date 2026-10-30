@@ -63,8 +63,9 @@ fn sequence()->Analysis {
  assert_eq!(v["pages"][2]["words"],old["pages"][0]["words"]);
 }
 
+// The date and the signer 金融庁長官伊藤　豊 are one printed column: the gold is the accepted one with that line joined.
 #[test]fn accepted17_framed_after_continuation_page_is_complete_analysis_exact(){
  let a=actual(NEIGHBOR4);
- let expected:serde_json::Value=serde_json::from_str(include_str!("expected/headerless_four_bands/20261001h017990004-after38.analysis.json")).unwrap();
+ let expected:serde_json::Value=serde_json::from_str(include_str!("expected/headerless_four_bands/20261001h017990004-after38-signer263m.analysis.json")).unwrap();
  assert_eq!(canonical(&a),expected);
 }

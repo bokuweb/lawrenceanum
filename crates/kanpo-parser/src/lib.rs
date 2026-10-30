@@ -229,11 +229,14 @@ pub fn pick_article(title: &str, articles: &[ArticleAnalysis]) -> Option<usize> 
         unify(s).chars().filter(|c| !c.is_ascii_digit() && !"０１２３４５６７８９〇一二三四五六七八九十百千－".contains(*c)).collect()
     };
     // 短い目次名（「内閣」）は本文中の部分一致には使えないが、独立した冒頭見出しなら照合できる。
+    // 官庁報告の標題は、目次の標題から末尾の機関名（「（国土交通省）」）を除いたもの。
     let exact = unify(title);
+    let bare = unify(title.rfind('（').filter(|&p| title.ends_with('）') && p > 0).map_or(title, |p| &title[..p]));
+    let is_title = |l: &str| unify(l) == exact || unify(l) == bare;
     let headings: Vec<usize> = articles.iter().enumerate().filter(|(_, a)| {
         a.text.lines().filter(|l| !l.trim().is_empty()).take_while(|l| {
-            segment::is_section_label(l) || unify(l) == exact
-        }).any(|l| unify(l) == exact)
+            segment::is_section_label(l) || is_title(l)
+        }).any(|l| is_title(l))
     }).map(|(i, _)| i).collect();
     if headings.len() == 1 {
         return Some(headings[0]);
@@ -285,7 +288,7 @@ pub fn pick_article(title: &str, articles: &[ArticleAnalysis]) -> Option<usize> 
         let numbered: Vec<(usize, &ArticleAnalysis)> = matched
             .iter()
             .copied()
-            .filter(|(_, a)| number.as_ref().is_some_and(|(agencies, n)| has_number(a, agencies, *n)))
+            .filter(|(_, a)| number.as_ref().is_some_and(|(agencies, n)| has_number(a, agencies, *n) || has_number_line(a, agencies, *n)))
             .collect();
         (if numbered.is_empty() { matched } else { numbered })
             .into_iter()
@@ -339,6 +342,15 @@ fn title_number(title: &str) -> Option<(Vec<&str>, u64)> {
 fn has_number(a: &ArticleAnalysis, agencies: &[&str], n: u64) -> bool {
     let head = a.text.lines().find(|l| !l.trim().is_empty()).unwrap_or("");
     heading_number(head) == Some(n) && agencies.iter().all(|ag| head.contains(ag))
+}
+
+/// 記事の中に号数だけの行（政令の公布文・御名御璽・署名の後の「政令第三百二十三号」）があり、その号数が `n` で、
+/// 標題の機関名をすべて含むか。同じ法律の施行期日の政令と施行令の改正の政令（号外第 223 号の「（三二三）」
+/// 「（三二四）」）は同じ鍵に合い、公布文が見出しなので [`has_number`] では選べない。
+fn has_number_line(a: &ArticleAnalysis, agencies: &[&str], n: u64) -> bool {
+    a.text.lines().map(str::trim).any(|l| {
+        l.ends_with('号') && !l.contains(['。', '、', '「', '（']) && heading_number(l) == Some(n) && agencies.iter().all(|ag| l.contains(ag))
+    })
 }
 
 /// 見出しの「第二百八十五号」「第26号」の号数。
@@ -584,6 +596,32 @@ mod tests {
         assert_eq!(pick_article("保安林の指定を解除する件（同一〇〇二）", &a), Some(1));
         // 号数の合う記事が鍵に合わなければ、従来どおり鍵で選ぶ。
         assert_eq!(pick_article("保安林の指定を解除する件（同一〇〇三）", &a), Some(0));
+    }
+
+    #[test]
+    fn report_titles_pick_the_article_headed_by_them_without_the_agency() {
+        // 官庁報告の標題は目次の標題から機関名を除いたもの（第 1771 号 7 ページ）。隣の公示は鍵を縮めた
+        // 「登録低引火点燃料船」に合い、本文が 1 字長くても選ばない。
+        let a = arts(&[
+            "官庁報告\n官庁事項\n登録低引火点燃料船学科講習実施機関の登録\n船員法施行規則の規定に基づき、下記の者を登録したので公示する。",
+            "登録低引火点燃料船安全担当者講習実施機関の登録\n船員労働安全衛生規則の規定に基づき、下記の者を登録したので公示する。\n令和８年８月19日",
+        ]);
+        assert_eq!(pick_article("登録低引火点燃料船学科講習実施機関の登録（国土交通省）", &a), Some(0));
+        assert_eq!(pick_article("登録低引火点燃料船安全担当者講習実施機関の登録（同）", &a), Some(1));
+    }
+
+    #[test]
+    fn promulgated_cabinet_orders_pick_their_own_number_line() {
+        // 同じ法律の施行期日の政令と施行令の改正の政令は同じ鍵に合う（号外第 223 号 2 ページ）。見出しは公布文なので、
+        // 御名御璽と署名の後の号数だけの行で選ぶ。
+        let a = arts(&[
+            "建築士法の一部を改正する法律の一部の施行期日を定める政令をここに公布する。\n御名御璽\n令和八年十月九日\n内閣総理大臣高市早苗\n政令第三百二十三号\n建築士法の一部を改正する法律の一部の施行期日を定める政令\n内閣は、建築士法の一部を改正する法律附則第一条第二号の規定に基づき、この政令を制定する。",
+            "建築士法施行令の一部を改正する政令をここに公布する。\n御名御璽\n令和八年十月九日\n内閣総理大臣高市早苗\n政令第三百二十四号\n建築士法施行令の一部を改正する政令\n内閣は、建築士法の規定に基づき、この政令を制定する。\n建築士法施行令の一部を次のように改正する。\n附則\nこの政令は、建築士法の一部を改正する法律附則第一条第二号に掲げる規定の施行の日から施行する。",
+        ]);
+        assert_eq!(pick_article("建築士法の一部を改正する法律の一部の施行期日を定める政令（三二三）", &a), Some(0));
+        assert_eq!(pick_article("建築士法施行令の一部を改正する政令（三二四）", &a), Some(1));
+        // 本文の中で引いた号数（「…政令第二百一号）の一部を」）は号数だけの行ではない。
+        assert!(!has_number_line(&arts(&["建築士法施行令（昭和二十五年政令第二百一号）の一部を次のように改正する。"])[0], &[], 201));
     }
 
     #[test]
