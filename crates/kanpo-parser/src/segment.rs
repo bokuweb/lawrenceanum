@@ -99,10 +99,11 @@ pub(crate) fn is_section_label(text: &str) -> bool {
 }
 
 /// 官庁報告の中の欄見出しか（「労働」「国家試験」）。欄見出しのうち「人事異動」は官庁報告より
-/// 前に載る区分（その下に褒章・皇室事項が続く）、「諸事項」は公告の欄。
+/// 前に載る区分（その下に褒章・皇室事項が続く）、「諸事項」は公告の欄。「地方自治事項」は官庁報告の後に
+/// 区分として載り、組版の標題で分ける欄ではない。
 pub(crate) fn is_report_field(text: &str) -> bool {
     let compact: String = text.chars().filter(|c| !c.is_whitespace()).collect();
-    FIELD_HEADERS.contains(&compact.as_str()) && !matches!(compact.as_str(), "人事異動" | "諸事項")
+    FIELD_HEADERS.contains(&compact.as_str()) && !matches!(compact.as_str(), "人事異動" | "諸事項" | "地方自治事項")
 }
 
 /// 官庁報告・公告の欄の中で、記事の標題（「指定保安検査機関の廃止に関する公示」）が始まる行か。
@@ -176,7 +177,7 @@ const SECTION_HEADERS: &[&str] = &[
 /// 官庁報告・公告の中の欄見出し（目次の小見出し）。独立行で現れたら別記事の開始とみなす。
 /// 「資料」のように本文の単独行と紛れやすい語は入れない（原本の組版で確かめる）。
 /// 「産業」は全頁の単独行がすべて欄見出しで、目次にも「労働」と同じ小見出しとして載る。
-const FIELD_HEADERS: &[&str] = &["官庁事項", "人事異動", "労働", "産業", "法務", "国家試験", "公聴会", "諸事項"];
+const FIELD_HEADERS: &[&str] = &["官庁事項", "人事異動", "労働", "産業", "法務", "国家試験", "公聴会", "諸事項", "地方自治事項"];
 
 #[cfg(test)]
 mod tests {
@@ -319,6 +320,16 @@ mod tests {
         // 句が次の行だけにあれば、その行が公布文の行。文末の行は公布文の頭ではない。
         assert!(!wraps_promulgation("内閣総理大臣高市早苗", "地方税法施行令の一部を改正する政令をここに公布する。"));
         assert!(!wraps_promulgation("この政令は、公布の日から施行する。", "をここに公布する。"));
+    }
+
+    #[test]
+    fn local_government_section_starts_an_article_but_is_not_a_report_field() {
+        // 「地方自治事項」は前の記事の様式の丸印の欄（号外第 1802 号の「〇日本区域の使用者を代表する地方調整委員」）に続けない。
+        let text = "厚生労働大臣　上野賢一郎\n〇日本区域の使用者を代表する地方調整委員\n氏名　年齢　現職\n地方自治事項\n香川県\n選挙\n当選した。";
+        let arts = segment_articles(text);
+        assert_eq!(arts.len(), 3, "{arts:?}");
+        assert!(arts[2].starts_with("地方自治事項\n香川県"));
+        assert!(!is_report_field("地方自治事項") && is_report_field("労働"));
     }
 
     #[test]
