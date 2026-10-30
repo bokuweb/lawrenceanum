@@ -89,7 +89,7 @@ fn is_article_boundary(line: &str) -> bool {
         || {
             // 区分見出しは字間を空けて組まれる（「法　規　的　告　示」）。
             let compact: String = t.chars().filter(|c| !c.is_whitespace()).collect();
-            SECTION_HEADERS.contains(&compact.as_str()) || FIELD_HEADERS.contains(&compact.as_str())
+            SECTION_HEADERS.contains(&compact.as_str()) || FIELD_HEADERS.contains(&compact.as_str()) || TEXT_FIELD_HEADERS.contains(&compact.as_str())
         }
 }
 
@@ -192,6 +192,11 @@ const SECTION_HEADERS: &[&str] = &[
 /// 「資料」のように本文の単独行と紛れやすい語は入れない（原本の組版で確かめる）。
 /// 「産業」は全頁の単独行がすべて欄見出しで、目次にも「労働」と同じ小見出しとして載る。
 const FIELD_HEADERS: &[&str] = &["官庁事項", "人事異動", "労働", "産業", "法務", "国家試験", "公聴会", "諸事項", "地方自治事項"];
+
+/// 本文の字だけで記事を分ける欄見出し。「会社その他の公告」は公告の中で諸事項などの後に組まれる欄で、
+/// 目次は「会社その他」の 1 項目に載せる。原本の組版の欄見出し（`is_field_label`・`is_native_section_label`）には
+/// 入れない（入れると見出しの後の公告の読み順と書式が変わる）。
+const TEXT_FIELD_HEADERS: &[&str] = &["会社その他の公告"];
 
 #[cfg(test)]
 mod tests {
@@ -355,6 +360,17 @@ mod tests {
         assert_eq!(arts.len(), 3, "{arts:?}");
         assert!(arts[2].starts_with("地方自治事項\n香川県"));
         assert!(!is_report_field("地方自治事項") && is_report_field("労働"));
+    }
+
+    #[test]
+    fn company_notices_section_starts_an_article_after_the_previous_notice() {
+        // 本紙第1799号28ページ: 企業年金基金の公告の後に「会社その他の公告」の欄が続く。
+        let text = "公告\n企業年金基金変更公告\n…変更したので公告する。\n理事長山口敬\n会社その他の公告\n合併公告\n左記会社は合併して…";
+        let arts = segment_articles(text);
+        assert_eq!(arts.len(), 2, "{arts:?}");
+        assert!(arts[0].ends_with("理事長山口敬"));
+        assert!(arts[1].starts_with("会社その他の公告\n合併公告"));
+        assert!(!is_report_field("会社その他の公告"));
     }
 
     #[test]

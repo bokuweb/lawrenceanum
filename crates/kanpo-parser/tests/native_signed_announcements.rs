@@ -23,10 +23,13 @@ fn gold(folder: &str, key: &str) -> Value {
 }
 /// The stored golds stay as verified by `verify_expected.py`. 20260729h017570006 now keeps its 叙位・叙勲 section
 /// (one TOC item) as one article: `expected/20260729h017570006-personnel263n.json` is the stored gold with
-/// articles 1 (「叙位・叙勲 / 〇叙位」) and 2 (「〇叙勲」) joined.
+/// articles 1 (「叙位・叙勲 / 〇叙位」) and 2 (「〇叙勲」) joined. 20261008g002220077 starts the
+/// 「会社その他の公告」 section as its own article: `expected/20261008g002220077-company263v.json` is the
+/// stored gold cut at that label line (`data/company-section263v/split.py`).
 fn expected(key: &str) -> Value {
     match key {
         "20260729h017570006" => gold("expected", "20260729h017570006-personnel263n"),
+        "20261008g002220077" => gold("expected", "20261008g002220077-company263v"),
         _ => gold("expected", key),
     }
 }
