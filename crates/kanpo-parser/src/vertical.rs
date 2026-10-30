@@ -4338,6 +4338,38 @@ const TOUCH_EM: f32 = 0.6;
 /// 同じ列で続く語の空きがこれ未満なら、全角空白 1 字ほどの区切り（同じセル・同じ行の中）とみなす(em 比)。
 const SPACE_EM: f32 = 1.25;
 
+/// 横倒しのページの段の境の罫線（領域の幅いっぱいの横線）に、上下の段の列が接して組まれ、下の段の行頭の約物
+/// （「︵乙︶」）が罫線の手前に半字ほどはみ出している（本紙第1798号29ページ。上の段の「…を下記」と下の段の
+/// 「︵乙︶掲載」が 1 行につながっていた）。上の段の版面の端と下の段の版面の端が、どちらも罫線の 0.75 字手前に
+/// そろうなら、その罫線の y を返す（[`split_tiers_rec`] がそこで段を分ける）。罫線の表の中の線は見ない。
+fn abutting_tier_rule(cols: &[Col], rules: &TierRules, lo: f32, hi: f32) -> Option<f32> {
+    if !rules.sideways {
+        return None;
+    }
+    let em = cols.iter().map(|c| c.x1 - c.x).fold(f32::INFINITY, f32::min).max(4.0);
+    let mid = |c: &Col| (c.y + c.y1) / 2.0;
+    let (x0s, x1s) = (cols.iter().map(|c| c.x).fold(f32::INFINITY, f32::min), cols.iter().map(|c| c.x1).fold(f32::NEG_INFINITY, f32::max));
+    rules.hrules.iter().copied().find(|&(y, x0, x1)| {
+        lo < y
+            && y < hi
+            && x1.min(x1s) - x0.max(x0s) >= (x1s - x0s) * 0.9
+            && !rules.tables.iter().any(|&(tx0, tx1, ty0, ty1)| ty0 - 1.0 < y && y < ty1 + 1.0 && tx0 < x1s && x0s < tx1)
+            && {
+                // 罫線をまたぐ列は、下の段の版面の端にそろって（同じ y から、5 列以上）組まれた列だけ
+                // （項目の番号「一」「二」が段の境の上に出ているだけのものは段の境目ではない）。
+                let straddling: Vec<&Col> = cols.iter().filter(|c| c.y < y && y < c.y1).collect();
+                straddling.len() >= 5 && straddling.iter().all(|c| (c.y - straddling[0].y).abs() < 0.5 && y - c.y < em * 0.75)
+            }
+            && {
+                // 上の段の列も、罫線の手前（0.75 字以内）の同じ y で終わる（両端揃えの段が罫線の両側で接する）。
+                let ends: Vec<f32> = cols.iter().filter(|c| c.y1 <= y && y - c.y1 < em * 0.75).map(|c| c.y1).collect();
+                ends.iter().any(|&e| ends.iter().filter(|&&f| (f - e).abs() < 0.5).count() >= 5)
+            }
+            && cols.iter().any(|c| mid(c) < y)
+            && cols.iter().any(|c| mid(c) > y)
+    }).map(|r| r.0)
+}
+
 /// `ruled_only` なら、段の幅の大半にわたる横線のある所でだけ切る（表の脇で縦に切った残り。
 /// 罫線の無い表を段の境目と取り違えて割らないため）。
 fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: bool, out: &mut Vec<Vec<Col>>) {
@@ -4371,6 +4403,14 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
     }
     let margin = (ymax - ymin) * 0.2;
     let (lo, hi) = (ymin + margin, ymax - margin);
+
+    if let Some(y) = abutting_tier_rule(&cols, rules, lo, hi) {
+        let mid = |c: &Col| (c.y + c.y1) / 2.0;
+        let (above, below): (Vec<Col>, Vec<Col>) = cols.into_iter().partition(|c| mid(c) < y);
+        split_tiers_rec(above, depth + 1, rules, ruled_only, out);
+        split_tiers_rec(below, depth + 1, rules, ruled_only, out);
+        return;
+    }
 
     // 中央域で「跨ぐカラム数」が最小の cut を探す。候補はカラムの下端(y1)。この段の語を含む
     // 罫線の表を横切る cut は、表を横切らない cut が無いときだけ使う（セルの間の空きが段の
@@ -6110,6 +6150,35 @@ mod tests {
             }],
         };
         assert!(split_off_leading_frame(cols, Some(&rules)).is_err());
+    }
+
+    #[test]
+    fn sideways_tiers_that_meet_at_their_rule_split_there() {
+        // 本紙第1798号29ページ（回した座標）: 上の段の列は罫線（y=609）の手前の 605 で、下の段の列は 604.84 から組まれる。
+        let col = |x: f32, y: f32, y1: f32, text: &str| Col { id: 0, x, x1: x + 8.0, y, y1, text: text.into() };
+        let mut cols: Vec<Col> = (0..6).map(|i| col(10.0 * i as f32, 429.0, 605.0, "上の段の行")).collect();
+        cols.extend((0..6).map(|i| col(10.0 * i as f32, 604.84, 780.0, "下の段の行")));
+        let rules = TierRules { tables: vec![], boxes: vec![], hrules: vec![(609.0, -5.0, 70.0)], vrules: vec![], sideways: true };
+        let texts = |tiers: &[Vec<Col>]| tiers.iter().map(|t| t.iter().map(|c| c.text.clone()).collect::<Vec<_>>()).collect::<Vec<_>>();
+        assert_eq!(abutting_tier_rule(&cols, &rules, 500.0, 700.0), Some(609.0));
+        assert_eq!(texts(&split_tiers(cols.clone(), &rules)), vec![vec!["上の段の行".to_string(); 6], vec!["下の段の行".to_string(); 6]]);
+        // 上の段の列が罫線の手前でそろって終わらない（項目の番号が段の境の上に出ているだけ）なら分けない。
+        let mut ragged = cols.clone();
+        for (i, c) in ragged.iter_mut().take(6).enumerate() {
+            c.y1 = 540.0 + 9.0 * i as f32;
+        }
+        assert_eq!(abutting_tier_rule(&ragged, &rules, 500.0, 700.0), None);
+        // 罫線をまたぐ列が 5 列に満たないか、頭がそろわないなら分けない。
+        let few: Vec<Col> = cols.iter().take(9).cloned().collect();
+        assert_eq!(abutting_tier_rule(&few, &rules, 500.0, 700.0), None);
+        let mut uneven = cols.clone();
+        uneven[8].y = 602.0;
+        assert_eq!(abutting_tier_rule(&uneven, &rules, 500.0, 700.0), None);
+        // 罫線の表の中の線と、横倒しでないページでは分けない。
+        let in_table = TierRules { tables: vec![(-5.0, 70.0, 400.0, 800.0)], ..TierRules { tables: vec![], boxes: vec![], hrules: vec![(609.0, -5.0, 70.0)], vrules: vec![], sideways: true } };
+        assert_eq!(abutting_tier_rule(&cols, &in_table, 500.0, 700.0), None);
+        let upright = TierRules { sideways: false, ..TierRules { tables: vec![], boxes: vec![], hrules: vec![(609.0, -5.0, 70.0)], vrules: vec![], sideways: true } };
+        assert_eq!(abutting_tier_rule(&cols, &upright, 500.0, 700.0), None);
     }
 
     #[test]
