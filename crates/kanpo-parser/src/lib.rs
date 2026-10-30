@@ -241,6 +241,14 @@ pub fn pick_article(title: &str, articles: &[ArticleAnalysis]) -> Option<usize> 
     if headings.len() == 1 {
         return Some(headings[0]);
     }
+    // 見出しも号数も無い規則（官庁報告の内閣官房の規則）は、制定文と日付の後に標題だけの行を載せる。目次の標題にも
+    // 番号が無い（「（内閣官房）」「（同）」）。標題と同じ行を持つ記事が 1 つだけなら、それを採る（標題の前の方の字だけが
+    // 合う別の規則の附則「…調査室組織規則…は、廃止する。」ではなく）。番号のある標題は見出しの号数で選ぶ（読み順の乱れで
+    // 前の記事に入った標題の行には従わない）。
+    let titled: Vec<usize> = articles.iter().enumerate().filter(|(_, a)| a.text.lines().any(|l| is_title(l))).map(|(i, _)| i).collect();
+    if headings.is_empty() && titled.len() == 1 && title_number(title).is_none() && title_code(title).is_none() {
+        return Some(titled[0]);
+    }
     // 人事異動の目次名は欄に載る機関を空白で並べる（「内閣 財務省 最高裁判所」）。先頭の機関が冒頭見出しで、
     // どの機関も独立した行（長い機関名は 2 行に折り返す: 「特定複合観光施設区域整備推進本」「部事務局」）として載る記事を採る。
     let agencies: Vec<String> = title.split_whitespace().map(unify).collect();
@@ -710,6 +718,18 @@ mod tests {
         // 規則の番号の頭が別の番号の続き（「九－一二三－四八」で終わる「一九－一二三－四八」）なら合わない。
         assert!(!has_code_line(&arts(&["人事院規則一九－一二三－四八"])[0], "九－一二三－四八"));
         assert_eq!(title_code("…件（総務二八五）"), None);
+    }
+
+    #[test]
+    fn unnumbered_rules_pick_the_article_carrying_their_title_line() {
+        // 号外第 169 号 184 ページ: 内閣官房の規則は見出しも番号も無く、制定文・日付の後に標題の行を載せる。
+        // 前の規則の附則（「内閣情報調査室組織規則…は、廃止する。」）にも標題の前の方の字が合う。
+        let a = arts(&[
+            "官庁報告\n官庁事項\n内閣官房組織令…の規定に基づき、国家情報局に調査官を置く規則を次のように定める。\n令和八年七月二十九日　内閣総理大臣高市早苗\n国家情報局に調査官を置く規則\n附則\n２内閣情報調査室組織規則（昭和五十一年十二月二十三日内閣総理大臣決定）は、廃止する。",
+            "内閣官房組織令…の規定に基づき、内閣情報調査室に内閣情報分析官等を置く規則を廃止する規則を次のように定める。\n令和八年七月二十九日　内閣総理大臣高市早苗\n内閣情報調査室に内閣情報分析官等を置く規則を廃止する規則\n…は、廃止する。",
+        ]);
+        assert_eq!(pick_article("内閣情報調査室に内閣情報分析官等を置く規則を廃止する規則（同）", &a), Some(1));
+        assert_eq!(pick_article("国家情報局に調査官を置く規則（内閣官房）", &a), Some(0));
     }
 
     #[test]
