@@ -28,10 +28,13 @@ pub(crate) fn repair_wrapped_notice_titles(articles: &mut [String], pages: &[Pag
 }
 
 /// A notice title typeset in its own font can wrap at any character
-/// (「…の登録事項の変更に関」＋「する公示」) or end in a bare 公示/公告 noun
-/// (「北海道開発局公示」「基本測量関係事項公告」). Its extent is the maximal run of aligned
-/// lines whose original fonts share nothing with the line above and the body below;
-/// no line count of the previous notice or wording of its last line is used.
+/// (「…の登録事項の変更に関」＋「する公示」) and end in any word
+/// (「基本測量関係事項公告」「…国民保護計画の変更について」「…国家試験の施行」). Its extent
+/// is the maximal run of aligned lines whose original fonts share nothing with the
+/// line above and the body below. The title starts at the column's line start and
+/// its body's first line is indented from it; a heading that stands further in
+/// (附則, a centered label or an annexed document's title) is not a notice title.
+/// No line count of the previous notice or wording of the title is used.
 /// The article starts at the first title line, and no boundary remains inside it.
 /// A title the native notice boundaries already cut at is left to them.
 pub(crate) fn split_typeset_notice_titles(
@@ -78,19 +81,21 @@ pub(crate) fn split_typeset_notice_titles(
         let inner = before.range(first + 1..end).next().is_some();
         // The table of contents lists each notice under 官庁報告 as its own item,
         // but groups several notices of the 公告 section into one item. The 公告
-        // section begins at its own label or at its first field 「諸事項」.
+        // section begins at its own label or at its first field 「諸事項」. The
+        // field 地方自治事項 is one item too, whatever headings (選挙) it holds.
         let report = (0..first)
             .rev()
             .filter(|&j| !inside(j))
             .map(|j| compact(lines[j]))
-            .find(|t| matches!(t.as_str(), "官庁報告" | "公告" | "諸事項"))
+            .find(|t| matches!(t.as_str(), "官庁報告" | "公告" | "諸事項" | "地方自治事項"))
             .is_some_and(|t| t == "官庁報告");
         if !inner && !report {
             continue;
         }
         starts.retain(|&s| s <= first || s >= end);
-        // A title right under a section or field label stays in that label's article.
-        if first > 0 && !crate::segment::is_section_label(lines[first - 1]) {
+        // A title right under a section or field label stays in that label's article,
+        // as does one right under a line that already starts an article (「資料」).
+        if first > 0 && !crate::segment::is_section_label(lines[first - 1]) && !starts.contains(&(first - 1)) {
             starts.insert(first);
         }
     }
@@ -228,11 +233,9 @@ fn typeset_titles(page: &PageTrace) -> Vec<(usize, Vec<String>)> {
             let title = text.concat();
             let body = r.lines.get(end);
             if run.len() <= 3
-                && (title.ends_with("公示") || title.ends_with("公告"))
-                && !matches!(title.as_str(), "公示" | "公告")
                 && !title.contains(|c: char| c.is_whitespace() || "。「」『』".contains(c))
                 && body.and_then(fonts).is_some_and(|b| b.is_disjoint(&style))
-                && body.and_then(direction) == Some(first.0)
+                && body.and_then(left).is_some_and(|(d, x, _)| d == first.0 && x - first.1 >= 0.5 * first.2)
                 && body.is_some_and(|b| compact(&b.text).chars().count() >= 20)
             {
                 found.push((base + i, text));

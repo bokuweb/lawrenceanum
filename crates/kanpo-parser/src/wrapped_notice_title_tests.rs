@@ -26,9 +26,10 @@
  #[test]fn aligned_larger_original_title_is_a_candidate(){let(w,r)=source();assert_eq!(prefixes(&w,&r,"公告"),vec!["年度業務実績及び財務諸表に関する"]);}
 
  // A notice title set in its own original font, after the previous notice's last line.
+ // The body's first line is indented one character from the title's line start.
  fn typeset(lines:&[(&str,usize)])->PageTrace{
   let mut words=vec![];let mut out=vec![];let mut styles=vec![];let mut bounds=vec![];let mut content=vec![];
-  for(i,(t,font))in lines.iter().enumerate(){let y=50.+10.*i as f32;let x=if i==0{110.}else{100.};let r=x+8.*t.chars().count() as f32;words.push(Word{source_box:[x,y,r,y+8.],id:i,x0:x,y0:y,x1:r,y1:y+8.,raw:t.to_string(),text:t.to_string(),status:WordStatus::Used});out.push(Line::text(t.to_string(),vec![i]));let s:NativeStyles=[(*font,8)].into_iter().collect();styles.push(Some(s.clone()));bounds.push(NativeBounds::Glyphs([x,y,r,y+8.]));content.push(ContentStyles::Glyphs(s));}
+  for(i,(t,font))in lines.iter().enumerate(){let y=50.+10.*i as f32;let x=if i==0{110.}else if *t==BODY.0{108.}else{100.};let r=x+8.*t.chars().count() as f32;words.push(Word{source_box:[x,y,r,y+8.],id:i,x0:x,y0:y,x1:r,y1:y+8.,raw:t.to_string(),text:t.to_string(),status:WordStatus::Used});out.push(Line::text(t.to_string(),vec![i]));let s:NativeStyles=[(*font,8)].into_iter().collect();styles.push(Some(s.clone()));bounds.push(NativeBounds::Glyphs([x,y,r,y+8.]));content.push(ContentStyles::Glyphs(s));}
   let axes=vec![crate::native_word_axes::NativeAxis::Right;words.len()];
   PageTrace{native_comparison_labels:vec![],native_horizontal_baselines:vec![],native_atomic_columns:vec![],native_axes:axes,native_rulings:vec![],width:600.,height:800.,layout:"tiers",words,native_styles:styles,native_bounds:bounds,native_content_styles:content,regions:vec![Region{role:Role::Body,unit:0,part:0,lines:out}],text:String::new(),doc_text:String::new(),tables:vec![]}
  }
@@ -42,9 +43,9 @@
   assert_eq!(split(&lines,&[&joined]),vec![format!("{}\n{}",REPORT.0,PREVIOUS.0),lines[2..].iter().map(|l|l.0).collect::<Vec<_>>().join("\n")]);
  }
  #[test]fn label_split_inside_a_title_moves_to_the_title_start(){
-  let lines=[PREVIOUS,("登録船舶職員養成施設の登録事項の変更に関する",0),("公示",0),BODY];
-  let got=split(&lines,&[&format!("{}\n{}",PREVIOUS.0,lines[1].0),&format!("公示\n{}",BODY.0)]);
-  assert_eq!(got,vec![PREVIOUS.0.to_string(),format!("{}\n公示\n{}",lines[1].0,BODY.0)]);
+  let lines=[REPORT,PREVIOUS,("登録船舶職員養成施設の登録事項の変更に関する",0),("公示",0),BODY];
+  let got=split(&lines,&[&format!("{}\n{}\n{}",REPORT.0,PREVIOUS.0,lines[2].0),&format!("公示\n{}",BODY.0)]);
+  assert_eq!(got,vec![format!("{}\n{}",REPORT.0,PREVIOUS.0),format!("{}\n公示\n{}",lines[2].0,BODY.0)]);
  }
  #[test]fn three_title_lines_start_at_the_first(){
   let lines=[REPORT,PREVIOUS,("一般社団法人及び一般財団法",0),("人に関する法律第百四十九条第一",0),("項の届出に関する公告",0),BODY];
@@ -76,10 +77,26 @@
   let lines=[REPORT,("（七）図面縦覧場所四国地方整備局及び同局香川河川国道事務所",1),("基本測量関係事項公告",0),BODY];
   let joined=lines.iter().map(|l|l.0).collect::<Vec<_>>().join("\n");
   assert_eq!(split(&lines,&[&joined])[1].lines().next(),Some("基本測量関係事項公告"));
-  // A standalone section label is not a title.
+  // A centered section label is not a title.
   let lines=[REPORT,PREVIOUS,("公示",0),BODY];
   let joined=lines.iter().map(|l|l.0).collect::<Vec<_>>().join("\n");
-  assert_eq!(split(&lines,&[&joined]).len(),1);
+  let mut page=typeset(&lines);page.native_bounds[2]=NativeBounds::Glyphs([250.,70.,266.,78.]);
+  let mut a=vec![joined];split_typeset_notice_titles(&mut a,&[page],&[Some(crate::lines::PageRules::default())]);assert_eq!(a.len(),1);
+ }
+ #[test]fn a_title_starts_an_article_whatever_its_last_word(){
+  let lines=[REPORT,("に改める。",1),("厚生労働省国民保護計画の変更について",0),BODY];
+  let joined=lines.iter().map(|l|l.0).collect::<Vec<_>>().join("\n");
+  assert_eq!(split(&lines,&[&joined])[1].lines().next(),Some(lines[2].0));
+ }
+ #[test]fn a_heading_indented_past_its_body_is_not_a_title(){
+  // 附則 of the previous notice stands further in than the paragraph indent of its body.
+  let lines=[REPORT,("に改める。",1),("附則",0),BODY];
+  let joined=lines.iter().map(|l|l.0).collect::<Vec<_>>().join("\n");
+  let mut page=typeset(&lines);page.native_bounds[2]=NativeBounds::Glyphs([124.,70.,140.,78.]);
+  let mut a=vec![joined.clone()];split_typeset_notice_titles(&mut a,&[page],&[Some(crate::lines::PageRules::default())]);assert_eq!(a.len(),1);
+  // A body line flush with the title is not its first paragraph either.
+  let mut page=typeset(&lines);page.native_bounds[3]=NativeBounds::Glyphs([100.,80.,400.,88.]);
+  let mut a=vec![joined];split_typeset_notice_titles(&mut a,&[page],&[Some(crate::lines::PageRules::default())]);assert_eq!(a.len(),1);
  }
  #[test]fn unknown_native_evidence_does_not_prove_a_title(){
   let lines=[REPORT,PREVIOUS,("登録海技免許講習実施機関の登録事項の変更に関",0),("する公示",0),BODY];
@@ -94,13 +111,25 @@
   let lines=[REPORT,PREVIOUS,("登録海技免許講習実施機関の登録事項の変更に関",0),("する公示",0),BODY];
   let mut page=typeset(&lines);
   // Columns run right to left; each title column starts at the same top edge.
-  for(i,(t,_))in lines.iter().enumerate(){let x=500.-10.*i as f32;let y=if i==1{60.}else{50.};page.native_bounds[i]=NativeBounds::Glyphs([x,y,x+8.,y+8.*t.chars().count() as f32]);page.native_axes[i]=crate::native_word_axes::NativeAxis::Down;}
+  for(i,(t,_))in lines.iter().enumerate(){let x=500.-10.*i as f32;let y=if i==1{60.}else if i==lines.len()-1{58.}else{50.};page.native_bounds[i]=NativeBounds::Glyphs([x,y,x+8.,y+8.*t.chars().count() as f32]);page.native_axes[i]=crate::native_word_axes::NativeAxis::Down;}
   let joined=lines.iter().map(|l|l.0).collect::<Vec<_>>().join("\n");
   let mut a=vec![joined];split_typeset_notice_titles(&mut a,&[page],&[Some(crate::lines::PageRules::default())]);
   assert_eq!(a[1].lines().next(),Some(lines[2].0));
  }
  #[test]fn the_public_notice_field_without_its_section_label_is_not_split(){
   let lines=[REPORT,("諸事項",2),PREVIOUS,("訂正公告",0),BODY];
+  let joined=lines.iter().map(|l|l.0).collect::<Vec<_>>().join("\n");
+  assert_eq!(split(&lines,&[&joined]).len(),1);
+ }
+ #[test]fn a_title_under_a_one_line_article_stays_with_it(){
+  // 「資料」 already starts an article; the title does not leave it empty.
+  let lines=[REPORT,("資料",2),("国庫歳入歳出状況",0),BODY];
+  let a=split(&lines,&[REPORT.0,&lines[1..].iter().map(|l|l.0).collect::<Vec<_>>().join("\n")]);
+  assert_eq!(a.len(),2);
+ }
+ #[test]fn headings_of_the_local_government_field_are_not_split(){
+  // The table of contents lists 地方自治事項 as one item.
+  let lines=[REPORT,("地方自治事項",2),("長野県",1),("選挙",0),BODY];
   let joined=lines.iter().map(|l|l.0).collect::<Vec<_>>().join("\n");
   assert_eq!(split(&lines,&[&joined]).len(),1);
  }
