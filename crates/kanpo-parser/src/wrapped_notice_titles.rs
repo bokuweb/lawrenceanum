@@ -43,6 +43,7 @@ pub(crate) fn split_typeset_notice_titles(
     rules: &[Option<crate::lines::PageRules>],
 ) -> usize {
     let mut titles: Vec<Vec<String>> = Vec::new();
+    let mut instruments: Vec<Vec<String>> = Vec::new();
     // The last body line of the previous page is the line above a title at the top
     // of the next page.
     let mut carry = None;
@@ -54,12 +55,14 @@ pub(crate) fn split_typeset_notice_titles(
         };
         let found;
         (found, carry) = typeset_titles(page, carry);
+        instruments.extend(comparison_heads(page));
         if found.is_empty() {
             continue;
         }
         let native = crate::notice_boundaries::cuts(page, rules);
         titles.extend(found.into_iter().filter(|(line, _)| !native.contains(line)).map(|(_, title)| title));
     }
+    titles.extend(instruments.iter().cloned());
     let mut lines: Vec<&str> = Vec::new();
     let mut starts = std::collections::BTreeSet::new();
     let mut spans = std::collections::HashMap::new();
@@ -103,7 +106,14 @@ pub(crate) fn split_typeset_notice_titles(
             }
             _ => false,
         };
-        if !inner && !report {
+        // An instrument heading its own comparison table starts its own item in any section,
+        // right after the previous instrument's last sentence (「…施行する。」). Above any
+        // other line (its 〇 heading, or a line its preamble was read in after) it does not.
+        let instrument = instruments.iter().any(|t| t.len() == end - first && t.iter().zip(&lines[first..end]).all(|(t, l)| l.trim() == t));
+        if instrument && (first == 0 || !lines[first - 1].trim_end().ends_with('。')) {
+            continue;
+        }
+        if !inner && !report && !instrument {
             continue;
         }
         starts.retain(|&s| s <= first || s >= end);
@@ -131,6 +141,36 @@ pub(crate) fn split_typeset_notice_titles(
     }
     *articles = rebuilt;
     starts.difference(&before).count() + before.difference(&starts).count()
+}
+
+/// The lines of each comparison table's preamble that heads an instrument of its own:
+/// the first preamble region of a table unit that carries the instrument's date line
+/// (「令和八年十月一日　人事院総裁川本裕子」). The instrument starts at the sentence
+/// ending right above that line (its enactment), since the region can also hold the end of
+/// the previous instrument (「第二条…」 of its 附則). A preamble without a date only
+/// introduces another table of the same instrument.
+fn comparison_heads(page: &PageTrace) -> Vec<Vec<String>> {
+    let dated = |l: &crate::trace::Line| {
+        l.table.is_none() && l.text.trim().split(char::is_whitespace).next().is_some_and(crate::notice_boundaries::date)
+    };
+    let mut out = Vec::new();
+    for (i, r) in page.regions.iter().enumerate() {
+        if r.role != Role::Preamble
+            || (i > 0 && page.regions[i - 1].role == Role::Preamble && page.regions[i - 1].unit == r.unit)
+            || r.lines.iter().any(|l| crate::segment::is_heading_mark(l.text.trim()) || crate::segment::is_section_label(&l.text))
+        {
+            continue;
+        }
+        // The enactment sentence ends right above the date line; signatures of a joint
+        // instrument (「農林水産省」) in between are not an enactment of their own.
+        let Some(at) = r.lines.iter().position(dated) else { continue };
+        if at == 0 || !r.lines[at - 1].text.trim_end().ends_with('。') {
+            continue;
+        }
+        let start = (0..at - 1).rev().find(|&j| r.lines[j].text.trim_end().ends_with('。')).map_or(0, |j| j + 1);
+        out.push(r.lines[start..].iter().map(|l| l.text.trim().to_string()).collect());
+    }
+    out
 }
 
 /// Each title with its first line's index across all of the page's regions,
