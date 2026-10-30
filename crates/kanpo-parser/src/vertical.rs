@@ -4833,7 +4833,28 @@ fn split_tiers_rec(cols: Vec<Col>, depth: usize, rules: &TierRules, ruled_only: 
                     }
                     _ => out.push(right),
                 }
-                split_side(left, out);
+                // またがない側も、cut が段の高さから外れ、列の多くが cut まで届かず、cut に横線も無く、cut の下が署名の
+                // ように段の下端にそろう列（3 分の 2 以上）だけなら、段の境目ではないので分けない（号外第 223 号 2 ページ:
+                // 高い 1 段に政令が続き、前の政令の末尾の「する。」、次の政令の「御名御璽」と日付が上、署名が下に分かれ、
+                // 前の政令の署名が次の政令の公布文の後に読まれていた）。段の高さの所で切る側や、cut の下が表のセルの列
+                // （下端がそろわない）の側は、従来どおり分ける。
+                let signed_foot = |side: &[Col]| {
+                    let foot = side.iter().map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max);
+                    let lower: Vec<&Col> = side.iter().filter(|c| c.y >= cut).collect();
+                    let mut xs: Vec<f32> = lower.iter().map(|c| (c.x + c.x1) / 2.0).collect();
+                    xs.sort_by(f32::total_cmp);
+                    xs.dedup_by(|a, b| (*a - *b).abs() < 4.0);
+                    let flush = xs
+                        .iter()
+                        .filter(|&&x| lower.iter().any(|c| ((c.x + c.x1) / 2.0 - x).abs() < 4.0 && c.y1 >= foot - (c.x1 - c.x)))
+                        .count();
+                    !xs.is_empty() && flush * 3 >= xs.len() * 2
+                };
+                if !ruled_side(&left) && off_tier(&left) && !filled(&left) && signed_foot(&left) {
+                    out.push(left);
+                } else {
+                    split_side(left, out);
+                }
             } else {
                 split_side(right, out);
                 out.push(left);
@@ -6471,6 +6492,10 @@ mod prose_label_values_tests;
 #[cfg(test)]
 #[path = "shorthand_tier_tests.rs"]
 mod shorthand_tier_tests;
+
+#[cfg(test)]
+#[path = "signature_tail_tier_tests.rs"]
+mod signature_tail_tier_tests;
 
 #[cfg(test)]
 #[path = "triangle_sign_tests.rs"]

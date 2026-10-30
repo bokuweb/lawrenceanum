@@ -1,5 +1,6 @@
 ---
 source: crates/kanpo-parser/tests/archive_snapshots.rs
+assertion_line: 105
 expression: out
 input_file: crates/kanpo-parser/tests/archive/pages/20261002t00057/20261002t000570007.pdf
 ---
@@ -50,7 +51,7 @@ W06, Logistics District, Dubai 390667, United Arab Emirates
 めの国際的な努力に我が国として寄与するため、主要国が講ずることとした措置の内容に沿って、我
 が国が講ずる特定の船舶に関する役務取引等の規制措置の対象となる船舶の国際海事機関船舶識別番
 号を別表のとおり告示する。
-令和八年十月二日
+令和八年十月二日　外務大臣茂木敏充
 （別表）
 １．9179842
 ２．8517839
@@ -87,7 +88,6 @@ W06, Logistics District, Dubai 390667, United Arab Emirates
 33．9321976
 34．9866380
 35．9341079
-外務大臣茂木敏充
 
 --- 記事 ---
 ## 0 (unknown)
@@ -107,7 +107,7 @@ W06, Logistics District, Dubai 390667, United Arab Emirates
     60モト・エクスポートDWC有限会社MOTO Export DWC LLC所在地：Office No: DLC－FC－O6, Building No: DLC－FC－4, Warehouse No: DLC－FC－W06, Logistics District, Dubai 390667, United Arab Emirates
 ## 2 (unknown)
   P 〇外務省告示第三百二号ウクライナをめぐる現下の国際情勢に鑑み、ウクライナをめぐる問題の解決を目指す国際平和のための国際的な努力に我が国として寄与するため、主要国が講ずることとした措置の内容に沿って、我が国が講ずる特定の船舶に関する役務取引等の規制措置の対象となる船舶の国際海事機関船舶識別番号を別表のとおり告示する。
-    令和八年十月二日
+    令和八年十月二日　外務大臣茂木敏充
     （別表）
     １．9179842
     ２．8517839
@@ -143,4 +143,4 @@ W06, Logistics District, Dubai 390667, United Arab Emirates
     32．9513139
     33．9321976
     34．9866380
-    35．9341079外務大臣茂木敏充
+    35．9341079
