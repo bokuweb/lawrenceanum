@@ -187,13 +187,22 @@ pub(crate) fn fill_amend_texts_with(kd: &mut KanpoDate, amend_only: bool, load: 
                 continue;
             }
             let segments: Vec<String> = analysis.articles.iter().map(|a| a.text.clone()).collect();
-            let picked = pdf::pick_article(&item.title, &analysis.articles);
-            let (body, doc) = match picked {
-                Some(i) => (segments[i].clone(), analysis.articles[i].document.clone()),
-                None => {
+            // 号数を並べた項目（「保安林の指定をする件（農林水産一〇一九～一〇三四）」）は、告示ごとの記事をすべてつなぐ。
+            let picked = pdf::pick_articles(&item.title, &analysis.articles);
+            let (body, doc) = match picked.as_slice() {
+                [] => {
                     stats.unmatched += 1;
                     let body = segments.join("\n\n");
                     let doc = pdf::Document::from_text(&body);
+                    (body, doc)
+                }
+                [i] => (segments[*i].clone(), analysis.articles[*i].document.clone()),
+                many => {
+                    let body = many.iter().map(|&i| segments[i].as_str()).collect::<Vec<_>>().join("\n\n");
+                    let docs: Vec<&pdf::Document> = many.iter().map(|&i| &analysis.articles[i].document).collect();
+                    // 告示ごとの書式がそろわなければ unknown にし、下でつないだ本文から判じる。
+                    let format = if docs.iter().all(|d| d.format == docs[0].format) { docs[0].format.clone() } else { "unknown".to_string() };
+                    let doc = pdf::Document { format, blocks: docs.iter().flat_map(|d| d.blocks.iter().cloned()).collect() };
                     (body, doc)
                 }
             };

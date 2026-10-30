@@ -400,6 +400,75 @@ fn title_number(title: &str) -> Option<(Vec<&str>, u64)> {
     Some((agencies, n))
 }
 
+/// 標題の末尾に並ぶ号数（「（農林水産九九七、九九八）」「（同一〇〇三～一〇一四）」「（同九九一、九九三～九九五）」）を
+/// すべて取り出す。号数が 2 つ以上のときだけ返す。範囲（「～」）は両端を含む。
+fn title_numbers(title: &str) -> Option<(Vec<&str>, Vec<u64>)> {
+    let (agencies, _) = title_number(title)?;
+    let open = title.rfind('（')?;
+    let inner = title[open + '（'.len_utf8()..].trim_end_matches('）');
+    let digit = |c: char| "〇一二三四五六七八九".find(c).map(|i| (i / '〇'.len_utf8()) as u64);
+    let start = inner.char_indices().find(|&(i, c)| digit(c).is_some() && inner[i..].chars().all(|c| digit(c).is_some() || "～〜、・".contains(c)))?.0;
+    let number = |s: &str| (!s.is_empty()).then(|| s.chars().map(|c| digit(c).unwrap()).fold(0u64, |n, d| n * 10 + d));
+    let mut numbers = Vec::new();
+    for part in inner[start..].split(['、', '・']) {
+        match part.split_once(['～', '〜']) {
+            Some((a, b)) => {
+                let (a, b) = (number(a)?, number(b)?);
+                if b < a || b - a > 1000 {
+                    return None;
+                }
+                numbers.extend(a..=b);
+            }
+            None => numbers.push(number(part)?),
+        }
+    }
+    (numbers.len() > 1).then_some((agencies, numbers))
+}
+
+/// 目次の項目に当たる記事をすべて選ぶ。号数を並べた項目（「肥料を登録した件（農林水産九九七、九九八）」
+/// 「保安林の指定をする件（農林水産一〇一九～一〇三四）」）は、告示ごとに `〇` の見出しで記事が分かれるので、
+/// [`pick_article`] の選んだ最初の号数の記事から後ろへ、最初の見出しと同じ機関・種類（「〇国土交通省告示」）で
+/// 号数が項目の号数に入る見出しの記事を選ぶ。項目の号数をすべて選び終えるか、区分見出し・公布文に来たら止める。
+/// - 号数が別の項目と交互に並ぶ（「（同九九一、九九三～九九五）」と「（同九九二、九九六、九九七）」）ので、
+///   号数の入らない見出しの記事は飛ばして続ける。読み順で間に入った別の機関の告示も飛ばす。
+/// - 選んだ記事に続く見出しの無い記事（頁をまたいだ告示の続き）と、号数の無い `〇` で始まる行の記事
+///   （折り返した「〇番三まで」）は、その告示の続きとして含める。
+/// 号数が 1 つの項目や、最初の記事が最初の号数の見出しを持たないときは [`pick_article`] の 1 記事だけ。
+pub fn pick_articles(title: &str, articles: &[ArticleAnalysis]) -> Vec<usize> {
+    let Some(first) = pick_article(title, articles) else { return Vec::new() };
+    let Some((agencies, numbers)) = title_numbers(title) else { return vec![first] };
+    if !has_number(&articles[first], &agencies, numbers[0]) {
+        return vec![first];
+    }
+    let head_of = |a: &ArticleAnalysis| a.text.lines().find(|l| !l.trim().is_empty()).unwrap_or("").trim().to_string();
+    let kind = |head: &str| head.find('第').map(|p| head[..p].to_string());
+    let first_kind = kind(&head_of(&articles[first]));
+    let mut rest: std::collections::BTreeSet<u64> = numbers[1..].iter().copied().collect();
+    let mut picked = vec![first];
+    let mut member = true;
+    for (j, a) in articles.iter().enumerate().skip(first + 1) {
+        if rest.is_empty() {
+            break;
+        }
+        let head = head_of(a);
+        if segment::is_section_label(&head) || head.contains("をここに公布する") {
+            break;
+        }
+        match heading_number(&head).filter(|_| segment::is_heading_mark(&head)) {
+            Some(n) => {
+                member = kind(&head) == first_kind && rest.remove(&n);
+                if member {
+                    picked.push(j);
+                }
+            }
+            None if member => picked.push(j),
+            None => {}
+        }
+    }
+    // 最後の号数の告示の後ろの見出しの無い記事は含めない（号数が 1 つの項目の [`pick_article`] と同じ）。
+    picked
+}
+
 /// 記事の見出しの号数が `n` で、標題の機関名をすべて含むか。
 fn has_number(a: &ArticleAnalysis, agencies: &[&str], n: u64) -> bool {
     let head = a.text.lines().find(|l| !l.trim().is_empty()).unwrap_or("");
@@ -710,6 +779,28 @@ mod tests {
         // 規則の番号の頭が別の番号の続き（「九－一二三－四八」で終わる「一九－一二三－四八」）なら合わない。
         assert!(!has_code_line(&arts(&["人事院規則一九－一二三－四八"])[0], "九－一二三－四八"));
         assert_eq!(title_code("…件（総務二八五）"), None);
+    }
+
+    #[test]
+    fn listed_numbers_pick_every_notice_of_the_item() {
+        // 号数が別の項目と交互に並び（本紙第1754号「（同九九一、九九三～九九五）」「（同九九二、九九六、九九七）」）、
+        // 読み順で別の機関の告示が間に入る（本紙第1763号）。頁をまたいだ告示の続きと、折り返した「〇番三まで」は含める。
+        let a = arts(&[
+            "〇国土交通省告示第九百九十一号\n砂防法第二条の土地の指定を解除する。",
+            "〇国土交通省告示第九百九十二号\n砂防法第二条の土地を指定する。",
+            "〇国土交通省告示第九百九十三号\n砂防法第二条の土地の指定を解除する。",
+            "区域　…まで",
+            "〇農林水産省告示第九百九十四号\n保安林の指定をする。",
+            "〇国土交通省告示第九百九十四号\n砂防法第二条の土地の指定を解除する。",
+            "〇番三まで　最小一二四",
+            "〇国土交通省告示第九百九十五号\n砂防法第二条の土地の指定を解除する。",
+            "〇国土交通省告示第九百九十六号\n砂防法第二条の土地を指定する。",
+            "人事異動\n内閣",
+        ]);
+        assert_eq!(pick_articles("砂防法第二条の土地の指定を解除する件（国土交通九九一、九九三～九九五）", &a), vec![0, 2, 3, 5, 6, 7]);
+        assert_eq!(pick_articles("砂防法第二条の土地を指定する件（同九九二、九九六、九九七）", &a), vec![1, 8]);
+        // 号数が 1 つの項目は 1 記事。
+        assert_eq!(pick_articles("砂防法第二条の土地を指定する件（国土交通九九二）", &a), vec![1]);
     }
 
     #[test]
