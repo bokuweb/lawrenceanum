@@ -141,6 +141,8 @@ pub(crate) fn fill_amend_texts_with(kd: &mut KanpoDate, amend_only: bool, load: 
             .page_count
             .unwrap_or_else(|| starts.last().copied().unwrap_or(0));
 
+        // 同じ頁の範囲から始まる項目の標題（欄見出しだけの記事を選んだ項目が、ほかの項目の記事の手前で止まるため）。
+        let starts_of: Vec<(u32, String)> = issue.items.iter().map(|i| (i.page, i.title.clone())).collect();
         for item in &mut issue.items {
             if amend_only && !is_amend_title(&item.title) {
                 continue;
@@ -187,8 +189,12 @@ pub(crate) fn fill_amend_texts_with(kd: &mut KanpoDate, amend_only: bool, load: 
                 continue;
             }
             let segments: Vec<String> = analysis.articles.iter().map(|a| a.text.clone()).collect();
-            // 号数を並べた項目（「保安林の指定をする件（農林水産一〇一九～一〇三四）」）は、告示ごとの記事をすべてつなぐ。
-            let picked = pdf::pick_articles(&item.title, &analysis.articles);
+            // 号数を並べた項目（「保安林の指定をする件（農林水産一〇一九～一〇三四）」）は告示ごとの記事を、欄見出しの項目
+            // （「会社その他」）は欄の公告を、すべてつなぐ。
+            let titles: Vec<&str> = std::iter::once(item.title.as_str())
+                .chain(starts_of.iter().filter(|(p, t)| (item.page..=end).contains(p) && *t != item.title).map(|(_, t)| t.as_str()))
+                .collect();
+            let picked = pdf::pick_items(&titles, &analysis.articles).swap_remove(0);
             let (body, doc) = match picked.as_slice() {
                 [] => {
                     stats.unmatched += 1;

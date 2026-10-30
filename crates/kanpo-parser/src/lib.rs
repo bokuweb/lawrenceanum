@@ -470,6 +470,38 @@ pub fn pick_articles(title: &str, articles: &[ArticleAnalysis]) -> Vec<usize> {
     picked
 }
 
+/// 同じ頁の範囲にある目次の項目（`titles`）に、記事をまとめて割り当てる。各項目は [`pick_articles`] で選ぶ。
+/// 欄そのものの項目（目次「会社その他」、本文の欄見出し「会社その他の公告」）は、目次ではその欄の公告すべてなので、
+/// 選んだ記事が項目の名前で始まる欄見出しの行から始まるなら、続く記事を、ほかの項目の選ぶ記事・欄見出しだけの記事・
+/// 区分見出し・号数のある `〇` の見出しの手前まで含める（欄の後に「会社決算公告」の欄が続けば、その項目の選ぶ決算公告の手前で
+/// 止まる）。欄の中の 1 件の公告の項目は、欄見出しを名前に持たないので広げない。
+pub fn pick_items(titles: &[&str], articles: &[ArticleAnalysis]) -> Vec<Vec<usize>> {
+    let mut picks: Vec<Vec<usize>> = titles.iter().map(|t| pick_articles(t, articles)).collect();
+    let claimed: std::collections::BTreeSet<usize> = picks.iter().flatten().copied().collect();
+    let compact = |s: &str| s.chars().filter(|c| !c.is_whitespace()).collect::<String>();
+    let head = |a: &ArticleAnalysis| compact(a.text.lines().find(|l| !l.trim().is_empty()).unwrap_or(""));
+    // 欄見出しの行: 句読点の無い短い 1 行。
+    let label = |h: &str| h.chars().count() <= 12 && !h.contains(['。', '、']);
+    let label_only = |a: &ArticleAnalysis| a.text.lines().filter(|l| !l.trim().is_empty()).count() == 1 && label(&head(a));
+    for (p, title) in picks.iter_mut().zip(titles) {
+        let [i] = p[..] else { continue };
+        let h = head(&articles[i]);
+        if !(label(&h) && h.starts_with(&compact(title))) {
+            continue;
+        }
+        for (j, a) in articles.iter().enumerate().skip(i + 1) {
+            let h = head(a);
+            // 号数の無い `〇` で始まる行（住所の折り返し「〇番地三五八」）は公告の続き。
+            let numbered = segment::is_heading_mark(&h) && heading_number(&h).is_some();
+            if claimed.contains(&j) || label_only(a) || segment::is_section_label(&h) || numbered || h.contains("をここに公布する") {
+                break;
+            }
+            p.push(j);
+        }
+    }
+    picks
+}
+
 /// 同じ種類の公告を並べた欄の目次の項目（「会社決算公告」）は、欄の名前の後ろの方（「決算公告」）で終わる見出し
 /// （「第12期決算公告」「令和７年度決算公告」）の記事をすべて選ぶ。見出しの後ろに日付が続く（「第38期決算公告
 /// 令和８年６月29日」）ので、見出しの行の最初の語で比べる。[`pick_article`] がどの記事も選ばないときだけ使う。
@@ -826,6 +858,20 @@ mod tests {
         assert_eq!(pick_articles("砂防法第二条の土地を指定する件（同九九二、九九六、九九七）", &a), vec![1, 8]);
         // 号数が 1 つの項目は 1 記事。
         assert_eq!(pick_articles("砂防法第二条の土地を指定する件（国土交通九九二）", &a), vec![1]);
+    }
+
+    #[test]
+    fn a_label_only_item_takes_the_notices_of_its_section_up_to_the_next_item() {
+        // 号外第170号: 「会社その他の公告」の欄見出しの後に会社の公告が並び、「会社決算公告」の欄の決算公告が続く。
+        let a = arts(&[
+            "行旅死亡人\n本籍・住所・氏名不詳の男性",
+            "会社その他の公告",
+            "解散公告\n当社は、…解散いたしました。",
+            "合併公告\n左記会社は合併して…",
+            "第12期決算公告\n貸借対照表の要旨",
+        ]);
+        let picks = pick_items(&["会社その他", "会社決算公告"], &a);
+        assert_eq!(picks, vec![vec![1, 2, 3], vec![4]]);
     }
 
     #[test]
