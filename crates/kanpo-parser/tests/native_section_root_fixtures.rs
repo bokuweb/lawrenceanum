@@ -8,11 +8,14 @@ fn input() -> Vec<PageInput> {
     ))
     .unwrap()
 }
+// The bare title line 「関東地方整備局公示」 starts its own Article (native263u) whatever the
+// native evidence. Both golds are baseline125/expected126 cut at that line
+// (the only change); the 資料 root and its whole Table are copied.
 fn old() -> Value {
-    serde_json::from_str(include_str!("data/native-section-roots/baseline125.json")).unwrap()
+    serde_json::from_str(include_str!("data/native-section-roots/baseline125-agency263u.json")).unwrap()
 }
 fn expected() -> Value {
-    serde_json::from_str(include_str!("data/native-section-roots/expected126.json")).unwrap()
+    serde_json::from_str(include_str!("data/native-section-roots/expected126-agency263u.json")).unwrap()
 }
 fn value(p: &[PageInput]) -> Value {
     serde_json::from_str(&serde_json::to_string(&analyze_item(p)).unwrap()).unwrap()

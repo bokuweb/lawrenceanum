@@ -25,7 +25,8 @@ pub fn segment_articles(text: &str) -> Vec<String> {
         let section_entry = is_heading_mark(line.trim())
             && !is_numbered_heading(line.trim())
             && cur.iter().find(|l| !l.trim().is_empty()).is_some_and(|l| matches!(l.trim(), "人事異動" | "叙位・叙勲"));
-        if (is_article_boundary(line) || promulgation || is_notice_title(line, prev)) && !cur.is_empty() && !heading_prefix && !section_entry {
+        if (is_article_boundary(line) || promulgation || is_notice_title(line, prev) || is_agency_notice_title(line, prev))
+            && !cur.is_empty() && !heading_prefix && !section_entry {
             // 公布の件名が長く折り返すと（「…に関する政」＋「令の一部を改正する政令をここに公布する。」）、
             // 件名の頭の行（文末でない長い行）は前の記事の末尾にある。新しい記事へ移す。
             let mut carried: Vec<&str> = Vec::new();
@@ -117,6 +118,19 @@ fn is_notice_title(line: &str, prev: Option<&str>) -> bool {
         && t.chars().count() <= 40
         && !t.contains(['。', '、'])
         && prev.is_some_and(|p| p.trim_end().ends_with('。'))
+}
+
+/// 機関名だけの公示の標題の行（「北陸地方整備局公示」）か。
+///
+/// 号外の官庁事項では各地方整備局の公示が `〇` も番号もない標題の行で続き、前の公示の表の行や
+/// 「図面縦覧場所…」の行のすぐ後に来るため、直前の行の文末では分けられない。漢字だけの行は
+/// 文の折り返し（「…規定に基づき公示」＋「する。」）にはならない。欄見出し（「官庁事項」）の直後は
+/// 欄見出しが既に記事を始めているので分けない。
+fn is_agency_notice_title(line: &str, prev: Option<&str>) -> bool {
+    let t = line.trim();
+    t.chars().count() <= 30
+        && t.strip_suffix("公示").is_some_and(|agency| agency.chars().count() >= 2 && agency.chars().all(|c| ('\u{4E00}'..='\u{9FFF}').contains(&c) || c == '・'))
+        && prev.is_some_and(|p| !is_section_label(p))
 }
 
 /// 行が記事の `〇` 見出し（「〇総務省令第七十七号」）で始まるか。見出しは「〇」の直後に機関名
@@ -307,6 +321,17 @@ mod tests {
         assert_eq!(arts.len(), 2);
         assert!(arts[0].contains("労働組合法施行令") && !arts[0].contains("美容師"));
         assert!(arts[1].contains("美容師法施行令") && !arts[1].contains("労働組合"));
+    }
+
+    #[test]
+    fn regional_bureau_notice_titles_start_their_own_articles() {
+        // 号外第 195 号 29 ページ: 前の公示の表の行・期日の行の後に、標題だけの行で次の公示が続く。
+        let text = "官庁事項\n東北地方整備局公示\n車両制限令…定める。\n一般国道112号　寒河江市\n方向の車線に限る）\n北陸地方整備局公示\n車両制限令…定める。\n２　指定する期日　令和８年９月１日\n中部地方整備局公示\n車両制限令…指定する。\n次のとおり公示\nする。";
+        let arts = segment_articles(text);
+        assert_eq!(arts.len(), 3, "{arts:?}");
+        assert!(arts[0].starts_with("官庁事項\n東北地方整備局公示"));
+        assert!(arts[1].starts_with("北陸地方整備局公示"));
+        assert!(arts[2].starts_with("中部地方整備局公示") && arts[2].ends_with("する。"));
     }
 
     #[test]
