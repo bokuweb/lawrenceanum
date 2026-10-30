@@ -293,6 +293,7 @@ pub fn pick_article(title: &str, articles: &[ArticleAnalysis]) -> Option<usize> 
     // 似た標題の告示（「保安林の指定をする件（農林水産一〇〇一）」「保安林の指定を解除する件（同一〇〇二）」）は
     // 同じ鍵に合うので、鍵に合う記事のうち見出しの号数が標題の番号と合うものがあれば、それを採る。
     let number = title_number(title);
+    let code = title_code(title);
     let best = |keys: &[String], texts: &[String]| {
         let matched: Vec<(usize, &ArticleAnalysis)> = articles
             .iter()
@@ -302,7 +303,10 @@ pub fn pick_article(title: &str, articles: &[ArticleAnalysis]) -> Option<usize> 
         let numbered: Vec<(usize, &ArticleAnalysis)> = matched
             .iter()
             .copied()
-            .filter(|(_, a)| number.as_ref().is_some_and(|(agencies, n)| has_number(a, agencies, *n) || has_number_line(a, agencies, *n)))
+            .filter(|(_, a)| {
+                number.as_ref().is_some_and(|(agencies, n)| has_number(a, agencies, *n) || has_number_line(a, agencies, *n))
+                    || code.as_ref().is_some_and(|code| has_code_line(a, code))
+            })
             .collect();
         (if numbered.is_empty() { matched } else { numbered })
             .into_iter()
@@ -343,6 +347,27 @@ fn pick_by_number(title: &str, articles: &[ArticleAnalysis]) -> Option<usize> {
         .map(|(i, _)| i)
         .collect();
     (matched.len() == 1).then(|| matched[0])
+}
+
+/// 標題の末尾の番号が、ダッシュで区切った規則の番号（「（同九－一二三－四八）」「（人事院九―二四―二四）」）なら、その番号
+/// （「九－一二三－四八」）。人事院規則は同じ鍵（「人事院規則九－」）に合う記事が並び、[`title_number`] は最後の組（「四八」）
+/// しか読まない。
+fn title_code(title: &str) -> Option<String> {
+    let open = title.rfind('（')?;
+    let inner = title[open + '（'.len_utf8()..].strip_suffix('）')?;
+    let digit = |c: char| "〇一二三四五六七八九十百千".contains(c);
+    let dash = |c: char| matches!(c, '―' | '—' | '‐' | '‑' | '–' | '-' | '－');
+    let start = inner.find(digit)?;
+    let code: String = inner[start..].chars().map(|c| if dash(c) { '－' } else { c }).collect();
+    (code.contains('－') && code.chars().all(|c| digit(c) || c == '－') && !code.starts_with('－') && !code.ends_with('－')).then_some(code)
+}
+
+/// 記事の中に、規則の番号（「九－一二三－四八」）で終わる番号だけの行（「人事院規則九－一二三－四八」）があるか。
+fn has_code_line(a: &ArticleAnalysis, code: &str) -> bool {
+    a.text.lines().map(str::trim).any(|l| {
+        let l: String = l.chars().map(|c| if matches!(c, '―' | '—' | '‐' | '‑' | '–' | '-') { '－' } else { c }).collect();
+        l.ends_with(code) && !l.contains(['。', '、', '「', '（']) && !l[..l.len() - code.len()].ends_with(|c: char| "〇一二三四五六七八九十百千－".contains(c))
+    })
 }
 
 /// 目次の項目か。目次は標題を番号（「（消防庁一四）」「（同一五）」）まで載せ、その後に頁（「　一」）を置く。本文の行は
@@ -670,6 +695,21 @@ mod tests {
             "告示\n学校法人の寄附行為及び寄附行為の変更の認可に関する審査基準の一部を改正する告示を次のように定める。",
         ]);
         assert_eq!(pick_article("学校法人の寄附行為及び寄附行為の変更の認可に関する審査基準の一部を改正する告示（文部科学一〇八）", &a), Some(1));
+    }
+
+    #[test]
+    fn personnel_rules_pick_the_article_with_their_dashed_rule_number() {
+        // 人事院規則は同じ鍵（「人事院規則九－」）に合う記事が並ぶ（本紙第 217 号）。標題の番号「（同九－一二三－四八）」の
+        // 規則の番号だけの行で選ぶ。目次はダッシュを「―」、本文は「－」で組む。
+        let a = arts(&[
+            "人事院規則九－一二三－四八\n人事院規則九－一二三（本府省業務調整手当）の一部を改正する人事院規則\n人事院規則九－一二三（本府省業務調整手当）の一部を次のように改正する。",
+            "人事院規則九－三〇－一一六\n人事院規則九－三〇（特殊勤務手当）の一部を改正する人事院規則\n人事院規則九－三〇（特殊勤務手当）の一部を次のように改正する。人事院規則九－一二三（本府省業務調整手当）の適用を受ける職員を除く。次の表により改める。",
+        ]);
+        assert_eq!(pick_article("人事院規則九―一二三（本府省業務調整手当）の一部を改正する人事院規則（同九－一二三－四八）", &a), Some(0));
+        assert_eq!(pick_article("人事院規則九―三〇（特殊勤務手当）の一部を改正する人事院規則（人事院九－三〇－一一六）", &a), Some(1));
+        // 規則の番号の頭が別の番号の続き（「九－一二三－四八」で終わる「一九－一二三－四八」）なら合わない。
+        assert!(!has_code_line(&arts(&["人事院規則一九－一二三－四八"])[0], "九－一二三－四八"));
+        assert_eq!(title_code("…件（総務二八五）"), None);
     }
 
     #[test]
