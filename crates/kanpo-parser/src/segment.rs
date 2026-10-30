@@ -88,6 +88,13 @@ pub(crate) fn is_section_label(text: &str) -> bool {
     SECTION_HEADERS.contains(&compact.as_str()) || FIELD_HEADERS.contains(&compact.as_str())
 }
 
+/// 官庁報告の中の欄見出しか（「労働」「国家試験」）。欄見出しのうち「人事異動」は官庁報告より
+/// 前に載る区分（その下に褒章・皇室事項が続く）、「諸事項」は公告の欄。
+pub(crate) fn is_report_field(text: &str) -> bool {
+    let compact: String = text.chars().filter(|c| !c.is_whitespace()).collect();
+    FIELD_HEADERS.contains(&compact.as_str()) && !matches!(compact.as_str(), "人事異動" | "諸事項")
+}
+
 /// 官庁報告・公告の欄の中で、記事の標題（「指定保安検査機関の廃止に関する公示」）が始まる行か。
 ///
 /// 同じ欄見出しの下に複数の公示が続くため、欄見出しだけでは記事を分けられない。

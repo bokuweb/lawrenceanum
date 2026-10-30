@@ -83,12 +83,21 @@ pub(crate) fn split_typeset_notice_titles(
         // but groups several notices of the 公告 section into one item. The 公告
         // section begins at its own label or at its first field 「諸事項」. The
         // field 地方自治事項 is one item too, whatever headings (選挙) it holds.
-        let report = (0..first)
-            .rev()
-            .filter(|&j| !inside(j))
-            .map(|j| compact(lines[j]))
-            .find(|t| matches!(t.as_str(), "官庁報告" | "公告" | "諸事項" | "地方自治事項"))
-            .is_some_and(|t| t == "官庁報告");
+        // A field of 官庁報告 (労働, 国家試験) shows the section when its label
+        // is on an earlier page than the item's own. The table of contents lists
+        // the same fields under the bracketed 〔官庁報告〕; those are not the body's.
+        let label = |end: usize, wanted: &dyn Fn(&str) -> bool| {
+            (0..end).rev().filter(|&j| !inside(j)).map(|j| (j, compact(lines[j]))).find(|(_, t)| wanted(t))
+        };
+        let report = match label(first, &|t| {
+            matches!(t, "官庁報告" | "公告" | "諸事項" | "地方自治事項") || crate::segment::is_report_field(t)
+        }) {
+            Some((_, t)) if t == "官庁報告" => true,
+            Some((j, t)) if crate::segment::is_report_field(&t) => {
+                label(j, &|t| matches!(t, "官庁報告" | "〔官庁報告〕")).is_none_or(|(_, t)| t == "官庁報告")
+            }
+            _ => false,
+        };
         if !inner && !report {
             continue;
         }

@@ -581,6 +581,8 @@
       ],
       "baseline": "baseline/20260925h017950008.json",
       "expected": "expected/20260925h017950008.json",
+      "current_expected": "expected/20260925h017950008-reportfield263o.json",
+      "current_expected_provenance": "native263o: article 3 of the historical expected split at the 船員 notice title, set in its own font at the column line start under 労働 with its body indented; that notice has no 改め文, so its format is unknown. Historical expected and baseline JSON unchanged",
       "baseline_Analysis_sha256": "a2c4723f1b3545bfb98cecc3d96bab7e0dcc94da5d27de96955e42a17c72597b",
       "expected_Analysis_sha256": "5ae050217a0a339d98ce4e004d003044a05b9169ab665c3e520170fd5a8272e0",
       "cuts": [
