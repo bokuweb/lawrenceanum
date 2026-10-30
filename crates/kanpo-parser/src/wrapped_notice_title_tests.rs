@@ -119,3 +119,11 @@
   let mut page=typeset(&lines);page.native_axes[1]=crate::native_word_axes::NativeAxis::Unknown;
   let mut a=vec![joined];split_typeset_notice_titles(&mut a,&[page],&[Some(crate::lines::PageRules::default())]);assert_eq!(a.len(),1);
  }
+ #[test]fn a_comma_in_the_body_font_stays_inside_the_title(){
+  // 「、」 of the title is set in the body font; the title's content glyphs are not.
+  let lines=[REPORT,("に改める。",1),("船員の特定最低賃金の改正の決定に関し、関係船",0),("員及び関係使用者の意見聴取に関する公示",0),BODY];
+  let mut page=typeset(&lines);page.native_styles[2]=Some([(0,8),(1,8)].into_iter().collect());
+  let joined=lines.iter().map(|l|l.0).collect::<Vec<_>>().join("\n");
+  let mut a=vec![joined];split_typeset_notice_titles(&mut a,&[page],&[Some(crate::lines::PageRules::default())]);
+  assert_eq!(a[1].lines().next(),Some(lines[2].0));
+ }
