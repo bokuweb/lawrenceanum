@@ -133,6 +133,28 @@
   let joined=lines.iter().map(|l|l.0).collect::<Vec<_>>().join("\n");
   assert_eq!(split(&lines,&[&joined]).len(),1);
  }
+ #[test]fn a_field_of_the_report_section_shows_the_section_on_a_later_page(){
+  // The item's pages begin at 労働; 官庁報告 is printed on an earlier page.
+  let lines=[("労働",2),("に改める。",1),("船員の特定最低賃金の改正の決定に関し、関係船",0),("員及び関係使用者の意見聴取に関する公示",0),BODY];
+  let joined=lines.iter().map(|l|l.0).collect::<Vec<_>>().join("\n");
+  let a=split(&lines,&[&joined]);
+  assert_eq!(a,vec!["労働\nに改める。".to_string(),lines[2..].iter().map(|l|l.0).collect::<Vec<_>>().join("\n")]);
+  // Without any label the section is unknown.
+  let joined=lines[1..].iter().map(|l|l.0).collect::<Vec<_>>().join("\n");
+  assert_eq!(split(&lines[1..],&[&joined]).len(),1);
+ }
+ #[test]fn fields_listed_in_the_table_of_contents_do_not_show_the_section(){
+  // The table of contents prints 〔官庁報告〕 and its fields before a cabinet order.
+  let lines=[("〔官庁報告〕",1),("国家試験",2),("に改める。",1),("政令第二百三十三号",0),BODY];
+  let joined=lines.iter().map(|l|l.0).collect::<Vec<_>>().join("\n");
+  assert_eq!(split(&lines,&[&joined]).len(),1);
+ }
+ #[test]fn personnel_changes_are_not_a_field_of_the_report_section(){
+  // 人事異動 precedes 官庁報告; the 褒章 headings below it are not notice titles.
+  let lines=[("人事異動",2),("に改める。",1),("紺綬褒章並びに賞杯",0),BODY];
+  let joined=lines.iter().map(|l|l.0).collect::<Vec<_>>().join("\n");
+  assert_eq!(split(&lines,&[&joined]).len(),1);
+ }
  #[test]fn a_page_without_original_rules_is_left_alone(){
   let lines=[REPORT,PREVIOUS,("登録海技免許講習実施機関の登録事項の変更に関",0),("する公示",0),BODY];
   let joined=lines.iter().map(|l|l.0).collect::<Vec<_>>().join("\n");
