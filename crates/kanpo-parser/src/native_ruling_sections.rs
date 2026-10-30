@@ -8,6 +8,8 @@ pub(super) struct SourceGeometry<'a> {
     pub(super) bounds: &'a [trace::NativeBounds],
     pub(super) axes: &'a [crate::native_word_axes::NativeAxis],
     pub(super) words: &'a [trace::Word],
+    /// Original content fonts per Word (empty when unknown).
+    pub(super) styles: &'a [trace::ContentStyles],
 }
 
 // A ruling may be tested against original owned glyph cells without replacing

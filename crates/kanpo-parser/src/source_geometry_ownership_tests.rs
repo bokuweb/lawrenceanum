@@ -43,6 +43,7 @@ fn bound(cols: &[Col], original: &[Word]) -> bool {
         bounds: &[],
         axes: &[],
         words: original,
+        styles: &[],
     }
     .sources_unchanged(cols)
 }
