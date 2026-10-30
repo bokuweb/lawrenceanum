@@ -20,7 +20,12 @@ pub fn segment_articles(text: &str) -> Vec<String> {
         let heading_prefix = is_heading_mark(line.trim())
             && cur.iter().find(|l| !l.trim().is_empty()).is_some_and(|l| matches!(l.trim(), "人事異動" | "叙位・叙勲"))
             && cur.iter().all(|l| l.trim().is_empty() || is_section_label(l) || l.trim() == "内閣");
-        if (is_article_boundary(line) || promulgation || is_notice_title(line, prev)) && !cur.is_empty() && !heading_prefix {
+        // 人事異動・叙位・叙勲の欄の中の丸印の小見出し（「〇外務大臣臨時代理」「〇監査委員選任」）は欄の続き。
+        // 目次はこの欄を 1 項目（「内閣 財務省 最高裁判所 福岡県」）に載せる。号数の見出し（「第…号」）は分ける。
+        let section_entry = is_heading_mark(line.trim())
+            && !is_numbered_heading(line.trim())
+            && cur.iter().find(|l| !l.trim().is_empty()).is_some_and(|l| matches!(l.trim(), "人事異動" | "叙位・叙勲"));
+        if (is_article_boundary(line) || promulgation || is_notice_title(line, prev)) && !cur.is_empty() && !heading_prefix && !section_entry {
             // 公布の件名が長く折り返すと（「…に関する政」＋「令の一部を改正する政令をここに公布する。」）、
             // 件名の頭の行（文末でない長い行）は前の記事の末尾にある。新しい記事へ移す。
             let mut carried: Vec<&str> = Vec::new();
@@ -47,6 +52,11 @@ pub fn segment_articles(text: &str) -> Vec<String> {
         }
     }
     articles
+}
+
+/// 号数の見出し（「〇総務省令第七十七号」）か。
+fn is_numbered_heading(t: &str) -> bool {
+    t.ends_with('号') && t.contains('第')
 }
 
 /// 法律・政令の公布文の句。
@@ -160,6 +170,7 @@ const SECTION_HEADERS: &[&str] = &[
     "官庁報告",
     "皇室事項",
     "叙位・叙勲",
+    "褒賞",
 ];
 
 /// 官庁報告・公告の中の欄見出し（目次の小見出し）。独立行で現れたら別記事の開始とみなす。
@@ -308,6 +319,17 @@ mod tests {
         // 句が次の行だけにあれば、その行が公布文の行。文末の行は公布文の頭ではない。
         assert!(!wraps_promulgation("内閣総理大臣高市早苗", "地方税法施行令の一部を改正する政令をここに公布する。"));
         assert!(!wraps_promulgation("この政令は、公布の日から施行する。", "をここに公布する。"));
+    }
+
+    #[test]
+    fn keeps_the_entries_of_a_personnel_section_in_one_article() {
+        // 人事異動の欄の丸印の小見出しは欄の続き（号外第 1753 号 5 ページ）。目次はこの欄を 1 項目に載せる。
+        let text = "人事異動\n内閣\n〇防衛大臣臨時代理\n指定する（七月十九日）\n〇外務大臣臨時代理\n指定する\n福岡県\n〇監査委員選任\n選任された。\n褒賞\n紺綬褒章\n〇総務省告示第百号\n告示する。";
+        let arts = segment_articles(text);
+        assert_eq!(arts.len(), 3, "{arts:?}");
+        assert!(arts[0].starts_with("人事異動") && arts[0].ends_with("選任された。"));
+        assert!(arts[1].starts_with("褒賞"));
+        assert!(arts[2].starts_with("〇総務省告示第百号"));
     }
 
     #[test]
