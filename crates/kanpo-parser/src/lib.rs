@@ -774,7 +774,7 @@ pub fn pick_items(titles: &[&str], articles: &[ArticleAnalysis]) -> Vec<Vec<usiz
     for (p, title) in picks.iter_mut().zip(titles) {
         let [i] = p[..] else { continue };
         let h = head(&articles[i]);
-        let listed = title.ends_with("関係") && pick_listed_section(title, articles) == Some(i);
+        let listed = title.ends_with("関係");
         if !(label(&h) && h.starts_with(&compact(title))) && !listed {
             continue;
         }
@@ -799,7 +799,7 @@ pub fn pick_items(titles: &[&str], articles: &[ArticleAnalysis]) -> Vec<Vec<usiz
             // ほかの「…関係」の項目の欄の小見出し（「特別清算終結」）は、その欄の始まり。
             let other_field = || titles.iter().filter(|t| *t != title).flat_map(|t| listed_words(t)).any(|w| h.starts_with(&w));
             // 項目に並ぶ語で始まる記事（「財部町土地改良区の定款変更の認可の公告」）は、標題が「…公告」で終わっても欄の公告。
-            let own = || listed_words(title).iter().any(|w| !listed_lines(w, std::slice::from_ref(a)).0.is_empty());
+            let own = || listed_words(title).iter().any(|w| !listed_lines(w, std::slice::from_ref(a)).0.is_empty()) || names_in_title(title, a);
             let field_end = if listed { segment::is_text_field_label(&h) || (titled() && !own()) || other_field() } else { label_only(a) };
             if !listed && series.contains(&j) {
                 continue;
@@ -814,6 +814,18 @@ pub fn pick_items(titles: &[&str], articles: &[ArticleAnalysis]) -> Vec<Vec<usiz
         }
     }
     picks
+}
+
+/// 記事の標題（2 行まで）が、目次の標題と 7 字以上続けて同じ字（数字を除く）を持つか。目次は同じ欄の公告の名前を
+/// まとめて並べる（「令和七年度共済組合の決算（内閣・法務省・刑務）」）ので、語の頭が本文の標題（「令和７年度内閣
+/// 共済組合の決算公告」）と合わないことがある。
+fn names_in_title(title: &str, a: &ArticleAnalysis) -> bool {
+    let compact = |s: &str| -> Vec<char> {
+        s.chars().filter(|c| !c.is_whitespace() && !c.is_ascii_digit() && !"０１２３４５６７８９〇一二三四五六七八九十百千".contains(*c)).collect()
+    };
+    let head: Vec<char> = a.text.lines().filter(|l| !l.trim().is_empty()).take(2).flat_map(|l| compact(l)).collect();
+    let title: String = compact(title).into_iter().collect();
+    head.windows(7).any(|w| title.contains(&w.iter().collect::<String>()))
 }
 
 /// [`pick_items`] が欄見出しの項目（`titles[0]`、「会社その他」）として選んだ記事が、記事の並びの最後まで続いたか。
@@ -1391,6 +1403,22 @@ mod tests {
         assert_eq!(pick_article(title, &b), Some(0));
         split_listed_sections(&[title], &mut b);
         assert_eq!(b.len(), 1);
+    }
+
+    #[test]
+    fn a_listed_item_picked_by_its_title_takes_the_notices_its_title_names() {
+        // 号外第178号: 「裁判所共済組合（定款の一部変更・令和七年度決算）、独立行政法人都市再生機構関係」は標題で
+        // 「裁判所共済組合定款の一部変更について」を選び、目次がまとめて並べる公告（「令和７年度裁判所共済組合の決算公告」）
+        // と、語で始まる公告（「独立行政法人都市再生機構公告」）を続けて含める。
+        let a = arts(&[
+            "裁判所共済組合定款の一部変更について\n裁判所共済組合定款の一部を次のように変更した…",
+            "令和７年度裁判所共済組合の決\n算公告\n…",
+            "独立行政法人都市再生機構公告\n…",
+            "令和７年度国家公務員共済組合\n連合会の決算公告\n…",
+        ]);
+        let title = "裁判所共済組合（定款の一部変更・令和七年度決算）、独立行政法人都市再生機構関係";
+        assert_eq!(pick_article(title, &a), Some(0));
+        assert_eq!(pick_items(&[title], &a), vec![vec![0, 1, 2]]);
     }
 
     #[test]
