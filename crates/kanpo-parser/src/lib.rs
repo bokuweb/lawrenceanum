@@ -294,57 +294,86 @@ fn lists_as_toc_entry(a: &ArticleAnalysis, title: &str) -> bool {
 /// 催告」「破産手続開始及び免責許可申立てに関する意見申述期間」）から始まり、標題そのものは載らない。区分見出し・欄見出し
 /// （「公告」「諸事項」）の後の最初の行が、目次の最初の語で始まる記事が 1 つだけなら、それを採る。
 fn pick_listed_section(title: &str, articles: &[ArticleAnalysis]) -> Option<usize> {
-    let listed = title.strip_suffix("関係")?;
-    let first: String = listed.split(['、', '・']).next()?.chars().filter(|c| !c.is_whitespace()).collect();
-    if first.is_empty() {
-        return None;
+    for word in listed_words(title) {
+        let (heads, inner) = listed_lines(&word, articles);
+        match (&heads[..], inner.is_empty()) {
+            ([], true) => continue,
+            ([i], _) => return Some(*i),
+            // 小見出しが前の公告の記事の途中にあるなら、[`split_listed_sections`] で分けてから選ぶ。
+            _ => return None,
+        }
     }
-    let matched: Vec<usize> = articles
-        .iter()
+    None
+}
+
+/// 語（`word`）で始まる行を持つ記事。区分見出し・欄見出しの後の最初の行がそうである記事（`heads`）と、記事の 2 行目以降
+/// （区分見出しの直後を除く）の句点の無い行がそうである記事とその行の位置（`inner`）。
+fn listed_lines(word: &str, articles: &[ArticleAnalysis]) -> (Vec<usize>, Vec<(usize, usize)>) {
+    let compact = |s: &str| s.chars().filter(|c| !c.is_whitespace()).collect::<String>();
+    let (mut heads, mut inner) = (Vec::new(), Vec::new());
+    for (i, a) in articles.iter().enumerate() {
+        let mut prev: Option<String> = None;
+        for (j, l) in a.text.split('\n').enumerate() {
+            let c = compact(l);
+            if c.is_empty() {
+                continue;
+            }
+            match &prev {
+                None if segment::is_section_label(&c) => continue,
+                None => {
+                    if c.starts_with(word) {
+                        heads.push(i);
+                    }
+                }
+                Some(p) if !segment::is_section_label(p) && c.starts_with(word) && !c.contains('。') => inner.push((i, j)),
+                Some(_) => {}
+            }
+            prev = Some(c);
+        }
+    }
+    (heads, inner)
+}
+
+/// 「…関係」の項目の標題に並ぶ小見出しの頭の語（「相続、公示催告、失踪、…所有者不明関係」→「相続」「公示催告」…）。
+/// 欄の小見出しは画像の上に載るなどして本文に無いことがある（裁判所の欄の「相続財産清算人の選任…」が画像で、
+/// 「公示催告」から本文）ので、目次の順に、本文に小見出しのある最初の語で選ぶ。2 つ目からの語は、本文の別の行の頭と
+/// 紛れないよう 4 字以上のものだけ。
+fn listed_words(title: &str) -> Vec<String> {
+    let Some(listed) = title.strip_suffix("関係") else { return vec![] };
+    listed
+        .split(['、', '・'])
+        .map(|w| w.chars().filter(|c| !c.is_whitespace()).collect::<String>())
         .enumerate()
-        .filter(|(_, a)| {
-            a.text
-                .lines()
-                .map(|l| l.chars().filter(|c| !c.is_whitespace()).collect::<String>())
-                .find(|l| !l.is_empty() && !segment::is_section_label(l))
-                .is_some_and(|l| l.starts_with(&first))
-        })
-        .map(|(i, _)| i)
-        .collect();
-    (matched.len() == 1).then(|| matched[0])
+        .filter(|(k, w)| !w.is_empty() && (*k == 0 || w.chars().count() >= 4))
+        .map(|(_, w)| w)
+        .collect()
 }
 
 /// 「…関係」の項目（`titles`）の欄の最初の小見出しが、前の公告の記事の途中から始まるなら、その行で記事を分ける。
 ///
 /// 裁判所の欄の小見出し（「相続財産清算人の選任及び相続権主張の催告」）は、欄見出し「裁判所」が本文に無いと、
 /// 前の欄の最後の公告（「令和８年７月16日　広島法務局」で終わる）の記事に続く（本紙第1749号）。目次の項目と記事を
-/// 1 対 1 にするため、[`pick_listed_section`] で選べない項目について、目次の最初の語で始まる行（句点の無い行）が
-/// 記事の 2 行目以降にちょうど 1 つあれば、その行から後ろを別の記事にする。分ける記事は、本文から構造を作り直しても
-/// 同じ構造になる（表を持たない）もので、公告の出典の証明を持たないものに限る。
+/// 1 対 1 にするため、[`pick_listed_section`] で選べない項目について、目次の語（[`listed_words`] の順に、行の見つかる
+/// 最初の語）で始まる行（句点の無い行）が、どの記事の先頭にも無く、記事の 2 行目以降にちょうど 1 つあれば、その行から
+/// 後ろを別の記事にする。分ける記事は、本文から構造を作り直しても同じ構造になる（表を持たない）もので、公告の出典の
+/// 証明を持たないものに限る。
 pub fn split_listed_sections(titles: &[&str], articles: &mut Vec<ArticleAnalysis>) {
-    let compact = |s: &str| s.chars().filter(|c| !c.is_whitespace()).collect::<String>();
     for title in titles {
-        let Some(listed) = title.strip_suffix("関係") else { continue };
-        let first = compact(listed.split(['、', '・']).next().unwrap_or(""));
-        if first.is_empty() || pick_article(title, articles).is_some() {
+        if pick_article(title, articles).is_some() {
             continue;
         }
-        let mut found: Vec<(usize, usize)> = Vec::new();
-        for (i, a) in articles.iter().enumerate() {
-            let lines: Vec<&str> = a.text.split('\n').collect();
-            let mut prev: Option<&str> = None;
-            for (j, l) in lines.iter().enumerate() {
-                let c = compact(l);
-                if c.is_empty() {
-                    continue;
-                }
-                if prev.is_some_and(|p| !segment::is_section_label(p)) && c.starts_with(&first) && !c.contains('。') {
-                    found.push((i, j));
-                }
-                prev = Some(l);
+        let mut split = None;
+        for word in listed_words(title) {
+            let (heads, inner) = listed_lines(&word, articles);
+            if heads.is_empty() && inner.is_empty() {
+                continue;
             }
+            if let ([], [at]) = (&heads[..], &inner[..]) {
+                split = Some(*at);
+            }
+            break;
         }
-        let [(i, j)] = found[..] else { continue };
+        let Some((i, j)) = split else { continue };
         let a = &articles[i];
         if !a.notices.is_empty() || Document::from_text(&a.text) != a.document {
             continue;
@@ -641,7 +670,7 @@ pub fn pick_articles(title: &str, articles: &[ArticleAnalysis]) -> Vec<usize> {
 /// 欄の小見出しを並べた「…関係」の項目（[`pick_listed_section`] で選んだ記事）も欄の公告すべてなので、同じく続く記事を
 /// 含める。欄の公告は小見出しだけの 1 行の記事（「破産管財人変更」「書面による計算報告」）を挟むので、欄見出しだけの記事では
 /// 止めず、ほかの項目の選ぶ記事・区分見出し・本文の欄見出し（「会社その他の公告」）・標題が「…公告」「…公示」で終わる記事・
-/// 号数のある `〇` の見出しの手前で止める。
+/// ほかの「…関係」の項目に並ぶ語で始まる記事・号数のある `〇` の見出しの手前で止める。
 pub fn pick_items(titles: &[&str], articles: &[ArticleAnalysis]) -> Vec<Vec<usize>> {
     let mut picks: Vec<Vec<usize>> = titles.iter().map(|t| pick_articles(t, articles)).collect();
     let claimed: std::collections::BTreeSet<usize> = picks.iter().flatten().copied().collect();
@@ -675,7 +704,9 @@ pub fn pick_items(titles: &[&str], articles: &[ArticleAnalysis]) -> Vec<Vec<usiz
                 let lines: Vec<String> = a.text.lines().map(compact).filter(|l| !l.is_empty()).take(2).collect();
                 lines.iter().any(|l| l.ends_with("公告") || l.ends_with("公示"))
             };
-            let field_end = if listed { segment::is_text_field_label(&h) || titled() } else { label_only(a) };
+            // ほかの「…関係」の項目の欄の小見出し（「特別清算終結」）は、その欄の始まり。
+            let other_field = || titles.iter().filter(|t| *t != title).flat_map(|t| listed_words(t)).any(|w| h.starts_with(&w));
+            let field_end = if listed { segment::is_text_field_label(&h) || titled() || other_field() } else { label_only(a) };
             if !listed && series.contains(&j) {
                 continue;
             }
@@ -1174,6 +1205,29 @@ mod tests {
         let mut b = arts(&["前の公告\n令和８年７月16日　広島法務局\n相続財産清算人の選任\n相続財産清算人の選任"]);
         split_listed_sections(&titles, &mut b);
         assert_eq!(b.len(), 1);
+    }
+
+    #[test]
+    fn a_listed_section_item_falls_back_to_a_later_listed_word() {
+        // 号外第173号: 「教育職員免許状失効」「行旅死亡人」の小見出しは画像の上で本文に無く、「特定空家等の除却命令及び代執行」
+        // から本文。
+        let a = arts(&["会社決算公告の前の公告\n…", "特定空家等の除却命令及び代執行について\n…", "会社その他の公告"]);
+        assert_eq!(pick_article("教育職員免許状失効、行旅死亡人、特定空家等の除却命令及び代執行関係", &a), Some(1));
+        // 2 つ目からの語は 4 字以上だけ。
+        assert_eq!(listed_words("財団、建設業の許可の取消処分、公示送達関係"), vec!["財団", "建設業の許可の取消処分", "公示送達"]);
+        assert_eq!(listed_words("相続、失踪、破産関係"), vec!["相続"]);
+        // 前の語の小見出しが前の公告の記事の途中にあるなら、後ろの語では選ばず、分けてから前の語で選ぶ。
+        let mut b = arts(&[
+            "公告\n…申し出て下さい。\n令和８年７月16日　広島法務局\n相続財産清算人の選任及び相続権主張の催告",
+            "公示催告\n…",
+        ]);
+        let title = "相続、公示催告、失踪、所有者不明関係";
+        assert_eq!(pick_article(title, &b), None);
+        split_listed_sections(&[title], &mut b);
+        assert_eq!(pick_article(title, &b), Some(1));
+        // ほかの「…関係」の項目に並ぶ語で始まる記事の手前で止まる。
+        let c = arts(&["公告\n諸事項\n財団法人…の解散", "令和８年（フ）第１号", "公示催告\n…", "令和８年（ヒ）第２号"]);
+        assert_eq!(pick_items(&["財団関係", "相続、公示催告、失踪関係"], &c), vec![vec![0, 1], vec![2, 3]]);
     }
 
     #[test]
