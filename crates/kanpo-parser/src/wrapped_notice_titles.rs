@@ -104,6 +104,17 @@ pub(crate) fn split_typeset_notice_titles(
             Some((j, t)) if crate::segment::is_report_field(&t) => {
                 label(j, &|t| matches!(t, "官庁報告" | "〔官庁報告〕")).is_none_or(|(_, t)| t == "官庁報告")
             }
+            // Without any section or field label above (an item's pages starting inside the
+            // section), the next label below shows it: a field of 官庁報告, or 諸事項, the
+            // first field of 公告, which follows 官庁報告. Sections printed before 官庁報告
+            // (皇室事項) can also be followed directly by 公告, so a label of theirs above
+            // leaves the section unknown. A lone 「公告」 line can be the last line of a
+            // wrapped title, so it does not show the section.
+            None if (0..first).filter(|&j| !inside(j)).all(|j| !crate::segment::is_section_label(lines[j])) => (end..lines.len())
+                .filter(|&j| !inside(j))
+                .map(|j| compact(lines[j]))
+                .find(|t| matches!(t.as_str(), "官庁報告" | "諸事項" | "地方自治事項") || crate::segment::is_report_field(t))
+                .is_some_and(|t| t == "諸事項" || crate::segment::is_report_field(&t)),
             _ => false,
         };
         // An instrument heading its own comparison table starts its own item in any section,
