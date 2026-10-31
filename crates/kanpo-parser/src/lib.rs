@@ -217,7 +217,38 @@ pub fn analyze_item(pages: &[PageInput]) -> Analysis {
 /// 本文は行の途中で折り返されるので空白・改行を除いて比べる。対象法令名が短い（「種苗法」）
 /// ときは制定機関略号を除いた標題全体を鍵にする。それでも見つからなければ、数字（漢数字・
 /// 算用数字）とダッシュを除いて比べ直す（標題「人事院規則二―四」・本文「人事院規則２－４」）。
+///
+/// 標題で選べない「…関係」の項目は [`pick_listed_section`] で選ぶ。
 pub fn pick_article(title: &str, articles: &[ArticleAnalysis]) -> Option<usize> {
+    pick_article_by_title(title, articles).or_else(|| pick_listed_section(title, articles))
+}
+
+/// 公告の欄をまとめた目次の項目（「相続、公示催告、失踪、…、所有者不明関係」「破産、免責、再生関係」）は、欄に載る
+/// 小見出しの頭の語を「、」で並べ、末尾に「関係」を付ける。本文はその小見出し（「相続財産清算人の選任及び相続権主張の
+/// 催告」「破産手続開始及び免責許可申立てに関する意見申述期間」）から始まり、標題そのものは載らない。区分見出し・欄見出し
+/// （「公告」「諸事項」）の後の最初の行が、目次の最初の語で始まる記事が 1 つだけなら、それを採る。
+fn pick_listed_section(title: &str, articles: &[ArticleAnalysis]) -> Option<usize> {
+    let listed = title.strip_suffix("関係")?;
+    let first: String = listed.split(['、', '・']).next()?.chars().filter(|c| !c.is_whitespace()).collect();
+    if first.is_empty() {
+        return None;
+    }
+    let matched: Vec<usize> = articles
+        .iter()
+        .enumerate()
+        .filter(|(_, a)| {
+            a.text
+                .lines()
+                .map(|l| l.chars().filter(|c| !c.is_whitespace()).collect::<String>())
+                .find(|l| !l.is_empty() && !segment::is_section_label(l))
+                .is_some_and(|l| l.starts_with(&first))
+        })
+        .map(|(i, _)| i)
+        .collect();
+    (matched.len() == 1).then(|| matched[0])
+}
+
+fn pick_article_by_title(title: &str, articles: &[ArticleAnalysis]) -> Option<usize> {
     // ダッシュ類は標題（―）と本文（－）で字が違うことがあるので揃えて比べる。
     let unify = |s: &str| -> String {
         s.chars()
@@ -895,6 +926,21 @@ mod tests {
         ]);
         let picks = pick_items(&["会社その他", "会社決算公告"], &a);
         assert_eq!(picks, vec![vec![1, 2, 3], vec![4]]);
+    }
+
+    #[test]
+    fn a_listed_section_item_picks_the_article_led_by_its_first_listed_heading() {
+        // 号外第161号80ページ: 目次「破産、免責、再生関係」。本文は公告・諸事項の後に小見出しから始まり、標題は載らない。
+        let a = arts(&[
+            "解散公告\n当社は、…解散いたしました。",
+            "公　告\n諸事項\n破産手続開始及び免責許可申立てに関する意見申述期間\n破産手続開始・破産手続廃止及び免責許可申立てに関する意見申述期間",
+            "相続財産清算人の選任及び相続権主張の催告\n公示催告",
+        ]);
+        assert_eq!(pick_article("破産、免責、再生関係", &a), Some(1));
+        assert_eq!(pick_article("相続、公示催告、失踪、除権決定、破産、免責、特別清算、再生、所有者不明関係", &a), Some(2));
+        // 最初の語で始まる記事が 2 つ以上あるとき、「関係」で終わらない標題のときは選ばない。
+        assert_eq!(pick_article("破産、免責、再生関係", &[a[1].clone(), a[1].clone()]), None);
+        assert_eq!(pick_article("破産、免責、再生", &a), None);
     }
 
     #[test]
