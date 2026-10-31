@@ -603,6 +603,14 @@ pub fn pick_articles(title: &str, articles: &[ArticleAnalysis]) -> Vec<usize> {
 pub fn pick_items(titles: &[&str], articles: &[ArticleAnalysis]) -> Vec<Vec<usize>> {
     let mut picks: Vec<Vec<usize>> = titles.iter().map(|t| pick_articles(t, articles)).collect();
     let claimed: std::collections::BTreeSet<usize> = picks.iter().flatten().copied().collect();
+    // 同じ種類の公告を並べた欄の項目（「会社決算公告」、[`pick_series`] で選ぶ）の記事。会社その他の公告は決算公告の枠と同じ
+    // 頁に組まれ、読み順で決算公告の間に入るので、欄見出しの項目はこの記事を飛ばして続ける。
+    let series: std::collections::BTreeSet<usize> = titles
+        .iter()
+        .zip(&picks)
+        .filter(|(t, _)| pick_article(t, articles).is_none())
+        .flat_map(|(_, p)| p.iter().copied())
+        .collect();
     let compact = |s: &str| s.chars().filter(|c| !c.is_whitespace()).collect::<String>();
     let head = |a: &ArticleAnalysis| compact(a.text.lines().find(|l| !l.trim().is_empty()).unwrap_or(""));
     // 欄見出しの行: 句読点の無い短い 1 行。
@@ -626,6 +634,9 @@ pub fn pick_items(titles: &[&str], articles: &[ArticleAnalysis]) -> Vec<Vec<usiz
                 lines.iter().any(|l| l.ends_with("公告") || l.ends_with("公示"))
             };
             let field_end = if listed { segment::is_text_field_label(&h) || titled() } else { label_only(a) };
+            if !listed && series.contains(&j) {
+                continue;
+            }
             if claimed.contains(&j) || field_end || segment::is_section_label(&h) || numbered || h.contains("をここに公布する") {
                 break;
             }
@@ -633,6 +644,25 @@ pub fn pick_items(titles: &[&str], articles: &[ArticleAnalysis]) -> Vec<Vec<usiz
         }
     }
     picks
+}
+
+/// [`pick_items`] が欄見出しの項目（`titles[0]`、「会社その他」）として選んだ記事が、記事の並びの最後まで続いたか。
+/// 最後に選んだ記事より後ろが、同じ種類の公告を並べた欄の項目（「会社決算公告」）の記事だけでもよい。
+///
+/// 会社その他の公告は、後ろの「会社決算公告」の欄の頁に決算公告の枠と一緒に組まれて続く。目次はその欄の開始頁しか
+/// 載せないので、項目の頁の範囲（次の項目の開始頁まで）で欄の公告が最後まで続いたら、呼び出し側は次の項目の頁の
+/// 範囲まで広げて選び直す。
+pub fn field_runs_to_end(titles: &[&str], articles: &[ArticleAnalysis]) -> bool {
+    let compact = |s: &str| s.chars().filter(|c| !c.is_whitespace()).collect::<String>();
+    let picks = pick_items(titles, articles);
+    let (Some(&first), Some(&last)) = (picks[0].first(), picks[0].last()) else { return false };
+    let series: std::collections::BTreeSet<usize> =
+        titles.iter().zip(&picks).skip(1).filter(|(t, _)| pick_article(t, articles).is_none()).flat_map(|(_, p)| p.iter().copied()).collect();
+    let head = compact(articles[first].text.lines().find(|l| !l.trim().is_empty()).unwrap_or(""));
+    head.chars().count() <= 12
+        && !head.contains(['。', '、'])
+        && head.starts_with(&compact(titles[0]))
+        && (last + 1..articles.len()).all(|j| series.contains(&j))
 }
 
 /// 同じ種類の公告を並べた欄の目次の項目（「会社決算公告」）は、欄の名前の後ろの方（「決算公告」）で終わる見出し
@@ -1061,6 +1091,27 @@ mod tests {
             "地方公共団体情報システム機構令和７年度財務諸表公告\n貸借対照表",
         ]);
         assert_eq!(pick_items(&["破産、免責、再生関係"], &a), vec![vec![0, 1]]);
+    }
+
+    #[test]
+    fn a_label_only_item_skips_the_financial_notices_set_among_its_notices() {
+        // 号外第194号: 会社その他の公告は、会社決算公告の欄の頁に決算公告の枠と交互に組まれて続く。
+        let a = arts(&[
+            "会社その他の公告",
+            "解散公告\n当社は、…解散いたしました。",
+            "第70期決算公告　令和８年８月31日\n貸借対照表の要旨",
+            "合併公告\n左記会社は合併して…",
+            "第76期決算公告　令和８年７月31日\n貸借対照表の要旨",
+        ]);
+        let picks = pick_items(&["会社その他", "会社決算公告"], &a);
+        assert_eq!(picks, vec![vec![0, 1, 3], vec![2, 4]]);
+        // 欄の公告が最後まで続いた（後ろは決算公告だけ）ので、呼び出し側は次の項目の頁まで広げる。
+        assert!(field_runs_to_end(&["会社その他", "会社決算公告"], &a));
+        // 欄の公告の後ろに別の欄があれば広げない。
+        let mut b = a.clone();
+        b.extend(arts(&["官庁報告\n官庁事項"]));
+        assert!(!field_runs_to_end(&["会社その他", "会社決算公告"], &b));
+        assert!(!field_runs_to_end(&["会社決算公告", "会社その他"], &a));
     }
 
     #[test]
