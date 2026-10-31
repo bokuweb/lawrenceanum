@@ -1298,3 +1298,77 @@ fn untitled_signed_statements_of_one_series_stay_in_one_article() {
         assert!(cuts(&p, &Default::default()).is_empty());
     }
 }
+// A titled notice after another one's body: prose, a dated row, then the
+// given signer rows, all closing at the prose's right edge (350).
+fn signer(rows: &[&[(&str, Rect)]]) -> PageTrace {
+    let mut p = empty();
+    add(&mut p, "以前の本文。", [50., 10., 350., 18.], 1, 8.);
+    add(&mut p, "任意団体の決定に関する公告", [100., 30., 250., 39.2], 2, 9.);
+    add(&mut p, "任意の規定により次のとおり公告する。", [50., 50., 350., 58.], 1, 8.);
+    add(&mut p, "2026年7月1日", [50., 70., 150., 78.], 1, 8.);
+    for row in rows {
+        let ids: Vec<_> = row.iter().map(|&(t, b)| add(&mut p, t, b, 1, 8.)).collect();
+        for _ in &ids {
+            p.regions[0].lines.pop();
+        }
+        let text = row.iter().map(|&(t, _)| t).collect::<Vec<_>>().join(" ");
+        p.regions[0].lines.push(Line::text(text, ids));
+    }
+    refresh(&mut p);
+    p
+}
+const ROLE: (&str, Rect) = ("管理部長", [280., 90., 310., 98.]);
+const NAME: (&str, Rect) = ("任意", [320., 90., 350., 98.]);
+#[test]
+fn an_organization_before_the_office_still_signs() {
+    assert_eq!(cuts(&signer(&[&[ROLE, NAME]]), &Default::default()), vec![1]);
+    let org = ("任意機関", [230., 90., 270., 98.]);
+    assert_eq!(cuts(&signer(&[&[org, ROLE, NAME]]), &Default::default()), vec![1]);
+    // The office still needs a nominal name after it.
+    for row in [[org, ROLE, ("任意と協議する。", [320., 90., 350., 98.])], [org, NAME, ROLE]] {
+        assert!(cuts(&signer(&[&row]), &Default::default()).is_empty(), "{row:?}");
+    }
+}
+#[test]
+fn an_office_alone_on_its_row_signs_with_the_name_flush_below() {
+    let office = ("任意機関長", [280., 90., 350., 98.]);
+    let name = ("任意", [320., 102., 350., 110.]);
+    assert_eq!(cuts(&signer(&[&[office], &[name]]), &Default::default()), vec![1]);
+    // The name must close at the office's right edge, be nominal and come next.
+    let prose = ("任意と協議する。", [300., 102., 350., 110.]);
+    let later = ("任意", [320., 114., 350., 122.]);
+    for rows in [
+        vec![&[office][..], &[("任意", [310., 102., 340., 110.])][..]],
+        vec![&[office][..], &[prose][..]],
+        vec![&[office][..]],
+        vec![&[office][..], &[prose][..], &[later][..]],
+    ] {
+        assert!(cuts(&signer(&rows), &Default::default()).is_empty(), "{rows:?}");
+    }
+}
+#[test]
+fn a_name_glyph_may_come_from_another_font_of_the_dates_size() {
+    let mut p = signer(&[&[ROLE, NAME]]);
+    let name = p.words.len() - 1;
+    let set = |p: &mut PageTrace, id: usize, s: NativeStyles| {
+        p.native_styles[id] = Some(s.clone());
+        p.native_content_styles[id] = ContentStyles::Glyphs(s);
+    };
+    let style = |f: usize, size: f64| (f, size.to_bits());
+    set(&mut p, name, NativeStyles::from([style(1, 8.), style(3, 8.)]));
+    assert_eq!(cuts(&p, &Default::default()), vec![1]);
+    // Another size, or a signer row without the date's own font, is not the date's typography.
+    let mut q = p.clone();
+    set(&mut q, name, NativeStyles::from([style(1, 8.), style(3, 9.)]));
+    assert!(cuts(&q, &Default::default()).is_empty());
+    let mut q = p.clone();
+    set(&mut q, name - 1, NativeStyles::from([style(3, 8.)]));
+    set(&mut q, name, NativeStyles::from([style(3, 8.)]));
+    assert!(cuts(&q, &Default::default()).is_empty());
+    // Nor is the title's font, even at the date's size.
+    set(&mut p, 1, NativeStyles::from([style(2, 8.)]));
+    set(&mut p, name, NativeStyles::from([style(1, 8.)]));
+    assert_eq!(cuts(&p, &Default::default()), vec![1]);
+    set(&mut p, name, NativeStyles::from([style(1, 8.), style(2, 8.)]));
+    assert!(cuts(&p, &Default::default()).is_empty());
+}

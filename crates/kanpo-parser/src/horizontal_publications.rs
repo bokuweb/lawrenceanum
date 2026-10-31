@@ -295,15 +295,30 @@ fn financial(
     })
 }
 
+fn office(t: &str) -> bool {
+    t.ends_with('長') && t.chars().all(|c| ('\u{4e00}'..='\u{9fff}').contains(&c))
+}
+// The organization may precede the office on its line (「法人名　学長　氏名」).
 fn officer(l: &SourceLine<'_>) -> bool {
     let Some(tokens) = &l.tokens else {
         return false;
     };
     nominal(&tokens.concat())
-        && tokens.first().is_some_and(|t| {
-            t.ends_with('長') && t.chars().all(|c| ('\u{4e00}'..='\u{9fff}').contains(&c))
-        })
-        && tokens.iter().skip(1).any(|t| nominal(t))
+        && tokens
+            .iter()
+            .position(|t| office(t))
+            .is_some_and(|n| tokens[n + 1..].iter().any(|t| nominal(t)))
+}
+// An office set alone on its row; the name follows on the next row.
+fn office_row(l: &SourceLine<'_>) -> bool {
+    l.tokens.as_ref().is_some_and(|t| t.len() == 1 && office(&t[0]))
+}
+// The signer is set in the date's typography. A name glyph may come from
+// another font of the same size, never from the title's.
+fn signer_styles(s: &NativeStyles, date: &NativeStyles, title: &NativeStyles) -> bool {
+    s.is_superset(date)
+        && s.is_disjoint(title)
+        && s.iter().all(|&(_, z)| date.iter().any(|&(_, y)| y == z))
 }
 // Distinct logical Lines can be adjacent fields on one printed source row.
 // Require every original horizontal Word to certify the same finite baseline;
@@ -346,6 +361,7 @@ fn signed_notice(
     let mut previous_line = &lines[h.end - 1];
     let mut block = h.rect;
     let mut right_edges = vec![];
+    let mut office_edge = None;
     for l in &lines[h.end..end] {
         let Some(b) = native(page, l) else {
             return false;
@@ -363,6 +379,7 @@ fn signed_notice(
         if let Some((d, ds)) = dated(page, l).filter(|(_, s)| s.is_disjoint(&h.styles)) {
             date_evidence = Some((d, ds));
         }
+        let mut office_here = None;
         if let Some((d, ds)) = &date_evidence {
             let tail = l.tokens.as_ref().map(|t| t.concat()).unwrap_or_default();
             if b[1] >= d[3]
@@ -370,12 +387,15 @@ fn signed_notice(
                 && h.rect[0] >= d[0]
                 && h.rect[2] <= b[2]
                 && right_edges.contains(&b[2])
-                && content(page, l).as_ref() == Some(ds)
-                && (signature_office(&tail) || officer(l))
+                && content(page, l).is_some_and(|s| signer_styles(&s, ds, &h.styles))
             {
-                return true;
+                if signature_office(&tail) || officer(l) || office_edge == Some(b[2]) && nominal(&tail) {
+                    return true;
+                }
+                office_here = office_row(l).then_some(b[2]);
             }
         }
+        office_edge = office_here;
         right_edges.push(b[2]);
         previous = b;
         previous_line = l;
