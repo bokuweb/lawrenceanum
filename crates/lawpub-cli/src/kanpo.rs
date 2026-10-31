@@ -126,7 +126,7 @@ fn analyze_window(
     starts_of: &[(u32, String)],
     page_input: &mut std::collections::HashMap<String, Option<pdf::PageInput>>,
     load: &mut PageLoader,
-) -> Option<(pdf::Analysis, Vec<Vec<usize>>)> {
+) -> Option<(pdf::Analysis, Vec<usize>)> {
     // 欄の文脈として見る項目の前の頁数（頁ごとに取得するので上限を置く）。
     const CONTEXT_SPAN: u32 = 10;
     let mut pages: Vec<pdf::PageInput> = Vec::new();
@@ -176,19 +176,8 @@ fn analyze_window(
         .chain(starts_of.iter().filter(|(p, t)| (item.page..=end).contains(p) && *t != item.title).map(|(_, t)| t.as_str()))
         .collect();
     pdf::split_listed_sections(&titles, &mut analysis.articles);
-    // 項目の選ぶ記事（先頭）と、同じ頁の範囲から始まるほかの項目の選ぶ記事。
-    let picks = pdf::pick_items(&titles, &analysis.articles);
-    Some((analysis, picks))
-}
-
-/// 記事を選べない項目（本文が画像の告示など）の本文。頁の範囲の記事（`segments`）のうち、同じ頁の範囲から始まるほかの項目の
-/// 選ぶ記事（`others`）を除いたものをつなぐ。ほかの項目の公告（「北海道開発局公示」「会社その他」の合併公告）を、この項目の
-/// 本文にしない。句点の無い記事（欄見出し「官庁報告」「公告」だけの記事、小見出しや目次の一覧）も本文にしない。何も残らなければ
-/// None（本文は無い）。
-fn unmatched_body(segments: &[String], others: &[Vec<usize>]) -> Option<String> {
-    let others: std::collections::BTreeSet<usize> = others.iter().flatten().copied().collect();
-    let rest: Vec<&str> = segments.iter().enumerate().filter(|(i, s)| !others.contains(i) && s.contains('。')).map(|(_, s)| s.as_str()).collect();
-    (!rest.is_empty()).then(|| rest.join("\n\n"))
+    let picked = pdf::pick_items(&titles, &analysis.articles).swap_remove(0);
+    Some((analysis, picked))
 }
 
 /// 各項目について項目のページを `load` で集めて解析・記事分割し、標題に合致する改め文本文を
@@ -229,7 +218,7 @@ pub(crate) fn fill_amend_texts_with(kd: &mut KanpoDate, amend_only: bool, load: 
                 starts.iter().copied().find(|&p| p > from).unwrap_or(last_page).max(from).min(from + MAX_SPAN - 1)
             };
             let end = window_end(item.page);
-            let Some((mut analysis, mut picks)) = analyze_window(item, end, &starts_of, &mut page_input, load) else { continue };
+            let Some((mut analysis, mut picked)) = analyze_window(item, end, &starts_of, &mut page_input, load) else { continue };
             // 欄見出しの項目（「会社その他」）の公告が頁の範囲の最後まで続いたら、次の項目（「会社決算公告」）の頁の範囲まで
             // 広げて選び直す（会社その他の公告は決算公告の欄の頁にも組まれる）。
             let titles: Vec<&str> = std::iter::once(item.title.as_str())
@@ -237,22 +226,20 @@ pub(crate) fn fill_amend_texts_with(kd: &mut KanpoDate, amend_only: bool, load: 
                 .collect();
             if end > item.page && pdf::field_runs_to_end(&titles, &analysis.articles) {
                 if let Some(wide) = analyze_window(item, window_end(end), &starts_of, &mut page_input, load) {
-                    (analysis, picks) = wide;
+                    (analysis, picked) = wide;
                 }
             }
             let segments: Vec<String> = analysis.articles.iter().map(|a| a.text.clone()).collect();
-            let picked = picks[0].clone();
             let (body, doc) = match picked.as_slice() {
                 [] => {
+                    // 記事を選べない項目（本文が画像の告示など）は本文を持たない。頁の範囲の記事は、ほかの項目の公告
+                    // （「北海道開発局公示」「会社その他」の合併公告）か、どの項目にも選ばれていない別の公告の続きで、この項目の
+                    // 本文ではない（選べない項目の頁の範囲の記事に、その項目の標題の字が見つかるのは 157 項目中 1 項目）。
                     stats.unmatched += 1;
-                    let Some(body) = unmatched_body(&segments, &picks[1..]) else {
-                        item.amend_text = None;
-                        item.amend_format = None;
-                        item.amend_document = None;
-                        continue;
-                    };
-                    let doc = pdf::Document::from_text(&body);
-                    (body, doc)
+                    item.amend_text = None;
+                    item.amend_format = None;
+                    item.amend_document = None;
+                    continue;
                 }
                 [i] => (segments[*i].clone(), analysis.articles[*i].document.clone()),
                 many => {
@@ -697,18 +684,6 @@ mod tests {
             amend_format: Some("prose".into()),
             amend_document: None,
         }
-    }
-
-    #[test]
-    fn an_unmatched_item_does_not_take_the_articles_other_items_pick() {
-        // 本紙第1753号: 本文が画像の「日本国に帰化を許可する件」の頁の範囲に、「北海道開発局公示」の記事がある。
-        let segments = vec!["官庁報告".to_string(), "北海道開発局公示\n…公示する。".to_string(), "残りの記事。".to_string()];
-        assert_eq!(unmatched_body(&segments, &[vec![1]]).as_deref(), Some("残りの記事。"));
-        assert_eq!(unmatched_body(&segments, &[vec![0], vec![1, 2]]), None);
-        assert_eq!(unmatched_body(&segments, &[]).as_deref(), Some("北海道開発局公示\n…公示する。\n\n残りの記事。"));
-        // 欄見出し・小見出しだけの記事（句点が無い）は本文にしない。
-        let labels = vec!["公告\n相続財産清算人の選任及び相続権主張の催告".to_string(), "諸事項".to_string()];
-        assert_eq!(unmatched_body(&labels, &[]), None);
     }
 
     #[test]
