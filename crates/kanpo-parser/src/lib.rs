@@ -353,7 +353,10 @@ fn listed_lines(word: &str, articles: &[ArticleAnalysis]) -> (Vec<usize>, Vec<(u
             match prev {
                 None if segment::is_section_label(c) => continue,
                 None => {
-                    if starts(j) {
+                    // 欄の小見出しは、目次の語の前に種類を付けることがある（目次「財団」、小見出し「工場財団」）。句点の無い短い
+                    // 小見出し（語より 4 字長いまで）が語で終わるなら、語の小見出し。
+                    let qualified = !c.contains('。') && c.ends_with(word.as_str()) && c.chars().count() <= word.chars().count() + 4;
+                    if starts(j) || qualified {
                         heads.push(i);
                     }
                 }
@@ -1498,10 +1501,9 @@ mod tests {
 
     #[test]
     fn a_listed_word_matches_a_wrapped_heading() {
-        // 本紙第1757号: 「財団」の小見出しは「工場財団」で語の頭に合わず、次の語の小見出しは 2 行に折り返す。項目に並ぶ語で
-        // 始まる記事は、標題が「…公告」で終わっても欄の公告。
+        // 本紙第1757号: 次の語の小見出しは 2 行に折り返す。項目に並ぶ語で始まる記事は、標題が「…公告」で終わっても欄の公告。
         let a = arts(&[
-            "公告\n諸事項\n工場財団\n…権利を申し出て下さい。",
+            "官庁報告の記事。",
             "金融商品取引業者に対する行\n政処分の公告\n金融商品取引法…",
             "財部町土地改良区の定款変更\nの認可の公告\n土地改良法…",
             "相続財産清算人の選任及び相続権主張の催告",
@@ -1509,6 +1511,14 @@ mod tests {
         let title = "財団、金融商品取引業者に対する行政処分、財部町土地改良区の定款変更の認可関係";
         assert_eq!(pick_article(title, &a), Some(1));
         assert_eq!(pick_items(&[title, "相続、失踪関係"], &a), vec![vec![1, 2], vec![3]]);
+        // 「財団」の小見出しは種類を付けた「工場財団」。句点の無い短い小見出しが語で終わるなら、語の小見出し（本紙第1756号）。
+        let mut d = a.clone();
+        d[0] = arts(&["公告\n諸事項\n工場財団\n…権利を申し出て下さい。"]).remove(0);
+        assert_eq!(pick_article(title, &d), Some(0));
+        assert_eq!(pick_items(&[title, "相続、失踪関係"], &d), vec![vec![0, 1, 2], vec![3]]);
+        // 長い行や文の行は、語で終わっても小見出しではない。
+        let e = arts(&["公告\n諸事項\n株式会社中山製鋼所の工場財団", "相続財産清算人の選任及び相続権主張の催告"]);
+        assert_eq!(pick_article("財団関係", &e), None);
         // ほかの語の標題が「…公告」で終わる記事では止まる。
         let b = arts(&["金融商品取引業者に対する行\n政処分の公告\n…", "令和７事業年度財務諸表に関\nする公告\n…"]);
         assert_eq!(pick_items(&["金融商品取引業者に対する行政処分関係"], &b), vec![vec![0]]);
