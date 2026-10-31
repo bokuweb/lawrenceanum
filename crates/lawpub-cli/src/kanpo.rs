@@ -118,6 +118,67 @@ fn fill_amend_texts(
     stats
 }
 
+/// 項目の頁（`item.page` から `end` まで）と、欄の文脈にする前の頁を集めて解析し、項目に当たる記事を選ぶ。
+/// 頁が取れないか、本文が無ければ `None`。
+fn analyze_window(
+    item: &kanpo_client::KanpoItem,
+    end: u32,
+    starts_of: &[(u32, String)],
+    page_input: &mut std::collections::HashMap<String, Option<pdf::PageInput>>,
+    load: &mut PageLoader,
+) -> Option<(pdf::Analysis, Vec<usize>)> {
+    // 欄の文脈として見る項目の前の頁数（頁ごとに取得するので上限を置く）。
+    const CONTEXT_SPAN: u32 = 10;
+    let mut pages: Vec<pdf::PageInput> = Vec::new();
+    for n in item.page..=end {
+        let url = if n == item.page {
+            item.pdf_url.clone()
+        } else {
+            match page_pdf_url(&item.pdf_url, item.page, n) {
+                Some(u) => u,
+                None => continue,
+            }
+        };
+        if let Some(cached) = page_input.get(&url) {
+            pages.extend(cached.clone());
+            continue;
+        }
+        let Some(input) = load(&url) else { break };
+        pages.extend(input.clone());
+        page_input.insert(url, input);
+    }
+    if pages.is_empty() {
+        return None;
+    }
+
+    // 項目の前の頁（官庁報告の欄見出しがあれば、その欄の文脈になる）。
+    let mut context: Vec<pdf::PageInput> = Vec::new();
+    for n in item.page.saturating_sub(CONTEXT_SPAN).max(1)..item.page {
+        let Some(url) = page_pdf_url(&item.pdf_url, item.page, n) else { continue };
+        if let Some(cached) = page_input.get(&url) {
+            context.extend(cached.clone());
+            continue;
+        }
+        let Some(input) = load(&url) else { continue };
+        context.extend(input.clone());
+        page_input.insert(url, input);
+    }
+
+    // 項目のページをまとめて解析する（ページで切れた新旧対照表は 1 つの表につなぎ、
+    // 罫線の表は本文の流れの中の表として構造化する）。記事ごとに分け、標題に合う記事を採る。
+    let analysis = pdf::analyze_item_in_context(&context, &pages);
+    if analysis.text.is_empty() {
+        return None;
+    }
+    // 号数を並べた項目（「保安林の指定をする件（農林水産一〇一九～一〇三四）」）は告示ごとの記事を、欄見出しの項目
+    // （「会社その他」）は欄の公告を、すべてつなぐ。
+    let titles: Vec<&str> = std::iter::once(item.title.as_str())
+        .chain(starts_of.iter().filter(|(p, t)| (item.page..=end).contains(p) && *t != item.title).map(|(_, t)| t.as_str()))
+        .collect();
+    let picked = pdf::pick_items(&titles, &analysis.articles).swap_remove(0);
+    Some((analysis, picked))
+}
+
 /// 各項目について項目のページを `load` で集めて解析・記事分割し、標題に合致する改め文本文を
 /// `item.amend_text` / `item.amend_format` に詰める。
 ///
@@ -128,8 +189,6 @@ pub(crate) fn fill_amend_texts_with(kd: &mut KanpoDate, amend_only: bool, load: 
     // 1項目が複数ページに跨る（新旧対照表等）ため、項目の開始ページから次項目の
     // 開始ページ手前（最終項目は号の総ページ）までを連結して抽出する。
     const MAX_SPAN: u32 = 25;
-    // 欄の文脈として見る項目の前の頁数（頁ごとに取得するので上限を置く）。
-    const CONTEXT_SPAN: u32 = 10;
     let mut stats = FillStats::default();
     // page PDF URL -> 解析の入力（座標付きテキストと罫線）。None は取得/抽出失敗のメモ化。
     let mut page_input: std::collections::HashMap<String, Option<pdf::PageInput>> = Default::default();
@@ -154,62 +213,22 @@ pub(crate) fn fill_amend_texts_with(kd: &mut KanpoDate, amend_only: bool, load: 
             // 終端ページ = 次の開始ページ「込み」（無ければ号の最終ページ）。上限で頭打ち。
             // 短い記事は次記事の開始ページへ本文が溢れることが多いため、境界ページも
             // 取り込み、混入分は記事分割＋標題突合で振り分ける。
-            let end = starts
-                .iter()
-                .copied()
-                .find(|&p| p > item.page)
-                .unwrap_or(last_page)
-                .max(item.page)
-                .min(item.page + MAX_SPAN - 1);
-
-            let mut pages: Vec<pdf::PageInput> = Vec::new();
-            for n in item.page..=end {
-                let url = if n == item.page {
-                    item.pdf_url.clone()
-                } else {
-                    match page_pdf_url(&item.pdf_url, item.page, n) {
-                        Some(u) => u,
-                        None => continue,
-                    }
-                };
-                if let Some(cached) = page_input.get(&url) {
-                    pages.extend(cached.clone());
-                    continue;
-                }
-                let Some(input) = load(&url) else { break };
-                pages.extend(input.clone());
-                page_input.insert(url, input);
-            }
-            if pages.is_empty() {
-                continue;
-            }
-
-            // 項目の前の頁（官庁報告の欄見出しがあれば、その欄の文脈になる）。
-            let mut context: Vec<pdf::PageInput> = Vec::new();
-            for n in item.page.saturating_sub(CONTEXT_SPAN).max(1)..item.page {
-                let Some(url) = page_pdf_url(&item.pdf_url, item.page, n) else { continue };
-                if let Some(cached) = page_input.get(&url) {
-                    context.extend(cached.clone());
-                    continue;
-                }
-                let Some(input) = load(&url) else { continue };
-                context.extend(input.clone());
-                page_input.insert(url, input);
-            }
-
-            // 項目のページをまとめて解析する（ページで切れた新旧対照表は 1 つの表につなぎ、
-            // 罫線の表は本文の流れの中の表として構造化する）。記事ごとに分け、標題に合う記事を採る。
-            let analysis = pdf::analyze_item_in_context(&context, &pages);
-            if analysis.text.is_empty() {
-                continue;
-            }
-            let segments: Vec<String> = analysis.articles.iter().map(|a| a.text.clone()).collect();
-            // 号数を並べた項目（「保安林の指定をする件（農林水産一〇一九～一〇三四）」）は告示ごとの記事を、欄見出しの項目
-            // （「会社その他」）は欄の公告を、すべてつなぐ。
+            let window_end = |from: u32| {
+                starts.iter().copied().find(|&p| p > from).unwrap_or(last_page).max(from).min(from + MAX_SPAN - 1)
+            };
+            let end = window_end(item.page);
+            let Some((mut analysis, mut picked)) = analyze_window(item, end, &starts_of, &mut page_input, load) else { continue };
+            // 欄見出しの項目（「会社その他」）の公告が頁の範囲の最後まで続いたら、次の項目（「会社決算公告」）の頁の範囲まで
+            // 広げて選び直す（会社その他の公告は決算公告の欄の頁にも組まれる）。
             let titles: Vec<&str> = std::iter::once(item.title.as_str())
                 .chain(starts_of.iter().filter(|(p, t)| (item.page..=end).contains(p) && *t != item.title).map(|(_, t)| t.as_str()))
                 .collect();
-            let picked = pdf::pick_items(&titles, &analysis.articles).swap_remove(0);
+            if end > item.page && pdf::field_runs_to_end(&titles, &analysis.articles) {
+                if let Some(wide) = analyze_window(item, window_end(end), &starts_of, &mut page_input, load) {
+                    (analysis, picked) = wide;
+                }
+            }
+            let segments: Vec<String> = analysis.articles.iter().map(|a| a.text.clone()).collect();
             let (body, doc) = match picked.as_slice() {
                 [] => {
                     stats.unmatched += 1;
