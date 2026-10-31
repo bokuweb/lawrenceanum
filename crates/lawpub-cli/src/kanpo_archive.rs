@@ -29,7 +29,7 @@ struct Manifest {
 
 #[derive(Serialize, Deserialize)]
 struct IssueEntry {
-    /// "regular" | "extra" | "special_extra" 等。
+    /// "regular" | "extra" | "special_extra" | "procurement" 等。
     issue_type: String,
     issue_no: String,
     /// 号ディレクトリ名（例: `20261005h01801`）。ページファイルはこの下に置く。

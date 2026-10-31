@@ -2,7 +2,7 @@
 //!
 //! 2025 年のデジタル官報移行後、本文の実体は項目別 PDF として配信され、
 //! 日付ごとの目次 `{YYYYMMDD}/{YYYYMMDD}.fullcontents.html` から
-//!   - 号 (本紙 / 号外 / 特別号外)
+//!   - 号 (本紙 / 号外 / 特別号外 / 政府調達)
 //!   - 各号に含まれる項目 (= 法令1件) の標題・開始ページ
 //! を辿れる。項目別 PDF の URL は目次リンクから機械的に導出できるため、
 //! e-Gov 改正イベントとの突合は「号」ではなく「項目」粒度で行える。
@@ -124,7 +124,7 @@ pub fn parse_toc(base_url: &str, compact: &str, date: &str, html: &str) -> Resul
         let href = a.value().attr("href").unwrap_or("");
         let text = normalize_ws(&a.text().collect::<String>());
 
-        // 号見出し: 「本紙 第1726号」「号外 第131号」「特別号外 …」など。
+        // 号見出し: 「本紙 第1726号」「号外 第131号」「特別号外 …」「政府調達 第190号」など。
         if let Some((issue_type, issue_no)) = parse_issue_heading(&text) {
             if let Some(done) = cur.take() {
                 issues.push(done);
@@ -146,6 +146,13 @@ pub fn parse_toc(base_url: &str, compact: &str, date: &str, html: &str) -> Resul
         // 項目リンク: `20260615h01726/20260615h017260002f.html`
         if let Some(item) = parse_item_link(base_url, compact, href, &text) {
             if let Some(issue) = cur.as_mut() {
+                // 項目のページ番号は号ディレクトリごとに振られる。号見出しを読み違えて別の号の項目が続いたなら、
+                // 今の号のページに当てない（政府調達の「入札公告　1」は政府調達の号の 1 ページで、号外の 1 ページではない）。
+                let dir = href.split('/').next().unwrap_or("");
+                if issue_dir(&issue.pdf_url).is_some_and(|d| d != dir) {
+                    tracing::warn!("kanpo TOC item {href} is not in {}; skipped", issue.pdf_url);
+                    continue;
+                }
                 // 号フル PDF をまだ持っていなければ、項目の issue dir から導出。
                 if issue.pdf_url.is_empty() {
                     if let Some(dir) = href.split('/').next() {
@@ -170,7 +177,7 @@ pub fn parse_toc(base_url: &str, compact: &str, date: &str, html: &str) -> Resul
     Ok(issues)
 }
 
-/// 「本紙　第1726号」→ ("regular", "第1726号")。号見出しでなければ None。
+/// 「本紙　第1726号」→ ("regular", "第1726号")、「政府調達　第190号」→ ("procurement", "第190号")。号見出しでなければ None。
 fn parse_issue_heading(text: &str) -> Option<(String, String)> {
     let t = text.replace('\u{3000}', " ");
     let t = t.trim();
@@ -183,6 +190,8 @@ fn parse_issue_heading(text: &str) -> Option<(String, String)> {
         "extra"
     } else if t.starts_with("本紙") {
         "regular"
+    } else if t.starts_with("政府調達") {
+        "procurement"
     } else {
         return None;
     };
@@ -284,4 +293,41 @@ pub fn page_pdf_url(item_pdf_url: &str, current_page: u32, target_page: u32) -> 
     let suffix = format!("{:04}.pdf", current_page);
     let prefix = item_pdf_url.strip_suffix(&suffix)?;
     Some(format!("{prefix}{:04}.pdf", target_page))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn procurement_items_belong_to_their_own_issue() {
+        // 2026-10-15 の目次: 号外第226号の後ろに政府調達第190号が続き、その項目のページは政府調達の号のページ。
+        let html = r#"<html><body>
+<a href="javascript:void(0);">号外　第226号</a>
+<a href="20261015g00226/20261015g002260125f.html">会社その他 125</a>
+<a href="javascript:void(0);">政府調達　第190号</a>
+<a href="20261015c00190/20261015c001900001f.html">入札公告 1</a>
+<a href="20261015c00190/20261015c001900039f.html">落札者等の公示 39</a>
+</body></html>"#;
+        let issues = parse_toc("https://www.kanpo.go.jp", "20261015", "2026-10-15", html).unwrap();
+        assert_eq!(issues.len(), 2);
+        assert_eq!((issues[0].issue_type.as_str(), issues[0].items.len()), ("extra", 1));
+        assert_eq!((issues[1].issue_type.as_str(), issues[1].issue_no.as_str()), ("procurement", "第190号"));
+        assert_eq!(issue_dir(&issues[1].pdf_url).as_deref(), Some("20261015c00190"));
+        assert_eq!(issues[1].items.iter().map(|i| (i.title.as_str(), i.page)).collect::<Vec<_>>(), vec![("入札公告", 1), ("落札者等の公示", 39)]);
+    }
+
+    #[test]
+    fn an_item_of_another_issue_directory_is_not_attached() {
+        // 号見出しとして読めない見出しの後ろの項目は、前の号のページに当てない。
+        let html = r#"<html><body>
+<a href="javascript:void(0);">号外　第226号</a>
+<a href="20261015g00226/20261015g002260125f.html">会社その他 125</a>
+<a href="javascript:void(0);">未知の号</a>
+<a href="20261015x00001/20261015x000010001f.html">未知の項目 1</a>
+</body></html>"#;
+        let issues = parse_toc("https://www.kanpo.go.jp", "20261015", "2026-10-15", html).unwrap();
+        assert_eq!(issues.len(), 1);
+        assert_eq!(issues[0].items.len(), 1);
+    }
 }

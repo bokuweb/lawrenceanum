@@ -67,6 +67,7 @@ pub fn issue_label(issue: &Value) -> String {
     let kind = match issue["issue_type"].as_str() {
         Some("extra") => "号外",
         Some("special_extra") => "特別号外",
+        Some("procurement") => "政府調達",
         _ => "本紙",
     };
     format!("{kind}{}", issue["issue_no"].as_str().unwrap_or(""))
