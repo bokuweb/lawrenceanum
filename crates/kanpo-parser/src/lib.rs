@@ -314,6 +314,48 @@ fn pick_listed_section(title: &str, articles: &[ArticleAnalysis]) -> Option<usiz
     (matched.len() == 1).then(|| matched[0])
 }
 
+/// 「…関係」の項目（`titles`）の欄の最初の小見出しが、前の公告の記事の途中から始まるなら、その行で記事を分ける。
+///
+/// 裁判所の欄の小見出し（「相続財産清算人の選任及び相続権主張の催告」）は、欄見出し「裁判所」が本文に無いと、
+/// 前の欄の最後の公告（「令和８年７月16日　広島法務局」で終わる）の記事に続く（本紙第1749号）。目次の項目と記事を
+/// 1 対 1 にするため、[`pick_listed_section`] で選べない項目について、目次の最初の語で始まる行（句点の無い行）が
+/// 記事の 2 行目以降にちょうど 1 つあれば、その行から後ろを別の記事にする。分ける記事は、本文から構造を作り直しても
+/// 同じ構造になる（表を持たない）もので、公告の出典の証明を持たないものに限る。
+pub fn split_listed_sections(titles: &[&str], articles: &mut Vec<ArticleAnalysis>) {
+    let compact = |s: &str| s.chars().filter(|c| !c.is_whitespace()).collect::<String>();
+    for title in titles {
+        let Some(listed) = title.strip_suffix("関係") else { continue };
+        let first = compact(listed.split(['、', '・']).next().unwrap_or(""));
+        if first.is_empty() || pick_article(title, articles).is_some() {
+            continue;
+        }
+        let mut found: Vec<(usize, usize)> = Vec::new();
+        for (i, a) in articles.iter().enumerate() {
+            let lines: Vec<&str> = a.text.split('\n').collect();
+            let mut prev: Option<&str> = None;
+            for (j, l) in lines.iter().enumerate() {
+                let c = compact(l);
+                if c.is_empty() {
+                    continue;
+                }
+                if prev.is_some_and(|p| !segment::is_section_label(p)) && c.starts_with(&first) && !c.contains('。') {
+                    found.push((i, j));
+                }
+                prev = Some(l);
+            }
+        }
+        let [(i, j)] = found[..] else { continue };
+        let a = &articles[i];
+        if !a.notices.is_empty() || Document::from_text(&a.text) != a.document {
+            continue;
+        }
+        let lines: Vec<&str> = a.text.split('\n').collect();
+        let (head, tail) = (lines[..j].join("\n"), lines[j..].join("\n"));
+        let part = |text: String| ArticleAnalysis { document: Document::from_text(&text), text, notices: vec![] };
+        articles.splice(i..=i, [part(head), part(tail)]);
+    }
+}
+
 fn pick_article_by_title(title: &str, articles: &[ArticleAnalysis]) -> Option<usize> {
     // ダッシュ類は標題（―）と本文（－）で字が違うことがあるので揃えて比べる。
     let unify = |s: &str| -> String {
@@ -1112,6 +1154,26 @@ mod tests {
         b.extend(arts(&["官庁報告\n官庁事項"]));
         assert!(!field_runs_to_end(&["会社その他", "会社決算公告"], &b));
         assert!(!field_runs_to_end(&["会社決算公告", "会社その他"], &a));
+    }
+
+    #[test]
+    fn a_listed_section_starting_inside_the_previous_notice_is_split_off() {
+        // 本紙第1749号: 裁判所の欄見出しが本文に無く、欄の最初の小見出しが前の公告の記事の署名の後に続く。
+        let mut a = arts(&[
+            "公告\n諸事項\n有権者申出方\n…当局に申し出て下さい。\n令和８年７月16日　広島法務局\n相続財産清算人の選任及び相続権主張の催告\n失踪宣告",
+            "会社その他の公告",
+        ]);
+        let titles = ["相続、公示催告、失踪、破産、特別清算、再生、所有者不明関係", "有権者申出方関係"];
+        assert_eq!(pick_article(titles[0], &a), None);
+        split_listed_sections(&titles, &mut a);
+        assert_eq!(a.len(), 3);
+        assert!(a[0].text.ends_with("令和８年７月16日　広島法務局"));
+        assert_eq!(a[1].text, "相続財産清算人の選任及び相続権主張の催告\n失踪宣告");
+        assert_eq!(pick_items(&titles, &a), vec![vec![1], vec![0]]);
+        // 既に選べる項目、最初の語で始まる行が 2 つ以上ある項目では分けない。
+        let mut b = arts(&["前の公告\n令和８年７月16日　広島法務局\n相続財産清算人の選任\n相続財産清算人の選任"]);
+        split_listed_sections(&titles, &mut b);
+        assert_eq!(b.len(), 1);
     }
 
     #[test]
