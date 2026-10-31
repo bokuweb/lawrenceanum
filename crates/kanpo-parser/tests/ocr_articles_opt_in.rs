@@ -49,13 +49,20 @@ fn reading_order_reads_columns_left_to_right_below_a_spanning_title() {
 fn image_text_becomes_a_pickable_article_and_native_duplicates_are_dropped() {
     let pages = page("20260716h017490002");
     let base = analyze_item(&pages);
-    let native_line = base.text.lines().map(str::trim).find(|l| l.chars().count() >= 8).unwrap().to_string();
+    // ネイティブの語の枠（ページの pt）を、3509×2480 の認識画像の画素へ写した位置に、二重に読んだ領域を置く。
+    let xhtml = &pages[0].xhtml;
+    let num = |tag: &str, name: &str| -> f64 { tag[tag.find(&format!(" {name}=\"")).unwrap() + name.len() + 3..].split('"').next().unwrap().parse().unwrap() };
+    let page_tag = &xhtml[xhtml.find("<page ").unwrap()..];
+    let scale = (3509.0 + 2480.0) / (num(page_tag, "width") + num(page_tag, "height"));
+    let word = &xhtml[xhtml.find("<word ").unwrap()..];
+    let native_box = ["xMin", "yMin", "xMax", "yMax"].map(|n| num(word, n) * scale);
+    let native_line = "ネイティブの字を二重に読んだ領域";
     let title = "日本国に帰化を許可する件（法務省告示配一〇七）";
     let ocr = OcrPage::from_ndlocr_trace(&trace(vec![
-        region(&native_line, [0.0, 0.0, 800.0, 40.0]),
-        region("〇法務省告示配第百七号", [0.0, 100.0, 800.0, 140.0]),
-        region("左記の者の申請に係る日本国に帰化の件は、これを許可する。", [0.0, 150.0, 800.0, 190.0]),
-        region("住所東京都港区", [0.0, 200.0, 800.0, 240.0]),
+        region(native_line, native_box),
+        region("〇法務省告示配第百七号", [0.0, 3000.0, 800.0, 3040.0]),
+        region("左記の者の申請に係る日本国に帰化の件は、これを許可する。", [0.0, 3050.0, 800.0, 3090.0]),
+        region("住所東京都港区", [0.0, 3100.0, 800.0, 3140.0]),
     ]))
     .unwrap();
     let mut ocrs = vec![None; pages.len()];
@@ -63,7 +70,7 @@ fn image_text_becomes_a_pickable_article_and_native_duplicates_are_dropped() {
     let with = analyze_item_with_ocr(&pages, &ocrs);
     assert_eq!(serde_json::to_value(&with.articles[..base.articles.len()]).unwrap(), serde_json::to_value(&base.articles).unwrap(), "native articles are kept as they are");
     let added: Vec<&str> = with.articles[base.articles.len()..].iter().map(|a| a.text.as_str()).collect();
-    assert!(added.iter().all(|t| !t.contains(&native_line)), "OCR of native text is not added twice: {added:?}");
+    assert!(added.iter().all(|t| !t.contains(native_line)), "OCR of native text is not added twice: {added:?}");
     let i = kanpo_parser::pick_article(title, &with.articles).expect("the OCR article is picked");
     assert!(with.articles[i].text.starts_with("〇法務省告示配第百七号"), "{:?}", with.articles.iter().map(|a| a.text.chars().take(40).collect::<String>()).collect::<Vec<_>>());
     assert_eq!(kanpo_parser::pick_article(title, &base.articles), None, "default parsing does not see the image");
@@ -108,4 +115,25 @@ fn vertical_pages_read_tiers_top_down_and_lines_right_to_left() {
     let regions = vec![v("下二", 0.0, 500.0), v("上二", 0.0, 0.0), v("下一", 100.0, 500.0), v("上一", 100.0, 0.0)];
     let order: Vec<&str> = reading_order(&regions).iter().map(|r| r.text.as_str()).collect();
     assert_eq!(order, ["上一", "上二", "下一", "下二"]);
+}
+
+#[test]
+fn abbreviated_agencies_in_titles_pick_the_heading_with_the_same_number() {
+    let pages = page("20260716h017490002");
+    let body = "次の特定危険指定暴力団等につき、公示事項の一部に変更があったので、次のとおり告示する。";
+    let ocr = OcrPage::from_ndlocr_trace(&trace(vec![
+        region("山口県公安委員会告示配第一号", [0.0, 0.0, 800.0, 40.0]),
+        region(body, [0.0, 50.0, 800.0, 90.0]),
+        region("福岡県公安委員会告示配第四号", [0.0, 100.0, 800.0, 140.0]),
+        region(body, [0.0, 150.0, 800.0, 190.0]),
+        region("福岡県公安委員会委員長", [0.0, 200.0, 800.0, 240.0]),
+    ]))
+    .unwrap();
+    let mut ocrs = vec![None; pages.len()];
+    ocrs[0] = Some(ocr);
+    let a = analyze_item_with_ocr(&pages, &ocrs).articles;
+    let title = |t: &str| format!("特定危険指定暴力団等に係る公示事項の一部に変更があったことの告示（{t}）");
+    let head = |i: Option<usize>| a[i.unwrap()].text.lines().next().unwrap().to_string();
+    assert_eq!(head(kanpo_parser::pick_article(&title("山口県公安委告示配一"), &a)), "山口県公安委員会告示配第一号");
+    assert_eq!(head(kanpo_parser::pick_article(&title("福岡県公安委告示配四"), &a)), "福岡県公安委員会告示配第四号");
 }

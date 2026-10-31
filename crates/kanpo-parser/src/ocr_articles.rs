@@ -51,21 +51,20 @@ impl OcrPage {
 /// [`crate::analyze_item`] に、ページごとの OCR 結果（`ocr[i]` は `pages[i]`）を足す版。
 ///
 /// ネイティブの記事はそのまま残し、各ページの OCR 領域のうちネイティブの本文に無いものを
-/// 読み順に並べて（枠の過半がネイティブの語の枠に重なる領域と、字全体がネイティブの本文に続けて現れる領域は、
-/// ネイティブの字を二重に読んだものとして除く） [`segment::segment_articles`] で分け、ネイティブの記事の後ろへページ順に足す。
+/// 読み順に並べて（枠の過半がネイティブの語の枠に重なる領域は、ネイティブの字を二重に読んだものとして除く。字では比べない:
+/// 見出しの語（「行旅死亡人」）は項目の別のページのネイティブの本文にも現れる） [`segment::segment_articles`] で分け、ネイティブの記事の後ろへページ順に足す。
 pub fn analyze_item_with_ocr(pages: &[PageInput], ocr: &[Option<OcrPage>]) -> Analysis {
     let mut analysis = crate::analyze_item(pages);
     if ocr.iter().all(Option::is_none) {
         return analysis;
     }
-    let native: String = compact(&analysis.text).into_iter().collect();
     let mut lines: Vec<String> = Vec::new();
     for (input, page) in pages.iter().zip(ocr).filter_map(|(i, o)| o.as_ref().map(|o| (i, o))) {
         let (words, rules) = native_boxes(input, page);
         let image: Vec<OcrRegion> = page.regions.iter().filter(|r| !covered(r.bbox, &words)).cloned().collect();
         for r in reading_order_with_rules(&image, &rules) {
             let text = r.text.trim();
-            if !text.is_empty() && !native.contains(&compact(text).into_iter().collect::<String>()) {
+            if !text.is_empty() {
                 lines.push(text.to_string());
             }
         }
@@ -140,10 +139,6 @@ fn numbered_heading(line: &str) -> bool {
         && head.chars().all(kanji)
         && !number.is_empty()
         && number.chars().all(|c| NUMERALS.contains(c))
-}
-
-fn compact(s: &str) -> Vec<char> {
-    s.chars().filter(|c| !c.is_whitespace()).collect()
 }
 
 /// 領域を読み順に並べる（XY-cut）。
