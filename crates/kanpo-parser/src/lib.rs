@@ -370,8 +370,8 @@ fn listed_words(title: &str) -> Vec<String> {
 /// 前の欄の最後の公告（「令和８年７月16日　広島法務局」で終わる）の記事に続く（本紙第1749号）。目次の項目と記事を
 /// 1 対 1 にするため、[`pick_listed_section`] で選べない項目について、目次の語（[`listed_words`] の順に、行の見つかる
 /// 最初の語）で始まる行（句点の無い行）が、どの記事の先頭にも無く、記事の 2 行目以降にちょうど 1 つあれば、その行から
-/// 後ろを別の記事にする。分ける記事は、本文から構造を作り直しても同じ構造になる（表を持たない）もので、公告の出典の
-/// 証明を持たないものに限る。
+/// 後ろを別の記事にする。分ける記事は、段落だけの（表を持たない）もので、公告の出典の証明を持たないものに限る
+/// （[`split_paragraphs`]）。
 pub fn split_listed_sections(titles: &[&str], articles: &mut Vec<ArticleAnalysis>) {
     for title in titles {
         if pick_article(title, articles).is_some() {
@@ -390,14 +390,68 @@ pub fn split_listed_sections(titles: &[&str], articles: &mut Vec<ArticleAnalysis
         }
         let Some((i, j)) = split else { continue };
         let a = &articles[i];
-        if !a.notices.is_empty() || Document::from_text(&a.text) != a.document {
+        if !a.notices.is_empty() {
             continue;
         }
         let lines: Vec<&str> = a.text.split('\n').collect();
         let (head, tail) = (lines[..j].join("\n"), lines[j..].join("\n"));
-        let part = |text: String| ArticleAnalysis { document: Document::from_text(&text), text, notices: vec![] };
-        articles.splice(i..=i, [part(head), part(tail)]);
+        let Some((head_doc, tail_doc)) = split_paragraphs(&a.document, &tail) else { continue };
+        articles.splice(
+            i..=i,
+            [
+                ArticleAnalysis { text: head, document: head_doc, notices: vec![] },
+                ArticleAnalysis { text: tail, document: tail_doc, notices: vec![] },
+            ],
+        );
     }
+}
+
+/// 段落だけの文書（`doc`）を、本文の後ろの行（`tail`）の始まりで 2 つに分ける。後ろは `tail` から作り直し、前は `doc` の
+/// 段落を、作り直した後ろの字の手前で切る（区分見出し「公告」を別の段落にした構造を保つ）。表を持つ文書や、作り直した
+/// 後ろの字が `doc` の字の終わりと合わないときは分けない。
+fn split_paragraphs(doc: &Document, tail: &str) -> Option<(Document, Document)> {
+    let back = Document::from_text(tail);
+    let runs = |d: &Document| -> Option<Vec<Run>> {
+        let mut out = Vec::new();
+        for b in &d.blocks {
+            let Block::Paragraph { runs } = b else { return None };
+            if runs.iter().any(|r| r.table.is_some()) {
+                return None;
+            }
+            out.extend(runs.iter().cloned());
+        }
+        Some(out)
+    };
+    let (all, rest) = (runs(doc)?, runs(&back)?);
+    let flat = |rs: &[Run]| rs.iter().map(|r| r.text.as_str()).collect::<String>();
+    let (all_text, rest_text) = (flat(&all), flat(&rest));
+    if rest_text.is_empty() || rest_text.len() >= all_text.len() || !all_text.ends_with(&rest_text) {
+        return None;
+    }
+    let mut left = all_text.len() - rest_text.len();
+    let mut blocks = Vec::new();
+    for b in &doc.blocks {
+        let Block::Paragraph { runs } = b else { unreachable!() };
+        let mut kept = Vec::new();
+        for r in runs {
+            if left == 0 {
+                break;
+            }
+            let n = r.text.len().min(left);
+            left -= n;
+            let text = r.text[..n].trim_end_matches('\n');
+            if !text.is_empty() {
+                kept.push(Run { text: text.to_string(), ..r.clone() });
+            }
+        }
+        if !kept.is_empty() {
+            blocks.push(Block::Paragraph { runs: kept });
+        }
+        if left == 0 {
+            break;
+        }
+    }
+    Some((Document { format: doc.format.clone(), blocks }, back))
 }
 
 fn pick_article_by_title(title: &str, articles: &[ArticleAnalysis]) -> Option<usize> {
@@ -1234,6 +1288,23 @@ mod tests {
         let mut b = arts(&["前の公告\n令和８年７月16日　広島法務局\n相続財産清算人の選任\n相続財産清算人の選任"]);
         split_listed_sections(&titles, &mut b);
         assert_eq!(b.len(), 1);
+        // 本紙第1759号: 区分見出し「公告」を別の段落にした文書は、その構造のまま前を切る。
+        let text = "公告\n諸事項\n…公告する。\n令和８年７月31日\n東北農政局長\n相続財産清算人の選任及び相続権主張の催告\n特別清算開始";
+        let paragraph = |t: &str| Block::Paragraph { runs: vec![Run::plain(t)] };
+        let document = Document {
+            format: "prose".into(),
+            blocks: vec![paragraph("公告"), paragraph("諸事項…公告する。\n令和８年７月31日東北農政局長相続財産清算人の選任及び相続権主張の催告特別清算開始")],
+        };
+        let mut c = vec![ArticleAnalysis { text: text.into(), document, notices: vec![] }];
+        split_listed_sections(&titles, &mut c);
+        assert_eq!(c.len(), 2);
+        assert_eq!(c[0].document.blocks, vec![paragraph("公告"), paragraph("諸事項…公告する。\n令和８年７月31日東北農政局長")]);
+        assert_eq!(c[1].document, Document::from_text("相続財産清算人の選任及び相続権主張の催告\n特別清算開始"));
+        // 表を持つ文書は分けない。
+        let table = Block::Shinkyu { rows: vec![], labels: None };
+        let mut d = vec![ArticleAnalysis { text: text.into(), document: Document { format: "prose".into(), blocks: vec![table] }, notices: vec![] }];
+        split_listed_sections(&titles, &mut d);
+        assert_eq!(d.len(), 1);
     }
 
     #[test]
