@@ -344,8 +344,10 @@ fn comparison_scope_then_independent_announcements_20260805g001760106() {
     mixed_scopes(
         include_bytes!("data/source-comparison-labels/20260805g001760106.pdf"),
         include_bytes!("data/source-comparison-labels/20260805g001760108.pdf"),
-        include_str!("data/source-comparison-labels/20260805g001760106-mixed-baseline146.json"),
-        16,
+        // baseline146 cut at the 「会社その他の公告」 label line (native263v,
+        // `data/company-section263v/split.py`): one more native article.
+        include_str!("data/source-comparison-labels/20260805g001760106-mixed-baseline146-company263v.json"),
+        17,
     );
 }
 #[test]

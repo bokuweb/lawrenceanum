@@ -10,7 +10,15 @@ pub fn segment_articles(text: &str) -> Vec<String> {
     let mut articles: Vec<String> = Vec::new();
     let mut cur: Vec<&str> = Vec::new();
     let lines: Vec<&str> = text.lines().collect();
+    // 官庁報告の区分の中か（区分見出し「官庁報告」から、次の区分見出しか `〇` の見出しまで）。
+    let mut report = false;
     for (i, &line) in lines.iter().enumerate() {
+        let compact: String = line.chars().filter(|c| !c.is_whitespace()).collect();
+        if compact == "官庁報告" {
+            report = true;
+        } else if SECTION_HEADERS.contains(&compact.as_str()) || is_heading_mark(line.trim()) {
+            report = false;
+        }
         // 公布文が「…政令をここ」「に公布する。」と句の途中で折り返すと、どちらの行も句を含まない。
         // 句が始まる行を公布文の行とする（号外第 178 号 6 ページの政令第二百五十二号）。
         let promulgation = line.contains(PROMULGATION) || lines.get(i + 1).is_some_and(|next| wraps_promulgation(line, next));
@@ -25,7 +33,7 @@ pub fn segment_articles(text: &str) -> Vec<String> {
         let section_entry = is_heading_mark(line.trim())
             && !is_numbered_heading(line.trim())
             && cur.iter().find(|l| !l.trim().is_empty()).is_some_and(|l| matches!(l.trim(), "人事異動" | "叙位・叙勲"));
-        if (is_article_boundary(line) || promulgation || is_notice_title(line, prev) || is_agency_notice_title(line, prev))
+        if (is_article_boundary(line) || promulgation || is_notice_title(line, prev) || is_agency_notice_title(line, prev) || (report && starts_enactment(&lines, i, prev)))
             && !cur.is_empty() && !heading_prefix && !section_entry {
             // 公布の件名が長く折り返すと（「…に関する政」＋「令の一部を改正する政令をここに公布する。」）、
             // 件名の頭の行（文末でない長い行）は前の記事の末尾にある。新しい記事へ移す。
@@ -89,7 +97,12 @@ fn is_article_boundary(line: &str) -> bool {
         || {
             // 区分見出しは字間を空けて組まれる（「法　規　的　告　示」）。
             let compact: String = t.chars().filter(|c| !c.is_whitespace()).collect();
-            SECTION_HEADERS.contains(&compact.as_str()) || FIELD_HEADERS.contains(&compact.as_str())
+            SECTION_HEADERS.contains(&compact.as_str())
+                || FIELD_HEADERS.contains(&compact.as_str())
+                || TEXT_FIELD_HEADERS.contains(&compact.as_str())
+                // 「資料」は本文の単独行（「⒜…情報及び / 資料 / ⒝…」）にもなるので、字間を空けて組んだ見出し
+                // （「資　料」）だけを区分見出しとみなす。
+                || (compact == "資料" && t.contains(char::is_whitespace))
         }
 }
 
@@ -118,6 +131,32 @@ fn is_notice_title(line: &str, prev: Option<&str>) -> bool {
         && t.chars().count() <= 40
         && !t.contains(['。', '、'])
         && prev.is_some_and(|p| p.trim_end().ends_with('。'))
+}
+
+/// `lines[i]` から、`〇` の見出しの無い規則の制定文（「内閣官房組織令（…）第十二条の規定に基づき、…規則を次のように
+/// 定める。」）が始まるか。
+///
+/// 官庁報告の内閣官房の規則は見出しも号数もなく、前の規則の附則（「この規則は、…から施行する。」）のすぐ後に
+/// 次の規則の制定文が続く。制定文は日付と署名の行（「令和八年七月二十九日　内閣総理大臣高市早苗」）のすぐ上で
+/// 終わる。日付だけの行（最低賃金の公示の「令和８年９月29日」）は、目次が 1 項目にまとめる公示の続きなので見ない。
+/// 定款の変更（「…の一部を次のように変更する。」）のように、目次が 1 項目にまとめる公告の続きも見ない。
+/// 官庁報告の区分の中だけで見る（告示・省令は `〇` の見出しで分かれ、その中の 2 文目の制定文は記事の続き）。
+fn starts_enactment(lines: &[&str], i: usize, prev: Option<&str>) -> bool {
+    let ends = |l: &str| l.trim_end().ends_with('。') || l.trim_end().ends_with("。）");
+    if !prev.is_some_and(ends) {
+        return false;
+    }
+    let Some(end) = (i..lines.len().min(i + 6)).find(|&k| ends(lines[k])) else { return false };
+    if lines[i..=end].iter().any(|l| is_section_label(l) || is_heading_mark(l.trim())) {
+        return false;
+    }
+    let sentence: String = lines[i..=end].iter().map(|l| l.trim()).collect();
+    let enacts = sentence.contains("次のように定める") || sentence.contains("次のように改正") || sentence.ends_with("を制定する。");
+    let signed = lines.get(end + 1).is_some_and(|l| {
+        let mut parts = l.trim().split(char::is_whitespace).filter(|p| !p.is_empty());
+        parts.next().is_some_and(crate::notice_boundaries::date) && parts.next().is_some()
+    });
+    enacts && signed && !is_heading_mark(lines[i].trim())
 }
 
 /// 機関名だけの公示の標題の行（「北陸地方整備局公示」）か。
@@ -192,6 +231,11 @@ const SECTION_HEADERS: &[&str] = &[
 /// 「資料」のように本文の単独行と紛れやすい語は入れない（原本の組版で確かめる）。
 /// 「産業」は全頁の単独行がすべて欄見出しで、目次にも「労働」と同じ小見出しとして載る。
 const FIELD_HEADERS: &[&str] = &["官庁事項", "人事異動", "労働", "産業", "法務", "国家試験", "公聴会", "諸事項", "地方自治事項"];
+
+/// 本文の字だけで記事を分ける欄見出し。「会社その他の公告」は公告の中で諸事項などの後に組まれる欄で、
+/// 目次は「会社その他」の 1 項目に載せる。原本の組版の欄見出し（`is_field_label`・`is_native_section_label`）には
+/// 入れない（入れると見出しの後の公告の読み順と書式が変わる）。
+const TEXT_FIELD_HEADERS: &[&str] = &["会社その他の公告"];
 
 #[cfg(test)]
 mod tests {
@@ -355,6 +399,40 @@ mod tests {
         assert_eq!(arts.len(), 3, "{arts:?}");
         assert!(arts[2].starts_with("地方自治事項\n香川県"));
         assert!(!is_report_field("地方自治事項") && is_report_field("労働"));
+    }
+
+    #[test]
+    fn company_notices_section_starts_an_article_after_the_previous_notice() {
+        // 本紙第1799号28ページ: 企業年金基金の公告の後に「会社その他の公告」の欄が続く。
+        let text = "公告\n企業年金基金変更公告\n…変更したので公告する。\n理事長山口敬\n会社その他の公告\n合併公告\n左記会社は合併して…";
+        let arts = segment_articles(text);
+        assert_eq!(arts.len(), 2, "{arts:?}");
+        assert!(arts[0].ends_with("理事長山口敬"));
+        assert!(arts[1].starts_with("会社その他の公告\n合併公告"));
+        assert!(!is_report_field("会社その他の公告"));
+    }
+
+    #[test]
+    fn spaced_materials_heading_starts_an_article_but_a_bare_line_does_not() {
+        // 本紙第1792号9ページ: 最低賃金の公示の後に、字間を空けた「資　料」の区分で国際収支状況が続く。
+        let text = "労働\n最低賃金の改正決定に関する公示\n…決定したので公示する。\n資　料\n令和８年７月中国際収支状況（速報）\n項目　７月";
+        let arts = segment_articles(text);
+        assert_eq!(arts.len(), 2, "{arts:?}");
+        assert!(arts[1].starts_with("資　料\n令和８年７月中国際収支状況"));
+        assert_eq!(segment_articles("⒜計画の実施の進捗状況についての情報及び\n資料\n⒝計画に関連するその他の情報").len(), 1);
+    }
+
+    #[test]
+    fn an_unheaded_rule_starts_at_its_enactment_right_above_its_signed_date() {
+        // 号外第169号184ページ: 内閣官房の規則が、前の規則の附則のすぐ後に制定文から続く。
+        let text = "官庁報告\n官庁事項\n内閣官房組織令（…）第十二条の規定に基づき、国家情報局に調査官\nを置く規則を次のように定める。\n令和八年七月二十九日　内閣総理大臣高市早苗\n国家情報局に調査官を置く規則\n附則\n１この規則は、令和八年七月三十一日から施行する。\n内閣官房組織令（…）第十二条の規定に基づき、内閣衛星情報センター\n組織規則の一部を改正する規則を次のように定める。\n令和八年七月二十九日　内閣総理大臣高市早苗\n内閣衛星情報センター組織規則の一部を改正する規則";
+        let arts = segment_articles(text);
+        assert_eq!(arts.len(), 3, "{arts:?}");
+        assert!(arts[1].starts_with("官庁事項\n内閣官房組織令") && arts[1].ends_with("から施行する。"));
+        assert!(arts[2].starts_with("内閣官房組織令（…）第十二条の規定に基づき、内閣衛星情報センター"));
+        // 日付だけの行の上の公示（目次が 1 項目にまとめる最低賃金の公示）と、定款の変更は分けない。
+        let grouped = "…「１時間1095円」に改める。\n山梨労働局最低賃金公示第２号\n最低賃金法…の規定により、次のように改正する。\n令和８年９月29日\n…に改める。\n…定款の一部を次のように変更する。\n令和８年７月30日　国土交通省共済組合代表者";
+        assert_eq!(segment_articles(grouped).len(), 1);
     }
 
     #[test]
