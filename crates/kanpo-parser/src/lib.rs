@@ -71,6 +71,7 @@ pub mod model;
 mod nested_fraction_geometry;
 mod nested_fractions;
 pub mod normalize;
+pub mod ocr_articles;
 mod numeric_grid_orientation;
 mod owned_dashes;
 mod quantity_tables;
@@ -89,6 +90,7 @@ pub use format::detect_format_of;
 pub use model::{Block, Document, Run, ShinkyuRow};
 pub use comparison_labels::ComparisonLabels;
 pub use normalize::normalize_text;
+pub use ocr_articles::{analyze_item_with_ocr, OcrPage, OcrRegion};
 pub use segment::segment_articles;
 pub use vertical::reconstruct_vertical;
 
