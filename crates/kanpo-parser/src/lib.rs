@@ -309,7 +309,11 @@ fn pick_listed_section(title: &str, articles: &[ArticleAnalysis]) -> Option<usiz
 /// 語（`word`）で始まる行を持つ記事。区分見出し・欄見出しの後の最初の行がそうである記事（`heads`）と、記事の 2 行目以降
 /// （区分見出しの直後を除く）の句点の無い行がそうである記事とその行の位置（`inner`）。
 fn listed_lines(word: &str, articles: &[ArticleAnalysis]) -> (Vec<usize>, Vec<(usize, usize)>) {
-    let compact = |s: &str| s.chars().filter(|c| !c.is_whitespace()).collect::<String>();
+    // 目次は漢数字（「農業協同組合法第七十三条第四項」）、本文は算用数字（「第73条第４項」）で組むので、数字を除いて比べる。
+    let compact = |s: &str| {
+        s.chars().filter(|c| !c.is_whitespace() && !c.is_ascii_digit() && !"０１２３４５６７８９〇一二三四五六七八九十百千".contains(*c)).collect::<String>()
+    };
+    let word = &compact(word);
     let (mut heads, mut inner) = (Vec::new(), Vec::new());
     for (i, a) in articles.iter().enumerate() {
         let mut prev: Option<String> = None;
@@ -1216,6 +1220,9 @@ mod tests {
         // 2 つ目からの語は 4 字以上だけ。
         assert_eq!(listed_words("財団、建設業の許可の取消処分、公示送達関係"), vec!["財団", "建設業の許可の取消処分", "公示送達"]);
         assert_eq!(listed_words("相続、失踪、破産関係"), vec!["相続"]);
+        // 目次の漢数字と本文の算用数字は、数字を除いて比べる（号外第208号）。
+        let e = arts(&["公告\n第48回（令和８年度）エネルギー管理士試験合格者\n…"]);
+        assert_eq!(pick_article("第四十八回（令和八年度）エネルギー管理士試験合格者、日本弁護士連合会懲戒処分関係", &e), Some(0));
         // 前の語の小見出しが前の公告の記事の途中にあるなら、後ろの語では選ばず、分けてから前の語で選ぶ。
         let mut b = arts(&[
             "公告\n…申し出て下さい。\n令和８年７月16日　広島法務局\n相続財産清算人の選任及び相続権主張の催告",
