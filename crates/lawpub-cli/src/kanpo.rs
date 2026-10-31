@@ -183,10 +183,11 @@ fn analyze_window(
 
 /// 記事を選べない項目（本文が画像の告示など）の本文。頁の範囲の記事（`segments`）のうち、同じ頁の範囲から始まるほかの項目の
 /// 選ぶ記事（`others`）を除いたものをつなぐ。ほかの項目の公告（「北海道開発局公示」「会社その他」の合併公告）を、この項目の
-/// 本文にしない。何も残らなければ None（本文は無い）。
+/// 本文にしない。句点の無い記事（欄見出し「官庁報告」「公告」だけの記事、小見出しや目次の一覧）も本文にしない。何も残らなければ
+/// None（本文は無い）。
 fn unmatched_body(segments: &[String], others: &[Vec<usize>]) -> Option<String> {
     let others: std::collections::BTreeSet<usize> = others.iter().flatten().copied().collect();
-    let rest: Vec<&str> = segments.iter().enumerate().filter(|(i, s)| !others.contains(i) && !s.trim().is_empty()).map(|(_, s)| s.as_str()).collect();
+    let rest: Vec<&str> = segments.iter().enumerate().filter(|(i, s)| !others.contains(i) && s.contains('。')).map(|(_, s)| s.as_str()).collect();
     (!rest.is_empty()).then(|| rest.join("\n\n"))
 }
 
@@ -701,10 +702,13 @@ mod tests {
     #[test]
     fn an_unmatched_item_does_not_take_the_articles_other_items_pick() {
         // 本紙第1753号: 本文が画像の「日本国に帰化を許可する件」の頁の範囲に、「北海道開発局公示」の記事がある。
-        let segments = vec!["官庁報告".to_string(), "北海道開発局公示\n…".to_string(), "残りの記事".to_string()];
-        assert_eq!(unmatched_body(&segments, &[vec![1]]).as_deref(), Some("官庁報告\n\n残りの記事"));
+        let segments = vec!["官庁報告".to_string(), "北海道開発局公示\n…公示する。".to_string(), "残りの記事。".to_string()];
+        assert_eq!(unmatched_body(&segments, &[vec![1]]).as_deref(), Some("残りの記事。"));
         assert_eq!(unmatched_body(&segments, &[vec![0], vec![1, 2]]), None);
-        assert_eq!(unmatched_body(&segments, &[]).as_deref(), Some("官庁報告\n\n北海道開発局公示\n…\n\n残りの記事"));
+        assert_eq!(unmatched_body(&segments, &[]).as_deref(), Some("北海道開発局公示\n…公示する。\n\n残りの記事。"));
+        // 欄見出し・小見出しだけの記事（句点が無い）は本文にしない。
+        let labels = vec!["公告\n相続財産清算人の選任及び相続権主張の催告".to_string(), "諸事項".to_string()];
+        assert_eq!(unmatched_body(&labels, &[]), None);
     }
 
     #[test]
