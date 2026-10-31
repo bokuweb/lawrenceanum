@@ -88,6 +88,22 @@
   let joined=lines.iter().map(|l|l.0).collect::<Vec<_>>().join("\n");
   assert_eq!(split(&lines,&[&joined])[1].lines().next(),Some(lines[2].0));
  }
+ #[test]fn a_label_read_at_the_end_of_a_title_over_a_flush_body_moves_to_the_title_start(){
+  // 号外第189号84ページ: 「公益信託…第四十五期決算」＋「公告」の題の下は、題と同じ行頭から短い「一、事業概要」。
+  // 題の最後の行「公告」で記事が分かれていれば、その分かれ目を題の最初の行へ移す。
+  let lines=[("公告",3),("諸事項",2),PREVIOUS,("公益信託甲記念奨学基金第四十五期決算",0),("公告",0),("一、事業概要",1),BODY];
+  let text=|r:std::ops::Range<usize>|lines[r].iter().map(|l|l.0).collect::<Vec<_>>().join("\n");
+  assert_eq!(split(&lines,&[&text(0..4),&text(4..7)]),vec![text(0..3),text(3..7)]);
+  // Without a boundary inside, such a title starts no article of its own, in either section.
+  assert_eq!(split(&lines,&[&text(0..7)]).len(),1);
+  let lines=[REPORT,PREVIOUS,("公益信託甲記念奨学基金第四十五期決算公告",0),("一、事業概要",1),BODY];
+  let joined=lines.iter().map(|l|l.0).collect::<Vec<_>>().join("\n");
+  assert_eq!(split(&lines,&[&joined]).len(),1);
+  // Stacked section labels in one font (「官庁報告」 over 「公告」) are not a title wrapped over one.
+  let lines=[PREVIOUS,("官庁報告",0),("公告",0),("一、事業概要",1),BODY];
+  let text=|r:std::ops::Range<usize>|lines[r].iter().map(|l|l.0).collect::<Vec<_>>().join("\n");
+  assert_eq!(split(&lines,&[&text(0..2),&text(2..5)]),vec![text(0..2),text(2..5)]);
+ }
  #[test]fn a_heading_indented_past_its_body_is_not_a_title(){
   // 附則 of the previous notice stands further in than the paragraph indent of its body.
   let lines=[REPORT,("に改める。",1),("附則",0),BODY];
