@@ -87,3 +87,25 @@ fn numbered_headings_without_a_recognized_circle_start_articles() {
     let added: Vec<String> = analyze_item_with_ocr(&pages, &ocrs).articles[base..].iter().map(|a| a.text.clone()).collect();
     assert_eq!(added, ["法務省告示配第百十五号\n北海道赤平市役所保存の次の除籍が滅失した。", "法務省告示配第百十六号\n次の者を承認した。"]);
 }
+
+#[test]
+fn native_column_rules_that_no_region_crosses_separate_columns() {
+    use kanpo_parser::ocr_articles::reading_order_with_rules;
+    let r = |t: &str, b: [f64; 4]| OcrRegion { text: t.into(), bbox: b, vertical: false };
+    let ruled = vec![r("左1", [0.0, 0.0, 495.0, 40.0]), r("右1", [505.0, 0.0, 1000.0, 40.0]), r("左2", [0.0, 50.0, 495.0, 90.0]), r("右2", [505.0, 50.0, 1000.0, 90.0]), r("右3", [505.0, 100.0, 1000.0, 140.0])];
+    let order: Vec<&str> = reading_order_with_rules(&ruled, &[[500.0, 0.0, 500.0, 200.0]]).iter().map(|r| r.text.as_str()).collect();
+    assert_eq!(order, ["左1", "左2", "右1", "右2", "右3"]);
+    // 罫を横切る領域があれば、その罫では分けない。
+    let crossing = vec![r("標題", [0.0, 0.0, 1000.0, 40.0]), r("左", [0.0, 50.0, 495.0, 90.0]), r("右", [505.0, 50.0, 1000.0, 90.0])];
+    let order: Vec<&str> = reading_order_with_rules(&crossing, &[[500.0, 0.0, 500.0, 200.0]]).iter().map(|r| r.text.as_str()).collect();
+    assert_eq!(order, ["標題", "左", "右"]);
+}
+
+#[test]
+fn vertical_pages_read_tiers_top_down_and_lines_right_to_left() {
+    let v = |t: &str, x: f64, y: f64| OcrRegion { text: t.into(), bbox: [x, y, x + 30.0, y + 400.0], vertical: true };
+    // 2 段の縦組み。各段の行の x は段をまたいで揃う。
+    let regions = vec![v("下二", 0.0, 500.0), v("上二", 0.0, 0.0), v("下一", 100.0, 500.0), v("上一", 100.0, 0.0)];
+    let order: Vec<&str> = reading_order(&regions).iter().map(|r| r.text.as_str()).collect();
+    assert_eq!(order, ["上一", "上二", "下一", "下二"]);
+}
