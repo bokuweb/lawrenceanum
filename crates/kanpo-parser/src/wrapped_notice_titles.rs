@@ -43,7 +43,7 @@ pub(crate) fn split_typeset_notice_titles(
     rules: &[Option<crate::lines::PageRules>],
 ) -> usize {
     let mut titles: Vec<Vec<String>> = Vec::new();
-    let mut instruments: Vec<Vec<String>> = Vec::new();
+    let mut instruments: Vec<(Vec<String>, bool)> = Vec::new();
     // The last body line of the previous page is the line above a title at the top
     // of the next page.
     let mut carry = None;
@@ -62,7 +62,7 @@ pub(crate) fn split_typeset_notice_titles(
         let native = crate::notice_boundaries::cuts(page, rules);
         titles.extend(found.into_iter().filter(|(line, _)| !native.contains(line)).map(|(_, title)| title));
     }
-    titles.extend(instruments.iter().cloned());
+    titles.extend(instruments.iter().map(|(t, _)| t.clone()));
     let mut lines: Vec<&str> = Vec::new();
     let mut starts = std::collections::BTreeSet::new();
     let mut spans = std::collections::HashMap::new();
@@ -107,12 +107,17 @@ pub(crate) fn split_typeset_notice_titles(
             _ => false,
         };
         // An instrument heading its own comparison table starts its own item in any section,
-        // right after the previous instrument's last sentence (「…施行する。」). Above any
-        // other line (its 〇 heading, or a line its preamble was read in after) it does not.
-        let instrument = instruments.iter().any(|t| t.len() == end - first && t.iter().zip(&lines[first..end]).all(|(t, l)| l.trim() == t));
-        if instrument && (first == 0 || !lines[first - 1].trim_end().ends_with('。')) {
-            continue;
+        // right after the previous instrument's last sentence (「…施行する。」), or, read
+        // outside the previous unit's table, right after that table's end. Above any other
+        // line (its 〇 heading, or a line its preamble was read in after) it does not.
+        let instrument = instruments.iter().find(|(t, _)| t.len() == end - first && t.iter().zip(&lines[first..end]).all(|(t, l)| l.trim() == t));
+        if let Some(&(_, after_table)) = instrument {
+            let above = (first > 0).then(|| lines[first - 1].trim());
+            if !above.is_some_and(|l| l.ends_with('。') || (after_table && l == crate::trace::SHINKYU_END)) {
+                continue;
+            }
         }
+        let instrument = instrument.is_some();
         if !inner && !report && !instrument {
             continue;
         }
@@ -149,13 +154,21 @@ pub(crate) fn split_typeset_notice_titles(
 /// ending right above that line (its enactment), since the region can also hold the end of
 /// the previous instrument (「第二条…」 of its 附則). A preamble without a date only
 /// introduces another table of the same instrument.
-fn comparison_heads(page: &PageTrace) -> Vec<Vec<String>> {
+/// A table unit without a preamble region of its own has its instrument's preamble read
+/// as the region outside the previous unit's table, right above its own table; such a
+/// head is marked, since the line above it is the end of the previous table.
+fn comparison_heads(page: &PageTrace) -> Vec<(Vec<String>, bool)> {
     let dated = |l: &crate::trace::Line| {
         l.table.is_none() && l.text.trim().split(char::is_whitespace).next().is_some_and(crate::notice_boundaries::date)
     };
     let mut out = Vec::new();
+    let table = |r: &Region| matches!(r.role, Role::After | Role::Before);
     for (i, r) in page.regions.iter().enumerate() {
-        if r.role != Role::Preamble
+        let next = page.regions.get(i + 1);
+        let outside = r.role == Role::Outside
+            && next.is_some_and(|n| table(n) && n.unit != r.unit)
+            && !page.regions.iter().any(|p| p.role == Role::Preamble && Some(p.unit) == next.map(|n| n.unit));
+        if !(r.role == Role::Preamble || outside)
             || (i > 0 && page.regions[i - 1].role == Role::Preamble && page.regions[i - 1].unit == r.unit)
             || r.lines.iter().any(|l| crate::segment::is_heading_mark(l.text.trim()) || crate::segment::is_section_label(&l.text))
         {
@@ -168,7 +181,8 @@ fn comparison_heads(page: &PageTrace) -> Vec<Vec<String>> {
             continue;
         }
         let start = (0..at - 1).rev().find(|&j| r.lines[j].text.trim_end().ends_with('。')).map_or(0, |j| j + 1);
-        out.push(r.lines[start..].iter().map(|l| l.text.trim().to_string()).collect());
+        let after_table = outside && start == 0 && i > 0 && table(&page.regions[i - 1]) && page.regions[i - 1].unit == r.unit;
+        out.push((r.lines[start..].iter().map(|l| l.text.trim().to_string()).collect(), after_table));
     }
     out
 }
