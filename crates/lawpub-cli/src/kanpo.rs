@@ -128,6 +128,8 @@ pub(crate) fn fill_amend_texts_with(kd: &mut KanpoDate, amend_only: bool, load: 
     // 1項目が複数ページに跨る（新旧対照表等）ため、項目の開始ページから次項目の
     // 開始ページ手前（最終項目は号の総ページ）までを連結して抽出する。
     const MAX_SPAN: u32 = 25;
+    // 欄の文脈として見る項目の前の頁数（頁ごとに取得するので上限を置く）。
+    const CONTEXT_SPAN: u32 = 10;
     let mut stats = FillStats::default();
     // page PDF URL -> 解析の入力（座標付きテキストと罫線）。None は取得/抽出失敗のメモ化。
     let mut page_input: std::collections::HashMap<String, Option<pdf::PageInput>> = Default::default();
@@ -182,9 +184,22 @@ pub(crate) fn fill_amend_texts_with(kd: &mut KanpoDate, amend_only: bool, load: 
                 continue;
             }
 
+            // 項目の前の頁（官庁報告の欄見出しがあれば、その欄の文脈になる）。
+            let mut context: Vec<pdf::PageInput> = Vec::new();
+            for n in item.page.saturating_sub(CONTEXT_SPAN).max(1)..item.page {
+                let Some(url) = page_pdf_url(&item.pdf_url, item.page, n) else { continue };
+                if let Some(cached) = page_input.get(&url) {
+                    context.extend(cached.clone());
+                    continue;
+                }
+                let Some(input) = load(&url) else { continue };
+                context.extend(input.clone());
+                page_input.insert(url, input);
+            }
+
             // 項目のページをまとめて解析する（ページで切れた新旧対照表は 1 つの表につなぎ、
             // 罫線の表は本文の流れの中の表として構造化する）。記事ごとに分け、標題に合う記事を採る。
-            let analysis = pdf::analyze_item(&pages);
+            let analysis = pdf::analyze_item_in_context(&context, &pages);
             if analysis.text.is_empty() {
                 continue;
             }
