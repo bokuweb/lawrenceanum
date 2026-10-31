@@ -63,3 +63,12 @@ opt-level = 3
 
 [profile.dev.package.sha2]
 opt-level = 3
+
+# 官報パーサのテスト（蓄積した官報のスナップショット・コーパス）は debug では CI の 20 分に収まらなくなった。
+# パーサと PDF リーダは debug でも最適化する（手元では CI と同じテストが 706 秒から 515 秒、archive_snapshots は
+# 353 秒から 100 秒）。debug_assertions と overflow-checks は dev のまま。
+[profile.dev.package.kanpo-parser]
+opt-level = 2
+
+[profile.dev.package.kanpo-pdf]
+opt-level = 2
