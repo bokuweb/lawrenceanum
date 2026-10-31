@@ -368,17 +368,22 @@ fn listed_words(title: &str) -> Vec<String> {
 ///
 /// 裁判所の欄の小見出し（「相続財産清算人の選任及び相続権主張の催告」）は、欄見出し「裁判所」が本文に無いと、
 /// 前の欄の最後の公告（「令和８年７月16日　広島法務局」で終わる）の記事に続く（本紙第1749号）。目次の項目と記事を
-/// 1 対 1 にするため、[`pick_listed_section`] で選べない項目について、目次の語（[`listed_words`] の順に、行の見つかる
+/// 1 対 1 にするため、[`pick_listed_section`] で選べない項目について（標題で選べる記事があるなら、その記事の中だけ）、目次の語（[`listed_words`] の順に、行の見つかる
 /// 最初の語）で始まる行（句点の無い行）が、どの記事の先頭にも無く、記事の 2 行目以降にちょうど 1 つあれば、その行から
 /// 後ろを別の記事にする。分ける記事は、分ける行より後ろに表を持たないもので、公告の出典の証明を持たないものに限る
 /// （[`split_paragraphs`]）。
 pub fn split_listed_sections(titles: &[&str], articles: &mut Vec<ArticleAnalysis>) {
     for title in titles {
-        if pick_article(title, articles).is_some() {
+        // 標題で選んだ記事でも、最初の語の小見出しの行がその記事の途中にあるなら分ける（本紙第1806号: 「企業年金基金変更関係」
+        // は鍵の字を含む裁判所の欄の記事を選ぶが、「企業年金基金変更公告」の行はその記事の 4 行目）。
+        let picked = pick_article(title, articles);
+        if picked.is_some_and(|i| pick_listed_section(title, articles) == Some(i)) {
             continue;
         }
         let mut split = None;
-        for word in listed_words(title) {
+        // 標題で選んだ記事は項目の公告を含むので、2 つ目からの語の行（号外第196号の「令和８年度公害防止管理者等…」）では
+        // 分けず、最初の語の行でだけ分ける。
+        for word in listed_words(title).into_iter().take(if picked.is_some() { 1 } else { usize::MAX }) {
             let (heads, mut inner) = listed_lines(&word, articles);
             // 語で始まる小見出しが続く（「相続財産清算人の選任及び相続権主張の催告」「相続権主張の催告」）なら、欄の始まりは最初の行。
             let after_blank = |&(i, j): &(usize, usize), &(pi, pj): &(usize, usize)| {
@@ -393,7 +398,7 @@ pub fn split_listed_sections(titles: &[&str], articles: &mut Vec<ArticleAnalysis
             }
             break;
         }
-        let Some((i, j)) = split else { continue };
+        let Some((i, j)) = split.filter(|&(i, _)| picked.is_none_or(|p| p == i)) else { continue };
         let a = &articles[i];
         if !a.notices.is_empty() {
             continue;
@@ -1369,6 +1374,23 @@ mod tests {
         // ほかの「…関係」の項目に並ぶ語で始まる記事の手前で止まる。
         let c = arts(&["公告\n諸事項\n財団法人…の解散", "令和８年（フ）第１号", "公示催告\n…", "令和８年（ヒ）第２号"]);
         assert_eq!(pick_items(&["財団関係", "相続、公示催告、失踪関係"], &c), vec![vec![0, 1], vec![2, 3]]);
+    }
+
+    #[test]
+    fn a_listed_section_inside_the_article_its_title_picks_is_split_off() {
+        // 本紙第1806号: 「企業年金基金変更関係」は鍵の字を含む裁判所の欄の記事を選ぶが、小見出しの行はその記事の途中にある。
+        let mut a = arts(&["所有者不明土地管理命令に関する異議の催告\n所有者不明建物管理命令に関する異議の催告\n企業年金基金変更公告\n…次のように公告する。"]);
+        let title = "企業年金基金変更関係";
+        assert_eq!(pick_article(title, &a), Some(0));
+        split_listed_sections(&[title], &mut a);
+        assert_eq!(a.len(), 2);
+        assert_eq!(pick_article(title, &a), Some(1));
+        // 2 つ目からの語の行では分けない（号外第196号: 項目の公告が続く）。
+        let mut b = arts(&["高速道路の料金の額及び徴収期間の変更公告\n西日本高速道路株式会社料金の額及び徴収期間の変更について…公告する。\n令和８年度公害防止管理者等資格認定講習\n…"]);
+        let title = "西日本高速道路株式会社料金の額及び徴収期間の変更、令和八年度公害防止管理者等資格認定講習関係";
+        assert_eq!(pick_article(title, &b), Some(0));
+        split_listed_sections(&[title], &mut b);
+        assert_eq!(b.len(), 1);
     }
 
     #[test]
