@@ -78,3 +78,17 @@ fn a_narrow_tier_below_does_not_take_the_title() {
     ws[8].x1 = 230.;
     assert_eq!(bottom_title_cut(&ws, &[], 96.5, &styles), None);
 }
+#[test]
+fn a_title_under_a_right_only_row_is_compared_with_the_nearest_left_line() {
+    // 号外第218号25ページ: the left column ends in a table above the title, so the row right
+    // above the title has only the right column's words.
+    let (mut ws, mut styles) = page(3);
+    ws.retain(|w| w.id != 4);
+    ws.push(word(9, 253., 405., 78., "変更後　17.5過りん酸石灰"));
+    styles.push(glyphs(0));
+    let cut = bottom_title_cut(&ws, &[], 96.5, &styles).expect("cut above the title");
+    assert!(cut <= 86. && cut > 80., "{cut}");
+    // The nearest left line in the title's font: a body line left over, not a title.
+    styles[2] = glyphs(3);
+    assert_eq!(bottom_title_cut(&ws, &[], 96.5, &styles), None);
+}

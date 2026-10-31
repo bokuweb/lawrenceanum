@@ -4983,6 +4983,8 @@ fn band_cut(lines: &[Line], blocks: &[Block]) -> Option<f32> {
 /// 書体が上の行（左の列の本文）とも下の全幅の段の最初の行とも重ならない（「四国地方整備局公示」が左の列の
 /// 最後の行に読まれ、右の列の前の公示の続きより前に読まれていた）。奇数行の段で左の列に 1 行多く
 /// 残った本文は、上の行と同じ書体なので切り直さない。書体が分からない語があれば切り直さない。
+/// 上の行は、左の列に語のある最も近い行とする。左の列の標題の上が表で、すぐ上の行が右の列だけの行のことがある
+/// （号外第218号25ページの「〇海上保安庁告示第三十四号」）。
 fn bottom_title_cut(words: &[Col], blocks: &[Block], cut: f32, styles: &[trace::ContentStyles]) -> Option<f32> {
     let (top, bottom): (Vec<Col>, Vec<Col>) = words.iter().cloned().partition(|w| y_center(w) < cut);
     let tb: Vec<Block> = blocks.iter().filter(|b| (b.1 + b.3) / 2.0 < cut).copied().collect();
@@ -5009,7 +5011,12 @@ fn bottom_title_cut(words: &[Col], blocks: &[Block], cut: f32, styles: &[trace::
     let title: Vec<Col> = rows[k..].iter().flat_map(|r| r.words.iter().cloned()).collect();
     let head = rows[k].words.iter().map(|w| w.x).fold(f32::INFINITY, f32::min);
     let em = (rows[k].y1 - rows[k].y0).max(1.0);
-    let above: Vec<Col> = rows[k - 1].words.iter().filter(|w| w.x1 <= gx).cloned().collect();
+    let above: Vec<Col> = rows[..k]
+        .iter()
+        .rev()
+        .map(|r| r.words.iter().filter(|w| w.x1 <= gx).cloned().collect::<Vec<Col>>())
+        .find(|ws| !ws.is_empty())
+        .unwrap_or_default();
     let below = group_lines(&bottom).into_iter().next()?;
     let (bx0, bx1) = (below.words.iter().map(|w| w.x).fold(f32::INFINITY, f32::min), below.words.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max));
     let style = fonts(&title)?;
