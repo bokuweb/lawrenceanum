@@ -70,12 +70,23 @@ pub fn analyze_item_with_ocr(pages: &[PageInput], ocr: &[Option<OcrPage>]) -> An
         }
     }
     // 画像の見出しの丸印（「〇」）は認識されないか、別の領域（「○」）になる。号数の見出しの形の行で記事を分ける。
+    // 同じ標題の公告が続く（「教育職員免許状失効公告」が 2 件）とき、標題の行は文でない同じ行として繰り返す。最初の行で分けると、
+    // 欄の記事がその標題から始まる。
+    let titled = |l: &str| l.chars().count() >= 2 && !l.contains(['。', '、']) && !l.chars().all(|c| c.is_ascii_digit());
+    let mut counts: std::collections::HashMap<&str, usize> = std::collections::HashMap::new();
+    for l in lines.iter().filter(|l| titled(l)) {
+        *counts.entry(l.as_str()).or_default() += 1;
+    }
+    let mut seen: std::collections::HashSet<String> = std::collections::HashSet::new();
+    let repeated: Vec<bool> = lines.iter().map(|l| counts.get(l.as_str()).is_some_and(|&n| n > 1) && seen.insert(l.clone())).collect();
     let mut chunks: Vec<Vec<String>> = vec![vec![]];
-    for line in lines {
+    for (line, first_repeat) in lines.into_iter().zip(repeated) {
         if is_circle_mark(&line) {
             continue;
         }
-        if numbered_heading(&line) && !chunks.last().unwrap().is_empty() {
+        // 号数の見出しで始まった告示の中の繰り返す行（帰化の「住所東京都新宿区」）では分けない。
+        let in_numbered = chunks.last().unwrap().first().is_some_and(|l| numbered_heading(l));
+        if (numbered_heading(&line) || (first_repeat && !in_numbered)) && !chunks.last().unwrap().is_empty() {
             chunks.push(vec![]);
         }
         chunks.last_mut().unwrap().push(line);

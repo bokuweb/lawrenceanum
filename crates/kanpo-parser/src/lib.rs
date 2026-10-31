@@ -408,11 +408,8 @@ pub fn split_listed_sections(titles: &[&str], articles: &mut Vec<ArticleAnalysis
             if heads.is_empty() && inner.is_empty() {
                 continue;
             }
-            // 同じ語の小見出しの公告が続く（「教育職員免許状失効公告」が 2 件）なら、どれも同じ記事の中にあるので、最初の行で分ける。
-            if let ([], [at, rest @ ..]) = (&heads[..], &inner[..]) {
-                if rest.iter().all(|&(i, _)| i == at.0) {
-                    split = Some(*at);
-                }
+            if let ([], [at]) = (&heads[..], &inner[..]) {
+                split = Some(*at);
             }
             break;
         }
