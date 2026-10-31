@@ -159,6 +159,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                             &native_flows,
                             &advance_bands,
                             page_rules.map(|r|r.enclosures.as_slice()).unwrap_or(&[]),
+                            &native_content_styles,
                         )
                     }
                 };

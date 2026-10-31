@@ -57,6 +57,7 @@ impl F {
             bounds: &self.bounds,
             axes: &self.axes,
             flows: &self.flows,
+            styles: &[],
         }
     }
     fn line(&self, ids: &[usize]) -> trace::Line {
