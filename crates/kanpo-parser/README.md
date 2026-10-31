@@ -3053,3 +3053,11 @@ main（#306 まで）と #307 の後と CLI の範囲で照合すると、号外
 - `split_listed_sections`: 語で始まる行は、元の並びの直前の行と比べ、すぐ前の行も語で始まる行なら数えない。
 
 main（#308 まで）と CLI の範囲で照合すると、記事を選べない項目は599から594に減った。新しく選んだ5項目は、どれも「破産、免責、再生関係」である。項目の選ぶ記事の後ろに残る記事は281のまま。
+
+### native263av: 明示的に渡した OCR の結果から画像本文の記事を作る（opt-in）
+
+- `analyze_item_with_ocr(pages, ocr)`: `ocr[i]` は NDLOCR の trace（`OcrPage::from_ndlocr_trace`）。すべて `None` なら `analyze_item` と同じ結果になる。通常の解析は画像を認識しない。
+- ネイティブの記事は変えない。字全体がネイティブの本文に続けて現れる領域は除く。残りの領域は枠だけで読み順を決める（XY-cut）。号数の見出しだけの行（丸印が認識されていなくてもよい）と `segment_articles` で分け、ネイティブの記事の後ろに足す。
+- census の画像だけの157項目（先頭2ページを認識）: 選べる項目は0から128になった。代理の判定で正しいのは102件（号数見出しで分けない場合は53件）。誤りの分類と例は [docs/ocr-articles-263.md](../../docs/ocr-articles-263.md) にある。
+- テスト（[tests/ocr_articles_opt_in.rs](tests/ocr_articles_opt_in.rs)）は固定の trace JSON を使い、OCR を実行しない。
+
