@@ -137,3 +137,17 @@ fn abbreviated_agencies_in_titles_pick_the_heading_with_the_same_number() {
     assert_eq!(head(kanpo_parser::pick_article(&title("山口県公安委告示配一"), &a)), "山口県公安委員会告示配第一号");
     assert_eq!(head(kanpo_parser::pick_article(&title("福岡県公安委告示配四"), &a)), "福岡県公安委員会告示配第四号");
 }
+
+#[test]
+fn repeated_listed_headings_in_one_ocr_article_split_at_the_first() {
+    let pages = page("20260716h017490002");
+    let lines = ["令和8年(再イ)第9号", "再生債務者 株式会社甲", "教育職員免許状失効公告", "次の免許状は失効した", "令和8年8月4日 甲県教育委員会", "教育職員免許状失効公告", "次の免許状は失効した", "行旅死亡人", "本籍・住所・氏名不詳の男性"];
+    let regions = lines.iter().enumerate().map(|(k, l)| region(l, [0.0, 3000.0 + 50.0 * k as f64, 800.0, 3040.0 + 50.0 * k as f64])).collect();
+    let mut ocrs = vec![None; pages.len()];
+    ocrs[0] = Some(OcrPage::from_ndlocr_trace(&trace(regions)).unwrap());
+    let mut a = analyze_item_with_ocr(&pages, &ocrs).articles;
+    let titles = ["教育職員免許状失効、行旅死亡人関係"];
+    kanpo_parser::split_listed_sections(&titles, &mut a);
+    let picked = &kanpo_parser::pick_items(&titles, &a)[0];
+    assert!(a[picked[0]].text.starts_with("教育職員免許状失効公告"), "{:?}", picked.iter().map(|&i| &a[i].text).collect::<Vec<_>>());
+}
