@@ -89,7 +89,12 @@ fn is_article_boundary(line: &str) -> bool {
         || {
             // 区分見出しは字間を空けて組まれる（「法　規　的　告　示」）。
             let compact: String = t.chars().filter(|c| !c.is_whitespace()).collect();
-            SECTION_HEADERS.contains(&compact.as_str()) || FIELD_HEADERS.contains(&compact.as_str()) || TEXT_FIELD_HEADERS.contains(&compact.as_str())
+            SECTION_HEADERS.contains(&compact.as_str())
+                || FIELD_HEADERS.contains(&compact.as_str())
+                || TEXT_FIELD_HEADERS.contains(&compact.as_str())
+                // 「資料」は本文の単独行（「⒜…情報及び / 資料 / ⒝…」）にもなるので、字間を空けて組んだ見出し
+                // （「資　料」）だけを区分見出しとみなす。
+                || (compact == "資料" && t.contains(char::is_whitespace))
         }
 }
 
@@ -371,6 +376,16 @@ mod tests {
         assert!(arts[0].ends_with("理事長山口敬"));
         assert!(arts[1].starts_with("会社その他の公告\n合併公告"));
         assert!(!is_report_field("会社その他の公告"));
+    }
+
+    #[test]
+    fn spaced_materials_heading_starts_an_article_but_a_bare_line_does_not() {
+        // 本紙第1792号9ページ: 最低賃金の公示の後に、字間を空けた「資　料」の区分で国際収支状況が続く。
+        let text = "労働\n最低賃金の改正決定に関する公示\n…決定したので公示する。\n資　料\n令和８年７月中国際収支状況（速報）\n項目　７月";
+        let arts = segment_articles(text);
+        assert_eq!(arts.len(), 2, "{arts:?}");
+        assert!(arts[1].starts_with("資　料\n令和８年７月中国際収支状況"));
+        assert_eq!(segment_articles("⒜計画の実施の進捗状況についての情報及び\n資料\n⒝計画に関連するその他の情報").len(), 1);
     }
 
     #[test]
