@@ -261,7 +261,18 @@ pub fn analyze_item_in_context(context: &[PageInput], pages: &[PageInput]) -> An
 /// 号外の 1 ページ目の目次（「破産、免責、再生関係　一」）は、項目の標題をそのまま載せるので標題の鍵に合う。選んだ記事が
 /// その標題を目次の項目として載せる記事なら、その記事を除いて選び直す。
 pub fn pick_article(title: &str, articles: &[ArticleAnalysis]) -> Option<usize> {
-    let pick = |articles: &[ArticleAnalysis]| pick_article_by_title(title, articles).or_else(|| pick_listed_section(title, articles));
+    let pick = |articles: &[ArticleAnalysis]| {
+        if title.ends_with("関係") {
+            // 目次は欄の公告を順に並べるので、標題の鍵で選んだ記事より前に、小見出しで選べる記事があればそちらから始まる
+            // （号外第217号: 「独立行政法人北方領土問題対策協会…財務諸表、国立研究開発法人宇宙航空研究開発機構…関係」）。
+            match (pick_article_by_title(title, articles), pick_listed_section(title, articles)) {
+                (Some(t), Some(l)) => Some(t.min(l)),
+                (t, l) => t.or(l),
+            }
+        } else {
+            pick_article_by_title(title, articles).or_else(|| pick_listed_section(title, articles))
+        }
+    };
     match pick(articles) {
         Some(i) if lists_as_toc_entry(&articles[i], title) => {
             let mut rest = articles.to_vec();
