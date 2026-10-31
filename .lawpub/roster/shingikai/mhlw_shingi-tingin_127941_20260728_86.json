@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "corpus": "shingikai",
+  "id": "mhlw_shingi-tingin_127941_20260728_86",
+  "date": "2026-07-28",
+  "title": "目安に関する小委員会 令和８年度第６回",
+  "organization": "厚生労働省",
+  "committee": "目安に関する小委員会",
+  "url": "https://www.mhlw.go.jp/stf/newpage_74965.html",
+  "laws": [
+    {
+      "law_id": "334AC0000000137",
+      "title": "最低賃金法"
+    }
+  ],
+  "speakers": []
+}

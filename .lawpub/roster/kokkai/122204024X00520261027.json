@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "corpus": "kokkai",
+  "id": "122204024X00520261027",
+  "date": "2026-10-27",
+  "title": "衆議院 議院運営委員会 第5号",
+  "organization": "衆議院",
+  "committee": "議院運営委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122204024X00520261027",
+  "laws": [
+    {
+      "law_id": "323AC0000000136",
+      "title": "警察官職務執行法"
+    }
+  ],
+  "speakers": []
+}

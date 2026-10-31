@@ -44981,33 +44981,98 @@
     97205,
     97206,
     97208,
-    97209
+    97209,
+    97215,
+    97217
   ],
   "pending": {
-    "95468": {
-      "first_seen": "2026-10-29",
+    "94677": {
+      "first_seen": "2026-10-31",
       "attempts": 1,
       "status": "summary_incomplete",
       "origin": "backfill",
-      "next_attempt": "2026-10-30",
+      "next_attempt": "2026-11-01",
       "selection_reason": "shared_article",
       "refresh": false
     },
-    "96841": {
-      "first_seen": "2026-10-27",
+    "95468": {
+      "first_seen": "2026-10-29",
       "attempts": 2,
       "status": "summary_incomplete",
       "origin": "backfill",
-      "next_attempt": "2026-10-31",
+      "next_attempt": "2026-11-03",
       "selection_reason": "shared_article",
+      "refresh": false
+    },
+    "96067": {
+      "first_seen": "2026-10-31",
+      "attempts": 1,
+      "status": "summary_incomplete",
+      "origin": "backfill",
+      "next_attempt": "2026-11-01",
+      "selection_reason": "shared_article",
+      "refresh": false
+    },
+    "96968": {
+      "first_seen": "2026-10-31",
+      "attempts": 1,
+      "status": "summary_incomplete",
+      "origin": "backfill",
+      "next_attempt": "2026-11-01",
+      "selection_reason": "corpus_cursor",
+      "refresh": false
+    },
+    "97036": {
+      "first_seen": "2026-10-31",
+      "attempts": 1,
+      "status": "summary_incomplete",
+      "origin": "backfill",
+      "next_attempt": "2026-11-01",
+      "selection_reason": "corpus_cursor",
+      "refresh": false
+    },
+    "97071": {
+      "first_seen": "2026-10-31",
+      "attempts": 1,
+      "status": "summary_incomplete",
+      "origin": "backfill",
+      "next_attempt": "2026-11-01",
+      "selection_reason": "corpus_cursor",
       "refresh": false
     },
     "97080": {
       "first_seen": "2026-10-29",
+      "attempts": 2,
+      "status": "summary_incomplete",
+      "origin": "backfill",
+      "next_attempt": "2026-11-03",
+      "selection_reason": "corpus_cursor",
+      "refresh": false
+    },
+    "97081": {
+      "first_seen": "2026-10-31",
       "attempts": 1,
       "status": "summary_incomplete",
       "origin": "backfill",
-      "next_attempt": "2026-10-30",
+      "next_attempt": "2026-11-01",
+      "selection_reason": "corpus_cursor",
+      "refresh": false
+    },
+    "97130": {
+      "first_seen": "2026-10-31",
+      "attempts": 1,
+      "status": "summary_incomplete",
+      "origin": "backfill",
+      "next_attempt": "2026-11-01",
+      "selection_reason": "corpus_cursor",
+      "refresh": false
+    },
+    "97134": {
+      "first_seen": "2026-10-31",
+      "attempts": 1,
+      "status": "summary_incomplete",
+      "origin": "backfill",
+      "next_attempt": "2026-11-01",
       "selection_reason": "corpus_cursor",
       "refresh": false
     },
@@ -45021,12 +45086,12 @@
       "refresh": false
     }
   },
-  "backfill_cursor": 97124,
+  "backfill_cursor": 97130,
   "daily": {
-    "date": "2026-10-29",
-    "new_planned": 0,
+    "date": "2026-10-31",
+    "new_planned": 2,
     "backfill_planned": 20,
-    "new_probes": 0,
-    "backfill_probes": 21
+    "new_probes": 2,
+    "backfill_probes": 20
   }
 }
