@@ -815,7 +815,10 @@ pub fn pick_items(titles: &[&str], articles: &[ArticleAnalysis]) -> Vec<Vec<usiz
             if !listed && series.contains(&j) {
                 continue;
             }
-            if claimed.contains(&j) || field_end || segment::is_section_label(&h) || numbered || h.contains("をここに公布する") {
+            // 標題（「…財務諸表に関する / 公告」）の最後の行「公告」が区分見出しとして記事を分けたなら、前の標題だけの記事の続き。
+            let title_only = |a: &ArticleAnalysis| !a.text.contains('。') && a.text.lines().filter(|l| !l.trim().is_empty()).count() <= 2;
+            let title_tail = listed && matches!(h.as_str(), "公告" | "公示") && p.last() == Some(&(j - 1)) && title_only(&articles[j - 1]);
+            if claimed.contains(&j) || (!title_tail && (field_end || segment::is_section_label(&h))) || numbered || h.contains("をここに公布する") {
                 break;
             }
             p.push(j);
@@ -1430,6 +1433,26 @@ mod tests {
         let title = "裁判所共済組合（定款の一部変更・令和七年度決算）、独立行政法人都市再生機構関係";
         assert_eq!(pick_article(title, &a), Some(0));
         assert_eq!(pick_items(&[title], &a), vec![vec![0, 1, 2]]);
+    }
+
+    #[test]
+    fn a_listed_item_starts_at_the_earlier_of_its_title_and_heading_picks() {
+        // 号外第217号: 標題の鍵は後ろの大きい財務諸表の記事にも合うが、目次の最初の語の小見出しで始まる記事が前にある。
+        let a = arts(&[
+            "独立行政法人北方領土問題対策協会令和７事業年度財務諸表に関する公告\n…貸借対照表…",
+            "国立研究開発法人宇宙航空研究開発機構令和７事業年度財務諸表に関する公告\n独立行政法人北方領土問題対策協会…国立研究開発法人宇宙航空研究開発機構令和七事業年度財務諸表…の規定に基づき…貸借対照表…損益計算書…次のように…定める",
+        ]);
+        let title = "独立行政法人北方領土問題対策協会令和七事業年度財務諸表、国立研究開発法人宇宙航空研究開発機構令和七事業年度財務諸表関係";
+        assert_eq!(pick_article_by_title(title, &a), Some(1));
+        assert_eq!(pick_article(title, &a), Some(0));
+        // 号外第216号: 標題だけの記事の後ろの「公告」の行は、折り返した標題の最後の行。
+        let b = arts(&[
+            "独立行政法人日本学術振興会令和７事業年度財務諸表に関する",
+            "公告\n独立行政法人通則法…公告する。",
+            "国立研究開発法人水産研究・教育機構令和７事業年度財務諸表に関する公告\n…",
+        ]);
+        let title = "独立行政法人日本学術振興会令和七事業年度財務諸表、国立研究開発法人水産研究・教育機構令和七事業年度財務諸表関係";
+        assert_eq!(pick_items(&[title], &b), vec![vec![0, 1, 2]]);
     }
 
     #[test]
