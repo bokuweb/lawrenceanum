@@ -222,6 +222,24 @@
   let (pages,joined)=comparison(&lines);
   assert_eq!(split_pages(&pages,&joined).len(),1);
  }
+ #[test]fn an_instrument_read_outside_the_previous_table_starts_after_that_table(){
+  // The next unit has no preamble region; its enactment is read outside the previous unit's
+  // table, right after the table's end marker.
+  let next=[("人事院は、国と民間企業との間の人事交流に関する法律に基づき、次の人事院規則を制定する。",Role::Outside,0),("令和八年十月一日　人事院総裁川本裕子",Role::Outside,0),("人事院規則二一－〇－一二",Role::Outside,0),("人事院規則二一－〇の一部を改正する人事院規則",Role::Outside,0)];
+  let lines:Vec<_>=RULE_A[..6].iter().copied().chain(next).chain([("（定義）",Role::After,1)]).collect();
+  let (pages,_)=comparison(&lines);
+  let text=|l:&[(&str,Role,usize)]|l.iter().map(|l|l.0).collect::<Vec<_>>().join("\n");
+  let joined=format!("{}\n{}\n{}",text(&lines[..6]),crate::trace::SHINKYU_END,text(&lines[6..]));
+  let a=split_pages(&pages,&joined);
+  assert_eq!(a.len(),2);assert!(a[0].ends_with(crate::trace::SHINKYU_END)&&a[1].starts_with("人事院は、"));
+  // Without the table's end right above, the line above is not where an instrument ends.
+  assert_eq!(split_pages(&pages,&text(&lines)).len(),1);
+  // Outside text followed by another table of its own unit is not the next unit's preamble.
+  let lines:Vec<_>=RULE_A[..6].iter().copied().chain(next).chain([("（定義）",Role::After,0)]).collect();
+  let (pages,_)=comparison(&lines);
+  let joined=format!("{}\n{}\n{}",text(&lines[..6]),crate::trace::SHINKYU_END,text(&lines[6..]));
+  assert_eq!(split_pages(&pages,&joined).len(),1);
+ }
  #[test]fn a_comparison_preamble_without_its_own_date_continues_the_instrument(){
   // A second table of the same instrument is introduced without an enactment date.
   let lines:Vec<_>=RULE_A.iter().copied().chain([("次の表により、改正前欄に掲げる規定を改正後欄に掲げる規定のように改める。",Role::Preamble,1),("（本府省業務調整手当）",Role::After,1)]).collect();
