@@ -143,6 +143,25 @@
   let joined=lines[1..].iter().map(|l|l.0).collect::<Vec<_>>().join("\n");
   assert_eq!(split(&lines[1..],&[&joined]).len(),1);
  }
+ #[test]fn a_label_below_shows_the_section_when_none_is_above(){
+  // The item's pages begin inside 官庁報告; a field of it, or 諸事項 (the first field of 公告),
+  // comes later.
+  let title=[("令和８年６月19日付けで代表者の変更があっ",1),("たため",1),("登録消火講習機関の登録事項の変更に関する公示",0),BODY];
+  let run=|below:&[(&str,usize)]|{
+   let lines:Vec<_>=title.iter().copied().chain(below.iter().copied()).collect();
+   split(&lines,&[&lines.iter().map(|l|l.0).collect::<Vec<_>>().join("\n")])
+  };
+  for below in [&[("国家試験",2)][..],&[("公告",2),("諸事項",2)]]{
+   let a=run(below);
+   assert_eq!(a.len(),2);assert!(a[0].ends_with("\nたため"));assert!(a[1].starts_with(title[2].0));
+  }
+  // 官庁報告 below: the title precedes the section. 地方自治事項 below: the title may be in 公告.
+  // A lone 「公告」 line can end a wrapped title.
+  for below in [&[REPORT][..],&[("地方自治事項",2)],&[("公告",2)]]{assert_eq!(run(below).len(),1);}
+  // 皇室事項 is printed before 官庁報告 and can be followed directly by 公告 and 諸事項.
+  let lines:Vec<_>=[("皇室事項",3)].into_iter().chain(title).chain([("公告",2),("諸事項",2)]).collect();
+  assert_eq!(split(&lines,&[&lines.iter().map(|l|l.0).collect::<Vec<_>>().join("\n")]).len(),1);
+ }
  #[test]fn fields_listed_in_the_table_of_contents_do_not_show_the_section(){
   // The table of contents prints 〔官庁報告〕 and its fields before a cabinet order.
   let lines=[("〔官庁報告〕",1),("国家試験",2),("に改める。",1),("政令第二百三十三号",0),BODY];
