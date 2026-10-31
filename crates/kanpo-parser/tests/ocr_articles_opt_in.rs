@@ -1,0 +1,89 @@
+//! OCR を明示的に渡したときだけ画像本文を記事にする（opt-in）。OCR の実行は不要で、
+//! NDLOCR の trace と同じ形の固定 JSON を使う。
+use kanpo_parser::{analyze_item, analyze_item_with_ocr, ocr_articles::reading_order, OcrPage, OcrRegion};
+
+fn page(name: &str) -> Vec<kanpo_parser::PageInput> {
+    let path = format!("{}/tests/archive/pages/20260716h01749/{name}.pdf", env!("CARGO_MANIFEST_DIR"));
+    kanpo_parser::page_inputs(&std::fs::read(path).unwrap()).unwrap()
+}
+
+fn region(text: &str, bbox: [f64; 4]) -> serde_json::Value {
+    serde_json::json!({"text": text, "bbox": bbox, "is_vertical": false, "confidence": 0.99})
+}
+
+fn trace(regions: Vec<serde_json::Value>) -> String {
+    serde_json::json!({"schema_version": 1, "width": 3509, "height": 2480, "stages": {"reading_order": regions}}).to_string()
+}
+
+#[test]
+fn without_ocr_the_result_is_byte_identical_to_the_default() {
+    let pages = page("20260716h017490002");
+    let none = vec![None; pages.len()];
+    assert_eq!(
+        serde_json::to_string(&analyze_item_with_ocr(&pages, &none)).unwrap(),
+        serde_json::to_string(&analyze_item(&pages)).unwrap()
+    );
+}
+
+#[test]
+fn ndlocr_trace_regions_keep_text_box_and_orientation() {
+    let p = OcrPage::from_ndlocr_trace(&trace(vec![region("住所東京都港区", [10.0, 20.0, 300.0, 60.0])])).unwrap();
+    assert_eq!(p.regions, vec![OcrRegion { text: "住所東京都港区".into(), bbox: [10.0, 20.0, 300.0, 60.0], vertical: false }]);
+    assert!(OcrPage::from_ndlocr_trace("{}").is_err());
+}
+
+#[test]
+fn reading_order_reads_columns_left_to_right_below_a_spanning_title() {
+    let r = |t: &str, b: [f64; 4]| OcrRegion { text: t.into(), bbox: b, vertical: false };
+    // 2 段の行が同じ高さに並び、上に両段を横切る標題がある。行の y が揃っても段を混ぜない。
+    let regions = vec![r("右1", [600.0, 100.0, 1000.0, 140.0]), r("左1", [0.0, 100.0, 400.0, 140.0]), r("標題", [0.0, 0.0, 1000.0, 50.0]), r("左2", [0.0, 160.0, 400.0, 200.0]), r("右2", [600.0, 160.0, 1000.0, 200.0])];
+    let order: Vec<&str> = reading_order(&regions).iter().map(|r| r.text.as_str()).collect();
+    assert_eq!(order, ["標題", "左1", "左2", "右1", "右2"]);
+    // 縦組みの領域だけなら右の行から読む。
+    let v = |t: &str, x: f64| OcrRegion { text: t.into(), bbox: [x, 0.0, x + 30.0, 500.0], vertical: true };
+    let vs = vec![v("二", 0.0), v("一", 100.0)];
+    assert_eq!(reading_order(&vs).iter().map(|r| r.text.as_str()).collect::<Vec<_>>(), ["一", "二"]);
+}
+
+#[test]
+fn image_text_becomes_a_pickable_article_and_native_duplicates_are_dropped() {
+    let pages = page("20260716h017490002");
+    let base = analyze_item(&pages);
+    let native_line = base.text.lines().map(str::trim).find(|l| l.chars().count() >= 8).unwrap().to_string();
+    let title = "日本国に帰化を許可する件（法務省告示配一〇七）";
+    let ocr = OcrPage::from_ndlocr_trace(&trace(vec![
+        region(&native_line, [0.0, 0.0, 800.0, 40.0]),
+        region("〇法務省告示配第百七号", [0.0, 100.0, 800.0, 140.0]),
+        region("左記の者の申請に係る日本国に帰化の件は、これを許可する。", [0.0, 150.0, 800.0, 190.0]),
+        region("住所東京都港区", [0.0, 200.0, 800.0, 240.0]),
+    ]))
+    .unwrap();
+    let mut ocrs = vec![None; pages.len()];
+    ocrs[0] = Some(ocr);
+    let with = analyze_item_with_ocr(&pages, &ocrs);
+    assert_eq!(serde_json::to_value(&with.articles[..base.articles.len()]).unwrap(), serde_json::to_value(&base.articles).unwrap(), "native articles are kept as they are");
+    let added: Vec<&str> = with.articles[base.articles.len()..].iter().map(|a| a.text.as_str()).collect();
+    assert!(added.iter().all(|t| !t.contains(&native_line)), "OCR of native text is not added twice: {added:?}");
+    let i = kanpo_parser::pick_article(title, &with.articles).expect("the OCR article is picked");
+    assert!(with.articles[i].text.starts_with("〇法務省告示配第百七号"), "{:?}", with.articles.iter().map(|a| a.text.chars().take(40).collect::<String>()).collect::<Vec<_>>());
+    assert_eq!(kanpo_parser::pick_article(title, &base.articles), None, "default parsing does not see the image");
+}
+
+#[test]
+fn numbered_headings_without_a_recognized_circle_start_articles() {
+    let pages = page("20260716h017490002");
+    // 画像の見出しの丸印は認識されないか、別の領域「○」になる。
+    let ocr = OcrPage::from_ndlocr_trace(&trace(vec![
+        region("法務省告示配第百十五号", [0.0, 0.0, 800.0, 40.0]),
+        region("北海道赤平市役所保存の次の除籍が滅失した。", [0.0, 50.0, 800.0, 90.0]),
+        region("○", [0.0, 100.0, 40.0, 140.0]),
+        region("法務省告示配第百十六号", [50.0, 100.0, 800.0, 140.0]),
+        region("次の者を承認した。", [0.0, 150.0, 800.0, 190.0]),
+    ]))
+    .unwrap();
+    let mut ocrs = vec![None; pages.len()];
+    ocrs[0] = Some(ocr);
+    let base = analyze_item(&pages).articles.len();
+    let added: Vec<String> = analyze_item_with_ocr(&pages, &ocrs).articles[base..].iter().map(|a| a.text.clone()).collect();
+    assert_eq!(added, ["法務省告示配第百十五号\n北海道赤平市役所保存の次の除籍が滅失した。", "法務省告示配第百十六号\n次の者を承認した。"]);
+}
