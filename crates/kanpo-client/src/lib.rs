@@ -17,7 +17,7 @@ pub use http::{extract_agency_hint, issue_dir, page_pdf_url, HttpProvider};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct KanpoIssue {
-    pub issue_type: String,           // "regular" | "extra" | "special_extra"
+    pub issue_type: String,           // "regular" | "extra" | "special_extra" | "procurement"
     pub issue_no: String,             // "第101号" 等
     pub pdf_url: String,
     pub sha256: Option<String>,

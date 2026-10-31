@@ -240,7 +240,7 @@ export type KanpoItem = {
   /** 告示などの根拠法令（改正対象が引けないときだけ）。 */
   basis_laws?: KanpoLawRef[]
 }
-/** 官報の 1 号。issue_type は regular（本紙）/ extra（号外）/ special_extra（特別号外）など。 */
+/** 官報の 1 号。issue_type は regular（本紙）/ extra（号外）/ special_extra（特別号外）/ procurement（政府調達）など。 */
 export type KanpoIssue = {
   issue_type: string
   issue_no: string

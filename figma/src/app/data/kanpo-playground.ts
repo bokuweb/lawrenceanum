@@ -310,7 +310,7 @@ export function itemPageRange(issue: ArchiveIssue, index: number): { first: numb
 /** 号の種類の表示名。 */
 export function issueTypeLabel(t: string): string {
   return (
-    { regular: "本紙", extra: "号外", special_extra: "特別号外" } as Record<string, string>
+    { regular: "本紙", extra: "号外", special_extra: "特別号外", procurement: "政府調達" } as Record<string, string>
   )[t] ?? t;
 }
 

@@ -51,7 +51,7 @@ export function useKanpoDay(date: string | null) {
 
 /** 号の種別の表示名。 */
 export function kanpoIssueLabel(issue: Pick<KanpoIssue, "issue_type" | "issue_no">): string {
-  const kind = ({ regular: "本紙", extra: "号外", special_extra: "特別号外" } as Record<string, string>)[issue.issue_type];
+  const kind = ({ regular: "本紙", extra: "号外", special_extra: "特別号外", procurement: "政府調達" } as Record<string, string>)[issue.issue_type];
   return kind ? `${kind} ${issue.issue_no}` : issue.issue_no;
 }
 

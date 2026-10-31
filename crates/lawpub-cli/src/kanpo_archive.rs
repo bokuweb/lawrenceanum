@@ -29,7 +29,7 @@ struct Manifest {
 
 #[derive(Serialize, Deserialize)]
 struct IssueEntry {
-    /// "regular" | "extra" | "special_extra" 等。
+    /// "regular" | "extra" | "special_extra" | "procurement" 等。
     issue_type: String,
     issue_no: String,
     /// 号ディレクトリ名（例: `20261005h01801`）。ページファイルはこの下に置く。
@@ -215,21 +215,32 @@ impl Archive {
     }
 }
 
+/// manifest の号の項目のうち、その号の項目。目次は号の項目をページ順に並べるので、ページが前に戻った項目から後ろは
+/// 別の号の項目である。目次の「政府調達」の見出しを号として読まなかった頃の manifest は、号外の後ろに政府調達の号の
+/// 項目（「入札公告　1」…）を続けて持ち、そのページは政府調達の号のページで、この号のページではない。
+fn own_items(issue: &IssueEntry) -> &[ItemEntry] {
+    let end = (1..issue.items.len()).find(|&k| issue.items[k].page < issue.items[k - 1].page).unwrap_or(issue.items.len());
+    if end < issue.items.len() {
+        tracing::warn!("{}: {} item(s) after page {} belong to another issue; skipped", issue.dir, issue.items.len() - end, issue.items[end - 1].page);
+    }
+    &issue.items[..end]
+}
+
 /// manifest から、デジタル官報の目次を取ったときと同じ形の `KanpoDate` を組み立てる。
 fn kanpo_date(manifest: &Manifest) -> kanpo_client::KanpoDate {
     let issues = manifest
         .issues
         .iter()
-        .map(|i| kanpo_client::KanpoIssue {
+        .map(|i| (i, own_items(i)))
+        .map(|(i, items)| kanpo_client::KanpoIssue {
             issue_type: i.issue_type.clone(),
             issue_no: i.issue_no.clone(),
             pdf_url: i.url.clone(),
             sha256: None,
             promulgation_date: manifest.date.clone(),
             law_nums: Vec::new(),
-            titles: i.items.iter().map(|it| it.title.clone()).collect(),
-            items: i
-                .items
+            titles: items.iter().map(|it| it.title.clone()).collect(),
+            items: items
                 .iter()
                 .map(|it| kanpo_client::KanpoItem {
                     title: it.title.clone(),
@@ -359,6 +370,24 @@ mod tests {
         assert_eq!(item.agency_hint.as_deref(), Some("三二五"));
         assert_eq!(kd.issues[0].page_count, Some(176));
         assert_eq!(kd.issues[0].promulgation_date, "2026-10-09");
+    }
+
+    #[test]
+    fn items_after_the_page_order_falls_back_belong_to_another_issue() {
+        // 号外第226号の目次の後ろに、政府調達の号の項目（ページは政府調達の号のもの）が続いた manifest。
+        let manifest: Manifest = serde_json::from_value(serde_json::json!({
+            "date": "2026-10-15",
+            "issues": [{"issue_type": "extra", "issue_no": "第226号", "dir": "20261015g00226",
+                        "url": "https://www.kanpo.go.jp/20261015/20261015g00226/", "page_count": 140, "pages": [],
+                        "items": [{"title": "環境影響評価法の一部を改正する法律の施行期日を定める政令（三二六）", "page": 2},
+                                  {"title": "会社その他", "page": 125},
+                                  {"title": "入札公告", "page": 1},
+                                  {"title": "落札者等の公示", "page": 39}]}]
+        }))
+        .unwrap();
+        let kd = kanpo_date(&manifest);
+        assert_eq!(kd.issues[0].items.iter().map(|i| i.page).collect::<Vec<_>>(), vec![2, 125]);
+        assert_eq!(kd.issues[0].titles.len(), 2);
     }
 
     #[test]
