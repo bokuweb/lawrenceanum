@@ -219,8 +219,36 @@ pub fn analyze_item(pages: &[PageInput]) -> Analysis {
 /// 算用数字）とダッシュを除いて比べ直す（標題「人事院規則二―四」・本文「人事院規則２－４」）。
 ///
 /// 標題で選べない「…関係」の項目は [`pick_listed_section`] で選ぶ。
+///
+/// 号外の 1 ページ目の目次（「破産、免責、再生関係　一」）は、項目の標題をそのまま載せるので標題の鍵に合う。選んだ記事が
+/// その標題を目次の項目として載せる記事なら、その記事を除いて選び直す。
 pub fn pick_article(title: &str, articles: &[ArticleAnalysis]) -> Option<usize> {
-    pick_article_by_title(title, articles).or_else(|| pick_listed_section(title, articles))
+    let pick = |articles: &[ArticleAnalysis]| pick_article_by_title(title, articles).or_else(|| pick_listed_section(title, articles));
+    match pick(articles) {
+        Some(i) if lists_as_toc_entry(&articles[i], title) => {
+            let mut rest = articles.to_vec();
+            for a in rest.iter_mut().filter(|a| lists_as_toc_entry(a, title)) {
+                a.text.clear();
+            }
+            pick(&rest)
+        }
+        picked => picked,
+    }
+}
+
+/// 記事が、標題を目次の項目（標題の終わりの行の後ろに字間を空けて頁「　一」「　三三」）として載せるか。目次は長い標題を
+/// 折り返す（「…一般旅券の返納 / 命令に関する通知関係　一」）ので、頁の前の字が標題の終わりの 2 字以上と合えばよい。
+fn lists_as_toc_entry(a: &ArticleAnalysis, title: &str) -> bool {
+    let title: String = title.chars().filter(|c| !c.is_whitespace()).collect();
+    a.text.lines().any(|l| {
+        let l = l.trim();
+        let Some((head, page)) = l.rsplit_once('\u{3000}') else { return false };
+        let head: String = head.chars().filter(|c| !c.is_whitespace()).collect();
+        !page.is_empty()
+            && page.chars().all(|c| "〇一二三四五六七八九十百千".contains(c))
+            && head.chars().count() >= 2
+            && title.ends_with(&head)
+    })
 }
 
 /// 公告の欄をまとめた目次の項目（「相続、公示催告、失踪、…、所有者不明関係」「破産、免責、再生関係」）は、欄に載る
@@ -941,6 +969,24 @@ mod tests {
         // 最初の語で始まる記事が 2 つ以上あるとき、「関係」で終わらない標題のときは選ばない。
         assert_eq!(pick_article("破産、免責、再生関係", &[a[1].clone(), a[1].clone()]), None);
         assert_eq!(pick_article("破産、免責、再生", &a), None);
+    }
+
+    #[test]
+    fn a_toc_listing_of_the_title_is_not_picked() {
+        // 号外第200号1ページ: 目次が標題と頁（「（経済産業省）　一」）を載せ、本文の公示は後ろにある。
+        let a = arts(&[
+            "国家試験\n令和八年度情報処理技術者試験合格者\n（経済産業省）　一\n〔公告〕",
+            "官庁報告\n国家試験\n令和８年度情報処理技術者試験合格者\n令和８年度情報処理技術者試験（７月実施分）の合格者を次のとおり公示する。",
+        ]);
+        assert_eq!(pick_article("令和八年度情報処理技術者試験合格者（経済産業省）", &a), Some(1));
+        // 号外第159号1ページ: 「破産、免責、再生関係　一」の目次の後に、公告の欄の小見出しが続く。
+        let a = arts(&[
+            "諸事項\n裁判所\n破産、免責、再生関係　一\n特殊法人等\n会社その他　四八",
+            "公告\n破産手続開始\n破産手続開始及び免責許可申立てに関する意見申述期間",
+        ]);
+        assert_eq!(pick_article("破産、免責、再生関係", &a), Some(1));
+        // 目次しか無ければ選ばない。
+        assert_eq!(pick_article("破産、免責、再生関係", &a[..1]), None);
     }
 
     #[test]
