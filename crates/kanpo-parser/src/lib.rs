@@ -208,6 +208,44 @@ pub fn analyze_item(pages: &[PageInput]) -> Analysis {
     analyze_with_rules(&xhtml, &rules)
 }
 
+/// [`analyze_item`] に、項目の前の頁（`context`、項目の頁の直前まで）を官庁報告の欄の文脈として足す版。
+///
+/// 官庁報告の欄（「国家試験」）の中では、公示の標題の行で記事を分ける（目次は官庁報告の公示を 1 件ずつ載せる）。
+/// 欄見出しは項目より前の頁にあることがあり（号外第195号は34ページの「国家試験」の下に、41ページの
+/// 「あん摩マッサージ指圧師国家試験の施行」）、項目の頁だけでは欄が分からず標題で分けられない。項目の頁に
+/// 区分見出し・欄見出しが無く、`context` のうち区分見出し・欄見出しのある最後の頁が官庁報告の見出し（「官庁報告」
+/// 「国家試験」）だけを持つなら、その頁から先を足して解析し、項目の頁の最初の記事の最初の行を含む記事から後ろだけを返す（足した頁の
+/// 記事は選ばない）。そうでなければ [`analyze_item`] と同じ。公告の区分見出し（「公告」「諸事項」）は見ない。
+pub fn analyze_item_in_context(context: &[PageInput], pages: &[PageInput]) -> Analysis {
+    let base = analyze_item(pages);
+    let words = |p: &PageInput| -> Vec<String> {
+        p.xhtml.split("</word>").filter_map(|w| w.rsplit_once('>').map(|(_, t)| t.chars().filter(|c| !c.is_whitespace()).collect())).collect()
+    };
+    if pages.iter().any(|p| words(p).iter().any(|w| segment::is_section_label(w))) {
+        return base;
+    }
+    // 前の頁のうち区分見出し・欄見出しのある最後の頁が、官庁報告の見出しだけを持つときに限る（公告の区分の後ろの項目には
+    // 足さない）。
+    let report = |w: &String| w == "官庁報告" || segment::is_report_field(w);
+    let Some(from) = context.iter().rposition(|p| words(p).iter().any(|w| segment::is_section_label(w))) else { return base };
+    let labels: Vec<String> = words(&context[from]).into_iter().filter(|w| segment::is_section_label(w)).collect();
+    if !labels.iter().all(report) {
+        return base;
+    }
+    let Some(first) = base.articles.first().and_then(|a| a.text.lines().find(|l| !l.trim().is_empty())).map(|l| l.trim().to_string()) else {
+        return base;
+    };
+    let mut all = context[from..].to_vec();
+    all.extend(pages.iter().cloned());
+    let wide = analyze_item(&all);
+    let Some(start) = wide.articles.iter().position(|a| a.text.lines().any(|l| l.trim() == first)) else { return base };
+    // 足した頁で項目の頁の記事が増えない（欄の文脈で分かれる標題が無い）なら、足した頁の字を記事に入れない。
+    if wide.articles.len() - start <= base.articles.len() {
+        return base;
+    }
+    Analysis { articles: wide.articles[start..].to_vec(), ..base }
+}
+
 /// 目次の標題（例: 「○○規則の一部を改正する省令（総務七七）」）に最も合う記事の添字を返す。
 ///
 /// 本文ヘッダには対象法令名のあとに法令番号「（…）」が挿入されるため、標題そのものの
