@@ -37,12 +37,16 @@ pub(crate) fn repair_wrapped_notice_titles(articles: &mut [String], pages: &[Pag
 /// No line count of the previous notice or wording of the title is used.
 /// The article starts at the first title line, and no boundary remains inside it.
 /// A title the native notice boundaries already cut at is left to them.
+/// A run whose body is not indented from it, or opens with a short line (「一、事業概要」
+/// under 「公益信託…第四十五期決算」＋「公告」), shows no notice of its own; it only moves a
+/// boundary already inside it (its last line 「公告」 read as the section label) to its first line.
 pub(crate) fn split_typeset_notice_titles(
     articles: &mut Vec<String>,
     pages: &[PageTrace],
     rules: &[Option<crate::lines::PageRules>],
 ) -> usize {
     let mut titles: Vec<Vec<String>> = Vec::new();
+    let mut unbodied: Vec<Vec<String>> = Vec::new();
     let mut instruments: Vec<(Vec<String>, bool)> = Vec::new();
     // The last body line of the previous page is the line above a title at the top
     // of the next page.
@@ -60,7 +64,16 @@ pub(crate) fn split_typeset_notice_titles(
             continue;
         }
         let native = crate::notice_boundaries::cuts(page, rules);
-        titles.extend(found.into_iter().filter(|(line, _)| !native.contains(line)).map(|(_, title)| title));
+        for (_, title, bodied) in found.into_iter().filter(|(line, _, _)| !native.contains(line)) {
+            if !bodied {
+                // Stacked labels (「官庁報告」 over 「公告」) are not a title wrapped over one.
+                if crate::segment::is_section_label(&title[0]) {
+                    continue;
+                }
+                unbodied.push(title.clone());
+            }
+            titles.push(title);
+        }
     }
     titles.extend(instruments.iter().map(|(t, _)| t.clone()));
     let mut lines: Vec<&str> = Vec::new();
@@ -77,8 +90,12 @@ pub(crate) fn split_typeset_notice_titles(
         let at: Vec<usize> = (0..lines.len().saturating_sub(title.len() - 1))
             .filter(|&i| title.iter().zip(&lines[i..]).all(|(t, l)| l.trim() == t))
             .collect();
-        // Repeated titles at different source positions are ambiguous.
-        if at.len() == 1 && titles.iter().filter(|t| *t == title).count() == 1 {
+        // Repeated titles at different source positions are ambiguous. A title over a flush
+        // or short body is one only around a boundary already inside it.
+        if at.len() == 1
+            && titles.iter().filter(|t| *t == title).count() == 1
+            && (!unbodied.contains(title) || starts.range(at[0] + 1..at[0] + title.len()).next().is_some())
+        {
             found.push((at[0], at[0] + title.len()));
         }
     }
@@ -202,7 +219,8 @@ fn comparison_heads(page: &PageTrace) -> Vec<(Vec<String>, bool)> {
 /// the index the native notice boundaries use.
 /// `carry` is the fonts and writing direction of the line above the page's first line,
 /// and the page's own last body line is returned the same way.
-fn typeset_titles(page: &PageTrace, carry: Option<Above>) -> (Vec<(usize, Vec<String>)>, Option<Above>) {
+/// Each title is returned with whether its body's first line is an indented paragraph line.
+fn typeset_titles(page: &PageTrace, carry: Option<Above>) -> (Vec<(usize, Vec<String>, bool)>, Option<Above>) {
     let fonts = |line: &crate::trace::Line| -> Option<crate::trace::NativeStyles> {
         if line.table.is_some() || line.words.is_empty() {
             return None;
@@ -326,10 +344,10 @@ fn typeset_titles(page: &PageTrace, carry: Option<Above>) -> (Vec<(usize, Vec<St
             if run.len() <= 3
                 && !title.contains(|c: char| c.is_whitespace() || "。「」『』".contains(c))
                 && body.and_then(fonts).is_some_and(|b| b.is_disjoint(&style))
-                && body.and_then(left).is_some_and(|(d, x, _)| d == first.0 && x - first.1 >= 0.5 * first.2)
-                && body.is_some_and(|b| compact(&b.text).chars().count() >= 20)
             {
-                found.push((base + i, text));
+                let bodied = body.and_then(left).is_some_and(|(d, x, _)| d == first.0 && x - first.1 >= 0.5 * first.2)
+                    && body.is_some_and(|b| compact(&b.text).chars().count() >= 20);
+                found.push((base + i, text, bodied));
             }
             i = end;
         }
