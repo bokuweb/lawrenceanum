@@ -166,7 +166,7 @@ fn analyze_window(
 
     // 項目のページをまとめて解析する（ページで切れた新旧対照表は 1 つの表につなぎ、
     // 罫線の表は本文の流れの中の表として構造化する）。記事ごとに分け、標題に合う記事を採る。
-    let analysis = pdf::analyze_item_in_context(&context, &pages);
+    let mut analysis = pdf::analyze_item_in_context(&context, &pages);
     if analysis.text.is_empty() {
         return None;
     }
@@ -175,6 +175,7 @@ fn analyze_window(
     let titles: Vec<&str> = std::iter::once(item.title.as_str())
         .chain(starts_of.iter().filter(|(p, t)| (item.page..=end).contains(p) && *t != item.title).map(|(_, t)| t.as_str()))
         .collect();
+    pdf::split_listed_sections(&titles, &mut analysis.articles);
     let picked = pdf::pick_items(&titles, &analysis.articles).swap_remove(0);
     Some((analysis, picked))
 }
