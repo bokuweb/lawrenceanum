@@ -265,10 +265,14 @@ pub fn pick_article(title: &str, articles: &[ArticleAnalysis]) -> Option<usize> 
         if title.ends_with("関係") {
             // 目次は欄の公告を順に並べるので、標題の鍵で選んだ記事より前に、小見出しで選べる記事があればそちらから始まる
             // （号外第217号: 「独立行政法人北方領土問題対策協会…財務諸表、国立研究開発法人宇宙航空研究開発機構…関係」）。
-            match (pick_article_by_title(title, articles), pick_listed_section(title, articles)) {
+            let picked = match (pick_article_by_title(title, articles), pick_listed_section(title, articles)) {
                 (Some(t), Some(l)) => Some(t.min(l)),
                 (t, l) => t.or(l),
-            }
+            };
+            // 目次が括弧にまとめて並べる名前（「令和七年度共済組合の決算（農林水産省・林野庁・国土交通省）」）の公告は、
+            // 語の頭が本文の標題（「令和７年度農林水産省共済組合の決算公告」）と合わない。選んだ記事より前に、まとめた名前を
+            // 標題に持つ記事があれば、そこから始まる（号外第162号）。
+            picked.map(|i| (0..i).find(|&j| grouped_name_heading(title, &articles[j])).unwrap_or(i))
         } else {
             pick_article_by_title(title, articles).or_else(|| pick_listed_section(title, articles))
         }
@@ -830,6 +834,21 @@ pub fn pick_items(titles: &[&str], articles: &[ArticleAnalysis]) -> Vec<Vec<usiz
         }
     }
     picks
+}
+
+/// 記事の標題（2 行まで）が、目次の標題の括弧にまとめて並べた名前（「（農林水産省・林野庁・国土交通省）」の「林野庁」、3 字以上）
+/// を含み、目次の標題と 7 字以上続けて同じ字を持つか（[`names_in_title`]）。
+fn grouped_name_heading(title: &str, a: &ArticleAnalysis) -> bool {
+    let head: String = a.text.lines().filter(|l| !l.trim().is_empty()).take(2).flat_map(|l| l.chars().filter(|c| !c.is_whitespace())).collect();
+    let names: Vec<String> = title
+        .split('（')
+        .skip(1)
+        .filter_map(|g| g.split_once('）').map(|(inner, _)| inner))
+        .flat_map(|inner| inner.split('・'))
+        .map(|n| n.chars().filter(|c| !c.is_whitespace()).collect::<String>())
+        .filter(|n| n.chars().count() >= 3)
+        .collect();
+    names.iter().any(|n| head.contains(n.as_str())) && names_in_title(title, a)
 }
 
 /// 記事の標題（2 行まで）が、目次の標題と 7 字以上続けて同じ字（数字を除く）を持つか。目次は同じ欄の公告の名前を
@@ -1459,6 +1478,20 @@ mod tests {
         ]);
         let title = "独立行政法人日本学術振興会令和七事業年度財務諸表、国立研究開発法人水産研究・教育機構令和七事業年度財務諸表関係";
         assert_eq!(pick_items(&[title], &b), vec![vec![0, 1, 2]]);
+    }
+
+    #[test]
+    fn a_listed_item_starts_at_the_first_notice_of_a_grouped_name() {
+        // 号外第162号: 目次は名前を括弧にまとめ、本文は名前ごとの決算公告を載せる。
+        let a = arts(&[
+            "令和７年度防衛省共済組合の決\n算公告\n…",
+            "令和７年度農林水産省共済組合\nの決算公告\n…",
+            "令和７年度林野庁共済組合の決\n算公告\n…",
+            "独立行政法人都市再生機構公告\n…",
+        ]);
+        let title = "令和七年度共済組合の決算（農林水産省・林野庁・国土交通省）、独立行政法人都市再生機構関係";
+        assert_eq!(pick_article(title, &a), Some(1));
+        assert_eq!(pick_items(&[title], &a), vec![vec![1, 2, 3]]);
     }
 
     #[test]
