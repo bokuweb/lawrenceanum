@@ -57,6 +57,7 @@ impl F {
             bounds: &self.bounds,
             axes: &self.axes,
             words: &self.words,
+            styles: &[],
         }
     }
     fn run(&self) -> Option<Vec<trace::Table>> {

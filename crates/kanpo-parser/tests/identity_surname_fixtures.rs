@@ -42,6 +42,12 @@ fn page_20260716g001590048() {
         b,
         include_str!("expected-native-article-partitions/20260716g001590048.json"),
     );
+    // The 「会社その他の公告」 label line starts its own article (native263v); the cut keeps the
+    // previous partition's endpoints and Run bytes.
+    let b = expected_article_partitions::with_articles(
+        b,
+        include_str!("expected-native-article-partitions/20260716g001590048-company263v.json"),
+    );
     assert_eq!(a, b);
 }
 #[test]
@@ -137,6 +143,11 @@ fn page_20260729h017570029() {
         "expected/identity_surnames/20260729h017570029-before44.json"
     ))
     .unwrap();
+    // The 「会社その他の公告」 label line starts its own article (native263v).
+    let b = expected_article_partitions::with_articles(
+        b,
+        include_str!("expected-native-article-partitions/20260729h017570029-company263v.json"),
+    );
     assert_eq!(a, b);
 }
 #[test]

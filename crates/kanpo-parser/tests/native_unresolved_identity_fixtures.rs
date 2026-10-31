@@ -27,10 +27,13 @@ fn unmapped_native_cids_do_not_invent_literal_text_or_change_source_ownership() 
         let actual =
             serde_json::from_str::<Value>(&serde_json::to_string(&analyze_item(&inputs)).unwrap())
                 .unwrap();
-        let expected: Value = serde_json::from_slice(
-            &std::fs::read(root.join(case["gold"].as_str().unwrap())).unwrap(),
-        )
-        .unwrap();
+        // 20260902h017810031 starts the 「会社その他の公告」 section as its own article; its gold is
+        // the stored gold cut at that label line (`data/company-section263v/split.py`).
+        let gold = match key {
+            "20260902h017810031" => "data/native-unresolved-identity167/20260902h017810031-company263v.json",
+            _ => case["gold"].as_str().unwrap(),
+        };
+        let expected: Value = serde_json::from_slice(&std::fs::read(root.join(gold)).unwrap()).unwrap();
         assert_eq!(actual, expected, "{key}");
     }
 }

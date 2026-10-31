@@ -262,6 +262,7 @@ pub(crate) fn horizontal_lines_with_source_tables(
     flows: &[Option<crate::native_word_flow::NativeFlow>],
     bands: &[Option<crate::native_advance_band::Band>],
     enclosures: &[[f32;4]],
+    styles: &[trace::ContentStyles],
 ) -> Vec<trace::Line> {
     lines_with_tables_source(
         cols,
@@ -269,7 +270,7 @@ pub(crate) fn horizontal_lines_with_source_tables(
         vrules,
         hrules,
         false,
-        SourceGeometry { bounds, axes, words, flows, bands, enclosures },
+        SourceGeometry { bounds, axes, words, flows, bands, enclosures, styles },
     )
 }
 
@@ -2967,6 +2968,7 @@ fn order_region(mut words: Vec<Col>, blocks: &[Block], ctx: &Context, boxed: boo
             return;
         }
         if let Some(cut) = divider_end_cut(&words, blocks, vrules) {
+            let cut = bottom_title_cut(&words, blocks, cut, ctx.source.styles).unwrap_or(cut);
             let (top, bottom): (Vec<Col>, Vec<Col>) = words.into_iter().partition(|w| y_center(w) < cut);
             let (bt, bb): (Vec<Block>, Vec<Block>) = blocks.iter().partition(|b| (b.1 + b.3) / 2.0 < cut);
             order_region(top, &bt, ctx, boxed, column, out);
@@ -3258,6 +3260,7 @@ fn order_region(mut words: Vec<Col>, blocks: &[Block], ctx: &Context, boxed: boo
             }
         }
         if let Some(cut) = band_cut(&lines, blocks) {
+            let cut = bottom_title_cut(&words, blocks, cut, ctx.source.styles).unwrap_or(cut);
             let (top, bottom): (Vec<Col>, Vec<Col>) = words.into_iter().partition(|w| y_center(w) < cut);
             let (bt, bb): (Vec<Block>, Vec<Block>) = blocks.iter().partition(|b| (b.1 + b.3) / 2.0 < cut);
             order_region(top, &bt, ctx, boxed, column, out);
@@ -4975,6 +4978,54 @@ fn band_cut(lines: &[Line], blocks: &[Block]) -> Option<f32> {
     best.map(|(_, cut)| cut)
 }
 
+/// [`band_cut`] や [`divider_end_cut`]（段の境の縦の罫線の下端）が列組みの段の下で切るとき、左の列の最後の行（1〜3 行）が段の下の全幅の段の標題なら、
+/// その標題の上で切り直す。標題は左の列の行頭から始まり、右の列のどの行よりも下にあり、原本の字形の
+/// 書体が上の行（左の列の本文）とも下の全幅の段の最初の行とも重ならない（「四国地方整備局公示」が左の列の
+/// 最後の行に読まれ、右の列の前の公示の続きより前に読まれていた）。奇数行の段で左の列に 1 行多く
+/// 残った本文は、上の行と同じ書体なので切り直さない。書体が分からない語があれば切り直さない。
+fn bottom_title_cut(words: &[Col], blocks: &[Block], cut: f32, styles: &[trace::ContentStyles]) -> Option<f32> {
+    let (top, bottom): (Vec<Col>, Vec<Col>) = words.iter().cloned().partition(|w| y_center(w) < cut);
+    let tb: Vec<Block> = blocks.iter().filter(|b| (b.1 + b.3) / 2.0 < cut).copied().collect();
+    let gx = column_cut(&top, &tb)?;
+    let fonts = |ws: &[Col]| -> Option<trace::NativeStyles> {
+        let mut out = trace::NativeStyles::new();
+        for w in ws {
+            let trace::ContentStyles::Glyphs(s) = styles.get(w.id)? else { return None };
+            out.extend(s.iter().copied());
+        }
+        (!out.is_empty()).then_some(out)
+    };
+    let rows = group_lines(&top);
+    let right_bottom = top.iter().filter(|w| w.x >= gx).map(|w| w.y1).fold(f32::NEG_INFINITY, f32::max);
+    let left_x = top.iter().filter(|w| w.x1 <= gx).map(|w| w.x).fold(f32::INFINITY, f32::min);
+    // 左の列だけにあり、右の列の下端より下にある最後の行（行の中心で比べる。字面の枠は行間に少しはみ出す）。
+    let mut k = rows.len();
+    while k > 0 && rows.len() - k < 3 && rows[k - 1].words.iter().all(|w| w.x1 <= gx) && rows[k - 1].center() >= right_bottom {
+        k -= 1;
+    }
+    if k == rows.len() || k == 0 || !right_bottom.is_finite() {
+        return None;
+    }
+    let title: Vec<Col> = rows[k..].iter().flat_map(|r| r.words.iter().cloned()).collect();
+    let head = rows[k].words.iter().map(|w| w.x).fold(f32::INFINITY, f32::min);
+    let em = (rows[k].y1 - rows[k].y0).max(1.0);
+    let above: Vec<Col> = rows[k - 1].words.iter().filter(|w| w.x1 <= gx).cloned().collect();
+    let below = group_lines(&bottom).into_iter().next()?;
+    let (bx0, bx1) = (below.words.iter().map(|w| w.x).fold(f32::INFINITY, f32::min), below.words.iter().map(|w| w.x1).fold(f32::NEG_INFINITY, f32::max));
+    let style = fonts(&title)?;
+    if (head - left_x).abs() > em * 0.5
+        || above.is_empty()
+        || !(bx0 < gx && bx1 > gx)
+        || rows[k..].iter().any(|r| fonts(&r.words).as_ref() != Some(&style))
+        || !fonts(&above)?.is_disjoint(&style)
+        || !fonts(&below.words)?.is_disjoint(&style)
+    {
+        return None;
+    }
+    let upper = rows[k - 1].words.iter().map(|w| w.y1).fold(f32::NEG_INFINITY, f32::max).max(right_bottom);
+    Some((upper + rows[k].y0) / 2.0)
+}
+
 /// 欧文の行で語間とみなす空き(em 比)。両端揃えで詰めた行は語間が 0.28 em ほどになる。
 const LATIN_SPACE_EM: f32 = 0.2;
 /// 和文の行の中の欧文で語間とみなす空き(em 比)。字の種類の切り替えで 0.25 em ほど空く
@@ -6557,6 +6608,9 @@ mod covering_table_edge_tests;
 #[cfg(test)]
 #[path = "horizontal_fullwidth_section_tests.rs"]
 mod fullwidth_section_tests;
+#[cfg(test)]
+#[path = "horizontal_bottom_title_tests.rs"]
+mod horizontal_bottom_title_tests;
 
 #[path = "trailing_code_tables.rs"]
 mod trailing_code_tables;
