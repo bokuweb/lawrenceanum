@@ -627,7 +627,11 @@ impl ShinkyuLayout {
     /// 表の末尾らしくなければ（2 段に組んだ前の記事の続きなど）、上下の段を混ぜて読まない
     /// よう、段ごとに組んで前文より先に出す。
     pub(crate) fn split_off_leading_continuation(&mut self, divider: f32, grids: &[Grid], rules: Option<&PageRules>) -> Vec<Unit> {
-        let spans = |c: &Col| c.y < divider && c.y1 > divider;
+        // 行末の「、」「。」だけが帯の境目を越える列（段の字詰めの端の外へ半字分まで出して組んだ、ぶら下げ）は跨がない
+        // （号外第172号275ページ: 前の記事の「（注）…については、」の「、」が境目を 0.2pt 越え、前文の右端がその列に
+        // なって、前の記事の続きと次の記事の前文が新旧対照表の前文と 1 行ずつつながっていた）。
+        let hangs = |c: &Col| matches!(c.text.chars().last(), Some('、' | '。')) && c.y1 - divider <= (c.x1 - c.x) * 0.5;
+        let spans = |c: &Col| c.y < divider && c.y1 > divider && !hangs(c);
         // 前文が上の帯に収まる（両帯を跨ぐ列が無い）ときは、上下の帯で同じ x に並ぶ列（3 つ以上）を前の表の末尾とし、
         // その左端を前文の右端とみなす（前の表の末尾の上下の行が 1 行につながっていた）。
         let paired: Vec<&Col> = self
@@ -652,11 +656,14 @@ impl ShinkyuLayout {
         };
         let is_tail = |c: &Col| c.x > span_right + 2.0 && !spans(c) && glyph(c) <= em * 1.3 && c.y1 > band_top - em;
         let (tail, rest): (Vec<Col>, Vec<Col>) = std::mem::take(&mut self.preamble).into_iter().partition(is_tail);
-        let (upper, lower): (Vec<Col>, Vec<Col>) = tail.into_iter().partition(|c| c.y1 <= divider);
+        let (upper, lower): (Vec<Col>, Vec<Col>) = tail.into_iter().partition(|c| c.y1 <= divider || hangs(c));
         let mut rest = rest;
         // 標題の列から左（次の記事）を切る。連名の標題（「内閣府、総務省、／〇財務省、…令第七号」）
-        // は「、」で終わる右隣の行も標題に含める。
-        let mut cut_at_heading = |part: Vec<Col>| -> Vec<Col> {
+        // は「、」で終わる右隣の行も標題に含める。標題より左の下の帯（`below`）にも列があれば、その標題の記事は
+        // 上の段から下の段へ続く記事で、新旧対照表の記事ではないので、そこでは切らずにより左の標題を探す（号外第172号
+        // 275ページ: 上の段の「〇経済産業省告示第九十八号」の前文の後、下の段に本文「特定引受基準」が続く。前文だけが
+        // 新旧対照表の前文に回り、本文の後に読まれていた）。
+        let mut cut_at_heading = |part: Vec<Col>, below: &[Col]| -> Vec<Col> {
             // 行の右端・下端。行は同じ x の離れた語（帯の下の方の表の末尾）も含むので、上から
             // 続く分だけ見る。
             let extent = |l: &Line| {
@@ -673,7 +680,7 @@ impl ShinkyuLayout {
             };
             let mut lines: Vec<(Line, (f32, f32))> = page_lines(part.clone()).into_iter().map(|l| { let e = extent(&l); (l, e) }).collect();
             lines.sort_by(|a, b| b.1 .0.total_cmp(&a.1 .0));
-            let heading = lines.iter().position(|(l, _)| is_heading_mark(&l.text)).map(|h| {
+            let heading = (0..lines.len()).filter(|&h| is_heading_mark(&lines[h].0.text)).map(|h| {
                 let mut ext = lines[h].1;
                 for (l, e) in lines[..h].iter().rev() {
                     if !l.text.ends_with('、') || e.0 > ext.0 + em * 2.0 {
@@ -682,13 +689,14 @@ impl ShinkyuLayout {
                     ext = (e.0, ext.1.max(e.1));
                 }
                 ext
-            });
+            }).find(|&(right, _)| !below.iter().any(|c| (c.x + c.x1) / 2.0 <= right));
             let next_article = |c: &Col| heading.is_some_and(|(right, _)| (c.x + c.x1) / 2.0 <= right);
             let (next, cont): (Vec<Col>, Vec<Col>) = part.into_iter().partition(next_article);
             rest.extend(next);
             cont
         };
-        let (upper, lower) = (cut_at_heading(upper), cut_at_heading(lower));
+        let upper = cut_at_heading(upper, &lower);
+        let lower = cut_at_heading(lower, &[]);
         // 枠は末尾の右端を含むもの（末尾の中の入れ子の表の枠は使わない）で、上下の帯ごとに
         // その帯にかかる枠だけを使う（片方の帯にしか枠が見つからないことがある）。
         let tail_right = upper.iter().chain(&lower).map(|c| c.x1).fold(f32::NEG_INFINITY, f32::max);
@@ -1703,6 +1711,75 @@ mod tests {
         assert_eq!(text(&after), "改正後の本文\n備考表中の〔　〕の記載は注記である。");
         assert_eq!(text(&before), "改正前の本文");
         assert_eq!(text(&outside), "");
+    }
+
+    /// 号外第172号275ページの形: 新旧対照表の前文（x 310・帯の境目 294.8 をまたぐ）の右に、上の段に前の記事の末尾と
+    /// 次の記事（甲）の標題・前文、下の段に甲の本文が組まれている。前の記事の「（注）…については、」の行は、`hang` だけ
+    /// 段の字詰めの端（292）の外に出る。`lower` でなければ甲の本文を下の段に置かない。
+    fn two_tier_beside_preamble(hang: f32, lower: bool) -> (Vec<crate::trace::Unit>, Vec<String>) {
+        use super::ShinkyuLayout;
+        use crate::vertical::Col;
+        let mut cols: Vec<Col> = Vec::new();
+        let mut col = |x: f32, y: f32, y1: f32, text: &str| {
+            cols.push(Col { id: cols.len(), x, x1: x + 8.0, y, y1, text: text.to_string() })
+        };
+        col(310.0, 68.0, 580.0, "表の記事の前文");
+        col(322.0, 60.0, 164.0, "〇乙省告示第二号");
+        col(400.0, 68.0, 292.0, "前の記事の本文の続き");
+        col(388.0, 68.0, 292.0 + hang, "（注）この指針の用語については、");
+        col(376.0, 76.0, 132.0, "その例による。");
+        col(364.0, 60.0, 164.0, "〇甲省告示第一号");
+        col(352.0, 68.0, 292.0, "甲の前文");
+        col(340.0, 76.0, 196.0, "令和八年七月三十一日");
+        if lower {
+            for (i, x) in [400.0, 388.0, 376.0, 364.0, 352.0, 340.0].into_iter().enumerate() {
+                col(x, 300.0, 580.0, &format!("甲の本文{i}"));
+            }
+        }
+        let after = vec![Col { id: 100, x: 250.0, x1: 258.0, y: 60.0, y1: 200.0, text: "改正後の本文".into() }];
+        let before = vec![Col { id: 101, x: 250.0, x1: 258.0, y: 310.0, y1: 450.0, text: "改正前の本文".into() }];
+        let mut layout = ShinkyuLayout { labels: None, band_boxes: None, preamble: cols, after: vec![after], before: vec![before], trailing: vec![] };
+        let units = layout.split_off_leading_continuation(294.8, &[], None);
+        let mut preamble: Vec<&Col> = layout.preamble.iter().collect();
+        preamble.sort_by(|a, b| b.x.total_cmp(&a.x));
+        (units, preamble.iter().map(|c| c.text.clone()).collect())
+    }
+
+    fn unit_lines(units: &[crate::trace::Unit]) -> Vec<String> {
+        units
+            .iter()
+            .flat_map(|u| match u {
+                crate::trace::Unit::Plain(lines) => lines.iter().map(|l| l.text.clone()).collect::<Vec<_>>(),
+                _ => panic!("plain only"),
+            })
+            .collect()
+    }
+
+    #[test]
+    fn a_two_tier_article_beside_the_preamble_is_read_by_tiers_before_it() {
+        let (units, preamble) = two_tier_beside_preamble(4.0, true);
+        let mut expected: Vec<String> = ["前の記事の本文の続き", "（注）この指針の用語については、", "その例による。", "〇甲省告示第一号", "甲の前文", "令和八年七月三十一日"]
+            .iter()
+            .map(|s| s.to_string())
+            .collect();
+        expected.extend((0..6).map(|i| format!("甲の本文{i}")));
+        assert_eq!(unit_lines(&units), expected);
+        assert_eq!(preamble, ["〇乙省告示第二号", "表の記事の前文"]);
+    }
+
+    #[test]
+    fn a_line_crossing_the_divider_beyond_its_last_mark_still_spans_it() {
+        // 半字分より深く境目を越える列は、行末が「、」でも両帯をまたぐ前文の列（前文の右端はその列）。
+        let (_, preamble) = two_tier_beside_preamble(8.0, true);
+        assert!(preamble.contains(&"（注）この指針の用語については、".to_string()), "{preamble:?}");
+    }
+
+    #[test]
+    fn a_heading_without_a_lower_tier_beside_it_still_heads_the_preamble() {
+        // 標題の左の下の段に続きが無ければ、上の段の最初の標題から左はこれまでどおり前文に回す。
+        let (units, preamble) = two_tier_beside_preamble(4.0, false);
+        assert_eq!(unit_lines(&units), ["前の記事の本文の続き", "（注）この指針の用語については、", "その例による。"]);
+        assert_eq!(preamble, ["〇甲省告示第一号", "甲の前文", "令和八年七月三十一日", "〇乙省告示第二号", "表の記事の前文"]);
     }
 }
 
