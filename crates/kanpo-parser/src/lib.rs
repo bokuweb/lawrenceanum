@@ -400,7 +400,9 @@ pub fn split_listed_sections(titles: &[&str], articles: &mut Vec<ArticleAnalysis
             let after_blank = |&(i, j): &(usize, usize), &(pi, pj): &(usize, usize)| {
                 i == pi && pj < j && articles[i].text.split('\n').skip(pj + 1).take(j - pj - 1).all(|l| l.trim().is_empty())
             };
-            inner.dedup_by(|b, a| after_blank(b, a));
+            // 続く行どうしで比べる（3 行以上続いても、最初の行だけを残す）。
+            let all = inner.clone();
+            inner = all.iter().enumerate().filter(|&(k, at)| k == 0 || !after_blank(at, &all[k - 1])).map(|(_, at)| *at).collect();
             if heads.is_empty() && inner.is_empty() {
                 continue;
             }
@@ -1333,6 +1335,10 @@ mod tests {
         split_listed_sections(&titles, &mut e);
         assert_eq!(e.len(), 2);
         assert_eq!(e[1].text, "相続財産清算人の選任及び相続権主張の催告\n相続権主張の催告\n公示催告");
+        // 号外第174号: 3 行以上続いても 1 つと数える。
+        let mut h = arts(&["…Tourism.\n破産手続開始及び免責許可申立てに関する意見申述期間\n破産手続開始・破産手続廃止及び免責許可申立てに関する意見申述期間\n破産手続廃止"]);
+        split_listed_sections(&["破産、免責、再生関係"], &mut h);
+        assert_eq!(h.len(), 2);
         // 本紙第1759号: 区分見出し「公告」を別の段落にした文書は、その構造のまま前を切る。
         let text = "公告\n諸事項\n…公告する。\n令和８年７月31日\n東北農政局長\n相続財産清算人の選任及び相続権主張の催告\n特別清算開始";
         let paragraph = |t: &str| Block::Paragraph { runs: vec![Run::plain(t)] };
