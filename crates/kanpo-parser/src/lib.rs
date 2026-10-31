@@ -557,6 +557,11 @@ pub fn pick_articles(title: &str, articles: &[ArticleAnalysis]) -> Vec<usize> {
 /// 選んだ記事が項目の名前で始まる欄見出しの行から始まるなら、続く記事を、ほかの項目の選ぶ記事・欄見出しだけの記事・
 /// 区分見出し・号数のある `〇` の見出しの手前まで含める（欄の後に「会社決算公告」の欄が続けば、その項目の選ぶ決算公告の手前で
 /// 止まる）。欄の中の 1 件の公告の項目は、欄見出しを名前に持たないので広げない。
+///
+/// 欄の小見出しを並べた「…関係」の項目（[`pick_listed_section`] で選んだ記事）も欄の公告すべてなので、同じく続く記事を
+/// 含める。欄の公告は小見出しだけの 1 行の記事（「破産管財人変更」「書面による計算報告」）を挟むので、欄見出しだけの記事では
+/// 止めず、ほかの項目の選ぶ記事・区分見出し・本文の欄見出し（「会社その他の公告」）・標題が「…公告」「…公示」で終わる記事・
+/// 号数のある `〇` の見出しの手前で止める。
 pub fn pick_items(titles: &[&str], articles: &[ArticleAnalysis]) -> Vec<Vec<usize>> {
     let mut picks: Vec<Vec<usize>> = titles.iter().map(|t| pick_articles(t, articles)).collect();
     let claimed: std::collections::BTreeSet<usize> = picks.iter().flatten().copied().collect();
@@ -568,14 +573,22 @@ pub fn pick_items(titles: &[&str], articles: &[ArticleAnalysis]) -> Vec<Vec<usiz
     for (p, title) in picks.iter_mut().zip(titles) {
         let [i] = p[..] else { continue };
         let h = head(&articles[i]);
-        if !(label(&h) && h.starts_with(&compact(title))) {
+        let listed = title.ends_with("関係") && pick_listed_section(title, articles) == Some(i);
+        if !(label(&h) && h.starts_with(&compact(title))) && !listed {
             continue;
         }
         for (j, a) in articles.iter().enumerate().skip(i + 1) {
             let h = head(a);
             // 号数の無い `〇` で始まる行（住所の折り返し「〇番地三五八」）は公告の続き。
             let numbered = segment::is_heading_mark(&h) && heading_number(&h).is_some();
-            if claimed.contains(&j) || label_only(a) || segment::is_section_label(&h) || numbered || h.contains("をここに公布する") {
+            // 欄の小見出し（「特別清算終結」「破産管財人変更」）は「公告」「公示」で終わらない。標題の行（2 行に折り返す）が
+            // 「…公告」「…公示」で終わる記事は、欄の後ろに続く別の欄の公告（「…令和７年度財務諸表公告」）。
+            let titled = || {
+                let lines: Vec<String> = a.text.lines().map(compact).filter(|l| !l.is_empty()).take(2).collect();
+                lines.iter().any(|l| l.ends_with("公告") || l.ends_with("公示"))
+            };
+            let field_end = if listed { segment::is_text_field_label(&h) || titled() } else { label_only(a) };
+            if claimed.contains(&j) || field_end || segment::is_section_label(&h) || numbered || h.contains("をここに公布する") {
                 break;
             }
             p.push(j);
@@ -987,6 +1000,29 @@ mod tests {
         assert_eq!(pick_article("破産、免責、再生関係", &a), Some(1));
         // 目次しか無ければ選ばない。
         assert_eq!(pick_article("破産、免責、再生関係", &a[..1]), None);
+    }
+
+    #[test]
+    fn a_listed_section_item_takes_the_notices_of_its_field() {
+        // 本紙第1795号: 裁判所の欄は小見出しだけの 1 行の記事（「破産管財人変更」）を挟んで特別清算の公告が続き、
+        // 「会社その他の公告」の欄見出しで終わる。
+        let a = arts(&[
+            "公告\n諸事項\n相続財産清算人の選任及び相続権主張の催告\n公示催告",
+            "破産管財人変更",
+            "特別清算終結\n令和8年（ヒ）第3011号\n清算株式会社　株式会社…",
+            "令和８年（ヒ）第２号\n清算株式会社　株式会社…",
+            "会社その他の公告",
+            "合併公告\n左記会社は合併して…",
+        ]);
+        let picks = pick_items(&["相続、公示催告、失踪、破産、特別清算、再生、所有者不明関係"], &a);
+        assert_eq!(picks, vec![vec![0, 1, 2, 3]]);
+        // 欄の後ろに続く別の欄の公告（標題が「…公告」で終わる）の手前で止まる。
+        let a = arts(&[
+            "公告\n破産手続開始\n破産手続開始及び免責許可申立てに関する意見申述期間",
+            "令和８年（フ）第１号\n…",
+            "地方公共団体情報システム機構令和７年度財務諸表公告\n貸借対照表",
+        ]);
+        assert_eq!(pick_items(&["破産、免責、再生関係"], &a), vec![vec![0, 1]]);
     }
 
     #[test]

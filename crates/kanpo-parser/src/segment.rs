@@ -112,6 +112,12 @@ pub(crate) fn is_section_label(text: &str) -> bool {
     SECTION_HEADERS.contains(&compact.as_str()) || FIELD_HEADERS.contains(&compact.as_str())
 }
 
+/// 本文の字で記事を始める欄見出しの語か（「会社その他の公告」）。
+pub(crate) fn is_text_field_label(text: &str) -> bool {
+    let compact: String = text.chars().filter(|c| !c.is_whitespace()).collect();
+    TEXT_FIELD_HEADERS.contains(&compact.as_str())
+}
+
 /// 官庁報告の中の欄見出しか（「労働」「国家試験」）。欄見出しのうち「人事異動」は官庁報告より
 /// 前に載る区分（その下に褒章・皇室事項が続く）、「諸事項」は公告の欄。「地方自治事項」は官庁報告の後に
 /// 区分として載り、組版の標題で分ける欄ではない。
