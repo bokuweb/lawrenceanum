@@ -165,8 +165,16 @@ fn starts_enactment(lines: &[&str], i: usize, prev: Option<&str>) -> bool {
 /// 「図面縦覧場所…」の行のすぐ後に来るため、直前の行の文末では分けられない。漢字だけの行は
 /// 文の折り返し（「…規定に基づき公示」＋「する。」）にはならない。欄見出し（「官庁事項」）の直後は
 /// 欄見出しが既に記事を始めているので分けない。
+///
+/// 前の公示の表のセルの折り返しが、標題と同じ高さに組まれて同じ行に並ぶことがある（本紙第1804号7ページ
+/// 「九州地方整備局公示　3645番１までの上下線」）。字間を空けた後ろに字が続くときは、空けた前を標題として見る。
+/// 後ろが漢数字だけ（目次の頁「　五五」）のときは標題の行ではない。
 fn is_agency_notice_title(line: &str, prev: Option<&str>) -> bool {
-    let t = line.trim();
+    let line = line.trim();
+    let (t, rest) = line.split_once('\u{3000}').unwrap_or((line, ""));
+    if !rest.is_empty() && rest.trim().chars().all(|c| "〇一二三四五六七八九十百千".contains(c)) {
+        return false;
+    }
     t.chars().count() <= 30
         && t.strip_suffix("公示").is_some_and(|agency| agency.chars().count() >= 2 && agency.chars().all(|c| ('\u{4E00}'..='\u{9FFF}').contains(&c) || c == '・'))
         && prev.is_some_and(|p| !is_section_label(p))
@@ -376,6 +384,17 @@ mod tests {
         assert!(arts[0].starts_with("官庁事項\n東北地方整備局公示"));
         assert!(arts[1].starts_with("北陸地方整備局公示"));
         assert!(arts[2].starts_with("中部地方整備局公示") && arts[2].ends_with("する。"));
+    }
+
+    #[test]
+    fn a_regional_bureau_title_sharing_a_line_with_a_table_cell_starts_its_article() {
+        // 本紙第1804号7ページ: 前の公示の表のセルの折り返しが、次の公示の標題と同じ行に並ぶ。
+        let text = "四国地方整備局公示\n…次のとおり公示する。\n一般国道　11号三豊市豊中町笠田笠岡字南2165番４から同市豊中町上高野字鴻之池砂子\n九州地方整備局公示　3645番１までの上下線\n道路法…次のとおり公示する。";
+        let arts = segment_articles(text);
+        assert_eq!(arts.len(), 2, "{arts:?}");
+        assert!(arts[1].starts_with("九州地方整備局公示　3645番１"));
+        // 目次の頁（「　五五」）が続く行は標題の行ではない。
+        assert_eq!(segment_articles("〔公告〕\n会社その他　四八\n東北地方整備局公示　五五").len(), 1);
     }
 
     #[test]
