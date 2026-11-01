@@ -150,7 +150,8 @@ fn numbered_heading(line: &str) -> bool {
     }
     let Some(body) = t.strip_suffix('号') else { return false };
     let Some((head, number)) = body.rsplit_once('第') else { return false };
-    head.chars().next().is_some_and(kanji)
+    // 機関名は 2 字以上（「告第13号」は前の段の「…告示第13号」の切れ端）。
+    head.chars().count() >= 2
         && head.chars().all(kanji)
         && !number.is_empty()
         && number.chars().all(|c| NUMERALS.contains(c))
