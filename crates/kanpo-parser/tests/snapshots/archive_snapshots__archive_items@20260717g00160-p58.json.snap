@@ -5,7 +5,7 @@ input_file: crates/kanpo-parser/tests/archive/items/20260717g00160-p58.json
 ---
 title: 投資法人の計算に関する規則の一部を改正する内閣府令（内閣府六二）
 pages: 2
-articles: 3
+articles: 4
 picked: Some(1)
 
 ## 0: 府令
@@ -41,5 +41,5 @@ picked: Some(1)
     〔項を加える。〕
   P 備考　表中の〔　〕の記載は注記である。
     附　則この府令は、公布の日から施行する。
-    省令
-## 2: 〇厚生労働省令第百十四号
+## 2: 省令
+## 3: 〇厚生労働省令第百十四号

@@ -49,7 +49,7 @@ fn sequence()->Analysis {
   let rs:Vec<_>=a.pages[1].regions.iter().filter(|r|r.role==role).collect();assert_eq!(rs.len(),2);
   for(i,r)in rs.iter().enumerate(){assert_eq!(serde_json::to_value(r.lines.iter().map(|l|&l.text).collect::<Vec<_>>()).unwrap(),e[key][i]);}
  }
- assert_eq!(a.articles.len(),10);
+ assert_eq!(a.articles.len(),11);
 }
 #[test]fn continuation_state_does_not_leak_into_three_surrounding_pages(){
  let a=sequence();let v=canonical(&a);
