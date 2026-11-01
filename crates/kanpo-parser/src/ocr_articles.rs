@@ -228,6 +228,13 @@ fn numbered_heading(line: &str) -> bool {
     if let Some(head) = t.strip_suffix('第') {
         return head.chars().count() >= 4 && head.chars().all(kanji);
     }
+    // 号数の一部が記号に読まれ「号」も落ちる（「法務省告示配第百-」）。
+    if !t.ends_with('号') {
+        if let Some((head, rest)) = t.rsplit_once('第') {
+            let junk = |c: char| NUMERALS.contains(c) || "-‐－ー―".contains(c);
+            return head.chars().count() >= 4 && head.chars().all(kanji) && rest.chars().count() <= 4 && rest.chars().all(junk) && rest.chars().any(|c| "-‐－ー―".contains(c));
+        }
+    }
     let Some(body) = t.strip_suffix('号') else { return false };
     let Some((head, number)) = body.rsplit_once('第') else { return false };
     // 機関名は 2 字以上（「告第13号」は前の段の「…告示第13号」の切れ端）。
@@ -377,6 +384,27 @@ pub fn pick_items_with_ocr(titles: &[&str], articles: &mut Vec<ArticleAnalysis>)
             misses == 1
         };
         if let [i] = articles.iter().enumerate().filter(|(_, a)| near(a)).map(|(i, _)| i).collect::<Vec<_>>()[..] {
+            *pick = vec![i];
+        }
+    }
+    // 標題に番号があるのに選べないとき、号数の読めない見出し（「法務省告示配第百-」「愛知県公安委員会告示配第」）の記事で、
+    // 標題（番号の括弧の前）と 3 字以上続けて同じ字（「原戸籍」）を持つものがちょうど 1 つなら、それを採る。
+    for (title, pick) in titles.iter().zip(picks.iter_mut()).filter(|(_, p)| p.is_empty()) {
+        if crate::title_number(title).is_none() {
+            continue;
+        }
+        let name: Vec<char> = title[..title.rfind('（').unwrap_or(title.len())].chars().collect();
+        let shares = |text: &str| name.windows(3).any(|w| text.contains(&w.iter().collect::<String>()));
+        let hits: Vec<usize> = articles
+            .iter()
+            .enumerate()
+            .filter(|(_, a)| {
+                let head = a.text.lines().find(|l| !l.trim().is_empty()).unwrap_or("");
+                numbered_heading(head) && crate::heading_number(head).is_none() && shares(&a.text)
+            })
+            .map(|(i, _)| i)
+            .collect();
+        if let [i] = hits[..] {
             *pick = vec![i];
         }
     }

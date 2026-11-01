@@ -228,3 +228,16 @@ fn ocr_only_picking_takes_the_first_of_several_listed_subheadings() {
     let picks = kanpo_parser::ocr_articles::pick_items_with_ocr(&titles, &mut a);
     assert!(a[picks[0][0]].text.starts_with("破産手続開始及び"), "{:?}", picks[0].iter().map(|&i| &a[i].text).collect::<Vec<_>>());
 }
+
+#[test]
+fn ocr_only_picking_takes_a_garbled_number_heading_sharing_the_title_words() {
+    let pages = page("20260716h017490002");
+    let lines = ["法務省告示配第百-", "山梨県南巨摩郡身延町役場保存の次の原戸籍の", "部が滅失した。", "福岡県公安委員会告示配第五号", "次の指定暴力団につき、公示事項の一部に変更があった。"];
+    let regions = lines.iter().enumerate().map(|(k, l)| region(l, [0.0, 3000.0 + 50.0 * k as f64, 800.0, 3040.0 + 50.0 * k as f64])).collect();
+    let mut ocrs = vec![None; pages.len()];
+    ocrs[0] = Some(OcrPage::from_ndlocr_trace(&trace(regions)).unwrap());
+    let mut a = analyze_item_with_ocr(&pages, &ocrs).articles;
+    let titles = ["原戸籍が滅失した件（同一一二）"];
+    let picks = kanpo_parser::ocr_articles::pick_items_with_ocr(&titles, &mut a);
+    assert!(a[picks[0][0]].text.starts_with("法務省告示配第百-\n"), "{:?}", a.iter().map(|x| &x.text).collect::<Vec<_>>());
+}
