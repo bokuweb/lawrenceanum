@@ -453,6 +453,23 @@ pub fn split_listed_sections(titles: &[&str], articles: &mut Vec<ArticleAnalysis
             }
             break;
         }
+        // 目次の括弧にまとめて並べた名前（「（財務省・国土交通省）」）を標題に持つ公告（「財務省共済組合定款の一部変更について」）が、
+        // 前の欄の小見出し（「特別清算終結」）で始まる記事の途中にある（本紙第1770号: 間の頁は小見出しだけで、記事の境が無い）
+        // なら、その標題の行で分ける。
+        // 分けるのは「…関係」の項目で、記事がほかの「…関係」の項目の小見出しで始まるときだけ（標題の行の後ろの署名
+        // 「関東東北産業保安監督部長」で公示を切らない）。
+        let other_field_head = |a: &ArticleAnalysis| {
+            let head: String = a.text.lines().find(|l| !l.trim().is_empty()).unwrap_or("").chars().filter(|c| !c.is_whitespace()).collect();
+            titles.iter().filter(|t| *t != title).flat_map(|t| listed_words(t)).any(|w| head.starts_with(&w))
+        };
+        if split.is_none() && title.ends_with("関係") {
+            if let Some(i) = picked.filter(|&i| !grouped_name_heading(title, &articles[i]) && other_field_head(&articles[i])) {
+                let lines: Vec<&str> = articles[i].text.split('\n').collect();
+                split = (1..lines.len())
+                    .find(|&j| !lines[j].trim().is_empty() && !lines[j].contains('。') && grouped_name_heading_text(title, lines[j]))
+                    .map(|j| (i, j));
+            }
+        }
         let Some((i, j)) = split.filter(|&(i, _)| picked.is_none_or(|p| p == i)) else { continue };
         let a = &articles[i];
         if !a.notices.is_empty() {
@@ -931,7 +948,12 @@ pub fn pick_items(titles: &[&str], articles: &[ArticleAnalysis]) -> Vec<Vec<usiz
 /// 記事の標題（2 行まで）が、目次の標題の括弧にまとめて並べた名前（「（農林水産省・林野庁・国土交通省）」の「林野庁」、3 字以上）
 /// を含み、目次の標題と 7 字以上続けて同じ字を持つか（[`names_in_title`]）。
 fn grouped_name_heading(title: &str, a: &ArticleAnalysis) -> bool {
-    let head: String = a.text.lines().filter(|l| !l.trim().is_empty()).take(2).flat_map(|l| l.chars().filter(|c| !c.is_whitespace())).collect();
+    grouped_name_heading_text(title, &a.text)
+}
+
+/// [`grouped_name_heading`] を記事の本文の字（`text`）で比べる。
+fn grouped_name_heading_text(title: &str, text: &str) -> bool {
+    let head: String = text.lines().filter(|l| !l.trim().is_empty()).take(2).flat_map(|l| l.chars().filter(|c| !c.is_whitespace())).collect();
     let names: Vec<String> = title
         .split('（')
         .skip(1)
@@ -940,7 +962,7 @@ fn grouped_name_heading(title: &str, a: &ArticleAnalysis) -> bool {
         .map(|n| n.chars().filter(|c| !c.is_whitespace()).collect::<String>())
         .filter(|n| n.chars().count() >= 3)
         .collect();
-    names.iter().any(|n| head.contains(n.as_str())) && names_in_title(title, a)
+    names.iter().any(|n| head.contains(n.as_str())) && names_in_title_text(title, text)
 }
 
 /// 目次の語は公告者の名前を標題に入れる（「令和七事業年度農林漁業団体職員共済組合の決算等」）が、公告の標題は名前を
@@ -1517,6 +1539,20 @@ mod tests {
         b.extend(arts(&["官庁報告\n官庁事項"]));
         assert!(!field_runs_to_end(&["会社その他", "会社決算公告"], &b));
         assert!(!field_runs_to_end(&["会社決算公告", "会社その他"], &a));
+    }
+
+    #[test]
+    fn a_grouped_name_notice_inside_another_fields_article_is_split_off() {
+        // 本紙第1770号: 裁判所の欄の小見出しだけの頁が続き、共済組合の定款変更の公告が「特別清算終結」で始まる記事の途中に来る。
+        let titles = ["相続、公示催告、失踪、破産、特別清算、再生、所有者不明関係", "共済組合定款の一部変更（財務省・国土交通省）関係"];
+        let mut a = arts(&[
+            "相続財産清算人の選任及び相続権主張の催告\n…",
+            "特別清算終結\n令和８年（ヒ）第２００５号\n再生手続開始\n東京地方裁判所民事第２０部\n所有者不明建物管理命令に関する異議の催告\n財務省共済組合定款の一部変更について\n財務省共済組合定款の一部を次のように変更する。",
+        ]);
+        split_listed_sections(&titles, &mut a);
+        assert_eq!(a.len(), 3);
+        assert!(a[2].text.starts_with("財務省共済組合定款の一部変更について"));
+        assert_eq!(pick_items(&titles, &a), vec![vec![0, 1], vec![2]]);
     }
 
     #[test]
