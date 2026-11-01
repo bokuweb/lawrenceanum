@@ -179,7 +179,18 @@ fn analyze_window(
         .chain(starts_of.iter().filter(|(p, t)| (item.page..=end).contains(p) && *t != item.title).map(|(_, t)| t.as_str()))
         .collect();
     pdf::split_listed_sections(&titles, &mut analysis.articles);
-    let picked = pdf::pick_items(&titles, &analysis.articles).swap_remove(0);
+    let picks = pdf::pick_items(&titles, &analysis.articles);
+    let mut picked = picks[0].clone();
+    // 項目の開始頁が画像だけ（字が無い）なら、項目の公告は画像で、次の頁の頭に文の途中から続く（号外第225号の「日本弁護士連合会
+    // 裁決取消訴訟の判決確定・懲戒処分・公示送達関係」の「審査請求をした場合には、処分の取消しの訴え…」）。頁の範囲の最初の
+    // 記事が、ほかの項目の選ばない、見出しの無い（最初の行が `〇` でなく読点を持つ）記事なら、その続きを項目の本文にする。
+    let image_start = page_input.get(&item.pdf_url).cloned().flatten().is_some_and(|p| pdf::analyze_item(&[p]).text.trim().is_empty());
+    if picked.is_empty() && image_start && !picks.iter().flatten().any(|&i| i == 0) {
+        let head = analysis.articles.first().and_then(|a| a.text.lines().map(str::trim).find(|l| !l.is_empty())).unwrap_or("");
+        if !head.starts_with('〇') && head.contains('、') {
+            picked = vec![0];
+        }
+    }
     Some((analysis, picked))
 }
 
@@ -303,7 +314,11 @@ pub(crate) fn fill_amend_texts_with(kd: &mut KanpoDate, amend_only: bool, load: 
                 let unfound = pdf::lists_unfound_numbers(&item.title, &analysis.articles, &picked);
                 // 号数の告示を探して広げるのは、項目の頁から上限の頁数まで。
                 let unfound = unfound && span_end < item.page + MAX_SPAN;
-                if span_end <= end || !(runs_on || unfound) {
+                // 上限で切った範囲（終わりが項目の開始頁でも号の最終頁でもない）の最後の記事が、どの項目も選ばない記事のことがある
+                // （号外第174号の「会社決算公告」は p151 の「資本金及び準備金の額の減少公告」で切れ、p152〜p160 の決算公告が
+                // どの項目にも入らない）。選んだ記事に本文があれば広げてみて、選ぶ記事が増えるときだけ採る。
+                let capped = end < last_page && !starts.contains(&end) && picked.last().is_some_and(|&l| has_body(&analysis.articles[l].text));
+                if span_end <= end || !(runs_on || unfound || capped) {
                     break;
                 }
                 let Some(wide) = analyze_window(item, span_end, &starts_of, &mut page_input, load) else { break };
