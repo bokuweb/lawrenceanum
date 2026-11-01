@@ -217,7 +217,7 @@ pub(crate) fn fill_amend_texts_with(kd: &mut KanpoDate, amend_only: bool, load: 
             let window_end = |from: u32| {
                 starts.iter().copied().find(|&p| p > from).unwrap_or(last_page).max(from).min(from + MAX_SPAN - 1)
             };
-            let end = window_end(item.page);
+            let mut end = window_end(item.page);
             let Some((mut analysis, mut picked)) = analyze_window(item, end, &starts_of, &mut page_input, load) else { continue };
             // 欄見出しの項目（「会社その他」）の公告が頁の範囲の最後まで続いたら、次の項目（「会社決算公告」）の頁の範囲まで
             // 広げて選び直す（会社その他の公告は決算公告の欄の頁にも組まれる）。
@@ -226,6 +226,18 @@ pub(crate) fn fill_amend_texts_with(kd: &mut KanpoDate, amend_only: bool, load: 
                 .collect();
             if end > item.page && pdf::field_runs_to_end(&titles, &analysis.articles) {
                 if let Some(wide) = analyze_window(item, window_end(end), &starts_of, &mut page_input, load) {
+                    (analysis, picked) = wide;
+                    end = window_end(end);
+                }
+            }
+            // 選んだ記事が頁の上限で切った範囲の最後の記事なら、記事は上限より後ろの頁へ続く（別表が 779 頁に及ぶ
+            // 本紙号外第165号の普通交付税に関する省令）。次の項目の開始頁の手前まで広げて選び直す（開始頁を含めると、
+            // その頁から始まる次の項目の記事まで続けて選ぶ）。欄の小見出しを並べた「…関係」の項目は、欄の公告の後ろに
+            // 目次に載らない公告が続くので広げない。
+            let capped = end < last_page && !starts.contains(&end);
+            let next_start = starts.iter().copied().find(|&p| p > end).unwrap_or(last_page + 1);
+            if capped && !item.title.ends_with("関係") && picked.last().is_some_and(|&i| i + 1 == analysis.articles.len()) {
+                if let Some(wide) = analyze_window(item, next_start - 1, &starts_of, &mut page_input, load) {
                     (analysis, picked) = wide;
                 }
             }
