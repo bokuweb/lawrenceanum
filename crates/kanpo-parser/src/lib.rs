@@ -364,7 +364,17 @@ fn listed_lines(word: &str, whole: bool, articles: &[ArticleAnalysis]) -> (Vec<u
         // 欄の小見出しは、目次の語の前に種類を付けることがある（目次「財団」、小見出し「工場財団」）。句点の無い短い
         // 小見出し（語より 4 字長いまで）が語で終わるなら、語の小見出し。
         let qualified = |c: &String| !c.contains('。') && c.ends_with(word.as_str()) && c.chars().count() <= word.chars().count() + 4;
-        let heading = |j: usize| if whole { qualified(&lines[j]) } else { starts(j) || qualified(&lines[j]) };
+        // 公告の標題は、目次の語の公告者の名前の一部を略す（号外第191号の目次「東日本高速道路株式会社工事一部完了」、標題
+        // 「高速道路工事一部完了公告」）。「公告」「公示」で終わる句点の無い行の、それを除いた字（8 字以上・語の半分以上）が、語の字を順に
+        // 抜き出したものなら、語の小見出し。
+        // 長い語（25 字以上）は、ほかの公告の標題の字も順に含みやすいので比べない。
+        let abbreviated = |c: &String| {
+            let Some(stem) = c.strip_suffix("公告").or_else(|| c.strip_suffix("公示")) else { return false };
+            let (n, len) = (stem.chars().count(), word.chars().count());
+            let mut rest = word.chars();
+            !c.contains('。') && len <= 24 && n >= 8 && 2 * n >= len && stem.chars().all(|ch| rest.any(|w| w == ch))
+        };
+        let heading = |j: usize| if whole { qualified(&lines[j]) } else { starts(j) || qualified(&lines[j]) || abbreviated(&lines[j]) };
         let mut prev: Option<&String> = None;
         for (j, c) in lines.iter().enumerate() {
             if c.is_empty() {
@@ -377,7 +387,7 @@ fn listed_lines(word: &str, whole: bool, articles: &[ArticleAnalysis]) -> (Vec<u
                         heads.push(i);
                     }
                 }
-                Some(p) if !segment::is_section_label(p) && !c.contains('。') && (if whole { qualified(c) } else { starts(j) }) => inner.push((i, j)),
+                Some(p) if !segment::is_section_label(p) && !c.contains('。') && (if whole { qualified(c) } else { starts(j) || abbreviated(c) }) => inner.push((i, j)),
                 Some(_) => {}
             }
             prev = Some(c);
@@ -475,6 +485,47 @@ pub fn split_listed_sections(titles: &[&str], articles: &mut Vec<ArticleAnalysis
 /// 作り直した後ろの字の手前で切る（区分見出し「公告」を別の段落にした構造や、前の公告の表を保つ）。作り直した後ろが段落
 /// だけでない、後ろの字から後ろに表がある、作り直した後ろの字が `doc` の段落の字の終わりと合わない、のどれかなら分けない。
 fn split_paragraphs(doc: &Document, tail: &str) -> Option<(Document, Document)> {
+    split_rebuilt(doc, tail).or_else(|| split_blocks(doc, tail))
+}
+
+/// 後ろ（`tail`）を作り直せない（後ろに表がある）とき、文書のブロックを、`tail` の最初の行が段落の字に始まる位置で 2 つに
+/// 分ける（段落は折り返した行をつなぐので、行頭とは限らない）。表を含む後ろのブロックはそのまま後ろに置く（号外第179号:
+/// 破産の欄の小見出しの後ろに、表を持つ別の欄の公告が続く）。最初の行が段落の字に 1 度だけ現れるときに限る。
+fn split_blocks(doc: &Document, tail: &str) -> Option<(Document, Document)> {
+    let first = tail.lines().map(str::trim).find(|l| !l.is_empty())?;
+    let mut found = Vec::new();
+    for (bi, b) in doc.blocks.iter().enumerate() {
+        let Block::Paragraph { runs } = b else { continue };
+        for (ri, r) in runs.iter().enumerate() {
+            if r.table.is_some() {
+                continue;
+            }
+            found.extend(r.text.match_indices(first).map(|(pos, _)| (bi, ri, pos)));
+        }
+    }
+    let [(bi, ri, pos)] = found[..] else { return None };
+    let Block::Paragraph { runs } = &doc.blocks[bi] else { return None };
+    let mut head_runs: Vec<Run> = runs[..ri].to_vec();
+    let before = runs[ri].text[..pos].trim_end_matches('\n');
+    if !before.is_empty() {
+        head_runs.push(Run { text: before.to_string(), ..runs[ri].clone() });
+    }
+    while head_runs.last().is_some_and(|r| r.table.is_none() && r.text.trim().is_empty()) {
+        head_runs.pop();
+    }
+    let mut tail_runs = vec![Run { text: runs[ri].text[pos..].to_string(), ..runs[ri].clone() }];
+    tail_runs.extend(runs[ri + 1..].iter().cloned());
+    let mut head: Vec<Block> = doc.blocks[..bi].to_vec();
+    if !head_runs.is_empty() {
+        head.push(Block::Paragraph { runs: head_runs });
+    }
+    let mut back = vec![Block::Paragraph { runs: tail_runs }];
+    back.extend(doc.blocks[bi + 1..].iter().cloned());
+    (!head.is_empty()).then(|| (Document { format: doc.format.clone(), blocks: head }, Document { format: doc.format.clone(), blocks: back }))
+}
+
+/// 後ろ（`tail`）を `Document::from_text` で作り直し、前は `doc` のブロックを作り直した後ろの字の手前で切る。
+fn split_rebuilt(doc: &Document, tail: &str) -> Option<(Document, Document)> {
     let back = Document::from_text(tail);
     let text = |d: &Document| -> String {
         d.blocks.iter().filter_map(|b| if let Block::Paragraph { runs } = b { Some(runs) } else { None }).flatten().map(|r| r.text.as_str()).collect()
@@ -1586,7 +1637,9 @@ mod tests {
         let after = Block::Paragraph { runs: vec![Run::plain("諸事項…公告する。\n令和８年７月31日東北農政局長相続財産清算人の選任及び相続権主張の催告特別清算開始"), table("名称")] };
         let mut d = vec![ArticleAnalysis { text: text.into(), document: Document { format: "prose".into(), blocks: vec![paragraph("公告"), after] }, notices: vec![] }];
         split_listed_sections(&titles, &mut d);
-        assert_eq!(d.len(), 1);
+        // 後ろに表があれば、元の記事のブロックを分け、表は後ろに置く（`split_blocks`、号外第179号）。
+        assert_eq!(d.len(), 2);
+        assert!(matches!(d[1].document.blocks.last(), Some(Block::Paragraph { runs }) if runs.last().is_some_and(|r| r.table.is_some())));
     }
 
     #[test]
@@ -1854,6 +1907,34 @@ mod tests {
         let mut b = a.clone();
         b[1] = arts(&["官　庁　事　項\n人事院公示第27号\n…施設及び区域として提供する。"]).remove(0);
         assert_eq!(pick_items(&[title, other], &b)[0], vec![0]);
+    }
+
+    #[test]
+    fn a_listed_section_followed_by_a_table_is_split_at_its_heading() {
+        // 号外第179号: 破産の欄の小見出しの後ろに、表を持つ別の欄の公告（農林水産省共済組合定款の一部変更）が続く。
+        let text = "割賦販売法に基づく…公示\n…とすること。\n破産手続開始及び免責許可申立てに関する意見申述期間\n破産手続廃止\n農林水産省共済組合定款の一部変更について\n…次のように改める。";
+        let table = model::NestedTable { rows: vec![vec![vec![Run { text: "第18条".into(), underline: false, table: None }]]], merges: vec![] };
+        let mut doc = model::Document::from_text(text);
+        doc.blocks.push(Block::Paragraph { runs: vec![Run { text: String::new(), underline: false, table: Some(table) }] });
+        let mut a = vec![ArticleAnalysis { text: text.into(), document: doc, notices: vec![] }];
+        let titles = ["破産、免責、再生関係", "農林水産省共済組合定款の一部変更、独立行政法人国立文化財機構出品預証書紛失に伴う証書の無効関係"];
+        split_listed_sections(&titles, &mut a);
+        let heads: Vec<&str> = a.iter().map(|x| x.text.lines().next().unwrap()).collect();
+        assert_eq!(heads, ["割賦販売法に基づく…公示", "破産手続開始及び免責許可申立てに関する意見申述期間", "農林水産省共済組合定款の一部変更について"]);
+        assert!(matches!(a[2].document.blocks.last(), Some(Block::Paragraph { runs }) if runs[0].table.is_some()), "表は後ろの記事に残る");
+        assert_eq!(pick_items(&titles, &a), vec![vec![1], vec![2]]);
+    }
+
+    #[test]
+    fn a_heading_that_leaves_out_part_of_the_listed_word_starts_its_section() {
+        // 号外第191号: 目次「東日本高速道路株式会社工事一部完了」、標題「高速道路工事一部完了公告」。
+        let title = "東日本高速道路株式会社工事一部完了、日本弁護士連合会裁決関係";
+        let mut a = arts(&["破産手続開始及び免責許可申立てに関する意見申述期間\n免責許可決定\n高速道路工事一部完了公告\n本会社において、…公告します。"]);
+        split_listed_sections(&["破産、免責、再生関係", title], &mut a);
+        assert_eq!(a.len(), 2);
+        assert_eq!(pick_items(&["破産、免責、再生関係", title], &a), vec![vec![0], vec![1]]);
+        // 語の字を順に抜き出していない行や短い行は小見出しではない。
+        assert!(listed_lines("東日本高速道路株式会社工事一部完了", false, &arts(&["前の公告\n…。\n高速道路の料金公告\n…"])).1.is_empty());
     }
 
     #[test]
