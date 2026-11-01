@@ -151,3 +151,19 @@ fn repeated_listed_headings_in_one_ocr_article_split_at_the_first() {
     let picked = &kanpo_parser::pick_items(&titles, &a)[0];
     assert!(a[picked[0]].text.starts_with("教育職員免許状失効公告"), "{:?}", picked.iter().map(|&i| &a[i].text).collect::<Vec<_>>());
 }
+
+#[test]
+fn ocr_only_picking_tolerates_one_misread_char_and_short_headings_ending_with_the_word() {
+    let pages = page("20260716h017490002");
+    let lines = ["令和8年(再イ)第9号", "再生債務者 株式会社甲", "無縁填墓等改葬公告", "無縁墳墓について改葬することとなりました。", "工場財団", "工場財団に属する土地は次のとおり。"];
+    let regions = lines.iter().enumerate().map(|(k, l)| region(l, [0.0, 3000.0 + 50.0 * k as f64, 800.0, 3040.0 + 50.0 * k as f64])).collect();
+    let mut ocrs = vec![None; pages.len()];
+    ocrs[0] = Some(OcrPage::from_ndlocr_trace(&trace(regions)).unwrap());
+    let mut a = analyze_item_with_ocr(&pages, &ocrs).articles;
+    let titles = ["無縁墳墓等改葬関係", "財団関係"];
+    assert!(kanpo_parser::pick_items(&titles, &a).iter().all(Vec::is_empty), "the default picking needs the exact word");
+    let picks = kanpo_parser::ocr_articles::pick_items_with_ocr(&titles, &mut a);
+    let head = |k: usize| a[picks[k][0]].text.lines().next().unwrap().to_string();
+    assert_eq!(head(0), "無縁填墓等改葬公告");
+    assert_eq!(head(1), "工場財団");
+}

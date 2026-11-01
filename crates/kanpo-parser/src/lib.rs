@@ -370,7 +370,7 @@ fn listed_lines(word: &str, articles: &[ArticleAnalysis]) -> (Vec<usize>, Vec<(u
 /// 欄の小見出しは画像の上に載るなどして本文に無いことがある（裁判所の欄の「相続財産清算人の選任…」が画像で、
 /// 「公示催告」から本文）ので、目次の順に、本文に小見出しのある最初の語で選ぶ。2 つ目からの語は、本文の別の行の頭と
 /// 紛れないよう 4 字以上のものだけ。
-fn listed_words(title: &str) -> Vec<String> {
+pub(crate) fn listed_words(title: &str) -> Vec<String> {
     let Some(listed) = title.strip_suffix("関係") else { return vec![] };
     listed
         .split(['、', '・'])

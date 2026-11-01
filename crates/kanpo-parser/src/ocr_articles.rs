@@ -257,3 +257,43 @@ fn gaps<'a>(set: &[&'a OcrRegion], axis: usize) -> Vec<Vec<&'a OcrRegion>> {
     }
     groups
 }
+
+/// [`crate::pick_items`] に、OCR の字の誤り（「無縁墳墓」を「無縁填墓」）を 1 字まで許す選び方を足す版（opt-in の OCR の経路だけで使う）。
+///
+/// 「…関係」の項目で記事を選べなかったとき、目次の語（[`crate::listed_words`] の順）と同じ長さの行頭が 1 字だけ違う、句点の無い行を
+/// 持つ記事、または語で終わる短い見出しの行（目次「財団関係」・本文「工場財団」。行は語の 2 倍の字数まで）を持つ記事がちょうど
+/// 1 つなら、それを採る。その行が記事の途中なら、その行から後ろを別の記事にして（末尾に足す）採る。
+/// 1 字違いを許すのは 4 字以上の語だけ（短い語は別の行の頭と紛れる）。
+pub fn pick_items_with_ocr(titles: &[&str], articles: &mut Vec<ArticleAnalysis>) -> Vec<Vec<usize>> {
+    let mut picks = crate::pick_items(titles, articles);
+    for (title, pick) in titles.iter().zip(picks.iter_mut()).filter(|(_, p)| p.is_empty()) {
+        for word in crate::listed_words(title) {
+            let word: Vec<char> = word.chars().collect();
+            let near = |line: &str| {
+                let line: Vec<char> = line.chars().filter(|c| !c.is_whitespace()).collect();
+                if line.contains(&'。') || line.contains(&'、') {
+                    return false;
+                }
+                let head = &line[..word.len().min(line.len())];
+                (word.len() >= 4 && head.len() == word.len() && head.iter().zip(&word).filter(|(a, b)| a != b).count() <= 1)
+                    || (word.len() >= 2 && line.len() <= 2 * word.len() && line.ends_with(&word))
+            };
+            let hits: Vec<(usize, usize)> =
+                articles.iter().enumerate().filter_map(|(i, a)| a.text.split('\n').position(near).map(|j| (i, j))).collect();
+            if let [(i, j)] = hits[..] {
+                *pick = vec![i];
+                if j > 0 {
+                    let lines: Vec<&str> = articles[i].text.split('\n').collect();
+                    let (before, after) = (lines[..j].join("\n"), lines[j..].join("\n"));
+                    articles[i] = ArticleAnalysis { document: model::Document::from_text(&before), text: before, notices: vec![] };
+                    articles.push(ArticleAnalysis { document: model::Document::from_text(&after), text: after, notices: vec![] });
+                    *pick = vec![articles.len() - 1];
+                }
+            }
+            if !hits.is_empty() {
+                break;
+            }
+        }
+    }
+    picks
+}
