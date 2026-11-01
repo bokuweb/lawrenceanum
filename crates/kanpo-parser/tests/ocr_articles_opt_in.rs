@@ -202,3 +202,16 @@ fn ocr_only_picking_repicks_at_the_one_line_starting_with_the_first_listed_word(
     let picks = kanpo_parser::ocr_articles::pick_items_with_ocr(&titles, &mut a);
     assert!(a[picks[0][0]].text.starts_with("旅行業者営業保証金の権利実行申立てに係る公告"), "{:?}", picks[0].iter().map(|&i| &a[i].text).collect::<Vec<_>>());
 }
+
+#[test]
+fn ocr_only_repicking_accepts_a_heading_without_the_leading_agency_name() {
+    let pages = page("20260716h017490002");
+    let lines = ["懲戒処分の公告", "次の懲戒処分をしたので公告する。", "裁決取消訴訟の判決確定の公告", "次の判決が確定したので公告する。"];
+    let regions = lines.iter().enumerate().map(|(k, l)| region(l, [0.0, 3000.0 + 50.0 * k as f64, 800.0, 3040.0 + 50.0 * k as f64])).collect();
+    let mut ocrs = vec![None; pages.len()];
+    ocrs[0] = Some(OcrPage::from_ndlocr_trace(&trace(regions)).unwrap());
+    let mut a = analyze_item_with_ocr(&pages, &ocrs).articles;
+    let titles = ["日本弁護士連合会裁決取消訴訟の判決確定・懲戒処分・公示送達関係"];
+    let picks = kanpo_parser::ocr_articles::pick_items_with_ocr(&titles, &mut a);
+    assert!(a[picks[0][0]].text.starts_with("裁決取消訴訟の判決確定の公告"), "{:?}", picks[0].iter().map(|&i| &a[i].text).collect::<Vec<_>>());
+}

@@ -304,11 +304,19 @@ pub fn pick_items_with_ocr(titles: &[&str], articles: &mut Vec<ArticleAnalysis>)
     // その行（画像の欄の小見出し「旅行業者営業保証金の権利実行申立てに係る公告」）からの記事を採る（記事の途中なら分ける）。
     for (title, pick) in titles.iter().zip(picks.iter_mut()).filter(|(_, p)| !p.is_empty()) {
         let Some(word) = crate::listed_words(title).into_iter().next() else { continue };
+        // 小見出しは目次の語の頭の機関名を省くことがある（目次「日本弁護士連合会裁決取消訴訟の判決確定」、本文「裁決取消訴訟の
+        // 判決確定の公告」）ので、語の後ろの半分以上で始まる行も採る。
+        let chars: Vec<char> = word.chars().collect();
+        let tails: Vec<String> = (0..=chars.len() / 2).filter(|&k| k == 0 || chars.len() - k >= 4).map(|k| chars[k..].iter().collect()).collect();
         let starts = |line: &str| {
             let line: String = line.chars().filter(|c| !c.is_whitespace()).collect();
-            !line.contains(['。', '、']) && line.starts_with(&word)
+            !line.contains(['。', '、']) && tails.iter().any(|t| line.starts_with(t.as_str()))
         };
-        if articles[pick[0]].text.lines().find(|l| !l.trim().is_empty()).is_some_and(starts) {
+        let head = |l: &str| {
+            let l: String = l.chars().filter(|c| !c.is_whitespace()).collect();
+            l.starts_with(&word)
+        };
+        if articles[pick[0]].text.lines().find(|l| !l.trim().is_empty()).is_some_and(head) {
             continue;
         }
         let hits: Vec<(usize, usize)> =
