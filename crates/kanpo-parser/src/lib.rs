@@ -841,7 +841,13 @@ pub fn pick_items(titles: &[&str], articles: &[ArticleAnalysis]) -> Vec<Vec<usiz
             // 標題（「…財務諸表に関する / 公告」）の最後の行「公告」が区分見出しとして記事を分けたなら、前の標題だけの記事の続き。
             let title_only = |a: &ArticleAnalysis| !a.text.contains('。') && a.text.lines().filter(|l| !l.trim().is_empty()).count() <= 2;
             let title_tail = listed && matches!(h.as_str(), "公告" | "公示") && p.last() == Some(&(j - 1)) && title_only(&articles[j - 1]);
-            if claimed.contains(&j) || (!title_tail && (field_end || segment::is_section_label(&h))) || numbered || h.contains("をここに公布する") {
+            // 標題が「公告」だけの公告（号外第196号の宮城県知事の「公告」）は区分見出しと同じ字になる。本文が項目に並ぶ語の
+            // 頭 7 字（数字を除く、「農業協同組合法第六十四条の二の届出」の「農業協同組合法」）を含むなら、欄の公告。
+            let titled_own = listed && h == "公告" && {
+                let body = compact_digits(&a.text);
+                listed_words(title).iter().map(|w| compact_digits(w).chars().take(7).collect::<String>()).any(|w| w.chars().count() == 7 && body.contains(&w))
+            };
+            if claimed.contains(&j) || (!title_tail && !titled_own && (field_end || segment::is_section_label(&h))) || numbered || h.contains("をここに公布する") {
                 break;
             }
             p.push(j);
@@ -866,6 +872,11 @@ fn grouped_name_heading(title: &str, a: &ArticleAnalysis) -> bool {
         .filter(|n| n.chars().count() >= 3)
         .collect();
     names.iter().any(|n| head.contains(n.as_str())) && names_in_title(title, a)
+}
+
+/// 空白と数字（漢数字・算用数字）を除いた字。
+fn compact_digits(s: &str) -> String {
+    s.chars().filter(|c| !c.is_whitespace() && !c.is_ascii_digit() && !"０１２３４５６７８９〇一二三四五六七八九十百千".contains(*c)).collect()
 }
 
 /// 記事の標題（2 行まで）が、目次の標題と 7 字以上続けて同じ字（数字を除く）を持つか。目次は同じ欄の公告の名前を
@@ -1570,6 +1581,23 @@ mod tests {
         assert_eq!(c.len(), 3);
         assert!(c[1].text.starts_with("工場財団"));
         assert_eq!(pick_items(&[title, "相続、失踪関係"], &c), vec![vec![1], vec![2]]);
+    }
+
+    #[test]
+    fn a_listed_item_takes_a_notice_titled_only_koukoku_that_names_its_word() {
+        // 号外第196号: 宮城県知事の「公告」（標題が「公告」だけ）は、本文に項目の語「農業協同組合法…」を含む欄の公告。
+        let title = "解散命令、教育職員免許状失効、行旅死亡人、農業協同組合法第六十四条の二の届出関係";
+        let a = arts(&[
+            "解散命令公告\n…命令した。",
+            "公告\n宮城県の区域を地区とする農業協同組合又は農\n…農業協同組合法施行規則（平成17年農林水産省令第27\n号）第208条の２で定めるところにより…届出をされたい。",
+            "会社その他の公告",
+            "解散公告\n当社は…",
+        ]);
+        assert_eq!(pick_items(&[title, "会社その他"], &a)[0], vec![0, 1]);
+        // 語を含まない「公告」は区分見出しとして止まる。
+        let mut b = a.clone();
+        b[1] = arts(&["公告\n諸事項\n…権利を申し出て下さい。"]).remove(0);
+        assert_eq!(pick_items(&[title, "会社その他"], &b)[0], vec![0]);
     }
 
     #[test]
