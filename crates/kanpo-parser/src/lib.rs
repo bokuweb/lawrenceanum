@@ -848,8 +848,10 @@ pub fn pick_items(titles: &[&str], articles: &[ArticleAnalysis]) -> Vec<Vec<usiz
         }
         for (j, a) in articles.iter().enumerate().skip(i + 1) {
             let h = head(a);
-            // 号数の無い `〇` で始まる行（住所の折り返し「〇番地三五八」）は公告の続き。
-            let numbered = segment::is_heading_mark(&h) && heading_number(&h).is_some();
+            // 号数の無い `〇` で始まる行（住所の折り返し「〇番地三五八」）は公告の続き。号数の見出しは「第…号」で終わる。
+            // 財務諸表の注記が法令を引く行（「〇独立行政法人水資源機構の財務及び会計等に関する省令（平成15年国土交通省令
+            // 第104号）」）は、号数を括弧の中に持つ公告の続き。
+            let numbered = segment::is_heading_mark(&h) && heading_number(&h).is_some() && h.ends_with('号');
             // 欄の小見出し（「特別清算終結」「破産管財人変更」）は「公告」「公示」で終わらない。標題の行（2 行に折り返す）が
             // 「…公告」「…公示」で終わる記事は、欄の後ろに続く別の欄の公告（「…令和７年度財務諸表公告」）。
             let titled = || {
@@ -873,7 +875,11 @@ pub fn pick_items(titles: &[&str], articles: &[ArticleAnalysis]) -> Vec<Vec<usiz
                 let body = compact_digits(&a.text);
                 listed_words(title).iter().map(|w| compact_digits(w).chars().take(7).collect::<String>()).any(|w| w.chars().count() == 7 && body.contains(&w))
             };
-            if claimed.contains(&j) || (!title_tail && !titled_own && (field_end || segment::is_section_label(&h))) || numbered || h.contains("をここに公布する") {
+            // 欄見出しの項目（「会社その他」）の欄の中の、標題が「公告」だけの公告（号外第190号の信託財産の「公告 / 一、信託事務の
+            // 状況」）。区分見出しの「公告」は次の行が欄見出し（「諸事項」「会社その他の公告」）なので、次の行が欄見出しの形でなければ
+            // 欄の公告として続ける。
+            let titled_field = !listed && h == "公告" && a.text.lines().map(compact).filter(|l| !l.is_empty()).nth(1).is_some_and(|l| !label(&l));
+            if claimed.contains(&j) || (!title_tail && !titled_own && !titled_field && (field_end || segment::is_section_label(&h))) || numbered || h.contains("をここに公布する") {
                 break;
             }
             p.push(j);
@@ -1424,6 +1430,18 @@ mod tests {
     }
 
     #[test]
+    fn a_listed_item_keeps_the_notes_that_cite_a_numbered_ordinance() {
+        // 号外第195号: 財務諸表の注記が法令を引く行は `〇` で始まり、号数を括弧の中に持つ。告示の見出しではない。
+        let a = arts(&[
+            "令和７事業年度独立行政法人水資源機構の財務諸表に関する公告\n貸借対照表",
+            "〇独立行政法人水資源機構の財務及び会計等に関する省令（平成15年国土交通省令第104号）\n（補助金等の会計処理）",
+            "〇国土交通省告示第百号\n…",
+        ]);
+        let title = "令和七事業年度独立行政法人水資源機構の財務諸表、独立行政法人日本高速道路保有・債務返済機構車両制限令第三条第四項の規定による道路の指定関係";
+        assert_eq!(pick_items(&[title], &a), vec![vec![0, 1]]);
+    }
+
+    #[test]
     fn a_label_only_item_skips_the_financial_notices_set_among_its_notices() {
         // 号外第194号: 会社その他の公告は、会社決算公告の欄の頁に決算公告の枠と交互に組まれて続く。
         let a = arts(&[
@@ -1676,6 +1694,22 @@ mod tests {
         let mut b = a.clone();
         b[1] = arts(&["諸事項\n工場財団\n…権利を申し出て下さい。"]).remove(0);
         assert_eq!(pick_items(&[title, "相続、失踪関係"], &b), vec![vec![0], vec![2]]);
+    }
+
+    #[test]
+    fn a_field_item_continues_over_a_notice_titled_only_koukoku() {
+        // 号外第190号: 決算公告の頁に組まれた信託財産の「公告」（標題が「公告」だけ）は、会社その他の欄の公告。後ろの合併公告まで続ける。
+        let a = arts(&[
+            "会社その他の公告",
+            "解散公告\n当社は、株主総会において解散することを決議しました。",
+            "公告\n一、信託事務の状況\n当期においては振替機関等から通知を受けた。",
+            "合併公告\n左記会社は合併して甲は乙の権利義務全部を承継して存続する。",
+        ]);
+        assert_eq!(pick_items(&["会社その他"], &a)[0], vec![0, 1, 2, 3]);
+        // 次の行が欄見出しの「公告」（区分見出し）は止まる。
+        let mut b = a.clone();
+        b[2] = arts(&["公告\n諸事項\n当局に申し出て下さい。"]).remove(0);
+        assert_eq!(pick_items(&["会社その他"], &b)[0], vec![0, 1]);
     }
 
     #[test]
