@@ -189,3 +189,16 @@ fn ocr_only_picking_tolerates_a_misread_kind_and_a_lost_heading_number() {
     assert_eq!(head(0), "法務省告示記第百九号");
     assert_eq!(head(1), "愛知県公安委員会告示配第");
 }
+
+#[test]
+fn ocr_only_picking_repicks_at_the_one_line_starting_with_the_first_listed_word() {
+    let pages = page("20260716h017490002");
+    let lines = ["解散公告", "当社は解散したので、債権者は申し出てください。", "旅行業者営業保証金の権利実行申立てに係る公告", "次のように公告する。"];
+    let regions = lines.iter().enumerate().map(|(k, l)| region(l, [0.0, 3000.0 + 50.0 * k as f64, 800.0, 3040.0 + 50.0 * k as f64])).collect();
+    let mut ocrs = vec![None; pages.len()];
+    ocrs[0] = Some(OcrPage::from_ndlocr_trace(&trace(regions)).unwrap());
+    let mut a = analyze_item_with_ocr(&pages, &ocrs).articles;
+    let titles = ["旅行業者営業保証金の権利実行申立て関係"];
+    let picks = kanpo_parser::ocr_articles::pick_items_with_ocr(&titles, &mut a);
+    assert!(a[picks[0][0]].text.starts_with("旅行業者営業保証金の権利実行申立てに係る公告"), "{:?}", picks[0].iter().map(|&i| &a[i].text).collect::<Vec<_>>());
+}

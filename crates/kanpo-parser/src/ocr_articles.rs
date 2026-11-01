@@ -300,6 +300,23 @@ pub fn pick_items_with_ocr(titles: &[&str], articles: &mut Vec<ArticleAnalysis>)
             *pick = vec![i];
         }
     }
+    // 「…関係」の項目で、標題の鍵で選んだ記事が目次の最初の語で始まらず、その語で始まる文でない行が全体でちょうど 1 つあるなら、
+    // その行（画像の欄の小見出し「旅行業者営業保証金の権利実行申立てに係る公告」）からの記事を採る（記事の途中なら分ける）。
+    for (title, pick) in titles.iter().zip(picks.iter_mut()).filter(|(_, p)| !p.is_empty()) {
+        let Some(word) = crate::listed_words(title).into_iter().next() else { continue };
+        let starts = |line: &str| {
+            let line: String = line.chars().filter(|c| !c.is_whitespace()).collect();
+            !line.contains(['。', '、']) && line.starts_with(&word)
+        };
+        if articles[pick[0]].text.lines().find(|l| !l.trim().is_empty()).is_some_and(starts) {
+            continue;
+        }
+        let hits: Vec<(usize, usize)> =
+            articles.iter().enumerate().flat_map(|(i, a)| a.text.split('\n').enumerate().filter(|(_, l)| starts(l)).map(move |(j, _)| (i, j))).collect();
+        if let [(i, j)] = hits[..] {
+            *pick = vec![split_at_line(articles, i, j)];
+        }
+    }
     for (title, pick) in titles.iter().zip(picks.iter_mut()).filter(|(_, p)| p.is_empty()) {
         for word in crate::listed_words(title) {
             let word: Vec<char> = word.chars().collect();
@@ -315,14 +332,7 @@ pub fn pick_items_with_ocr(titles: &[&str], articles: &mut Vec<ArticleAnalysis>)
             let hits: Vec<(usize, usize)> =
                 articles.iter().enumerate().filter_map(|(i, a)| a.text.split('\n').position(near).map(|j| (i, j))).collect();
             if let [(i, j)] = hits[..] {
-                *pick = vec![i];
-                if j > 0 {
-                    let lines: Vec<&str> = articles[i].text.split('\n').collect();
-                    let (before, after) = (lines[..j].join("\n"), lines[j..].join("\n"));
-                    articles[i] = ArticleAnalysis { document: model::Document::from_text(&before), text: before, notices: vec![] };
-                    articles.push(ArticleAnalysis { document: model::Document::from_text(&after), text: after, notices: vec![] });
-                    *pick = vec![articles.len() - 1];
-                }
+                *pick = vec![split_at_line(articles, i, j)];
             }
             if !hits.is_empty() {
                 break;
@@ -330,4 +340,16 @@ pub fn pick_items_with_ocr(titles: &[&str], articles: &mut Vec<ArticleAnalysis>)
         }
     }
     picks
+}
+
+/// 記事 `i` を `j` 行目から分け、後ろを末尾の記事にしてその番号を返す（`j` が 0 なら分けずに `i`）。
+fn split_at_line(articles: &mut Vec<ArticleAnalysis>, i: usize, j: usize) -> usize {
+    if j == 0 {
+        return i;
+    }
+    let lines: Vec<&str> = articles[i].text.split('\n').collect();
+    let (before, after) = (lines[..j].join("\n"), lines[j..].join("\n"));
+    articles[i] = ArticleAnalysis { document: model::Document::from_text(&before), text: before, notices: vec![] };
+    articles.push(ArticleAnalysis { document: model::Document::from_text(&after), text: after, notices: vec![] });
+    articles.len() - 1
 }
