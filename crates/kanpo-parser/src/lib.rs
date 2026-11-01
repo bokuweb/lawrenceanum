@@ -810,6 +810,16 @@ pub fn pick_items(titles: &[&str], articles: &[ArticleAnalysis]) -> Vec<Vec<usiz
         let h = head(&articles[i]);
         let listed = title.ends_with("関係");
         if !(label(&h) && h.starts_with(&compact(title))) && !listed {
+            // 公告の欄見出し（「諸事項」）が段の頭に組まれ、読み順で官庁報告の欄の公示の間に入ると、後ろの公示（本紙第1801号の
+            // 「沖縄労働局最低賃金公示第１号」）は欄見出しで始まる別の記事になる。欄見出しの後の標題が目次の標題と 7 字以上
+            // 同じ字を持つ（[`names_in_title`]）なら、項目の続き。
+            for (j, a) in articles.iter().enumerate().skip(i + 1) {
+                let body: Vec<&str> = a.text.lines().skip_while(|l| l.trim().is_empty() || segment::is_section_label(l)).collect();
+                if claimed.contains(&j) || !segment::is_section_label(&head(a)) || !names_in_title_text(title, &body.join("\n")) {
+                    break;
+                }
+                p.push(j);
+            }
             continue;
         }
         // ほかの「…関係」の項目の小見出しが記事の途中にある（欄見出しが本文に無く、前の欄の最後の記事に続いた）なら、
@@ -872,10 +882,15 @@ fn grouped_name_heading(title: &str, a: &ArticleAnalysis) -> bool {
 /// まとめて並べる（「令和七年度共済組合の決算（内閣・法務省・刑務）」）ので、語の頭が本文の標題（「令和７年度内閣
 /// 共済組合の決算公告」）と合わないことがある。
 fn names_in_title(title: &str, a: &ArticleAnalysis) -> bool {
+    names_in_title_text(title, &a.text)
+}
+
+/// [`names_in_title`] を記事の本文の字（`text`）で比べる。
+fn names_in_title_text(title: &str, text: &str) -> bool {
     let compact = |s: &str| -> Vec<char> {
         s.chars().filter(|c| !c.is_whitespace() && !c.is_ascii_digit() && !"０１２３４５６７８９〇一二三四五六七八九十百千".contains(*c)).collect()
     };
-    let head: Vec<char> = a.text.lines().filter(|l| !l.trim().is_empty()).take(2).flat_map(|l| compact(l)).collect();
+    let head: Vec<char> = text.lines().filter(|l| !l.trim().is_empty()).take(2).flat_map(|l| compact(l)).collect();
     let title: String = compact(title).into_iter().collect();
     head.windows(7).any(|w| title.contains(&w.iter().collect::<String>()))
 }
@@ -1570,6 +1585,22 @@ mod tests {
         assert_eq!(c.len(), 3);
         assert!(c[1].text.starts_with("工場財団"));
         assert_eq!(pick_items(&[title, "相続、失踪関係"], &c), vec![vec![1], vec![2]]);
+    }
+
+    #[test]
+    fn a_notice_after_a_stray_section_label_continues_the_item_its_title_names() {
+        // 本紙第1801号: 公告の欄見出し「諸事項」が読み順で官庁報告の 2 つの最低賃金の公示の間に入る。
+        let title = "最低賃金の改正決定に関する公示（熊本労働局最低賃金公示一、沖縄同一）";
+        let a = arts(&[
+            "労働\n最低賃金の改正決定に関する公示\n熊本労働局最低賃金公示第１号\n…公示する。",
+            "諸事項\n沖縄労働局最低賃金公示第１号\n最低賃金法（昭和34年法律第137号）第12条の\n…公示する。",
+            "相続財産清算人の選任及び相続権主張の催告",
+        ]);
+        assert_eq!(pick_items(&[title, "相続、失踪関係"], &a), vec![vec![0, 1], vec![2]]);
+        // 欄見出しの後の公示が標題と字を同じくしないなら、続きではない。
+        let mut b = a.clone();
+        b[1] = arts(&["諸事項\n工場財団\n…権利を申し出て下さい。"]).remove(0);
+        assert_eq!(pick_items(&[title, "相続、失踪関係"], &b), vec![vec![0], vec![2]]);
     }
 
     #[test]
