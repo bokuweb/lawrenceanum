@@ -67,6 +67,9 @@ pub(crate) struct FillStats {
 /// `None` は取得の上限に達した (この項目の残りのページは取らない)、`Some(None)` は取得・抽出の失敗。
 pub(crate) type PageLoader<'a> = dyn FnMut(&str) -> Option<Option<pdf::PageInput>> + 'a;
 
+/// ページ PDF の URL から、そのページの画像を OCR した結果を取る手段（`kanpo-reextract --ocr-dir`、opt-in）。無ければ `None`。
+pub(crate) type OcrLoader<'a> = dyn FnMut(&str) -> Option<pdf::OcrPage> + 'a;
+
 /// デジタル官報から項目別 PDF を取得して改め文を詰める。`limit` は 1 日あたりの PDF ダウンロード上限。
 /// `pdf_dir` を渡すと取得した生 PDF をそこへ保存する（`{pdf_dir}/{PDFファイル名}`）。
 fn fill_amend_texts(
@@ -112,7 +115,7 @@ fn fill_amend_texts(
             }
         })
     };
-    let mut stats = fill_amend_texts_with(kd, amend_only, &mut load);
+    let mut stats = fill_amend_texts_with(kd, amend_only, &mut load, None);
     stats.downloaded = downloaded;
     stats.total_pdf_bytes = total_pdf_bytes;
     stats
@@ -191,13 +194,63 @@ fn analyze_window(
     Some((analysis, picked))
 }
 
+/// 頁の範囲（`item.page` から `end` まで）を、頁ごとの OCR の結果（`ocr`、無い頁は `None`）と合わせて解析し、項目に当たる
+/// 記事を選ぶ（`pdf::ocr_articles::pick_items_with_ocr`）。頁の範囲に OCR の結果が 1 つも無いか、何も選べなければ `None`。
+fn analyze_window_with_ocr(
+    item: &kanpo_client::KanpoItem,
+    end: u32,
+    starts_of: &[(u32, String)],
+    page_input: &mut std::collections::HashMap<String, Option<pdf::PageInput>>,
+    load: &mut PageLoader,
+    ocr: &mut OcrLoader,
+) -> Option<(pdf::Analysis, Vec<usize>)> {
+    let (mut pages, mut ocrs, mut have) = (Vec::new(), Vec::new(), false);
+    for n in item.page..=end {
+        let url = if n == item.page {
+            item.pdf_url.clone()
+        } else {
+            match page_pdf_url(&item.pdf_url, item.page, n) {
+                Some(u) => u,
+                None => continue,
+            }
+        };
+        let input = match page_input.get(&url) {
+            Some(cached) => cached.clone(),
+            None => {
+                let Some(input) = load(&url) else { break };
+                page_input.insert(url.clone(), input.clone());
+                input
+            }
+        };
+        let page_ocr = ocr(&url);
+        have |= page_ocr.is_some();
+        for p in input {
+            pages.push(p);
+            ocrs.push(page_ocr.clone());
+        }
+    }
+    if !have {
+        return None;
+    }
+    let mut analysis = pdf::analyze_item_with_ocr(&pages, &ocrs);
+    let titles: Vec<&str> = std::iter::once(item.title.as_str())
+        .chain(starts_of.iter().filter(|(p, t)| (item.page..=end).contains(p) && *t != item.title).map(|(_, t)| t.as_str()))
+        .collect();
+    pdf::split_listed_sections(&titles, &mut analysis.articles);
+    let picked = pdf::ocr_articles::pick_items_with_ocr(&titles, &mut analysis.articles).swap_remove(0);
+    (!picked.is_empty()).then_some((analysis, picked))
+}
+
 /// 各項目について項目のページを `load` で集めて解析・記事分割し、標題に合致する改め文本文を
 /// `item.amend_text` / `item.amend_format` に詰める。
 ///
 /// 同一ページ(=同一 PDF)を複数項目が共有するためページ単位でキャッシュする。
 /// `amend_only` なら改正/廃止/制定系の標題だけを対象にする（`kanpo-poc --amend-only` 用。取得・再抽出は
 /// 標題を問わず全項目を対象にし、告示・公告なども検索できるようにする）。
-pub(crate) fn fill_amend_texts_with(kd: &mut KanpoDate, amend_only: bool, load: &mut PageLoader) -> FillStats {
+///
+/// `ocr` を渡したときだけ（`kanpo-reextract --ocr-dir`）、PDF の字から記事を選べない項目（本文が画像の告示など）を、頁の画像を
+/// OCR した結果と合わせて選び直し、選べたら `amend_source: "ocr"` の本文にする。
+pub(crate) fn fill_amend_texts_with(kd: &mut KanpoDate, amend_only: bool, load: &mut PageLoader, mut ocr: Option<&mut OcrLoader>) -> FillStats {
     // 1項目が複数ページに跨る（新旧対照表等）ため、項目の開始ページから次項目の
     // 開始ページ手前（最終項目は号の総ページ）までを連結して抽出する。
     const MAX_SPAN: u32 = 25;
@@ -283,6 +336,15 @@ pub(crate) fn fill_amend_texts_with(kd: &mut KanpoDate, amend_only: bool, load: 
                     break;
                 }
             }
+            let mut from_ocr = false;
+            if picked.is_empty() {
+                if let Some(ocr) = ocr.as_mut() {
+                    if let Some(found) = analyze_window_with_ocr(item, end, &starts_of, &mut page_input, load, &mut **ocr) {
+                        (analysis, picked) = found;
+                        from_ocr = true;
+                    }
+                }
+            }
             let segments: Vec<String> = analysis.articles.iter().map(|a| a.text.clone()).collect();
             let (body, doc) = match picked.as_slice() {
                 [] => {
@@ -293,6 +355,7 @@ pub(crate) fn fill_amend_texts_with(kd: &mut KanpoDate, amend_only: bool, load: 
                     item.amend_text = None;
                     item.amend_format = None;
                     item.amend_document = None;
+                    item.amend_source = None;
                     continue;
                 }
                 [i] => (segments[*i].clone(), analysis.articles[*i].document.clone()),
@@ -315,6 +378,7 @@ pub(crate) fn fill_amend_texts_with(kd: &mut KanpoDate, amend_only: bool, load: 
             item.amend_document = serde_json::to_value(&doc).ok();
             item.amend_format = Some(format);
             item.amend_text = Some(body);
+            item.amend_source = from_ocr.then(|| "ocr".to_string());
         }
         // 広げた頁の範囲の終わりの頁から始まる項目の本文は、見出しが無いと前の記事に続いて 1 つの記事になる（本紙号外
         // 第196号の「令和七年度における予算使用の状況」が、続く「令和八年度第一・四半期における予算使用の状況」の本文まで
@@ -772,6 +836,7 @@ mod tests {
             amend_text: Some("本文".into()),
             amend_format: Some("prose".into()),
             amend_document: None,
+            amend_source: None,
         }
     }
 
