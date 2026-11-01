@@ -217,7 +217,7 @@ pub(crate) fn fill_amend_texts_with(kd: &mut KanpoDate, amend_only: bool, load: 
             let window_end = |from: u32| {
                 starts.iter().copied().find(|&p| p > from).unwrap_or(last_page).max(from).min(from + MAX_SPAN - 1)
             };
-            let end = window_end(item.page);
+            let mut end = window_end(item.page);
             let Some((mut analysis, mut picked)) = analyze_window(item, end, &starts_of, &mut page_input, load) else { continue };
             // 欄見出しの項目（「会社その他」）の公告が頁の範囲の最後まで続いたら、次の項目（「会社決算公告」）の頁の範囲まで
             // 広げて選び直す（会社その他の公告は決算公告の欄の頁にも組まれる）。
@@ -226,6 +226,19 @@ pub(crate) fn fill_amend_texts_with(kd: &mut KanpoDate, amend_only: bool, load: 
                 .collect();
             if end > item.page && pdf::field_runs_to_end(&titles, &analysis.articles) {
                 if let Some(wide) = analyze_window(item, window_end(end), &starts_of, &mut page_input, load) {
+                    (analysis, picked) = wide;
+                    end = window_end(end);
+                }
+            }
+            // 選んだ記事が頁の範囲の最後の記事まで続き、項目の範囲（次の項目の開始頁まで）が上限で切った頁の範囲より長いなら、
+            // 項目の範囲の終わりまで広げて選び直す（頁の多い省令の別表、号の最後の「会社決算公告」の欄）。上限で切ると、残りの
+            // 頁の本文はどの項目にも入らない。小見出しだけの記事（本文が画像の「破産、免責、再生関係」の、文も数字も無い記事）は、
+            // 残りの頁に本文が続くとは限らないので広げない（決算公告の貸借対照表は文が無くても数字がある）。
+            let span_end = starts.iter().copied().find(|&p| p > end).unwrap_or(last_page).max(end);
+            let has_body = |t: &str| t.chars().any(|c| c == '。' || c.is_ascii_digit() || ('０'..='９').contains(&c));
+            let runs_on = picked.last().is_some_and(|&l| l + 1 == analysis.articles.len() && has_body(&analysis.articles[l].text));
+            if span_end > end && runs_on {
+                if let Some(wide) = analyze_window(item, span_end, &starts_of, &mut page_input, load) {
                     (analysis, picked) = wide;
                 }
             }
