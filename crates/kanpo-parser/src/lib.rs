@@ -836,6 +836,18 @@ pub fn pick_items(titles: &[&str], articles: &[ArticleAnalysis]) -> Vec<Vec<usiz
                 }
                 p.push(j);
             }
+            // 号数のある告示（「〇国土交通省告示第千十八号」）の本文の小見出し（号外第174号の首都圏整備計画の「〇課題解決型
+            // インフラマネジメント」）は `〇` で始まり、記事の切れ目になる。号数の無い `〇` で始まる記事は、告示の続き。
+            let numbered = |h: &str| segment::is_heading_mark(h) && heading_number(h).is_some();
+            if p.len() == 1 && numbered(&h) {
+                for (j, a) in articles.iter().enumerate().skip(i + 1) {
+                    let h = head(a);
+                    if claimed.contains(&j) || !segment::is_heading_mark(&h) || numbered(&h) || h.contains("をここに公布する") {
+                        break;
+                    }
+                    p.push(j);
+                }
+            }
             continue;
         }
         // ほかの「…関係」の項目の小見出しが記事の途中にある（欄見出しが本文に無く、前の欄の最後の記事に続いた）なら、
@@ -1667,6 +1679,23 @@ mod tests {
         split_listed_sections(&[title], &mut b);
         assert_eq!(b.len(), 4);
         assert_eq!(pick_article(title, &b), Some(3));
+    }
+
+    #[test]
+    fn a_numbered_notice_continues_over_its_unnumbered_subheadings() {
+        // 号外第174号: 首都圏整備計画の告示の本文の小見出し「〇課題解決型インフラマネジメント」が記事を分ける。
+        let title = "首都圏整備法の規定に基づく首都圏整備計画を変更した件（国土交通一〇一八）";
+        let a = arts(&[
+            "〇国土交通省告示第千十八号\n首都圏整備法…首都圏整備計画を次のように変更した。",
+            "〇課題解決型インフラマネジメント\n…取り組む。",
+            "〇高度人材に選ばれる空間づくり\n…取り組む。",
+            "〇国土交通省告示第千十九号\n近畿圏整備法…",
+        ]);
+        let other = "近畿圏整備法の規定に基づく近畿圏整備計画を変更した件（同一〇一九）";
+        assert_eq!(pick_items(&[title, other], &a), vec![vec![0, 1, 2], vec![3]]);
+        // 号数の無い見出しの記事（官庁報告の公示）は続けない。
+        let b = arts(&["近畿地方整備局公示\n…公示する。", "〇定年退官\n…"]);
+        assert_eq!(pick_items(&["近畿地方整備局公示（近畿地方整備局）"], &b), vec![vec![0]]);
     }
 
     #[test]
