@@ -144,6 +144,10 @@ fn numbered_heading(line: &str) -> bool {
     const NUMERALS: &str = "〇一二三四五六七八九十百千0123456789０１２３４５６７８９";
     let t = line.trim().trim_start_matches(['〇', '○', '◯']);
     let kanji = |c: char| ('\u{4E00}'..='\u{9FFF}').contains(&c);
+    // 号数の字が認識されず、行が「愛知県公安委員会告示配第」で切れることがある。
+    if let Some(head) = t.strip_suffix('第') {
+        return head.chars().count() >= 4 && head.chars().all(kanji);
+    }
     let Some(body) = t.strip_suffix('号') else { return false };
     let Some((head, number)) = body.rsplit_once('第') else { return false };
     head.chars().next().is_some_and(kanji)
@@ -258,7 +262,7 @@ fn gaps<'a>(set: &[&'a OcrRegion], axis: usize) -> Vec<Vec<&'a OcrRegion>> {
     groups
 }
 
-/// [`crate::pick_items`] に、OCR の字の誤り（「無縁墳墓」を「無縁填墓」）を 1 字まで許す選び方を足す版（opt-in の OCR の経路だけで使う）。
+/// [`crate::pick_items`] に、OCR の字の誤り（「無縁墳墓」を「無縁填墓」、「告示配」を「告示記」）を 1 字まで許す選び方を足す版（opt-in の OCR の経路だけで使う）。
 ///
 /// 「…関係」の項目で記事を選べなかったとき、目次の語（[`crate::listed_words`] の順）と同じ長さの行頭が 1 字だけ違う、句点の無い行を
 /// 持つ記事、または語で終わる短い見出しの行（目次「財団関係」・本文「工場財団」。行は語の 2 倍の字数まで）を持つ記事がちょうど
@@ -266,6 +270,35 @@ fn gaps<'a>(set: &[&'a OcrRegion], axis: usize) -> Vec<Vec<&'a OcrRegion>> {
 /// 1 字違いを許すのは 4 字以上の語だけ（短い語は別の行の頭と紛れる）。
 pub fn pick_items_with_ocr(titles: &[&str], articles: &mut Vec<ArticleAnalysis>) -> Vec<Vec<usize>> {
     let mut picks = crate::pick_items(titles, articles);
+    // 標題の番号（「（法務省告示配一〇九）」）の記事を選べていないとき、見出しの号数が合い、機関名の字が 1 字の誤り
+    // （「法務省告示記第百九号」）を除いて見出しに順に現れる記事がちょうど 1 つなら、それを採る。
+    for (title, pick) in titles.iter().zip(picks.iter_mut()) {
+        let Some((agencies, n)) = crate::title_number(title) else { continue };
+        if agencies.is_empty() || pick.first().is_some_and(|&i| crate::has_number(&articles[i], &agencies, n)) {
+            continue;
+        }
+        let near = |a: &ArticleAnalysis| {
+            let head = a.text.lines().find(|l| !l.trim().is_empty()).unwrap_or("");
+            if crate::heading_number(head) != Some(n) {
+                return false;
+            }
+            let name: Vec<char> = head.split('第').next().unwrap_or("").chars().collect();
+            let mut misses = 0;
+            for ag in &agencies {
+                let mut at = 0;
+                for c in ag.chars() {
+                    match name[at..].iter().position(|&h| h == c) {
+                        Some(k) => at += k + 1,
+                        None => misses += 1,
+                    }
+                }
+            }
+            misses == 1
+        };
+        if let [i] = articles.iter().enumerate().filter(|(_, a)| near(a)).map(|(i, _)| i).collect::<Vec<_>>()[..] {
+            *pick = vec![i];
+        }
+    }
     for (title, pick) in titles.iter().zip(picks.iter_mut()).filter(|(_, p)| p.is_empty()) {
         for word in crate::listed_words(title) {
             let word: Vec<char> = word.chars().collect();
