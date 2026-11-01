@@ -227,9 +227,12 @@ pub(crate) fn fill_amend_texts_with(kd: &mut KanpoDate, amend_only: bool, load: 
                 .chain(starts_of.iter().filter(|(p, t)| (item.page..=end).contains(p) && *t != item.title).map(|(_, t)| t.as_str()))
                 .collect();
             if end > item.page && pdf::field_runs_to_end(&titles, &analysis.articles) {
-                if let Some(wide) = analyze_window(item, window_end(end), &starts_of, &mut page_input, load) {
+                // 次の項目の頁の範囲の終わりまで、上限で切らずに広げる。上限で切ると、範囲の最後の記事が決算公告になり、下の
+                // 広げ直しも効かず、残りの頁の会社その他の公告（本紙号外第159号の p80 以降の合併公告）はどの項目にも入らない。
+                let field_end = starts.iter().copied().find(|&p| p > end).unwrap_or(last_page).max(end);
+                if let Some(wide) = analyze_window(item, field_end, &starts_of, &mut page_input, load) {
                     (analysis, picked) = wide;
-                    end = window_end(end);
+                    end = field_end;
                 }
             }
             // 選んだ記事が頁の範囲の最後の記事まで続き、項目の範囲（次の項目の開始頁まで）が上限で切った頁の範囲より長いなら、
