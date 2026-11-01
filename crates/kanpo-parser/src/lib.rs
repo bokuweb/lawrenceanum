@@ -749,6 +749,20 @@ fn title_numbers(title: &str) -> Option<(Vec<&str>, Vec<u64>)> {
     (numbers.len() > 1).then_some((agencies, numbers))
 }
 
+/// 号数を並べた項目（「（財務二五七～二六〇、二六二、二六三）」）で、選んだ記事（`picked`）の見出しに無い号数があるか。
+/// 項目の告示は、間に別の項目の告示を挟んで後ろの頁に続くことがある（本紙第1788号の二六二・二六三は二六一の後ろ）。
+pub fn lists_unfound_numbers(title: &str, articles: &[ArticleAnalysis], picked: &[usize]) -> bool {
+    let Some((_, numbers)) = title_numbers(title) else { return false };
+    let found: std::collections::BTreeSet<u64> = picked
+        .iter()
+        .filter_map(|&i| {
+            let head = articles[i].text.lines().find(|l| !l.trim().is_empty()).unwrap_or("").trim();
+            heading_number(head).filter(|_| segment::is_heading_mark(head))
+        })
+        .collect();
+    !picked.is_empty() && numbers.iter().any(|n| !found.contains(n))
+}
+
 /// 目次の項目に当たる記事をすべて選ぶ。号数を並べた項目（「肥料を登録した件（農林水産九九七、九九八）」
 /// 「保安林の指定をする件（農林水産一〇一九～一〇三四）」）は、告示ごとに `〇` の見出しで記事が分かれるので、
 /// [`pick_article`] の選んだ最初の号数の記事から後ろへ、最初の見出しと同じ機関・種類（「〇国土交通省告示」）で
@@ -1335,6 +1349,22 @@ mod tests {
         // 規則の番号の頭が別の番号の続き（「九－一二三－四八」で終わる「一九－一二三－四八」）なら合わない。
         assert!(!has_code_line(&arts(&["人事院規則一九－一二三－四八"])[0], "九－一二三－四八"));
         assert_eq!(title_code("…件（総務二八五）"), None);
+    }
+
+    #[test]
+    fn listed_numbers_not_yet_picked_are_reported() {
+        // 本紙第1788号: 二六二・二六三は、別の項目の二六一の後ろの頁にあり、項目の頁の範囲に無い。
+        let title = "政府資金調達事務取扱規則第五条第十一項の規定に基づき発行した政府短期証券の発行条件等を告示（財務二五七～二六〇、二六二、二六三）";
+        let a = arts(&["〇財務省告示第二百五十七号\n…", "〇財務省告示第二百五十八号\n…", "〇財務省告示第二百五十九号\n…", "〇財務省告示第二百六十号\n…", "〇財務省告示第二百六十一号\n…"]);
+        assert_eq!(pick_articles(title, &a), vec![0, 1, 2, 3]);
+        assert!(lists_unfound_numbers(title, &a, &[0, 1, 2, 3]));
+        let mut b = a.clone();
+        b.extend(arts(&["〇財務省告示第二百六十二号\n…", "〇財務省告示第二百六十三号\n…"]));
+        assert_eq!(pick_articles(title, &b), vec![0, 1, 2, 3, 5, 6]);
+        assert!(!lists_unfound_numbers(title, &b, &[0, 1, 2, 3, 5, 6]));
+        // 号数が 1 つの項目や、何も選ばない項目は広げない。
+        assert!(!lists_unfound_numbers("海上保安庁の船舶の番号及び標識の一部を改正する告示（海上保安庁三七）", &a, &[0]));
+        assert!(!lists_unfound_numbers(title, &a, &[]));
     }
 
     #[test]
