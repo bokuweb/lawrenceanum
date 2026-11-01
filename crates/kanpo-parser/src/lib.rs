@@ -908,10 +908,16 @@ fn pick_series(title: &str, articles: &[ArticleAnalysis]) -> Vec<usize> {
     Vec::new()
 }
 
-/// 記事の見出しの号数が `n` で、標題の機関名をすべて含むか。
+/// 記事の見出しの号数が `n` で、標題の機関名をすべて含むか。標題は機関名を略す（「山口県公安委告示配一」、見出し
+/// 「山口県公安委員会告示配第一号」）ので、見出しの「第」より前に機関名の字が順に現れればよい。
 fn has_number(a: &ArticleAnalysis, agencies: &[&str], n: u64) -> bool {
     let head = a.text.lines().find(|l| !l.trim().is_empty()).unwrap_or("");
-    heading_number(head) == Some(n) && agencies.iter().all(|ag| head.contains(ag))
+    let name = head.split('第').next().unwrap_or("");
+    let names = |ag: &str| head.contains(ag) || {
+        let mut rest = name.chars();
+        ag.chars().all(|c| rest.any(|h| h == c))
+    };
+    heading_number(head) == Some(n) && agencies.iter().all(|ag| names(ag))
 }
 
 /// 記事の中に号数だけの行（政令の公布文・御名御璽・署名の後の「政令第三百二十三号」）があり、その号数が `n` で、

@@ -49,13 +49,20 @@ fn reading_order_reads_columns_left_to_right_below_a_spanning_title() {
 fn image_text_becomes_a_pickable_article_and_native_duplicates_are_dropped() {
     let pages = page("20260716h017490002");
     let base = analyze_item(&pages);
-    let native_line = base.text.lines().map(str::trim).find(|l| l.chars().count() >= 8).unwrap().to_string();
+    // ネイティブの語の枠（ページの pt）を、3509×2480 の認識画像の画素へ写した位置に、二重に読んだ領域を置く。
+    let xhtml = &pages[0].xhtml;
+    let num = |tag: &str, name: &str| -> f64 { tag[tag.find(&format!(" {name}=\"")).unwrap() + name.len() + 3..].split('"').next().unwrap().parse().unwrap() };
+    let page_tag = &xhtml[xhtml.find("<page ").unwrap()..];
+    let scale = (3509.0 + 2480.0) / (num(page_tag, "width") + num(page_tag, "height"));
+    let word = &xhtml[xhtml.find("<word ").unwrap()..];
+    let native_box = ["xMin", "yMin", "xMax", "yMax"].map(|n| num(word, n) * scale);
+    let native_line = "ネイティブの字を二重に読んだ領域";
     let title = "日本国に帰化を許可する件（法務省告示配一〇七）";
     let ocr = OcrPage::from_ndlocr_trace(&trace(vec![
-        region(&native_line, [0.0, 0.0, 800.0, 40.0]),
-        region("〇法務省告示配第百七号", [0.0, 100.0, 800.0, 140.0]),
-        region("左記の者の申請に係る日本国に帰化の件は、これを許可する。", [0.0, 150.0, 800.0, 190.0]),
-        region("住所東京都港区", [0.0, 200.0, 800.0, 240.0]),
+        region(native_line, native_box),
+        region("〇法務省告示配第百七号", [0.0, 3000.0, 800.0, 3040.0]),
+        region("左記の者の申請に係る日本国に帰化の件は、これを許可する。", [0.0, 3050.0, 800.0, 3090.0]),
+        region("住所東京都港区", [0.0, 3100.0, 800.0, 3140.0]),
     ]))
     .unwrap();
     let mut ocrs = vec![None; pages.len()];
@@ -63,7 +70,7 @@ fn image_text_becomes_a_pickable_article_and_native_duplicates_are_dropped() {
     let with = analyze_item_with_ocr(&pages, &ocrs);
     assert_eq!(serde_json::to_value(&with.articles[..base.articles.len()]).unwrap(), serde_json::to_value(&base.articles).unwrap(), "native articles are kept as they are");
     let added: Vec<&str> = with.articles[base.articles.len()..].iter().map(|a| a.text.as_str()).collect();
-    assert!(added.iter().all(|t| !t.contains(&native_line)), "OCR of native text is not added twice: {added:?}");
+    assert!(added.iter().all(|t| !t.contains(native_line)), "OCR of native text is not added twice: {added:?}");
     let i = kanpo_parser::pick_article(title, &with.articles).expect("the OCR article is picked");
     assert!(with.articles[i].text.starts_with("〇法務省告示配第百七号"), "{:?}", with.articles.iter().map(|a| a.text.chars().take(40).collect::<String>()).collect::<Vec<_>>());
     assert_eq!(kanpo_parser::pick_article(title, &base.articles), None, "default parsing does not see the image");
@@ -86,4 +93,61 @@ fn numbered_headings_without_a_recognized_circle_start_articles() {
     let base = analyze_item(&pages).articles.len();
     let added: Vec<String> = analyze_item_with_ocr(&pages, &ocrs).articles[base..].iter().map(|a| a.text.clone()).collect();
     assert_eq!(added, ["法務省告示配第百十五号\n北海道赤平市役所保存の次の除籍が滅失した。", "法務省告示配第百十六号\n次の者を承認した。"]);
+}
+
+#[test]
+fn native_column_rules_that_no_region_crosses_separate_columns() {
+    use kanpo_parser::ocr_articles::reading_order_with_rules;
+    let r = |t: &str, b: [f64; 4]| OcrRegion { text: t.into(), bbox: b, vertical: false };
+    let ruled = vec![r("左1", [0.0, 0.0, 495.0, 40.0]), r("右1", [505.0, 0.0, 1000.0, 40.0]), r("左2", [0.0, 50.0, 495.0, 90.0]), r("右2", [505.0, 50.0, 1000.0, 90.0]), r("右3", [505.0, 100.0, 1000.0, 140.0])];
+    let order: Vec<&str> = reading_order_with_rules(&ruled, &[[500.0, 0.0, 500.0, 200.0]]).iter().map(|r| r.text.as_str()).collect();
+    assert_eq!(order, ["左1", "左2", "右1", "右2", "右3"]);
+    // 罫を横切る領域があれば、その罫では分けない。
+    let crossing = vec![r("標題", [0.0, 0.0, 1000.0, 40.0]), r("左", [0.0, 50.0, 495.0, 90.0]), r("右", [505.0, 50.0, 1000.0, 90.0])];
+    let order: Vec<&str> = reading_order_with_rules(&crossing, &[[500.0, 0.0, 500.0, 200.0]]).iter().map(|r| r.text.as_str()).collect();
+    assert_eq!(order, ["標題", "左", "右"]);
+}
+
+#[test]
+fn vertical_pages_read_tiers_top_down_and_lines_right_to_left() {
+    let v = |t: &str, x: f64, y: f64| OcrRegion { text: t.into(), bbox: [x, y, x + 30.0, y + 400.0], vertical: true };
+    // 2 段の縦組み。各段の行の x は段をまたいで揃う。
+    let regions = vec![v("下二", 0.0, 500.0), v("上二", 0.0, 0.0), v("下一", 100.0, 500.0), v("上一", 100.0, 0.0)];
+    let order: Vec<&str> = reading_order(&regions).iter().map(|r| r.text.as_str()).collect();
+    assert_eq!(order, ["上一", "上二", "下一", "下二"]);
+}
+
+#[test]
+fn abbreviated_agencies_in_titles_pick_the_heading_with_the_same_number() {
+    let pages = page("20260716h017490002");
+    let body = "次の特定危険指定暴力団等につき、公示事項の一部に変更があったので、次のとおり告示する。";
+    let ocr = OcrPage::from_ndlocr_trace(&trace(vec![
+        region("山口県公安委員会告示配第一号", [0.0, 0.0, 800.0, 40.0]),
+        region(body, [0.0, 50.0, 800.0, 90.0]),
+        region("福岡県公安委員会告示配第四号", [0.0, 100.0, 800.0, 140.0]),
+        region(body, [0.0, 150.0, 800.0, 190.0]),
+        region("福岡県公安委員会委員長", [0.0, 200.0, 800.0, 240.0]),
+    ]))
+    .unwrap();
+    let mut ocrs = vec![None; pages.len()];
+    ocrs[0] = Some(ocr);
+    let a = analyze_item_with_ocr(&pages, &ocrs).articles;
+    let title = |t: &str| format!("特定危険指定暴力団等に係る公示事項の一部に変更があったことの告示（{t}）");
+    let head = |i: Option<usize>| a[i.unwrap()].text.lines().next().unwrap().to_string();
+    assert_eq!(head(kanpo_parser::pick_article(&title("山口県公安委告示配一"), &a)), "山口県公安委員会告示配第一号");
+    assert_eq!(head(kanpo_parser::pick_article(&title("福岡県公安委告示配四"), &a)), "福岡県公安委員会告示配第四号");
+}
+
+#[test]
+fn repeated_listed_headings_in_one_ocr_article_split_at_the_first() {
+    let pages = page("20260716h017490002");
+    let lines = ["令和8年(再イ)第9号", "再生債務者 株式会社甲", "教育職員免許状失効公告", "次の免許状は失効した", "令和8年8月4日 甲県教育委員会", "教育職員免許状失効公告", "次の免許状は失効した", "行旅死亡人", "本籍・住所・氏名不詳の男性"];
+    let regions = lines.iter().enumerate().map(|(k, l)| region(l, [0.0, 3000.0 + 50.0 * k as f64, 800.0, 3040.0 + 50.0 * k as f64])).collect();
+    let mut ocrs = vec![None; pages.len()];
+    ocrs[0] = Some(OcrPage::from_ndlocr_trace(&trace(regions)).unwrap());
+    let mut a = analyze_item_with_ocr(&pages, &ocrs).articles;
+    let titles = ["教育職員免許状失効、行旅死亡人関係"];
+    kanpo_parser::split_listed_sections(&titles, &mut a);
+    let picked = &kanpo_parser::pick_items(&titles, &a)[0];
+    assert!(a[picked[0]].text.starts_with("教育職員免許状失効公告"), "{:?}", picked.iter().map(|&i| &a[i].text).collect::<Vec<_>>());
 }
