@@ -456,8 +456,14 @@ pub fn split_listed_sections(titles: &[&str], articles: &mut Vec<ArticleAnalysis
         // 目次の括弧にまとめて並べた名前（「（財務省・国土交通省）」）を標題に持つ公告（「財務省共済組合定款の一部変更について」）が、
         // 前の欄の小見出し（「特別清算終結」）で始まる記事の途中にある（本紙第1770号: 間の頁は小見出しだけで、記事の境が無い）
         // なら、その標題の行で分ける。
-        if split.is_none() {
-            if let Some(i) = picked.filter(|&i| !grouped_name_heading(title, &articles[i])) {
+        // 分けるのは「…関係」の項目で、記事がほかの「…関係」の項目の小見出しで始まるときだけ（標題の行の後ろの署名
+        // 「関東東北産業保安監督部長」で公示を切らない）。
+        let other_field_head = |a: &ArticleAnalysis| {
+            let head: String = a.text.lines().find(|l| !l.trim().is_empty()).unwrap_or("").chars().filter(|c| !c.is_whitespace()).collect();
+            titles.iter().filter(|t| *t != title).flat_map(|t| listed_words(t)).any(|w| head.starts_with(&w))
+        };
+        if split.is_none() && title.ends_with("関係") {
+            if let Some(i) = picked.filter(|&i| !grouped_name_heading(title, &articles[i]) && other_field_head(&articles[i])) {
                 let lines: Vec<&str> = articles[i].text.split('\n').collect();
                 split = (1..lines.len())
                     .find(|&j| !lines[j].trim().is_empty() && !lines[j].contains('。') && grouped_name_heading_text(title, lines[j]))
