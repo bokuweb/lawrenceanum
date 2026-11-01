@@ -250,7 +250,11 @@ pub(crate) fn fill_amend_texts_with(kd: &mut KanpoDate, amend_only: bool, load: 
                 let unfound = pdf::lists_unfound_numbers(&item.title, &analysis.articles, &picked);
                 // 号数の告示を探して広げるのは、項目の頁から上限の頁数まで。
                 let unfound = unfound && span_end < item.page + MAX_SPAN;
-                if span_end <= end || !(runs_on || unfound) {
+                // 上限で切った範囲（終わりが項目の開始頁でも号の最終頁でもない）の最後の記事が、どの項目も選ばない記事のことがある
+                // （号外第174号の「会社決算公告」は p151 の「資本金及び準備金の額の減少公告」で切れ、p152〜p160 の決算公告が
+                // どの項目にも入らない）。選んだ記事に本文があれば広げてみて、選ぶ記事が増えるときだけ採る。
+                let capped = end < last_page && !starts.contains(&end) && picked.last().is_some_and(|&l| has_body(&analysis.articles[l].text));
+                if span_end <= end || !(runs_on || unfound || capped) {
                     break;
                 }
                 let Some(wide) = analyze_window(item, span_end, &starts_of, &mut page_input, load) else { break };
