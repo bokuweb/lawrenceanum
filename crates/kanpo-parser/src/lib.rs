@@ -311,8 +311,8 @@ fn lists_as_toc_entry(a: &ArticleAnalysis, title: &str) -> bool {
 /// 催告」「破産手続開始及び免責許可申立てに関する意見申述期間」）から始まり、標題そのものは載らない。区分見出し・欄見出し
 /// （「公告」「諸事項」）の後の最初の行が、目次の最初の語で始まる記事が 1 つだけなら、それを採る。
 fn pick_listed_section(title: &str, articles: &[ArticleAnalysis]) -> Option<usize> {
-    for word in listed_words(title) {
-        let (heads, inner) = listed_lines(&word, articles);
+    for (word, whole) in listed_heading_words(title) {
+        let (heads, inner) = listed_lines(&word, whole, articles);
         match (&heads[..], inner.is_empty()) {
             ([], true) => continue,
             ([i], _) => return Some(*i),
@@ -324,8 +324,9 @@ fn pick_listed_section(title: &str, articles: &[ArticleAnalysis]) -> Option<usiz
 }
 
 /// 語（`word`）で始まる行を持つ記事。区分見出し・欄見出しの後の最初の行がそうである記事（`heads`）と、記事の 2 行目以降
-/// （区分見出しの直後を除く）の句点の無い行がそうである記事とその行の位置（`inner`）。
-fn listed_lines(word: &str, articles: &[ArticleAnalysis]) -> (Vec<usize>, Vec<(usize, usize)>) {
+/// （区分見出しの直後を除く）の句点の無い行がそうである記事とその行の位置（`inner`）。`whole` なら、語で始まる行ではなく
+/// 語の小見出しの行（語そのもの、または種類を付けた語）だけを比べる。
+fn listed_lines(word: &str, whole: bool, articles: &[ArticleAnalysis]) -> (Vec<usize>, Vec<(usize, usize)>) {
     // 目次は漢数字（「農業協同組合法第七十三条第四項」）、本文は算用数字（「第73条第４項」）で組むので、数字を除いて比べる。
     let compact = |s: &str| {
         s.chars().filter(|c| !c.is_whitespace() && !c.is_ascii_digit() && !"０１２３４５６７８９〇一二三四五六七八九十百千".contains(*c)).collect::<String>()
@@ -345,6 +346,10 @@ fn listed_lines(word: &str, articles: &[ArticleAnalysis]) -> (Vec<usize>, Vec<(u
             }
             head.starts_with(word)
         };
+        // 欄の小見出しは、目次の語の前に種類を付けることがある（目次「財団」、小見出し「工場財団」）。句点の無い短い
+        // 小見出し（語より 4 字長いまで）が語で終わるなら、語の小見出し。
+        let qualified = |c: &String| !c.contains('。') && c.ends_with(word.as_str()) && c.chars().count() <= word.chars().count() + 4;
+        let heading = |j: usize| if whole { qualified(&lines[j]) } else { starts(j) || qualified(&lines[j]) };
         let mut prev: Option<&String> = None;
         for (j, c) in lines.iter().enumerate() {
             if c.is_empty() {
@@ -353,14 +358,11 @@ fn listed_lines(word: &str, articles: &[ArticleAnalysis]) -> (Vec<usize>, Vec<(u
             match prev {
                 None if segment::is_section_label(c) => continue,
                 None => {
-                    // 欄の小見出しは、目次の語の前に種類を付けることがある（目次「財団」、小見出し「工場財団」）。句点の無い短い
-                    // 小見出し（語より 4 字長いまで）が語で終わるなら、語の小見出し。
-                    let qualified = !c.contains('。') && c.ends_with(word.as_str()) && c.chars().count() <= word.chars().count() + 4;
-                    if starts(j) || qualified {
+                    if heading(j) {
                         heads.push(i);
                     }
                 }
-                Some(p) if !segment::is_section_label(p) && !c.contains('。') && starts(j) => inner.push((i, j)),
+                Some(p) if !segment::is_section_label(p) && !c.contains('。') && (if whole { qualified(c) } else { starts(j) }) => inner.push((i, j)),
                 Some(_) => {}
             }
             prev = Some(c);
@@ -374,13 +376,23 @@ fn listed_lines(word: &str, articles: &[ArticleAnalysis]) -> (Vec<usize>, Vec<(u
 /// 「公示催告」から本文）ので、目次の順に、本文に小見出しのある最初の語で選ぶ。2 つ目からの語は、本文の別の行の頭と
 /// 紛れないよう 4 字以上のものだけ。
 pub(crate) fn listed_words(title: &str) -> Vec<String> {
+    listed_heading_words(title).into_iter().filter(|(_, whole)| !whole).map(|(w, _)| w).collect()
+}
+
+/// [`listed_words`] に、2 つ目からの 4 字に満たない語（「前払式支払手段発行者の発行保証金に係る配当表、財団関係」の「財団」）
+/// も目次の順に加える。短い語（`true`）は本文の別の行の頭（「財団法人…」）と紛れるので、小見出しの行（「工場財団」）とだけ
+/// 比べる（[`listed_lines`] の `whole`）。項目の最初の語の公告が画像で本文に無い（本紙第1811号）と、欄はこの語の小見出しから始まる。
+fn listed_heading_words(title: &str) -> Vec<(String, bool)> {
     let Some(listed) = title.strip_suffix("関係") else { return vec![] };
     listed
         .split(['、', '・'])
         .map(|w| w.chars().filter(|c| !c.is_whitespace()).collect::<String>())
         .enumerate()
-        .filter(|(k, w)| !w.is_empty() && (*k == 0 || w.chars().count() >= 4))
-        .map(|(_, w)| w)
+        .filter(|(_, w)| !w.is_empty())
+        .map(|(k, w)| {
+            let whole = k > 0 && w.chars().count() < 4;
+            (w, whole)
+        })
         .collect()
 }
 
@@ -403,8 +415,8 @@ pub fn split_listed_sections(titles: &[&str], articles: &mut Vec<ArticleAnalysis
         let mut split = None;
         // 標題で選んだ記事は項目の公告を含むので、2 つ目からの語の行（号外第196号の「令和８年度公害防止管理者等…」）では
         // 分けず、最初の語の行でだけ分ける。
-        for word in listed_words(title).into_iter().take(if picked.is_some() { 1 } else { usize::MAX }) {
-            let (heads, mut inner) = listed_lines(&word, articles);
+        for (word, whole) in listed_heading_words(title).into_iter().take(if picked.is_some() { 1 } else { usize::MAX }) {
+            let (heads, mut inner) = listed_lines(&word, whole, articles);
             // 語で始まる小見出しが続く（「相続財産清算人の選任及び相続権主張の催告」「相続権主張の催告」）なら、欄の始まりは最初の行。
             let after_blank = |&(i, j): &(usize, usize), &(pi, pj): &(usize, usize)| {
                 i == pi && pj < j && articles[i].text.split('\n').skip(pj + 1).take(j - pj - 1).all(|l| l.trim().is_empty())
@@ -803,7 +815,7 @@ pub fn pick_items(titles: &[&str], articles: &[ArticleAnalysis]) -> Vec<Vec<usiz
         // ほかの「…関係」の項目の小見出しが記事の途中にある（欄見出しが本文に無く、前の欄の最後の記事に続いた）なら、
         // その後ろはその項目の欄（本紙第1793号の「相続財産清算人の選任…」）。
         let runs_into_other = |a: &ArticleAnalysis| {
-            titles.iter().filter(|t| *t != title).flat_map(|t| listed_words(t)).any(|w| !listed_lines(&w, std::slice::from_ref(a)).1.is_empty())
+            titles.iter().filter(|t| *t != title).flat_map(|t| listed_words(t)).any(|w| !listed_lines(&w, false, std::slice::from_ref(a)).1.is_empty())
         };
         if listed && runs_into_other(&articles[i]) {
             continue;
@@ -821,7 +833,7 @@ pub fn pick_items(titles: &[&str], articles: &[ArticleAnalysis]) -> Vec<Vec<usiz
             // ほかの「…関係」の項目の欄の小見出し（「特別清算終結」）は、その欄の始まり。
             let other_field = || titles.iter().filter(|t| *t != title).flat_map(|t| listed_words(t)).any(|w| h.starts_with(&w));
             // 項目に並ぶ語で始まる記事（「財部町土地改良区の定款変更の認可の公告」）は、標題が「…公告」で終わっても欄の公告。
-            let own = || listed_words(title).iter().any(|w| !listed_lines(w, std::slice::from_ref(a)).0.is_empty()) || names_in_title(title, a);
+            let own = || listed_heading_words(title).iter().any(|(w, whole)| !listed_lines(w, *whole, std::slice::from_ref(a)).0.is_empty()) || names_in_title(title, a);
             let field_end = if listed { segment::is_text_field_label(&h) || (titled() && !own()) || other_field() } else { label_only(a) };
             if !listed && series.contains(&j) {
                 continue;
@@ -1535,6 +1547,29 @@ mod tests {
         ]);
         let title = "公示送達、成田国際空港の安全確保に関する緊急措置法第三条第二項の規定に基づく公告関係";
         assert_eq!(pick_items(&[title, "相続、失踪関係"], &c), vec![vec![0], vec![]]);
+    }
+
+    #[test]
+    fn a_short_listed_word_after_the_first_matches_only_a_heading_line() {
+        // 本紙第1790号: 最初の語の公告は本文に無く、欄は 3 つ目の語「財団」の小見出し（種類を付けた「工場財団」）から始まる。
+        let title = "前払式支払手段発行者の発行保証金に係る仮配当表・権利の実行に関する意見聴取会、財団、佐賀東部土地改良区の定款変更の認可関係";
+        let a = arts(&[
+            "公告\n諸事項\n工場財団\n…権利を申し出て下さい。",
+            "佐賀東部土地改良区の定款変更の認可の公告\n土地改良法…",
+            "相続財産清算人の選任及び相続権主張の催告",
+        ]);
+        assert_eq!(pick_article(title, &a), Some(0));
+        assert_eq!(pick_items(&[title, "相続、失踪関係"], &a), vec![vec![0, 1], vec![2]]);
+        // 短い語は行の頭（「財団法人…」）とは比べない。
+        let b = arts(&["公告\n諸事項\n財団法人日本…の解散の公告\n…", "佐賀東部土地改良区の定款変更の認可の公告\n…"]);
+        assert_eq!(pick_article(title, &b), Some(1));
+        // 本紙第1811号: 小見出しの前に前の欄の表の字（「Ｂ9919」）が残ると、記事の途中の小見出しの行で分ける。
+        let title = "前払式支払手段発行者の発行保証金に係る配当表、財団関係";
+        let mut c = arts(&["公告\n諸事項\nＢ9919\n工場財団\n…権利を申し出て下さい。\n令和８年10月20日", "相続財産清算人の選任及び相続権主張の催告"]);
+        split_listed_sections(&[title, "相続、失踪関係"], &mut c);
+        assert_eq!(c.len(), 3);
+        assert!(c[1].text.starts_with("工場財団"));
+        assert_eq!(pick_items(&[title, "相続、失踪関係"], &c), vec![vec![1], vec![2]]);
     }
 
     #[test]
