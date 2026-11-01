@@ -873,7 +873,11 @@ pub fn pick_items(titles: &[&str], articles: &[ArticleAnalysis]) -> Vec<Vec<usiz
                 let body = compact_digits(&a.text);
                 listed_words(title).iter().map(|w| compact_digits(w).chars().take(7).collect::<String>()).any(|w| w.chars().count() == 7 && body.contains(&w))
             };
-            if claimed.contains(&j) || (!title_tail && !titled_own && (field_end || segment::is_section_label(&h))) || numbered || h.contains("をここに公布する") {
+            // 欄見出しの項目（「会社その他」）の欄の中の、標題が「公告」だけの公告（号外第190号の信託財産の「公告 / 一、信託事務の
+            // 状況」）。区分見出しの「公告」は次の行が欄見出し（「諸事項」「会社その他の公告」）なので、次の行が欄見出しの形でなければ
+            // 欄の公告として続ける。
+            let titled_field = !listed && h == "公告" && a.text.lines().map(compact).filter(|l| !l.is_empty()).nth(1).is_some_and(|l| !label(&l));
+            if claimed.contains(&j) || (!title_tail && !titled_own && !titled_field && (field_end || segment::is_section_label(&h))) || numbered || h.contains("をここに公布する") {
                 break;
             }
             p.push(j);
@@ -1655,6 +1659,22 @@ mod tests {
         let mut b = a.clone();
         b[1] = arts(&["諸事項\n工場財団\n…権利を申し出て下さい。"]).remove(0);
         assert_eq!(pick_items(&[title, "相続、失踪関係"], &b), vec![vec![0], vec![2]]);
+    }
+
+    #[test]
+    fn a_field_item_continues_over_a_notice_titled_only_koukoku() {
+        // 号外第190号: 決算公告の頁に組まれた信託財産の「公告」（標題が「公告」だけ）は、会社その他の欄の公告。後ろの合併公告まで続ける。
+        let a = arts(&[
+            "会社その他の公告",
+            "解散公告\n当社は、株主総会において解散することを決議しました。",
+            "公告\n一、信託事務の状況\n当期においては振替機関等から通知を受けた。",
+            "合併公告\n左記会社は合併して甲は乙の権利義務全部を承継して存続する。",
+        ]);
+        assert_eq!(pick_items(&["会社その他"], &a)[0], vec![0, 1, 2, 3]);
+        // 次の行が欄見出しの「公告」（区分見出し）は止まる。
+        let mut b = a.clone();
+        b[2] = arts(&["公告\n諸事項\n当局に申し出て下さい。"]).remove(0);
+        assert_eq!(pick_items(&["会社その他"], &b)[0], vec![0, 1]);
     }
 
     #[test]
