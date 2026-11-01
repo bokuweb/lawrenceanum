@@ -408,28 +408,27 @@ mod tests {
                 "issues": [{"issue_type": "extra", "issue_no": "第223号", "dir": "20261009g00223",
                             "url": "https://www.kanpo.go.jp/20261009/20261009g00223/", "page_count": 1,
                             "pages": [{"page": 1, "file": "20261009g002230001.pdf", "sha256": "", "bytes": 0, "bbox": true, "rules": false}],
-                            "items": [{"title": "輸出貿易管理令の一部を改正する政令（三二五）", "page": 1},
+                            "items": [{"title": "自衛隊法施行規則の一部を改正する省令（防衛一八）", "page": 1},
+                                      {"title": "金融分野における個人情報保護に関するガイドライン（個人情報保護委員会・金融庁一）", "page": 1},
                                       {"title": "日本国に帰化を許可する件", "page": 1}]}]
             }))
             .unwrap(),
         )
         .unwrap();
-        // 回帰テスト用コーパスの実官報ページを原本の座標付きテキストとして置く。
-        let corpus = Path::new(env!("CARGO_MANIFEST_DIR")).join("../kanpo-parser/tests/corpus");
-        let bbox = std::fs::read_dir(&corpus)
-            .unwrap()
-            .filter_map(|e| e.ok())
-            .map(|e| e.path().join("page.bbox.html"))
-            .find(|p| p.exists())
-            .expect("corpus page");
+        // 回帰テスト用コーパスの実官報ページ（本紙第1754号 2 ページ: 防衛省令と個人情報保護委員会・金融庁告示）を原本の
+        // 座標付きテキストとして置く。
+        let bbox = Path::new(env!("CARGO_MANIFEST_DIR")).join("../kanpo-parser/tests/corpus/2026-07-24-honshi1754-p2/page.bbox.html");
         std::fs::copy(&bbox, day.join("20261009g00223/20261009g002230001.bbox.html")).unwrap();
 
         run_reextract(&archive.display().to_string(), &cache, &[], false).unwrap();
         let kd: kanpo_client::KanpoDate =
             serde_json::from_slice(&std::fs::read(cache.join("kanpo/2026-10-09.json")).unwrap()).unwrap();
         let items = &kd.issues[0].items;
-        assert!(items[0].amend_text.as_deref().is_some_and(|t| !t.is_empty()), "改正の項目は本文を抽出する");
-        assert!(items[1].amend_text.as_deref().is_some_and(|t| !t.is_empty()), "改正・廃止・制定の標題でない項目も抽出する");
+        assert!(items[0].amend_text.as_deref().is_some_and(|t| t.contains("自衛隊法施行規則")), "改正の項目は本文を抽出する");
+        assert!(items[1].amend_text.as_deref().is_some_and(|t| t.contains("個人情報保護委員会")), "改正・廃止・制定の標題でない項目も抽出する");
+        assert!(!items[0].amend_text.as_deref().unwrap_or("").contains("個人情報保護委員会委員長"), "項目は自分の記事だけを持つ");
+        // 本文が画像の告示など、記事を選べない項目は、頁のほかの項目の記事を本文にしない。
+        assert_eq!(items[2].amend_text, None);
         assert!(!cache.join("kanpo/2026-10-08.json").exists(), "原本に manifest が無い日は書かない");
 
         // cache にある日は既定では作り直さず、--all なら作り直す。

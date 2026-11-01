@@ -232,10 +232,14 @@ pub(crate) fn fill_amend_texts_with(kd: &mut KanpoDate, amend_only: bool, load: 
             let segments: Vec<String> = analysis.articles.iter().map(|a| a.text.clone()).collect();
             let (body, doc) = match picked.as_slice() {
                 [] => {
+                    // 記事を選べない項目（本文が画像の告示など）は本文を持たない。頁の範囲の記事は、ほかの項目の公告
+                    // （「北海道開発局公示」「会社その他」の合併公告）か、どの項目にも選ばれていない別の公告の続きで、この項目の
+                    // 本文ではない（選べない項目の頁の範囲の記事に、その項目の標題の字が見つかるのは 157 項目中 1 項目）。
                     stats.unmatched += 1;
-                    let body = segments.join("\n\n");
-                    let doc = pdf::Document::from_text(&body);
-                    (body, doc)
+                    item.amend_text = None;
+                    item.amend_format = None;
+                    item.amend_document = None;
+                    continue;
                 }
                 [i] => (segments[*i].clone(), analysis.articles[*i].document.clone()),
                 many => {
