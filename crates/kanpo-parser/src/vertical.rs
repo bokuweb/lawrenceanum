@@ -2805,7 +2805,22 @@ pub(crate) fn prose_cells(cols: &[Col], g: &Grid) -> bool {
                 .count();
         }
     }
-    cells.values().any(|&(chars, sentences)| (chars > 200 && !grid) || sentences >= 2)
+    // 上下 2 段の縦組みの表で、上の欄がどれも文の無い短い見出し（「事業年度における…自己点検評価書」）、下の欄がどれも
+    // 文（記載する事項）なら、下の欄が文章でも
+    // 表（号外第 192 号 7 ページ: 自己点検評価書の種類ごとの記載事項の表。段に切ると上の欄が 2 行分続けて読まれていた）。
+    // 段を区切る罫線で格子に見える記事は、上の段にも文がある。
+    let labelled = grid && g.xs.len() >= 3 && {
+        let top: Vec<usize> = g.cells.iter().enumerate().filter(|(_, c)| c.y0 == 0 && c.y1 == 1).map(|(i, _)| i).collect();
+        let bottom: Vec<usize> = g.cells.iter().enumerate().filter(|(_, c)| c.y0 == 1 && c.y1 == 2).map(|(i, _)| i).collect();
+        g.ys.len() == 3
+            && top.len() + 1 >= g.xs.len()
+            && bottom.len() == top.len()
+            && top.iter().all(|i| cells.get(i).is_some_and(|&(chars, sentences)| chars > 0 && chars <= 100 && sentences == 0))
+            // 段の一部だけで見るとき（[`split_tiers`] の段）は、下の欄に語の無いものがある。語のある欄はどれも文。
+            && bottom.iter().any(|i| cells.contains_key(i))
+            && bottom.iter().all(|i| cells.get(i).is_none_or(|&(_, sentences)| sentences >= 1))
+    };
+    !labelled && cells.values().any(|&(chars, sentences)| (chars > 200 && !grid) || sentences >= 2)
 }
 
 /// 枠の中の語が縦組みか（縦長の語の字数が横長の語の字数以上）。
@@ -6070,6 +6085,21 @@ fn split_off_horizontal_blocks(cols: Vec<Col>, vrules: &[(f32, f32, f32)], hrule
 
 #[cfg(test)]
 mod tests {
+
+    #[test]
+    fn a_grid_whose_top_cells_are_short_labels_is_a_table_even_with_prose_below() {
+        use crate::grid::GridCell;
+        let cell = |x0, y0| GridCell { x0, x1: x0 + 1, y0, y1: y0 + 1 };
+        let g = Grid { xs: vec![46.0, 229.0, 549.0], ys: vec![69.0, 236.0, 412.0], cells: vec![cell(1, 0), cell(1, 1), cell(0, 0), cell(0, 1)] };
+        let col = |id, x: f32, y: f32, text: &str| Col { id, x, x1: x + 8.0, y, y1: y + 150.0, text: text.into() };
+        let prose = "一　業務の実績。なお、次に掲げる事項を明らかにしたものでなければならない。二　評価の結果。";
+        let cols = vec![col(0, 530.0, 70.0, "期間の終了時に見込まれる自己点検評価書"), col(1, 530.0, 240.0, prose), col(2, 210.0, 70.0, "期間における自己点検評価書"), col(3, 210.0, 240.0, prose)];
+        assert!(!prose_cells(&cols, &g));
+        // 上の段にも文があれば、段を区切る罫線で格子に見える記事。
+        let mut cols = cols;
+        cols[0].text = "第一条　甲は、乙とする。第二条　丙は、丁とする。".into();
+        assert!(prose_cells(&cols, &g));
+    }
     use super::*;
 
     #[test]
