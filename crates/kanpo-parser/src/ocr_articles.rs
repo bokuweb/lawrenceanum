@@ -58,10 +58,58 @@ pub fn analyze_item_with_ocr(pages: &[PageInput], ocr: &[Option<OcrPage>]) -> An
     if ocr.iter().all(Option::is_none) {
         return analysis;
     }
+    // 画像の欄の上にネイティブの字で組んだ欄見出し（「破産手続開始及び免責許可申立てに関する意見申述期間」）は、ネイティブの
+    // 記事の途中に入り、続く画像の一覧と離れる。ネイティブの文でない行で、そのページの続く語をつないだものであり、その真下
+    // （行の高さの 2 倍まで）に横に重なる画像の領域があるものは、その枠の領域として画像の行と同じ読み順に並べ、ネイティブの
+    // 記事から除く。
+    let images: Vec<Option<(Vec<OcrRegion>, Vec<[f64; 4]>)>> = pages
+        .iter()
+        .zip(ocr)
+        .map(|(input, page)| {
+            page.as_ref().map(|page| {
+                let (words, rules) = native_boxes(input, page);
+                (page.regions.iter().filter(|r| !covered(r.bbox, &words)).cloned().collect(), rules)
+            })
+        })
+        .collect();
+    let mut moved: Vec<Vec<OcrRegion>> = vec![vec![]; pages.len()];
+    let words: Vec<Vec<(String, [f64; 4])>> =
+        pages.iter().zip(ocr).map(|(input, page)| page.as_ref().map_or(vec![], |p| native_words(input, p))).collect();
+    for article in analysis.articles.iter_mut() {
+        let mut kept: Vec<&str> = vec![];
+        let mut any = false;
+        for raw in article.text.split('\n') {
+            let line: String = raw.chars().filter(|c| !c.is_whitespace()).collect();
+            let found = (line.chars().count() >= 4 && !line.contains(['。', '、']))
+                .then(|| {
+                    (0..pages.len()).find_map(|k| {
+                        let (image, _) = images[k].as_ref()?;
+                        let b = joined(&words[k], &line)?;
+                        let h = b[3] - b[1];
+                        image
+                            .iter()
+                            .any(|r| r.bbox[1] >= b[3] - h / 2.0 && r.bbox[1] - b[3] <= 2.0 * h && r.bbox[0] < b[2] && r.bbox[2] > b[0])
+                            .then(|| (k, OcrRegion { text: line.clone(), bbox: b, vertical: false }))
+                    })
+                })
+                .flatten();
+            match found {
+                Some((k, r)) => {
+                    moved[k].push(r);
+                    any = true;
+                }
+                None => kept.push(raw),
+            }
+        }
+        if any {
+            let text = kept.join("\n");
+            *article = ArticleAnalysis { document: model::Document::from_text(&text), text, notices: std::mem::take(&mut article.notices) };
+        }
+    }
     let mut lines: Vec<String> = Vec::new();
-    for (input, page) in pages.iter().zip(ocr).filter_map(|(i, o)| o.as_ref().map(|o| (i, o))) {
-        let (words, rules) = native_boxes(input, page);
-        let image: Vec<OcrRegion> = page.regions.iter().filter(|r| !covered(r.bbox, &words)).cloned().collect();
+    for (k, (image, rules)) in images.into_iter().enumerate().filter_map(|(k, i)| i.map(|i| (k, i))) {
+        let mut image = image;
+        image.extend(moved[k].iter().cloned());
         for r in reading_order_with_rules(&image, &rules) {
             let text = r.text.trim();
             if !text.is_empty() {
@@ -79,6 +127,8 @@ pub fn analyze_item_with_ocr(pages: &[PageInput], ocr: &[Option<OcrPage>]) -> An
     }
     let mut seen: std::collections::HashSet<String> = std::collections::HashSet::new();
     let repeated: Vec<bool> = lines.iter().map(|l| counts.get(l.as_str()).is_some_and(|&n| n > 1) && seen.insert(l.clone())).collect();
+    // ネイティブから移した欄見出しで記事を分ける。
+    let headings: std::collections::HashSet<String> = moved.iter().flatten().map(|r| r.text.clone()).collect();
     let mut chunks: Vec<Vec<String>> = vec![vec![]];
     for (line, first_repeat) in lines.into_iter().zip(repeated) {
         if is_circle_mark(&line) {
@@ -86,7 +136,7 @@ pub fn analyze_item_with_ocr(pages: &[PageInput], ocr: &[Option<OcrPage>]) -> An
         }
         // 号数の見出しで始まった告示の中の繰り返す行（帰化の「住所東京都新宿区」）では分けない。
         let in_numbered = chunks.last().unwrap().first().is_some_and(|l| numbered_heading(l));
-        if (numbered_heading(&line) || (first_repeat && !in_numbered)) && !chunks.last().unwrap().is_empty() {
+        if (numbered_heading(&line) || headings.contains(&line) || (first_repeat && !in_numbered)) && !chunks.last().unwrap().is_empty() {
             chunks.push(vec![]);
         }
         chunks.last_mut().unwrap().push(line);
@@ -128,6 +178,36 @@ fn native_boxes(input: &PageInput, page: &OcrPage) -> (Vec<[f64; 4]>, Vec<[f64; 
 }
 
 /// 領域の枠の面積の過半が語の枠に覆われるか。
+/// ページのネイティブの語（字と、認識画像の画素へ写した枠）。
+fn native_words(input: &PageInput, page: &OcrPage) -> Vec<(String, [f64; 4])> {
+    let (boxes, _) = native_boxes(input, page);
+    let x = &input.xhtml;
+    let texts = x.match_indices("<word ").filter_map(|(at, _)| {
+        let rest = &x[at..];
+        let open = rest.find('>')? + 1;
+        Some(rest[open..open + rest[open..].find("</word>")?].chars().filter(|c| !c.is_whitespace()).collect::<String>())
+    });
+    texts.zip(boxes).collect()
+}
+
+/// 続く語をつなぐと `line` になる語の並びの枠。
+fn joined(words: &[(String, [f64; 4])], line: &str) -> Option<[f64; 4]> {
+    (0..words.len()).find_map(|a| {
+        let (mut text, mut bbox) = (String::new(), words[a].1);
+        for (t, b) in &words[a..] {
+            if t.is_empty() || !line[text.len()..].starts_with(t.as_str()) {
+                return None;
+            }
+            text.push_str(t);
+            bbox = [bbox[0].min(b[0]), bbox[1].min(b[1]), bbox[2].max(b[2]), bbox[3].max(b[3])];
+            if text == line {
+                return Some(bbox);
+            }
+        }
+        None
+    })
+}
+
 fn covered(b: [f64; 4], words: &[[f64; 4]]) -> bool {
     let area = (b[2] - b[0]) * (b[3] - b[1]);
     let hit: f64 = words.iter().map(|w| (b[2].min(w[2]) - b[0].max(w[0])).max(0.0) * (b[3].min(w[3]) - b[1].max(w[1])).max(0.0)).sum();
@@ -323,6 +403,20 @@ pub fn pick_items_with_ocr(titles: &[&str], articles: &mut Vec<ArticleAnalysis>)
             articles.iter().enumerate().flat_map(|(i, a)| a.text.split('\n').enumerate().filter(|(_, l)| starts(l)).map(move |(j, _)| (i, j))).collect();
         if let [(i, j)] = hits[..] {
             *pick = vec![split_at_line(articles, i, j)];
+        }
+    }
+    // 欄の小見出しが並ぶ（「破産手続開始…」「破産手続廃止」…）と [`crate::pick_items`] は選ばない。最初の語で始まる記事が
+    // あれば、最初のその記事を採る。
+    for (title, pick) in titles.iter().zip(picks.iter_mut()).filter(|(_, p)| p.is_empty()) {
+        let Some(word) = crate::listed_words(title).into_iter().next() else { continue };
+        let first = articles.iter().position(|a| {
+            a.text.lines().find(|l| !l.trim().is_empty()).is_some_and(|l| {
+                let l: String = l.chars().filter(|c| !c.is_whitespace()).collect();
+                !l.contains(['。', '、']) && l.starts_with(&word)
+            })
+        });
+        if let Some(i) = first {
+            *pick = vec![i];
         }
     }
     for (title, pick) in titles.iter().zip(picks.iter_mut()).filter(|(_, p)| p.is_empty()) {
