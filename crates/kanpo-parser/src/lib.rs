@@ -860,12 +860,15 @@ pub fn pick_items(titles: &[&str], articles: &[ArticleAnalysis]) -> Vec<Vec<usiz
         if listed && runs_into_other(&articles[i]) {
             continue;
         }
+        // 欄見出しと小見出しだけの記事（「国会事項」「国立国会図書館」）から始まる項目は、欄の告示（「〇国立国会図書館告示
+        // 第一号」）を号数のある見出しで始める。ほかの項目の選ぶ記事・欄見出しまでを欄の告示として含める。
+        let heads_notices = !listed && !articles[i].text.contains(['。', '、']) && articles[i].text.lines().filter(|l| !l.trim().is_empty()).count() <= 2;
         for (j, a) in articles.iter().enumerate().skip(i + 1) {
             let h = head(a);
             // 号数の無い `〇` で始まる行（住所の折り返し「〇番地三五八」）は公告の続き。号数の見出しは「第…号」で終わる。
             // 財務諸表の注記が法令を引く行（「〇独立行政法人水資源機構の財務及び会計等に関する省令（平成15年国土交通省令
             // 第104号）」）は、号数を括弧の中に持つ公告の続き。
-            let numbered = segment::is_heading_mark(&h) && heading_number(&h).is_some() && h.ends_with('号');
+            let numbered = segment::is_heading_mark(&h) && heading_number(&h).is_some() && h.ends_with('号') && !heads_notices;
             // 欄の小見出し（「特別清算終結」「破産管財人変更」）は「公告」「公示」で終わらない。標題の行（2 行に折り返す）が
             // 「…公告」「…公示」で終わる記事は、欄の後ろに続く別の欄の公告（「…令和７年度財務諸表公告」）。
             let titled = || {
@@ -1457,6 +1460,19 @@ mod tests {
             "地方公共団体情報システム機構令和７年度財務諸表公告\n貸借対照表",
         ]);
         assert_eq!(pick_items(&["破産、免責、再生関係"], &a), vec![vec![0, 1]]);
+    }
+
+    #[test]
+    fn a_section_label_item_keeps_the_numbered_notices_under_it() {
+        // 本紙第1780号: 目次の「国会事項」は、欄見出しと小見出しの後ろに号数のある告示が続く。
+        let a = arts(&[
+            "〇国土交通省告示第千百一号\n水先法の規定により、次のとおり免許を与えた。",
+            "国会事項\n国立国会図書館",
+            "〇国立国会図書館告示第一号\n複写料金に関する件の一部を改正する件を次のように定める。",
+            "人事異動\n消費者庁",
+        ]);
+        let picks = pick_items(&["水先人に免許を与えた件（同一一〇一）", "国会事項", "人事異動"], &a);
+        assert_eq!(picks[1], vec![1, 2]);
     }
 
     #[test]
