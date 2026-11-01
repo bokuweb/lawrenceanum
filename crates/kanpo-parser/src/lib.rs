@@ -274,7 +274,7 @@ pub fn pick_article(title: &str, articles: &[ArticleAnalysis]) -> Option<usize> 
             // 目次が括弧にまとめて並べる名前（「令和七年度共済組合の決算（農林水産省・林野庁・国土交通省）」）の公告は、
             // 語の頭が本文の標題（「令和７年度農林水産省共済組合の決算公告」）と合わない。選んだ記事より前に、まとめた名前を
             // 標題に持つ記事があれば、そこから始まる（号外第162号）。
-            picked.map(|i| (0..i).find(|&j| grouped_name_heading(title, &articles[j])).unwrap_or(i))
+            picked.map(|i| (0..i).find(|&j| grouped_name_heading(title, &articles[j]) || signed_name_heading(title, &articles[j])).unwrap_or(i))
         } else {
             pick_article_by_title(title, articles).or_else(|| pick_listed_section(title, articles))
         }
@@ -876,6 +876,32 @@ fn grouped_name_heading(title: &str, a: &ArticleAnalysis) -> bool {
         .filter(|n| n.chars().count() >= 3)
         .collect();
     names.iter().any(|n| head.contains(n.as_str())) && names_in_title(title, a)
+}
+
+/// 目次の語は公告者の名前を標題に入れる（「令和七事業年度農林漁業団体職員共済組合の決算等」）が、公告の標題は名前を
+/// 持たず（「令和７事業年度決算等に関する公告」）、名前は署名（「農林漁業団体職員共済組合　理事長」）にだけある（号外第194号）。
+/// 記事の標題（2 行まで、末尾の「に関する公告」「公告」を除く、数字を除く）が、目次の語の途中から名前（3 字以上、後ろの
+/// 「の」を除く）を抜いた字と同じで、その名前が記事の 6 行目までにあるか。
+fn signed_name_heading(title: &str, a: &ArticleAnalysis) -> bool {
+    let lines: Vec<&str> = a.text.lines().filter(|l| !l.trim().is_empty()).collect();
+    let head = compact_digits(&lines.iter().take(2).copied().collect::<String>());
+    let Some(stem) = ["に関する公告", "に関する公示", "公告", "公示"].iter().find_map(|s| head.strip_suffix(s)) else { return false };
+    let top = compact_digits(&lines.iter().take(6).copied().collect::<String>());
+    let stem: Vec<char> = stem.chars().collect();
+    listed_words(title).iter().any(|w| {
+        let w = compact_digits(w);
+        (2..stem.len().saturating_sub(1)).any(|p| {
+            let (pre, post): (String, String) = (stem[..p].iter().collect(), stem[p..].iter().collect());
+            let Some(name) = w.strip_prefix(&pre).and_then(|r| r.strip_suffix(&post)) else { return false };
+            let name = name.strip_suffix('の').unwrap_or(name);
+            name.chars().count() >= 3 && top.contains(name)
+        })
+    })
+}
+
+/// 空白と数字（漢数字・算用数字）を除いた字。
+fn compact_digits(s: &str) -> String {
+    s.chars().filter(|c| !c.is_whitespace() && !c.is_ascii_digit() && !"０１２３４５６７８９〇一二三四五六七八九十百千".contains(*c)).collect()
 }
 
 /// 記事の標題（2 行まで）が、目次の標題と 7 字以上続けて同じ字（数字を除く）を持つか。目次は同じ欄の公告の名前を
@@ -1601,6 +1627,23 @@ mod tests {
         let mut b = a.clone();
         b[1] = arts(&["諸事項\n工場財団\n…権利を申し出て下さい。"]).remove(0);
         assert_eq!(pick_items(&[title, "相続、失踪関係"], &b), vec![vec![0], vec![2]]);
+    }
+
+    #[test]
+    fn a_listed_item_starts_at_a_notice_signed_by_the_name_its_word_names() {
+        // 号外第194号: 目次の語は組合の名前を入れるが、公告の標題は名前を持たず、名前は署名にだけある。
+        let title = "令和七事業年度農林漁業団体職員共済組合の決算等、独立行政法人労働政策研究・研修機構令和七事業年度財務諸表関係";
+        let a = arts(&[
+            "令和７事業年度決算等に関す\nる公告\n令和８年８月31日\n東京都台東区秋葉原２番３号\n農林漁業団体職員共済組合\n理事長　口　直樹\n１．令和７事業年度の貸借対照表",
+            "独立行政法人労働政策研究・研修機構令和７事業年度財務諸表\nに関する公告\n独立行政法人通則法…",
+        ]);
+        assert!(signed_name_heading(title, &a[0]));
+        assert_eq!(pick_article(title, &a), Some(0));
+        // 名前が署名に無い、標題が語と合わない、名前が 3 字に満たない記事は、語の公告ではない。
+        let other = arts(&["令和７事業年度決算等に関す\nる公告\n令和８年８月31日\n東京都千代田区…\n地方競馬全国協会\n理事長"]).remove(0);
+        assert!(!signed_name_heading(title, &other));
+        assert!(!signed_name_heading(title, &a[1]));
+        assert!(!signed_name_heading("令和七事業年度Ａ協の決算等関係", &arts(&["令和７事業年度決算等に関す\nる公告\nＡ協"]).remove(0)));
     }
 
     #[test]
