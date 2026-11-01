@@ -230,6 +230,7 @@ fn parse_item_link(base_url: &str, compact: &str, href: &str, text: &str) -> Opt
         amend_text: None,
         amend_format: None,
         amend_document: None,
+        amend_source: None,
     })
 }
 

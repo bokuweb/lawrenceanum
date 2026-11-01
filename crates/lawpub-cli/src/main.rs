@@ -347,6 +347,11 @@ enum Cmd {
         /// cache にある日付も作り直す (パーサを直した後に過去の項目へ反映する)。
         #[arg(long)]
         all: bool,
+        /// ページの画像を OCR した結果 (NDLOCR の trace JSON、`{dir}/{ページ PDF の名前}.json`)。指定したときだけ、PDF の
+        /// 字から記事を選べない項目 (本文が画像の告示など) に OCR の結果から選んだ本文を入れる (`amend_source: "ocr"`、
+        /// 字の誤りを含みうる)。CI・定期実行では使わない。
+        #[arg(long)]
+        ocr_dir: Option<PathBuf>,
     },
     /// 官報リンクを `public/kanpo/` に書き出す (Phase 3 placeholder)。
     KanpoLink {
@@ -1126,7 +1131,7 @@ fn main() -> Result<()> {
             cache,
         } => kanpo::run_fetch(&date, &provider, limit, save_pdf, &cache),
         Cmd::KanpoArchive { date, out, interval_ms } => kanpo_archive::run(&date, &out, interval_ms),
-        Cmd::KanpoReextract { archive, cache, date, all } => kanpo_archive::run_reextract(&archive, &cache, &date, all),
+        Cmd::KanpoReextract { archive, cache, date, all, ocr_dir } => kanpo_archive::run_reextract(&archive, &cache, &date, all, ocr_dir.as_deref()),
         Cmd::KanpoLink { output } => kanpo::run_link(&output),
         Cmd::KanpoPoc {
             date,

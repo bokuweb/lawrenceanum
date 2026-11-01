@@ -251,6 +251,7 @@ fn kanpo_date(manifest: &Manifest) -> kanpo_client::KanpoDate {
                     amend_text: None,
                     amend_format: None,
                     amend_document: None,
+                    amend_source: None,
                 })
                 .collect(),
             page_count: Some(i.page_count),
@@ -260,7 +261,7 @@ fn kanpo_date(manifest: &Manifest) -> kanpo_client::KanpoDate {
 }
 
 /// 1 日分を原本から抽出し直す。戻り値は (項目数, 記事を特定できなかった項目数, 本文が取れた項目数, 読んだページ数)。
-fn reextract_date(archive: &Archive, date: &str, cache: &Path) -> Result<Option<(usize, usize, usize, usize)>> {
+fn reextract_date(archive: &Archive, date: &str, cache: &Path, ocr_dir: Option<&Path>) -> Result<Option<(usize, usize, usize, usize)>> {
     let Some(bytes) = archive.get(&format!("{date}/manifest.json"))? else {
         return Ok(None);
     };
@@ -303,7 +304,14 @@ fn reextract_date(archive: &Archive, date: &str, cache: &Path) -> Result<Option<
         };
         Some(Some(pdf::PageInput { xhtml, rules }))
     };
-    let stats = crate::kanpo::fill_amend_texts_with(&mut kd, false, &mut load);
+    // OCR の結果は `{ocr_dir}/{ページ PDF の名前}.json`（NDLOCR の trace）。
+    let mut ocr = |url: &str| -> Option<pdf::OcrPage> {
+        let stem = url.rsplit('/').next()?.strip_suffix(".pdf")?;
+        let json = std::fs::read_to_string(ocr_dir?.join(format!("{stem}.json"))).ok()?;
+        pdf::OcrPage::from_ndlocr_trace(&json).map_err(|e| tracing::warn!("{stem}.json: {e:#}")).ok()
+    };
+    let ocr: Option<&mut crate::kanpo::OcrLoader> = if ocr_dir.is_some() { Some(&mut ocr) } else { None };
+    let stats = crate::kanpo::fill_amend_texts_with(&mut kd, false, &mut load, ocr);
     let extracted = kd.issues.iter().flat_map(|i| &i.items).filter(|i| i.amend_text.is_some()).count();
     let dir = cache.join("kanpo");
     std::fs::create_dir_all(&dir)?;
@@ -320,7 +328,7 @@ fn reextract_date(archive: &Archive, date: &str, cache: &Path) -> Result<Option<
 /// 取りに行かずにどちらも直せる。
 ///
 /// `dates` が空なら原本の `index.json` の全日付が対象。`all` でなければ cache に既にある日付は飛ばす。
-pub fn run_reextract(archive: &str, cache: &Path, dates: &[String], all: bool) -> Result<()> {
+pub fn run_reextract(archive: &str, cache: &Path, dates: &[String], all: bool, ocr_dir: Option<&Path>) -> Result<()> {
     let archive = Archive::new(archive)?;
     let dates: Vec<String> = if dates.is_empty() {
         let Some(index) = archive.get("index.json")? else {
@@ -337,7 +345,7 @@ pub fn run_reextract(archive: &str, cache: &Path, dates: &[String], all: bool) -
             skipped += 1;
             continue;
         }
-        match reextract_date(&archive, date, cache) {
+        match reextract_date(&archive, date, cache, ocr_dir) {
             Ok(Some((items, unmatched, extracted, read))) => {
                 done += 1;
                 tracing::info!("kanpo-reextract {date}: items={items} unmatched={unmatched} extracted={extracted} pages read={read}");
@@ -420,7 +428,7 @@ mod tests {
         let bbox = Path::new(env!("CARGO_MANIFEST_DIR")).join("../kanpo-parser/tests/corpus/2026-07-24-honshi1754-p2/page.bbox.html");
         std::fs::copy(&bbox, day.join("20261009g00223/20261009g002230001.bbox.html")).unwrap();
 
-        run_reextract(&archive.display().to_string(), &cache, &[], false).unwrap();
+        run_reextract(&archive.display().to_string(), &cache, &[], false, None).unwrap();
         let kd: kanpo_client::KanpoDate =
             serde_json::from_slice(&std::fs::read(cache.join("kanpo/2026-10-09.json")).unwrap()).unwrap();
         let items = &kd.issues[0].items;
@@ -433,10 +441,52 @@ mod tests {
 
         // cache にある日は既定では作り直さず、--all なら作り直す。
         std::fs::write(cache.join("kanpo/2026-10-09.json"), r#"{"date": "2026-10-09", "issues": []}"#).unwrap();
-        run_reextract(&archive.display().to_string(), &cache, &[], false).unwrap();
+        run_reextract(&archive.display().to_string(), &cache, &[], false, None).unwrap();
         assert_eq!(std::fs::read_to_string(cache.join("kanpo/2026-10-09.json")).unwrap(), r#"{"date": "2026-10-09", "issues": []}"#);
-        run_reextract(&archive.display().to_string(), &cache, &[], true).unwrap();
+        run_reextract(&archive.display().to_string(), &cache, &[], true, None).unwrap();
         assert!(std::fs::read_to_string(cache.join("kanpo/2026-10-09.json")).unwrap().contains("amend_text"));
+        std::fs::remove_dir_all(root).ok();
+    }
+
+    #[test]
+    fn reextract_reads_an_image_only_item_from_ocr_only_when_asked() {
+        let root = crate::wiki::temp_dir("kanpo-reextract-ocr");
+        let (archive, cache, ocr) = (root.join("archive"), root.join("cache"), root.join("ocr"));
+        let day = archive.join("2026-07-16");
+        std::fs::create_dir_all(day.join("20260716h01749")).unwrap();
+        std::fs::create_dir_all(&ocr).unwrap();
+        std::fs::write(
+            day.join("manifest.json"),
+            serde_json::to_vec(&serde_json::json!({
+                "date": "2026-07-16",
+                "issues": [{"issue_type": "honshi", "issue_no": "第1749号", "dir": "20260716h01749",
+                            "url": "https://www.kanpo.go.jp/20260716/20260716h01749/", "page_count": 2,
+                            "pages": [{"page": 2, "file": "20260716h017490002.pdf", "sha256": "", "bytes": 0, "bbox": false, "rules": false}],
+                            "items": [{"title": "日本国に帰化を許可する件（法務省告示配一〇七）", "page": 2}]}]
+            }))
+            .unwrap(),
+        )
+        .unwrap();
+        // 本文が画像の告示: ページの PDF に字は無く、OCR の結果（NDLOCR の trace と同じ形）にだけある。
+        let pdf = Path::new(env!("CARGO_MANIFEST_DIR")).join("../kanpo-parser/tests/archive/pages/20260716h01749/20260716h017490002.pdf");
+        std::fs::copy(&pdf, day.join("20260716h01749/20260716h017490002.pdf")).unwrap();
+        let region = |text: &str, y: f64| serde_json::json!({"text": text, "bbox": [0.0, y, 800.0, y + 40.0], "is_vertical": false, "confidence": 0.99});
+        let trace = serde_json::json!({"schema_version": 1, "width": 3509, "height": 2480, "stages": {"reading_order": [
+            region("〇法務省告示配第百七号", 3000.0),
+            region("左記の者の申請に係る日本国に帰化の件は、これを許可する。", 3050.0),
+        ]}});
+        std::fs::write(ocr.join("20260716h017490002.json"), trace.to_string()).unwrap();
+
+        let item = |cache: &Path| {
+            let kd: kanpo_client::KanpoDate = serde_json::from_slice(&std::fs::read(cache.join("kanpo/2026-07-16.json")).unwrap()).unwrap();
+            kd.issues[0].items[0].clone()
+        };
+        run_reextract(&archive.display().to_string(), &cache, &["2026-07-16".to_string()], true, None).unwrap();
+        assert_eq!(item(&cache).amend_text, None, "既定では画像の本文を読まない");
+        run_reextract(&archive.display().to_string(), &cache, &["2026-07-16".to_string()], true, Some(&ocr)).unwrap();
+        let it = item(&cache);
+        assert!(it.amend_text.as_deref().is_some_and(|t| t.starts_with("〇法務省告示配第百七号")), "{:?}", it.amend_text);
+        assert_eq!(it.amend_source.as_deref(), Some("ocr"));
         std::fs::remove_dir_all(root).ok();
     }
 
@@ -462,7 +512,7 @@ mod tests {
         .unwrap();
         let pdf = Path::new(env!("CARGO_MANIFEST_DIR")).join("../kanpo-parser/tests/corpus/2026-10-05-honshi1801-p2/page.pdf");
         std::fs::copy(&pdf, day.join("20261005h01801/20261005h018010002.pdf")).unwrap();
-        run_reextract(&archive.display().to_string(), &cache, &["2026-10-05".to_string()], false).unwrap();
+        run_reextract(&archive.display().to_string(), &cache, &["2026-10-05".to_string()], false, None).unwrap();
         let kd: kanpo_client::KanpoDate =
             serde_json::from_slice(&std::fs::read(cache.join("kanpo/2026-10-05.json")).unwrap()).unwrap();
         assert!(kd.issues[0].items[0].amend_text.as_deref().is_some_and(|t| !t.is_empty()), "PDF から本文を抽出する");

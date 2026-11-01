@@ -60,6 +60,10 @@ pub struct KanpoItem {
     /// （罫線座標が要る）ため、ここに保存して kanpo-link で timeline へ転記する。
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub amend_document: Option<serde_json::Value>,
+    /// 本文の出どころ。`"ocr"` は、ページの画像を OCR した結果（`lawpub kanpo-reextract --ocr-dir`、opt-in）から選んだ
+    /// 本文で、字の誤りを含みうる。無ければ PDF の字。
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub amend_source: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
