@@ -845,7 +845,11 @@ pub fn pick_items(titles: &[&str], articles: &[ArticleAnalysis]) -> Vec<Vec<usiz
             // 同じ字を持つ（[`names_in_title`]）なら、項目の続き。
             for (j, a) in articles.iter().enumerate().skip(i + 1) {
                 let body: Vec<&str> = a.text.lines().skip_while(|l| l.trim().is_empty() || segment::is_section_label(l)).collect();
-                if claimed.contains(&j) || !segment::is_section_label(&head(a)) || !names_in_title_text(title, &body.join("\n")) {
+                // 頁をまたいだ表の続き（号外第217号の「アメリカ合衆国が使用を許される施設及び区域…」の表の後ろの頁）は、欄見出しの
+                // 後に標題を持たないが、選んだ記事と同じ定型の文（「…地位協定第二条四⒝の適用ある施設及び区域として提供する。…」、
+                // 数字を除いて 30 字以上）を持つ。
+                let continues = names_in_title_text(title, &body.join("\n")) || shares_run(&articles[i].text, &body.join("\n"), 30);
+                if claimed.contains(&j) || !segment::is_section_label(&head(a)) || !continues {
                     break;
                 }
                 p.push(j);
@@ -953,6 +957,12 @@ fn signed_name_heading(title: &str, a: &ArticleAnalysis) -> bool {
             name.chars().count() >= 3 && top.contains(name)
         })
     })
+}
+
+/// 2 つの本文（空白と数字を除く）が `n` 字以上続けて同じ字を持つか。
+fn shares_run(a: &str, b: &str, n: usize) -> bool {
+    let (a, b): (Vec<char>, String) = (compact_digits(a).chars().collect(), compact_digits(b));
+    a.len() >= n && a.windows(n).any(|w| b.contains(&w.iter().collect::<String>()))
 }
 
 /// 空白と数字（漢数字・算用数字）を除いた字。
@@ -1796,6 +1806,23 @@ mod tests {
         assert!(!signed_name_heading(title, &other));
         assert!(!signed_name_heading(title, &a[1]));
         assert!(!signed_name_heading("令和七事業年度Ａ協の決算等関係", &arts(&["令和７事業年度決算等に関す\nる公告\nＡ協"]).remove(0)));
+    }
+
+    #[test]
+    fn a_table_continued_after_a_section_label_continues_the_picked_notice() {
+        // 号外第217号: 防衛省告示の表の後ろの頁が、欄見出し「官庁事項」と別の公示の行の後に続き、別の記事になる。
+        let title = "アメリカ合衆国が使用を許される施設及び区域について、共同使用、追加提供及び新規提供が決定された件（防衛二四七）";
+        let a = arts(&[
+            "〇防衛省告示第二百四十七号\n…次のとおり決定した。\n航空自衛隊府中基地の施設の一部を、地位協定第二条四⒝の適用ある施設及び区域として提供する。提供期間中は、地位協定の関連ある条項が適用される。",
+            "官　庁　事　項\n人事院公示第27号\n所有関係　摘　要\n航空自衛隊防府北基地の施設の一部\nを、地位協定第二条四⒝の適用ある\n施設及び区域として提供する。提供\n期間中は、地位協定の関連ある条項\nが適用される。",
+            "人事院は、…次のとおり決定した。",
+        ]);
+        let other = "人事院規則一六―三（災害を受けた職員の福祉事業）第六条第一項の規定に基づき、昭和五十六年人事院公示第九号の一部改正に関し、決定した件（人事院公示二七）";
+        assert_eq!(pick_items(&[title, other], &a)[0], vec![0, 1]);
+        // 定型の文が短くしか同じでなければ続きではない。
+        let mut b = a.clone();
+        b[1] = arts(&["官　庁　事　項\n人事院公示第27号\n…施設及び区域として提供する。"]).remove(0);
+        assert_eq!(pick_items(&[title, other], &b)[0], vec![0]);
     }
 
     #[test]
