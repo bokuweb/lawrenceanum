@@ -205,7 +205,9 @@ pub(crate) fn fill_amend_texts_with(kd: &mut KanpoDate, amend_only: bool, load: 
 
         // 同じ頁の範囲から始まる項目の標題（欄見出しだけの記事を選んだ項目が、ほかの項目の記事の手前で止まるため）。
         let starts_of: Vec<(u32, String)> = issue.items.iter().map(|i| (i.page, i.title.clone())).collect();
-        for item in &mut issue.items {
+        // 頁の範囲を次の項目の開始頁まで広げた項目（下で、後ろの項目の本文の手前で切る）。
+        let mut widened: Vec<usize> = Vec::new();
+        for (n, item) in issue.items.iter_mut().enumerate() {
             if amend_only && !is_amend_title(&item.title) {
                 continue;
             }
@@ -240,6 +242,7 @@ pub(crate) fn fill_amend_texts_with(kd: &mut KanpoDate, amend_only: bool, load: 
             if span_end > end && runs_on {
                 if let Some(wide) = analyze_window(item, span_end, &starts_of, &mut page_input, load) {
                     (analysis, picked) = wide;
+                    widened.push(n);
                 }
             }
             let segments: Vec<String> = analysis.articles.iter().map(|a| a.text.clone()).collect();
@@ -273,6 +276,41 @@ pub(crate) fn fill_amend_texts_with(kd: &mut KanpoDate, amend_only: bool, load: 
             *stats.by_format.entry(format.clone()).or_default() += 1;
             item.amend_document = serde_json::to_value(&doc).ok();
             item.amend_format = Some(format);
+            item.amend_text = Some(body);
+        }
+        // 広げた頁の範囲の終わりの頁から始まる項目の本文は、見出しが無いと前の記事に続いて 1 つの記事になる（本紙号外
+        // 第196号の「令和七年度における予算使用の状況」が、続く「令和八年度第一・四半期における予算使用の状況」の本文まで
+        // 持つ）。後ろの項目の本文の最初の行が、広げた項目の本文の 2 行目以降の行にあれば、その行の手前で切る。
+        for &n in &widened {
+            let page = issue.items[n].page;
+            let compact = |s: &str| s.chars().filter(|c| !c.is_whitespace()).collect::<String>();
+            let others: String =
+                issue.items.iter().enumerate().filter(|&(m, _)| m != n).filter_map(|(_, o)| o.amend_text.as_deref()).map(compact).collect();
+            let heads: Vec<String> = issue
+                .items
+                .iter()
+                .filter(|o| o.page > page)
+                .filter_map(|o| o.amend_text.as_deref()?.lines().map(str::trim).find(|l| !l.is_empty()).map(str::to_string))
+                .filter(|h| h.chars().count() >= 10)
+                .collect();
+            let item = &mut issue.items[n];
+            if item.amend_format.as_deref() == Some("shinkyu") {
+                continue;
+            }
+            let Some(body) = item.amend_text.as_deref() else { continue };
+            let lines: Vec<&str> = body.lines().collect();
+            let Some(cut) = (1..lines.len()).find(|&i| heads.iter().any(|h| lines[i].trim() == h)) else { continue };
+            // 切る残りは、ほかの項目の本文にある字（30 字ずつの 8 割以上）でなければ切らない（後ろの項目の最初の行と
+            // 同じ行が、この項目の本文にもある）。
+            let rest: Vec<char> = compact(&lines[cut..].join("")).chars().collect();
+            let chunks: Vec<String> = rest.chunks(30).filter(|c| c.len() == 30).map(|c| c.iter().collect()).collect();
+            if chunks.is_empty() || chunks.iter().filter(|c| others.contains(c.as_str())).count() * 5 < chunks.len() * 4 {
+                continue;
+            }
+            let body = lines[..cut].join("\n").trim_end().to_string();
+            let doc = pdf::Document::from_text(&body);
+            item.amend_format = Some(Some(doc.format.clone()).filter(|f| f != "unknown").or_else(|| pdf::detect_format_of(&body)).unwrap_or_else(|| "unknown".to_string()));
+            item.amend_document = serde_json::to_value(&doc).ok();
             item.amend_text = Some(body);
         }
     }
