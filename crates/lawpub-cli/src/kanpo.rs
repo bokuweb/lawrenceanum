@@ -236,13 +236,25 @@ pub(crate) fn fill_amend_texts_with(kd: &mut KanpoDate, amend_only: bool, load: 
             // 項目の範囲の終わりまで広げて選び直す（頁の多い省令の別表、号の最後の「会社決算公告」の欄）。上限で切ると、残りの
             // 頁の本文はどの項目にも入らない。小見出しだけの記事（本文が画像の「破産、免責、再生関係」の、文も数字も無い記事）は、
             // 残りの頁に本文が続くとは限らないので広げない（決算公告の貸借対照表は文が無くても数字がある）。
-            let span_end = starts.iter().copied().find(|&p| p > end).unwrap_or(last_page).max(end);
+            // 号数を並べた項目の告示は、間に別の項目の告示を挟んで続く（本紙第1750号の「砂防法第二条の土地を指定する件（国土交通
+            // 八四三、八四五～八四七、八五〇～八五二）」の八五〇～八五二は、八四八・八四九の後ろの頁）ので、広げた範囲でも最後の
+            // 記事まで続き、選ぶ記事が増えるなら、次の項目の開始頁までさらに広げる。
             let has_body = |t: &str| t.chars().any(|c| c == '。' || c.is_ascii_digit() || ('０'..='９').contains(&c));
-            let runs_on = picked.last().is_some_and(|&l| l + 1 == analysis.articles.len() && has_body(&analysis.articles[l].text));
-            if span_end > end && runs_on {
-                if let Some(wide) = analyze_window(item, span_end, &starts_of, &mut page_input, load) {
-                    (analysis, picked) = wide;
+            loop {
+                let span_end = starts.iter().copied().find(|&p| p > end).unwrap_or(last_page).max(end);
+                let runs_on = picked.last().is_some_and(|&l| l + 1 == analysis.articles.len() && has_body(&analysis.articles[l].text));
+                if span_end <= end || !runs_on {
+                    break;
+                }
+                let Some(wide) = analyze_window(item, span_end, &starts_of, &mut page_input, load) else { break };
+                let grew = wide.1.len() > picked.len() || !widened.contains(&n);
+                (analysis, picked) = wide;
+                end = span_end;
+                if !widened.contains(&n) {
                     widened.push(n);
+                }
+                if !grew {
+                    break;
                 }
             }
             let segments: Vec<String> = analysis.articles.iter().map(|a| a.text.clone()).collect();
