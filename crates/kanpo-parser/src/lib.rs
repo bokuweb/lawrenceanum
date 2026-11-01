@@ -291,6 +291,16 @@ pub fn pick_article(title: &str, articles: &[ArticleAnalysis]) -> Option<usize> 
     }
 }
 
+/// 記事が目次（行の後ろに字間を空けて頁「　一」「　四〇」を置く行が 2 つ以上）か。
+fn lists_toc_entries(a: &ArticleAnalysis) -> bool {
+    let paged = |l: &str| {
+        l.trim().rsplit_once('\u{3000}').is_some_and(|(head, page)| {
+            !head.trim().is_empty() && !page.is_empty() && page.chars().all(|c| "〇一二三四五六七八九十百千".contains(c))
+        })
+    };
+    a.text.lines().filter(|l| paged(l)).count() >= 2
+}
+
 /// 記事が、標題を目次の項目（標題の終わりの行の後ろに字間を空けて頁「　一」「　三三」）として載せるか。目次は長い標題を
 /// 折り返す（「…一般旅券の返納 / 命令に関する通知関係　一」）ので、頁の前の字が標題の終わりの 2 字以上と合えばよい。
 fn lists_as_toc_entry(a: &ArticleAnalysis, title: &str) -> bool {
@@ -417,9 +427,15 @@ pub fn split_listed_sections(titles: &[&str], articles: &mut Vec<ArticleAnalysis
         // 分けず、最初の語の行でだけ分ける。
         for (word, whole) in listed_heading_words(title).into_iter().take(if picked.is_some() { 1 } else { usize::MAX }) {
             let (heads, mut inner) = listed_lines(&word, whole, articles);
+            // 号外の 1 ページ目の目次（「被害回復給付金裁定表記載関係　一」）は項目の標題を行に並べ、頁の字が次の行に落ちる
+            // こともある（号外第170号の「破産、免責、再生関係」）。目次の記事の行は欄の小見出しではない。
+            inner.retain(|&(i, _)| !lists_toc_entries(&articles[i]));
             // 語で始まる小見出しが続く（「相続財産清算人の選任及び相続権主張の催告」「相続権主張の催告」）なら、欄の始まりは最初の行。
+            // 前の小見出しが 2 行に折り返す（号外第178号の「破産手続開始及び免責許可申 / 立てに関する意見申述期間」）と、間に
+            // 句点の無い折り返しの行が 1 つ入る。
             let after_blank = |&(i, j): &(usize, usize), &(pi, pj): &(usize, usize)| {
-                i == pi && pj < j && articles[i].text.split('\n').skip(pj + 1).take(j - pj - 1).all(|l| l.trim().is_empty())
+                let between: Vec<&str> = articles[i].text.split('\n').skip(pj + 1).take(j.saturating_sub(pj + 1)).map(str::trim).filter(|l| !l.is_empty()).collect();
+                i == pi && pj < j && (between.is_empty() || matches!(between[..], [l] if !l.contains('。')))
             };
             // 続く行どうしで比べる（3 行以上続いても、最初の行だけを残す）。
             let all = inner.clone();
@@ -851,7 +867,13 @@ pub fn pick_items(titles: &[&str], articles: &[ArticleAnalysis]) -> Vec<Vec<usiz
             // 標題（「…財務諸表に関する / 公告」）の最後の行「公告」が区分見出しとして記事を分けたなら、前の標題だけの記事の続き。
             let title_only = |a: &ArticleAnalysis| !a.text.contains('。') && a.text.lines().filter(|l| !l.trim().is_empty()).count() <= 2;
             let title_tail = listed && matches!(h.as_str(), "公告" | "公示") && p.last() == Some(&(j - 1)) && title_only(&articles[j - 1]);
-            if claimed.contains(&j) || (!title_tail && (field_end || segment::is_section_label(&h))) || numbered || h.contains("をここに公布する") {
+            // 標題が「公告」だけの公告（号外第196号の宮城県知事の「公告」）は区分見出しと同じ字になる。本文が項目に並ぶ語の
+            // 頭 7 字（数字を除く、「農業協同組合法第六十四条の二の届出」の「農業協同組合法」）を含むなら、欄の公告。
+            let titled_own = listed && h == "公告" && {
+                let body = compact_digits(&a.text);
+                listed_words(title).iter().map(|w| compact_digits(w).chars().take(7).collect::<String>()).any(|w| w.chars().count() == 7 && body.contains(&w))
+            };
+            if claimed.contains(&j) || (!title_tail && !titled_own && (field_end || segment::is_section_label(&h))) || numbered || h.contains("をここに公布する") {
                 break;
             }
             p.push(j);
@@ -890,6 +912,11 @@ fn grouped_name_heading(title: &str, a: &ArticleAnalysis) -> bool {
         .filter(|n| n.chars().count() >= 3)
         .collect();
     names.iter().any(|n| head.contains(n.as_str())) && names_in_title(title, a)
+}
+
+/// 空白と数字（漢数字・算用数字）を除いた字。
+fn compact_digits(s: &str) -> String {
+    s.chars().filter(|c| !c.is_whitespace() && !c.is_ascii_digit() && !"０１２３４５６７８９〇一二三四五六七八九十百千".contains(*c)).collect()
 }
 
 /// 記事の標題（2 行まで）が、目次の標題と 7 字以上続けて同じ字（数字を除く）を持つか。目次は同じ欄の公告の名前を
@@ -1628,6 +1655,45 @@ mod tests {
         let mut b = a.clone();
         b[1] = arts(&["諸事項\n工場財団\n…権利を申し出て下さい。"]).remove(0);
         assert_eq!(pick_items(&[title, "相続、失踪関係"], &b), vec![vec![0], vec![2]]);
+    }
+
+    #[test]
+    fn a_listed_item_takes_a_notice_titled_only_koukoku_that_names_its_word() {
+        // 号外第196号: 宮城県知事の「公告」（標題が「公告」だけ）は、本文に項目の語「農業協同組合法…」を含む欄の公告。
+        let title = "解散命令、教育職員免許状失効、行旅死亡人、農業協同組合法第六十四条の二の届出関係";
+        let a = arts(&[
+            "解散命令公告\n…命令した。",
+            "公告\n宮城県の区域を地区とする農業協同組合又は農\n…農業協同組合法施行規則（平成17年農林水産省令第27\n号）第208条の２で定めるところにより…届出をされたい。",
+            "会社その他の公告",
+            "解散公告\n当社は…",
+        ]);
+        assert_eq!(pick_items(&[title, "会社その他"], &a)[0], vec![0, 1]);
+        // 語を含まない「公告」は区分見出しとして止まる。
+        let mut b = a.clone();
+        b[1] = arts(&["公告\n諸事項\n…権利を申し出て下さい。"]).remove(0);
+        assert_eq!(pick_items(&[title, "会社その他"], &b)[0], vec![0]);
+    }
+
+    #[test]
+    fn stacked_listed_headings_with_a_wrapped_first_line_start_one_section() {
+        // 号外第178号: 破産の欄の小見出し（公告は画像）が前の公告の記事の後ろに続き、最初の小見出しは 2 行に折り返す。
+        let title = "破産、免責、再生関係";
+        let mut a = arts(&[
+            "登録政治資金監査人登録公告\n…公告する。\n政治資金適正化委員会委員長野々上尚\n破産手続開始及び免責許可申\n立てに関する意見申述期間\n破産手続開始・破産手続廃止及び免責許可申立てに関する意見申述期間\n破産手続廃止\n免責許可決定",
+        ]);
+        split_listed_sections(&[title], &mut a);
+        assert_eq!(a.len(), 2);
+        assert!(a[1].text.starts_with("破産手続開始及び免責許可申\n"));
+        assert_eq!(pick_article(title, &a), Some(1));
+        // 号外第170号: 1 ページ目の目次の行（頁の字が次の行に落ちた「破産、免責、再生関係」）は欄の小見出しではない。
+        let mut b = arts(&[
+            "（号外）\n発行　内閣府\n（原稿作成　国立印刷局）\n目次\n〔公告〕",
+            "諸事項\n官庁\n被害回復給付金裁定表記載関係　一\n裁判所\n破産、免責、再生関係\n特殊法人等\n令和七年度共済組合の決算（防衛\n省・日本たばこ産業）、独立行政法\n人統計センター令和七年度財務諸表\n関係　四〇\n地方公共団体\n行旅死亡人関係　四六\n会社その他\n会社決算公告　五二",
+            "公告\n諸事項\n被害回復給付金裁定表記載公告\n…請求することができます。\n破産手続開始及び免責許可申立てに関する意見申述期間\n破産手続廃止",
+        ]);
+        split_listed_sections(&[title], &mut b);
+        assert_eq!(b.len(), 4);
+        assert_eq!(pick_article(title, &b), Some(3));
     }
 
     #[test]
