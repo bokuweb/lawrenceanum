@@ -848,8 +848,10 @@ pub fn pick_items(titles: &[&str], articles: &[ArticleAnalysis]) -> Vec<Vec<usiz
         }
         for (j, a) in articles.iter().enumerate().skip(i + 1) {
             let h = head(a);
-            // 号数の無い `〇` で始まる行（住所の折り返し「〇番地三五八」）は公告の続き。
-            let numbered = segment::is_heading_mark(&h) && heading_number(&h).is_some();
+            // 号数の無い `〇` で始まる行（住所の折り返し「〇番地三五八」）は公告の続き。号数の見出しは「第…号」で終わる。
+            // 財務諸表の注記が法令を引く行（「〇独立行政法人水資源機構の財務及び会計等に関する省令（平成15年国土交通省令
+            // 第104号）」）は、号数を括弧の中に持つ公告の続き。
+            let numbered = segment::is_heading_mark(&h) && heading_number(&h).is_some() && h.ends_with('号');
             // 欄の小見出し（「特別清算終結」「破産管財人変更」）は「公告」「公示」で終わらない。標題の行（2 行に折り返す）が
             // 「…公告」「…公示」で終わる記事は、欄の後ろに続く別の欄の公告（「…令和７年度財務諸表公告」）。
             let titled = || {
@@ -1400,6 +1402,18 @@ mod tests {
             "地方公共団体情報システム機構令和７年度財務諸表公告\n貸借対照表",
         ]);
         assert_eq!(pick_items(&["破産、免責、再生関係"], &a), vec![vec![0, 1]]);
+    }
+
+    #[test]
+    fn a_listed_item_keeps_the_notes_that_cite_a_numbered_ordinance() {
+        // 号外第195号: 財務諸表の注記が法令を引く行は `〇` で始まり、号数を括弧の中に持つ。告示の見出しではない。
+        let a = arts(&[
+            "令和７事業年度独立行政法人水資源機構の財務諸表に関する公告\n貸借対照表",
+            "〇独立行政法人水資源機構の財務及び会計等に関する省令（平成15年国土交通省令第104号）\n（補助金等の会計処理）",
+            "〇国土交通省告示第百号\n…",
+        ]);
+        let title = "令和七事業年度独立行政法人水資源機構の財務諸表、独立行政法人日本高速道路保有・債務返済機構車両制限令第三条第四項の規定による道路の指定関係";
+        assert_eq!(pick_items(&[title], &a), vec![vec![0, 1]]);
     }
 
     #[test]
