@@ -860,6 +860,20 @@ pub fn pick_items(titles: &[&str], articles: &[ArticleAnalysis]) -> Vec<Vec<usiz
             }
         }
     }
+    // 号数の無い `〇` の見出し（基本計画の中の「〇本邦に在留する全ての外国人について適正な在留管理を実施すること」）
+    // で始まる記事は、告示の見出しではなく前の記事の続き。選んだ記事のすぐ後ろに続くなら、ほかの項目の選ぶ記事・号数のある
+    // 見出し・区分見出しの手前まで含める。
+    let claimed: std::collections::BTreeSet<usize> = picks.iter().flatten().copied().collect();
+    for p in picks.iter_mut() {
+        let Some(&last) = p.last() else { continue };
+        for (j, a) in articles.iter().enumerate().skip(last + 1) {
+            let h = head(a);
+            if claimed.contains(&j) || !segment::is_heading_mark(&h) || heading_number(&h).is_some() || segment::is_section_label(&h) {
+                break;
+            }
+            p.push(j);
+        }
+    }
     picks
 }
 
@@ -1214,6 +1228,19 @@ mod tests {
         ]);
         assert_eq!(pick_article("登録低引火点燃料船学科講習実施機関の登録（国土交通省）", &a), Some(0));
         assert_eq!(pick_article("登録低引火点燃料船安全担当者講習実施機関の登録（同）", &a), Some(1));
+    }
+
+    #[test]
+    fn articles_led_by_an_unnumbered_mark_continue_the_picked_article() {
+        // 基本計画の中の「〇本邦に在留する…こと」の見出しで記事が分かれても、項目の記事の続き（号外第198号の出入国在留管理基本計画）。
+        // 号数のある次の告示の見出しで止まる。
+        let a = arts(&[
+            "〇法務省告示第七十一号\n出入国管理及び難民認定法第六十一条の十第一項の規定に基づき、出入国在留管理基本計画を次のとおり定めた。",
+            "〇受け入れた外国人との秩序ある共生社会の実現に向けた環境整備を推進していくこと\n共生社会の実現を図る。",
+            "〇本邦に在留する全ての外国人について適正な在留管理を実施すること\n在留管理を適正に行う。",
+            "〇法務省告示第七十二号\n別の告示。",
+        ]);
+        assert_eq!(pick_items(&["出入国在留管理基本計画を定めた件（法務七一）"], &a), vec![vec![0, 1, 2]]);
     }
 
     #[test]
