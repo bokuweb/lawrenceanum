@@ -194,7 +194,18 @@ pub(crate) fn detect_shinkyu_bands_headerless(cols: &[Col], height: f32) -> Opti
     // 並ぶ「…五年を経過したときは、…審判手続開始の決定をすることができない。」）。新旧対照表の改正前の欄は改正後の欄と
     // 同じ項番号を繰り返す。
     let ((ui, ua), (li, la)) = (item_numbers(&upper), item_numbers(&lower));
-    let continues = |u: &[u32], l: &[u32]| u.len() >= 3 && l.len() >= 3 && l.iter().min() > u.iter().max();
+    // 号の続きの行の頭に字だけの数（化学名の位置番号「八」「二」）があっても、1 ずつ増える最も長い並びだけを見る
+    // （号外第 209 号 39 ページ: 上の段の「十三」〜「二十五」の間に「五」、下の段の「二十六」〜「四十一」の間に「八」「二」）。
+    let chain = |v: &[u32]| -> Vec<u32> {
+        (0..v.len())
+            .map(|i| v[i..].iter().fold(vec![v[i]], |mut run, &n| { if n == run[run.len() - 1] + 1 { run.push(n); } run }))
+            .max_by_key(|run| run.len())
+            .unwrap_or_default()
+    };
+    let continues = |u: &[u32], l: &[u32]| {
+        let (u, l) = (chain(u), chain(l));
+        u.len() >= 3 && l.len() >= 3 && l.iter().min() > u.iter().max()
+    };
     // 条の見出しは上下で 2 つ以上ずつ（条の中の項番号「２」「３」は条ごとに振り直すので、条番号を先に見る）。
     if continues(&ui, &li) || (ua.len() >= 2 && la.len() >= 1 && la.iter().min() > ua.iter().max() && ua.len() + la.len() >= 4) {
         return None;
