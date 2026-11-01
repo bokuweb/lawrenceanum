@@ -274,7 +274,12 @@ pub fn pick_article(title: &str, articles: &[ArticleAnalysis]) -> Option<usize> 
             // 目次が括弧にまとめて並べる名前（「令和七年度共済組合の決算（農林水産省・林野庁・国土交通省）」）の公告は、
             // 語の頭が本文の標題（「令和７年度農林水産省共済組合の決算公告」）と合わない。選んだ記事より前に、まとめた名前を
             // 標題に持つ記事があれば、そこから始まる（号外第162号）。
-            picked.map(|i| (0..i).find(|&j| grouped_name_heading(title, &articles[j]) || signed_name_heading(title, &articles[j])).unwrap_or(i))
+            let picked = picked.map(|i| (0..i).find(|&j| grouped_name_heading(title, &articles[j]) || signed_name_heading(title, &articles[j])).unwrap_or(i));
+            // 語の頭も小見出しも合わなければ、標題が語と長く同じ字を持つ記事がちょうど 1 つなら、それを採る（[`word_in_heading`]）。
+            picked.or_else(|| match (0..articles.len()).filter(|&i| word_in_heading(title, &articles[i])).collect::<Vec<_>>()[..] {
+                [i] => Some(i),
+                _ => None,
+            })
         } else {
             pick_article_by_title(title, articles).or_else(|| pick_listed_section(title, articles))
         }
@@ -952,6 +957,18 @@ fn signed_name_heading(title: &str, a: &ArticleAnalysis) -> bool {
             let name = name.strip_suffix('の').unwrap_or(name);
             name.chars().count() >= 3 && top.contains(name)
         })
+    })
+}
+
+/// 公告の標題は、目次の語の公告者の名前を略す（号外第192号の目次「東日本高速道路株式会社料金の額及び徴収期間の変更」、
+/// 標題「高速道路の料金の額及び徴収期間の変更公告」）。記事の標題（区分見出し・欄見出しの後の 2 行、数字を除く）が、
+/// 目次の語（8 字以上）と、8 字以上かつ語の半分以上続けて同じ字を持つか。
+fn word_in_heading(title: &str, a: &ArticleAnalysis) -> bool {
+    let lines: Vec<&str> = a.text.lines().filter(|l| !l.trim().is_empty()).skip_while(|l| segment::is_section_label(l)).take(2).collect();
+    let head: Vec<char> = compact_digits(&lines.concat()).chars().collect();
+    listed_words(title).iter().map(|w| compact_digits(w).chars().collect::<Vec<char>>()).filter(|w| w.len() >= 8).any(|w| {
+        let need = 8.max(w.len().div_ceil(2));
+        head.len() >= need && head.windows(need).any(|h| w.windows(need).any(|x| x == h))
     })
 }
 
@@ -1796,6 +1813,20 @@ mod tests {
         assert!(!signed_name_heading(title, &other));
         assert!(!signed_name_heading(title, &a[1]));
         assert!(!signed_name_heading("令和七事業年度Ａ協の決算等関係", &arts(&["令和７事業年度決算等に関す\nる公告\nＡ協"]).remove(0)));
+    }
+
+    #[test]
+    fn a_listed_item_picks_the_one_notice_whose_heading_shares_a_long_run_with_its_word() {
+        // 号外第192号: 公告の標題は目次の語の会社名を略す（「東日本高速道路株式会社料金の額及び徴収期間の変更」と
+        // 「高速道路の料金の額及び徴収期間の変更公告」）。
+        let title = "地方職員共済組合役員の異動、東日本高速道路株式会社料金の額及び徴収期間の変更、税理士登録抹消関係";
+        let a = arts(&["高速道路の料金の額及び徴収期間の変更公告\n東日本高速道路株式会社が…公告します。", "会社その他の公告", "解散公告\n当社は…"]);
+        assert_eq!(pick_article(title, &a), Some(0));
+        // 語と短くしか同じ字を持たない標題（「料金の額」）や、同じ字を持つ記事が 2 つあるときは選ばない。
+        let b = arts(&["料金の額の変更公告\n…", "会社その他の公告"]);
+        assert_eq!(pick_article(title, &b), None);
+        let c = arts(&["高速道路の料金の額及び徴収期間の変更公告\n…", "高速道路の料金の額及び徴収期間の変更公告\n…"]);
+        assert_eq!(pick_article(title, &c), None);
     }
 
     #[test]
