@@ -69,7 +69,20 @@
         "kind": "paragraph",
         "runs": [
           {
-            "text": "附則この内閣官房令は、令和八年十月一日から施行する。\n省令"
+            "text": "附則この内閣官房令は、令和八年十月一日から施行する。"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "format": "unknown",
+    "blocks": [
+      {
+        "kind": "paragraph",
+        "runs": [
+          {
+            "text": "省令"
           }
         ]
       }
