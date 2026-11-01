@@ -227,22 +227,45 @@ pub(crate) fn fill_amend_texts_with(kd: &mut KanpoDate, amend_only: bool, load: 
                 .chain(starts_of.iter().filter(|(p, t)| (item.page..=end).contains(p) && *t != item.title).map(|(_, t)| t.as_str()))
                 .collect();
             if end > item.page && pdf::field_runs_to_end(&titles, &analysis.articles) {
-                if let Some(wide) = analyze_window(item, window_end(end), &starts_of, &mut page_input, load) {
+                // 次の項目の頁の範囲の終わりまで、上限で切らずに広げる。上限で切ると、範囲の最後の記事が決算公告になり、下の
+                // 広げ直しも効かず、残りの頁の会社その他の公告（本紙号外第159号の p80 以降の合併公告）はどの項目にも入らない。
+                let field_end = starts.iter().copied().find(|&p| p > end).unwrap_or(last_page).max(end);
+                if let Some(wide) = analyze_window(item, field_end, &starts_of, &mut page_input, load) {
                     (analysis, picked) = wide;
-                    end = window_end(end);
+                    end = field_end;
                 }
             }
             // 選んだ記事が頁の範囲の最後の記事まで続き、項目の範囲（次の項目の開始頁まで）が上限で切った頁の範囲より長いなら、
             // 項目の範囲の終わりまで広げて選び直す（頁の多い省令の別表、号の最後の「会社決算公告」の欄）。上限で切ると、残りの
             // 頁の本文はどの項目にも入らない。小見出しだけの記事（本文が画像の「破産、免責、再生関係」の、文も数字も無い記事）は、
             // 残りの頁に本文が続くとは限らないので広げない（決算公告の貸借対照表は文が無くても数字がある）。
-            let span_end = starts.iter().copied().find(|&p| p > end).unwrap_or(last_page).max(end);
+            // 号数を並べた項目の告示は、間に別の項目の告示を挟んで続く（本紙第1750号の「砂防法第二条の土地を指定する件（国土交通
+            // 八四三、八四五～八四七、八五〇～八五二）」の八五〇～八五二は、八四八・八四九の後ろの頁）。広げた範囲でも最後の記事まで
+            // 続くか、標題の号数の告示をまだ選び終えない（本紙第1788号の「…政府短期証券の発行条件等を告示（財務二五七～二六〇、
+            // 二六二、二六三）」の二六二・二六三は二六一の後ろの頁）なら、選ぶ記事が増える間、次の項目の開始頁までさらに広げる。
             let has_body = |t: &str| t.chars().any(|c| c == '。' || c.is_ascii_digit() || ('０'..='９').contains(&c));
-            let runs_on = picked.last().is_some_and(|&l| l + 1 == analysis.articles.len() && has_body(&analysis.articles[l].text));
-            if span_end > end && runs_on {
-                if let Some(wide) = analyze_window(item, span_end, &starts_of, &mut page_input, load) {
-                    (analysis, picked) = wide;
+            loop {
+                let span_end = starts.iter().copied().find(|&p| p > end).unwrap_or(last_page).max(end);
+                let runs_on = picked.last().is_some_and(|&l| l + 1 == analysis.articles.len() && has_body(&analysis.articles[l].text));
+                let unfound = pdf::lists_unfound_numbers(&item.title, &analysis.articles, &picked);
+                // 号数の告示を探して広げるのは、項目の頁から上限の頁数まで。
+                let unfound = unfound && span_end < item.page + MAX_SPAN;
+                if span_end <= end || !(runs_on || unfound) {
+                    break;
+                }
+                let Some(wide) = analyze_window(item, span_end, &starts_of, &mut page_input, load) else { break };
+                let grew = wide.1.len() > picked.len();
+                // 最初の 1 回は、最後の記事まで続くなら選ぶ記事が増えなくても広げる（#318）。
+                if !grew && !(runs_on && !widened.contains(&n)) {
+                    break;
+                }
+                (analysis, picked) = wide;
+                end = span_end;
+                if !widened.contains(&n) {
                     widened.push(n);
+                }
+                if !grew {
+                    break;
                 }
             }
             let segments: Vec<String> = analysis.articles.iter().map(|a| a.text.clone()).collect();

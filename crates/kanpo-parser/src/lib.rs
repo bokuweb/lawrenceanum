@@ -274,6 +274,10 @@ pub fn pick_article(title: &str, articles: &[ArticleAnalysis]) -> Option<usize> 
             // 目次が括弧にまとめて並べる名前（「令和七年度共済組合の決算（農林水産省・林野庁・国土交通省）」）の公告は、
             // 語の頭が本文の標題（「令和７年度農林水産省共済組合の決算公告」）と合わない。選んだ記事より前に、まとめた名前を
             // 標題に持つ記事があれば、そこから始まる（号外第162号）。
+            picked.map(|i| (0..i).find(|&j| grouped_name_heading(title, &articles[j]) || signed_name_heading(title, &articles[j])).unwrap_or(i))
+    }
+
+    #[test]
             let picked = picked.map(|i| (0..i).find(|&j| grouped_name_heading(title, &articles[j])).unwrap_or(i));
             // 語の頭も小見出しも合わなければ、標題が語と長く同じ字を持つ記事がちょうど 1 つなら、それを採る（[`word_in_heading`]）。
             picked.or_else(|| match (0..articles.len()).filter(|&i| word_in_heading(title, &articles[i])).collect::<Vec<_>>()[..] {
@@ -754,6 +758,20 @@ fn title_numbers(title: &str) -> Option<(Vec<&str>, Vec<u64>)> {
     (numbers.len() > 1).then_some((agencies, numbers))
 }
 
+/// 号数を並べた項目（「（財務二五七～二六〇、二六二、二六三）」）で、選んだ記事（`picked`）の見出しに無い号数があるか。
+/// 項目の告示は、間に別の項目の告示を挟んで後ろの頁に続くことがある（本紙第1788号の二六二・二六三は二六一の後ろ）。
+pub fn lists_unfound_numbers(title: &str, articles: &[ArticleAnalysis], picked: &[usize]) -> bool {
+    let Some((_, numbers)) = title_numbers(title) else { return false };
+    let found: std::collections::BTreeSet<u64> = picked
+        .iter()
+        .filter_map(|&i| {
+            let head = articles[i].text.lines().find(|l| !l.trim().is_empty()).unwrap_or("").trim();
+            heading_number(head).filter(|_| segment::is_heading_mark(head))
+        })
+        .collect();
+    !picked.is_empty() && numbers.iter().any(|n| !found.contains(n))
+}
+
 /// 目次の項目に当たる記事をすべて選ぶ。号数を並べた項目（「肥料を登録した件（農林水産九九七、九九八）」
 /// 「保安林の指定をする件（農林水産一〇一九～一〇三四）」）は、告示ごとに `〇` の見出しで記事が分かれるので、
 /// [`pick_article`] の選んだ最初の号数の記事から後ろへ、最初の見出しと同じ機関・種類（「〇国土交通省告示」）で
@@ -853,8 +871,10 @@ pub fn pick_items(titles: &[&str], articles: &[ArticleAnalysis]) -> Vec<Vec<usiz
         }
         for (j, a) in articles.iter().enumerate().skip(i + 1) {
             let h = head(a);
-            // 号数の無い `〇` で始まる行（住所の折り返し「〇番地三五八」）は公告の続き。
-            let numbered = segment::is_heading_mark(&h) && heading_number(&h).is_some();
+            // 号数の無い `〇` で始まる行（住所の折り返し「〇番地三五八」）は公告の続き。号数の見出しは「第…号」で終わる。
+            // 財務諸表の注記が法令を引く行（「〇独立行政法人水資源機構の財務及び会計等に関する省令（平成15年国土交通省令
+            // 第104号）」）は、号数を括弧の中に持つ公告の続き。
+            let numbered = segment::is_heading_mark(&h) && heading_number(&h).is_some() && h.ends_with('号');
             // 欄の小見出し（「特別清算終結」「破産管財人変更」）は「公告」「公示」で終わらない。標題の行（2 行に折り返す）が
             // 「…公告」「…公示」で終わる記事は、欄の後ろに続く別の欄の公告（「…令和７年度財務諸表公告」）。
             let titled = || {
@@ -878,7 +898,11 @@ pub fn pick_items(titles: &[&str], articles: &[ArticleAnalysis]) -> Vec<Vec<usiz
                 let body = compact_digits(&a.text);
                 listed_words(title).iter().map(|w| compact_digits(w).chars().take(7).collect::<String>()).any(|w| w.chars().count() == 7 && body.contains(&w))
             };
-            if claimed.contains(&j) || (!title_tail && !titled_own && (field_end || segment::is_section_label(&h))) || numbered || h.contains("をここに公布する") {
+            // 欄見出しの項目（「会社その他」）の欄の中の、標題が「公告」だけの公告（号外第190号の信託財産の「公告 / 一、信託事務の
+            // 状況」）。区分見出しの「公告」は次の行が欄見出し（「諸事項」「会社その他の公告」）なので、次の行が欄見出しの形でなければ
+            // 欄の公告として続ける。
+            let titled_field = !listed && h == "公告" && a.text.lines().map(compact).filter(|l| !l.is_empty()).nth(1).is_some_and(|l| !label(&l));
+            if claimed.contains(&j) || (!title_tail && !titled_own && !titled_field && (field_end || segment::is_section_label(&h))) || numbered || h.contains("をここに公布する") {
                 break;
             }
             p.push(j);
@@ -919,6 +943,27 @@ fn grouped_name_heading(title: &str, a: &ArticleAnalysis) -> bool {
     names.iter().any(|n| head.contains(n.as_str())) && names_in_title(title, a)
 }
 
+/// 目次の語は公告者の名前を標題に入れる（「令和七事業年度農林漁業団体職員共済組合の決算等」）が、公告の標題は名前を
+/// 持たず（「令和７事業年度決算等に関する公告」）、名前は署名（「農林漁業団体職員共済組合　理事長」）にだけある（号外第194号）。
+/// 記事の標題（2 行まで、末尾の「に関する公告」「公告」を除く、数字を除く）が、目次の語の途中から名前（3 字以上、後ろの
+/// 「の」を除く）を抜いた字と同じで、その名前が記事の 6 行目までにあるか。
+fn signed_name_heading(title: &str, a: &ArticleAnalysis) -> bool {
+    let lines: Vec<&str> = a.text.lines().filter(|l| !l.trim().is_empty()).collect();
+    let head = compact_digits(&lines.iter().take(2).copied().collect::<String>());
+    let Some(stem) = ["に関する公告", "に関する公示", "公告", "公示"].iter().find_map(|s| head.strip_suffix(s)) else { return false };
+    let top = compact_digits(&lines.iter().take(6).copied().collect::<String>());
+    let stem: Vec<char> = stem.chars().collect();
+    listed_words(title).iter().any(|w| {
+        let w = compact_digits(w);
+        (2..stem.len().saturating_sub(1)).any(|p| {
+            let (pre, post): (String, String) = (stem[..p].iter().collect(), stem[p..].iter().collect());
+            let Some(name) = w.strip_prefix(&pre).and_then(|r| r.strip_suffix(&post)) else { return false };
+            let name = name.strip_suffix('の').unwrap_or(name);
+            name.chars().count() >= 3 && top.contains(name)
+        })
+    }
+
+    #[test]
 /// 公告の標題は、目次の語の公告者の名前を略す（号外第192号の目次「東日本高速道路株式会社料金の額及び徴収期間の変更」、
 /// 標題「高速道路の料金の額及び徴収期間の変更公告」）。記事の標題（区分見出し・欄見出しの後の 2 行、数字を除く）が、
 /// 目次の語（8 字以上）と、8 字以上かつ語の半分以上続けて同じ字を持つか。
@@ -1328,6 +1373,22 @@ mod tests {
     }
 
     #[test]
+    fn listed_numbers_not_yet_picked_are_reported() {
+        // 本紙第1788号: 二六二・二六三は、別の項目の二六一の後ろの頁にあり、項目の頁の範囲に無い。
+        let title = "政府資金調達事務取扱規則第五条第十一項の規定に基づき発行した政府短期証券の発行条件等を告示（財務二五七～二六〇、二六二、二六三）";
+        let a = arts(&["〇財務省告示第二百五十七号\n…", "〇財務省告示第二百五十八号\n…", "〇財務省告示第二百五十九号\n…", "〇財務省告示第二百六十号\n…", "〇財務省告示第二百六十一号\n…"]);
+        assert_eq!(pick_articles(title, &a), vec![0, 1, 2, 3]);
+        assert!(lists_unfound_numbers(title, &a, &[0, 1, 2, 3]));
+        let mut b = a.clone();
+        b.extend(arts(&["〇財務省告示第二百六十二号\n…", "〇財務省告示第二百六十三号\n…"]));
+        assert_eq!(pick_articles(title, &b), vec![0, 1, 2, 3, 5, 6]);
+        assert!(!lists_unfound_numbers(title, &b, &[0, 1, 2, 3, 5, 6]));
+        // 号数が 1 つの項目や、何も選ばない項目は広げない。
+        assert!(!lists_unfound_numbers("海上保安庁の船舶の番号及び標識の一部を改正する告示（海上保安庁三七）", &a, &[0]));
+        assert!(!lists_unfound_numbers(title, &a, &[]));
+    }
+
+    #[test]
     fn listed_numbers_pick_every_notice_of_the_item() {
         // 号数が別の項目と交互に並び（本紙第1754号「（同九九一、九九三～九九五）」「（同九九二、九九六、九九七）」）、
         // 読み順で別の機関の告示が間に入る（本紙第1763号）。頁をまたいだ告示の続きと、折り返した「〇番三まで」は含める。
@@ -1417,6 +1478,18 @@ mod tests {
             "地方公共団体情報システム機構令和７年度財務諸表公告\n貸借対照表",
         ]);
         assert_eq!(pick_items(&["破産、免責、再生関係"], &a), vec![vec![0, 1]]);
+    }
+
+    #[test]
+    fn a_listed_item_keeps_the_notes_that_cite_a_numbered_ordinance() {
+        // 号外第195号: 財務諸表の注記が法令を引く行は `〇` で始まり、号数を括弧の中に持つ。告示の見出しではない。
+        let a = arts(&[
+            "令和７事業年度独立行政法人水資源機構の財務諸表に関する公告\n貸借対照表",
+            "〇独立行政法人水資源機構の財務及び会計等に関する省令（平成15年国土交通省令第104号）\n（補助金等の会計処理）",
+            "〇国土交通省告示第百号\n…",
+        ]);
+        let title = "令和七事業年度独立行政法人水資源機構の財務諸表、独立行政法人日本高速道路保有・債務返済機構車両制限令第三条第四項の規定による道路の指定関係";
+        assert_eq!(pick_items(&[title], &a), vec![vec![0, 1]]);
     }
 
     #[test]
@@ -1675,6 +1748,22 @@ mod tests {
     }
 
     #[test]
+    fn a_field_item_continues_over_a_notice_titled_only_koukoku() {
+        // 号外第190号: 決算公告の頁に組まれた信託財産の「公告」（標題が「公告」だけ）は、会社その他の欄の公告。後ろの合併公告まで続ける。
+        let a = arts(&[
+            "会社その他の公告",
+            "解散公告\n当社は、株主総会において解散することを決議しました。",
+            "公告\n一、信託事務の状況\n当期においては振替機関等から通知を受けた。",
+            "合併公告\n左記会社は合併して甲は乙の権利義務全部を承継して存続する。",
+        ]);
+        assert_eq!(pick_items(&["会社その他"], &a)[0], vec![0, 1, 2, 3]);
+        // 次の行が欄見出しの「公告」（区分見出し）は止まる。
+        let mut b = a.clone();
+        b[2] = arts(&["公告\n諸事項\n当局に申し出て下さい。"]).remove(0);
+        assert_eq!(pick_items(&["会社その他"], &b)[0], vec![0, 1]);
+    }
+
+    #[test]
     fn a_listed_item_takes_a_notice_titled_only_koukoku_that_names_its_word() {
         // 号外第196号: 宮城県知事の「公告」（標題が「公告」だけ）は、本文に項目の語「農業協同組合法…」を含む欄の公告。
         let title = "解散命令、教育職員免許状失効、行旅死亡人、農業協同組合法第六十四条の二の届出関係";
@@ -1711,6 +1800,23 @@ mod tests {
         split_listed_sections(&[title], &mut b);
         assert_eq!(b.len(), 4);
         assert_eq!(pick_article(title, &b), Some(3));
+    }
+
+    #[test]
+    fn a_listed_item_starts_at_a_notice_signed_by_the_name_its_word_names() {
+        // 号外第194号: 目次の語は組合の名前を入れるが、公告の標題は名前を持たず、名前は署名にだけある。
+        let title = "令和七事業年度農林漁業団体職員共済組合の決算等、独立行政法人労働政策研究・研修機構令和七事業年度財務諸表関係";
+        let a = arts(&[
+            "令和７事業年度決算等に関す\nる公告\n令和８年８月31日\n東京都台東区秋葉原２番３号\n農林漁業団体職員共済組合\n理事長　口　直樹\n１．令和７事業年度の貸借対照表",
+            "独立行政法人労働政策研究・研修機構令和７事業年度財務諸表\nに関する公告\n独立行政法人通則法…",
+        ]);
+        assert!(signed_name_heading(title, &a[0]));
+        assert_eq!(pick_article(title, &a), Some(0));
+        // 名前が署名に無い、標題が語と合わない、名前が 3 字に満たない記事は、語の公告ではない。
+        let other = arts(&["令和７事業年度決算等に関す\nる公告\n令和８年８月31日\n東京都千代田区…\n地方競馬全国協会\n理事長"]).remove(0);
+        assert!(!signed_name_heading(title, &other));
+        assert!(!signed_name_heading(title, &a[1]));
+        assert!(!signed_name_heading("令和七事業年度Ａ協の決算等関係", &arts(&["令和７事業年度決算等に関す\nる公告\nＡ協"]).remove(0)));
     }
 
     #[test]
