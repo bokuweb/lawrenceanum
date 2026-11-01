@@ -283,6 +283,9 @@ impl Egov {
     }
 }
 
+/// 字の分からない語の置き字。
+const UNKNOWN: char = '\u{FFFC}';
+
 /// 号の各ページの字（座標付きテキストの語の中身、正規化済み）。
 fn page_glyphs(pdf: &Path) -> Vec<char> {
     let Ok(bytes) = std::fs::read(pdf) else { return Vec::new() };
@@ -291,7 +294,12 @@ fn page_glyphs(pdf: &Path) -> Vec<char> {
     for part in xhtml.split("<word ").skip(1) {
         let Some(open) = part.find('>') else { continue };
         let Some(close) = part[open..].find("</word>") else { continue };
-        s.push_str(&part[open + 1..open + close].replace("&lt;", "<").replace("&gt;", ">").replace("&quot;", "\"").replace("&amp;", "&"));
+        let word = &part[open + 1..open + close];
+        // 字の分からない語（座標の「°」「′」など）は、前後の字をつながないよう置き字にする（PUA と同じに扱う）。
+        if word.is_empty() {
+            s.push(UNKNOWN);
+        }
+        s.push_str(&word.replace("&lt;", "<").replace("&gt;", ">").replace("&quot;", "\"").replace("&amp;", "&"));
     }
     norm(&s)
 }
@@ -488,16 +496,19 @@ fn main() -> anyhow::Result<()> {
         100.0 * matched_total as f64 / truth_total.max(1) as f64, 100.0 * matched_total as f64 / out_total.max(1) as f64);
 
     // 2. PDF の字。私用領域（PUA）の字はパーサが後で字形から読むので、どの字にもなり得る字として数えるだけにする。
-    let pua = |c: char| matches!(c as u32, 0xE000..=0xF8FF | 0xF0000..=0x10FFFF);
+    let pua = |c: char| c == UNKNOWN || matches!(c as u32, 0xE000..=0xF8FF | 0xF0000..=0x10FFFF);
     let mut w = std::io::BufWriter::new(std::fs::File::create(out.join("glyph.jsonl"))?);
     let (mut glyph_total, mut pua_total, mut dropped_total, mut repeated_total, mut excess_total) = (0usize, 0usize, 0usize, 0usize, 0usize);
     for (dir, pages, items) in &issues {
         let date = items.first().map(|i| i.date.clone()).unwrap_or_default();
         let mut grams: HashSet<u64> = HashSet::new();
+        // PUA・字の分からない語に挟まれた k 字に満たない並び（「36°04′51.0711″」の「04」）を探す、短い並びの集まり。
+        let mut short: HashSet<u64> = HashSet::new();
         let mut output: HashMap<char, isize> = HashMap::new();
         for item in items {
             let s = norm(&item.text);
             grams.extend(s.windows(GLYPH_K).map(hash));
+            (1..GLYPH_K).for_each(|n| short.extend(s.windows(n).map(hash)));
             s.iter().for_each(|c| *output.entry(*c).or_default() += 1);
         }
         // 号のページの字（PUA を除く）と PUA の字の数。
@@ -506,16 +517,32 @@ fn main() -> anyhow::Result<()> {
         let mut runs: Vec<(usize, Vec<char>, String)> = Vec::new();
         for (p, f) in pages {
             let Some(g) = glyphs.get(f) else { continue };
-            let g: Vec<char> = g.iter().copied().filter(|&c| !pua(c)).collect();
-            unknown += (glyphs[f].len() - g.len()) as isize;
-            glyph_total += glyphs[f].len();
-            g.iter().for_each(|c| *have.entry(*c).or_default() += 1);
+            glyph_total += g.len();
+            // PUA の字の間の並びごとに、k 字の並びが出力にあるか（k 字に満たない並びはその並びが出力にあるか）を見る。
             let mut hit = vec![false; g.len()];
-            for i in 0..g.len().saturating_sub(GLYPH_K - 1) {
-                if grams.contains(&hash(&g[i..i + GLYPH_K])) {
-                    hit[i..i + GLYPH_K].iter_mut().for_each(|h| *h = true);
+            let mut a = 0;
+            while a < g.len() {
+                if pua(g[a]) {
+                    a += 1;
+                    continue;
                 }
+                let b = (a..g.len()).find(|&j| pua(g[j])).unwrap_or(g.len());
+                if b - a < GLYPH_K {
+                    if short.contains(&hash(&g[a..b])) {
+                        hit[a..b].iter_mut().for_each(|h| *h = true);
+                    }
+                } else {
+                    for i in a..=b - GLYPH_K {
+                        if grams.contains(&hash(&g[i..i + GLYPH_K])) {
+                            hit[i..i + GLYPH_K].iter_mut().for_each(|h| *h = true);
+                        }
+                    }
+                }
+                a = b;
             }
+            let (g, hit): (Vec<char>, Vec<bool>) = g.iter().zip(&hit).filter(|(c, _)| !pua(**c)).map(|(c, h)| (*c, *h)).unzip();
+            unknown += (glyphs[f].len() - g.len()) as isize;
+            g.iter().for_each(|c| *have.entry(*c).or_default() += 1);
             let mut i = 0;
             while i < g.len() {
                 if hit[i] {
