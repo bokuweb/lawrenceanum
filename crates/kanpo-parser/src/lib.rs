@@ -274,11 +274,7 @@ pub fn pick_article(title: &str, articles: &[ArticleAnalysis]) -> Option<usize> 
             // 目次が括弧にまとめて並べる名前（「令和七年度共済組合の決算（農林水産省・林野庁・国土交通省）」）の公告は、
             // 語の頭が本文の標題（「令和７年度農林水産省共済組合の決算公告」）と合わない。選んだ記事より前に、まとめた名前を
             // 標題に持つ記事があれば、そこから始まる（号外第162号）。
-            picked.map(|i| (0..i).find(|&j| grouped_name_heading(title, &articles[j]) || signed_name_heading(title, &articles[j])).unwrap_or(i))
-    }
-
-    #[test]
-            let picked = picked.map(|i| (0..i).find(|&j| grouped_name_heading(title, &articles[j])).unwrap_or(i));
+            let picked = picked.map(|i| (0..i).find(|&j| grouped_name_heading(title, &articles[j]) || signed_name_heading(title, &articles[j])).unwrap_or(i));
             // 語の頭も小見出しも合わなければ、標題が語と長く同じ字を持つ記事がちょうど 1 つなら、それを採る（[`word_in_heading`]）。
             picked.or_else(|| match (0..articles.len()).filter(|&i| word_in_heading(title, &articles[i])).collect::<Vec<_>>()[..] {
                 [i] => Some(i),
@@ -961,9 +957,9 @@ fn signed_name_heading(title: &str, a: &ArticleAnalysis) -> bool {
             let name = name.strip_suffix('の').unwrap_or(name);
             name.chars().count() >= 3 && top.contains(name)
         })
-    }
+    })
+}
 
-    #[test]
 /// 公告の標題は、目次の語の公告者の名前を略す（号外第192号の目次「東日本高速道路株式会社料金の額及び徴収期間の変更」、
 /// 標題「高速道路の料金の額及び徴収期間の変更公告」）。記事の標題（区分見出し・欄見出しの後の 2 行、数字を除く）が、
 /// 目次の語（8 字以上）と、8 字以上かつ語の半分以上続けて同じ字を持つか。
