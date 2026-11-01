@@ -21,3 +21,5 @@ serde_json = { workspace = true, features = ["float_roundtrip"] }
 # examples/egov_check が e-Gov の法令 API を引くため。
 reqwest = { workspace = true, features = ["blocking"] }
 insta = { version = "1", features = ["glob"] }
+# examples/text_audit が字の単位で並べるため。
+similar.workspace = true
