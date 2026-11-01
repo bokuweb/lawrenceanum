@@ -47,8 +47,27 @@ pub fn segment_articles(text: &str) -> Vec<String> {
                     carried.insert(0, cur.pop().unwrap());
                 }
             }
+            // 区分見出し（「省令」）が前の記事の後に組まれていれば（本紙第1799号 2 ページ: 府令の附則の後の「省令」）、
+            // 前の記事から外して見出しだけの記事にする（頁頭の区分見出しと同じ）。区分見出しは次の `〇` の見出しの
+            // 「第」の前（「厚生労働省令」）の末尾と同じ語で、前の行は文末で終わる。
+            let mut label: Option<&str> = None;
+            if is_numbered_heading(line.trim()) && cur.len() >= 2 {
+                let last = cur[cur.len() - 1].trim();
+                let kind = line.trim().trim_start_matches('〇').split('第').next().unwrap_or("");
+                if (2..=4).contains(&last.chars().count())
+                    && last.chars().all(|c| ('\u{4E00}'..='\u{9FFF}').contains(&c))
+                    && kind.ends_with(last)
+                    && kind != last
+                    && cur[cur.len() - 2].trim_end().ends_with('。')
+                {
+                    label = cur.pop();
+                }
+            }
             if !cur.is_empty() {
                 articles.push(cur.join("\n").trim().to_string());
+            }
+            if let Some(label) = label {
+                articles.push(label.trim().to_string());
             }
             cur = carried;
         }
@@ -254,6 +273,16 @@ const TEXT_FIELD_HEADERS: &[&str] = &["会社その他の公告"];
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn section_label_after_an_article_is_its_own_article() {
+        let text = "〇内閣府令第八十八号\n…を次のように定める。\n附則\nこの府令は、令和八年十月一日から施行する。\n省令\n〇厚生労働省令第百四十七号\n…省令を次のように定める。";
+        let arts = segment_articles(text);
+        assert_eq!(arts.len(), 3);
+        assert!(arts[0].ends_with("施行する。"));
+        assert_eq!(arts[1], "省令");
+        assert!(arts[2].starts_with("〇厚生労働省令"));
+    }
 
     #[test]
     fn rules_section_label_starts_an_article_without_circle_heading() {
