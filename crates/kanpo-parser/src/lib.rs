@@ -680,7 +680,7 @@ fn is_toc_entry(a: &ArticleAnalysis) -> bool {
 }
 
 /// 標題の末尾の番号の機関名（「同」なら無し）と先頭の号数。
-fn title_number(title: &str) -> Option<(Vec<&str>, u64)> {
+pub(crate) fn title_number(title: &str) -> Option<(Vec<&str>, u64)> {
     let open = title.rfind('（')?;
     let inner = title[open + '（'.len_utf8()..].trim_end_matches('）');
     let digit = |c: char| "〇一二三四五六七八九".find(c).map(|i| i / '〇'.len_utf8());
@@ -913,7 +913,7 @@ fn pick_series(title: &str, articles: &[ArticleAnalysis]) -> Vec<usize> {
 
 /// 記事の見出しの号数が `n` で、標題の機関名をすべて含むか。標題は機関名を略す（「山口県公安委告示配一」、見出し
 /// 「山口県公安委員会告示配第一号」）ので、見出しの「第」より前に機関名の字が順に現れればよい。
-fn has_number(a: &ArticleAnalysis, agencies: &[&str], n: u64) -> bool {
+pub(crate) fn has_number(a: &ArticleAnalysis, agencies: &[&str], n: u64) -> bool {
     let head = a.text.lines().find(|l| !l.trim().is_empty()).unwrap_or("");
     let name = head.split('第').next().unwrap_or("");
     let names = |ag: &str| head.contains(ag) || {
@@ -933,7 +933,7 @@ fn has_number_line(a: &ArticleAnalysis, agencies: &[&str], n: u64) -> bool {
 }
 
 /// 見出しの「第二百八十五号」「第26号」の号数。
-fn heading_number(head: &str) -> Option<u64> {
+pub(crate) fn heading_number(head: &str) -> Option<u64> {
     let start = head.find('第')? + '第'.len_utf8();
     let end = start + head[start..].find('号')?;
     let s = &head[start..end];

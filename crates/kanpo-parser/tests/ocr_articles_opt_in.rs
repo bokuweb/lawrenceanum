@@ -167,3 +167,77 @@ fn ocr_only_picking_tolerates_one_misread_char_and_short_headings_ending_with_th
     assert_eq!(head(0), "無縁填墓等改葬公告");
     assert_eq!(head(1), "工場財団");
 }
+
+#[test]
+fn ocr_only_picking_tolerates_a_misread_kind_and_a_lost_heading_number() {
+    let pages = page("20260716h017490002");
+    let lines = [
+        "法務省告示配第百十号",
+        "次の者に対し、特定外国法を指定した。",
+        "法務省告示記第百九号",
+        "次の者に対し、承認をした。",
+        "愛知県公安委員会告示配第",
+        "次の盗品売買等防止団体について、代表者の変更の届出があった。",
+    ];
+    let regions = lines.iter().enumerate().map(|(k, l)| region(l, [0.0, 3000.0 + 50.0 * k as f64, 800.0, 3040.0 + 50.0 * k as f64])).collect();
+    let mut ocrs = vec![None; pages.len()];
+    ocrs[0] = Some(OcrPage::from_ndlocr_trace(&trace(regions)).unwrap());
+    let mut a = analyze_item_with_ocr(&pages, &ocrs).articles;
+    let titles = ["外国弁護士による法律事務の取扱い等に関する法律第九条の規定による承認をした件（法務省告示配一〇九）", "盗品売買等防止団体の公示事項の一部に係る変更の届出があった件（愛知県公安委告示配一）"];
+    let picks = kanpo_parser::ocr_articles::pick_items_with_ocr(&titles, &mut a);
+    let head = |k: usize| a[picks[k][0]].text.lines().next().unwrap().to_string();
+    assert_eq!(head(0), "法務省告示記第百九号");
+    assert_eq!(head(1), "愛知県公安委員会告示配第");
+}
+
+#[test]
+fn ocr_only_picking_repicks_at_the_one_line_starting_with_the_first_listed_word() {
+    let pages = page("20260716h017490002");
+    let lines = ["解散公告", "当社は解散したので、債権者は申し出てください。", "旅行業者営業保証金の権利実行申立てに係る公告", "次のように公告する。"];
+    let regions = lines.iter().enumerate().map(|(k, l)| region(l, [0.0, 3000.0 + 50.0 * k as f64, 800.0, 3040.0 + 50.0 * k as f64])).collect();
+    let mut ocrs = vec![None; pages.len()];
+    ocrs[0] = Some(OcrPage::from_ndlocr_trace(&trace(regions)).unwrap());
+    let mut a = analyze_item_with_ocr(&pages, &ocrs).articles;
+    let titles = ["旅行業者営業保証金の権利実行申立て関係"];
+    let picks = kanpo_parser::ocr_articles::pick_items_with_ocr(&titles, &mut a);
+    assert!(a[picks[0][0]].text.starts_with("旅行業者営業保証金の権利実行申立てに係る公告"), "{:?}", picks[0].iter().map(|&i| &a[i].text).collect::<Vec<_>>());
+}
+
+#[test]
+fn ocr_only_repicking_accepts_a_heading_without_the_leading_agency_name() {
+    let pages = page("20260716h017490002");
+    let lines = ["懲戒処分の公告", "次の懲戒処分をしたので公告する。", "裁決取消訴訟の判決確定の公告", "次の判決が確定したので公告する。"];
+    let regions = lines.iter().enumerate().map(|(k, l)| region(l, [0.0, 3000.0 + 50.0 * k as f64, 800.0, 3040.0 + 50.0 * k as f64])).collect();
+    let mut ocrs = vec![None; pages.len()];
+    ocrs[0] = Some(OcrPage::from_ndlocr_trace(&trace(regions)).unwrap());
+    let mut a = analyze_item_with_ocr(&pages, &ocrs).articles;
+    let titles = ["日本弁護士連合会裁決取消訴訟の判決確定・懲戒処分・公示送達関係"];
+    let picks = kanpo_parser::ocr_articles::pick_items_with_ocr(&titles, &mut a);
+    assert!(a[picks[0][0]].text.starts_with("裁決取消訴訟の判決確定の公告"), "{:?}", picks[0].iter().map(|&i| &a[i].text).collect::<Vec<_>>());
+}
+
+#[test]
+fn ocr_only_picking_takes_the_first_of_several_listed_subheadings() {
+    let pages = page("20260716h017490002");
+    let lines = ["破産手続開始及び免責許可申立てに関する意見申述期間", "次の破産事件について、破産手続を開始した。", "破産手続廃止", "次の破産事件について、破産手続を廃止した。"];
+    let regions = lines.iter().enumerate().map(|(k, l)| region(l, [0.0, 3000.0 + 50.0 * k as f64, 800.0, 3040.0 + 50.0 * k as f64])).collect();
+    let mut ocrs = vec![None; pages.len()];
+    ocrs[0] = Some(OcrPage::from_ndlocr_trace(&trace(regions)).unwrap());
+    let mut a = analyze_item_with_ocr(&pages, &ocrs).articles;
+    let titles = ["破産、免責、再生関係"];
+    let picks = kanpo_parser::ocr_articles::pick_items_with_ocr(&titles, &mut a);
+    assert!(a[picks[0][0]].text.starts_with("破産手続開始及び"), "{:?}", picks[0].iter().map(|&i| &a[i].text).collect::<Vec<_>>());
+}
+
+#[test]
+fn ocr_only_picking_takes_a_garbled_number_heading_sharing_the_title_words() {
+    let pages = page("20260716h017490002");
+    let lines = ["法務省告示配第百-", "山梨県南巨摩郡身延町役場保存の次の原戸籍の", "部が滅失した。", "福岡県公安委員会告示配第五号", "次の指定暴力団につき、公示事項の一部に変更があった。"];
+    let regions = lines.iter().enumerate().map(|(k, l)| region(l, [0.0, 3000.0 + 50.0 * k as f64, 800.0, 3040.0 + 50.0 * k as f64])).collect();
+    let mut ocrs = vec![None; pages.len()];
+    ocrs[0] = Some(OcrPage::from_ndlocr_trace(&trace(regions)).unwrap());
+    let mut a = analyze_item_with_ocr(&pages, &ocrs).articles;
+    let titles = ["原戸籍が滅失した件（同一一二）"];
+    let picks = kanpo_parser::ocr_articles::pick_items_with_ocr(&titles, &mut a);
+    assert!(a[picks[0][0]].text.starts_with("法務省告示配第百-\n"), "{:?}", a.iter().map(|x| &x.text).collect::<Vec<_>>());
+}
