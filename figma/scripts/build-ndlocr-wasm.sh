@@ -2,7 +2,7 @@
 # Build the pinned browser OCR package, or use a local checkout via NDLOCR_SOURCE.
 set -euo pipefail
 root=$(cd "$(dirname "$0")/../.." && pwd)
-revision="713182e46ea8f32a8fe40d4364032c6d0836b0ac"
+revision="e9d2670fb163d77d6e166362869056f032be423b"
 source_dir="${NDLOCR_SOURCE:-$root/target/ndlocr-web-src-$revision}"
 if [ -z "${NDLOCR_SOURCE:-}" ]; then
   mkdir -p "$source_dir"

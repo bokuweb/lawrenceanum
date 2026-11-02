@@ -49,3 +49,6 @@ pnpm --dir figma test:kanpo-docx-ocr
 
 手元にモデルがある場合、最終コマンドには `NDLOCR_MODEL_DIR=/absolute/path/to/models` を渡せる。
 関連: ndlocr-lite-rs PR #26（ライブラリAPI）、#28（バックエンド）、#29（ブラウザ版）。
+
+取得したOCRソースは独立したCargoワークスペースとして扱う。親リポジトリの
+`target/` が通常ディレクトリのCIでも、親のworkspace.membersには追加しない。
