@@ -1,0 +1,47 @@
+{
+  "kind": "hanrei",
+  "case_id": 97113,
+  "case": {
+    "case_id": 97113,
+    "case_number": "令和8(わ)35、47",
+    "case_name": "贈賄被告事件",
+    "judged_on": "令和8年8月6日",
+    "court": "鳥取地方裁判所",
+    "judgment_type": "",
+    "result": "",
+    "reporter": "",
+    "lower_court": "",
+    "lower_case_number": "",
+    "lower_judged_on": "",
+    "holding": "",
+    "summary": "",
+    "referenced_laws": "",
+    "body_citations": [],
+    "body_text": "-1-\n-2-\n-3-",
+    "detail_url": "https://www.courts.go.jp/hanrei/97113/detail2/index.html",
+    "pdf_url": "https://www.courts.go.jp/assets/hanrei/hanrei-pdf-97113.pdf"
+  },
+  "laws": [],
+  "excerpts": [
+    {
+      "ref": "hanrei:97113#body",
+      "url": "https://www.courts.go.jp/assets/hanrei/hanrei-pdf-97113.pdf",
+      "text": "-1-\n-2-\n-3-",
+      "scope": "判決PDFの機械抽出本文。文字・読み順の誤りがあり得る"
+    }
+  ],
+  "has_case_text": true,
+  "scope": "判決PDFの機械抽出本文・判示事項・裁判要旨",
+  "captured_on": "2026-11-02",
+  "summary_format_version": 4,
+  "prompt_version": "hanrei-rag-v4",
+  "generation_model": "claude-sonnet-5-5",
+  "summary_input": {
+    "total_chars": 11,
+    "included_chars": 11,
+    "partial_refs": [],
+    "omitted_refs": [],
+    "selection": "資料ごとの文字数上限。長い資料は冒頭・中盤・末尾の離れた抜粋（末尾を多めに収録）"
+  },
+  "source_fingerprint": "7e7b50f1e6bac6f8e83e50f0ee4627acda61088ff1707dcffb3b84ff60c1634f"
+}
