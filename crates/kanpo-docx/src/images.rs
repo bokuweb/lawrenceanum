@@ -33,6 +33,42 @@ pub struct PageImage {
     pub page_height: f64,
 }
 
+/// OCR にかける画像の解像度（1 pt あたりの画素、300dpi）。ndlocr-lite-rs は 300dpi のページの画像に合わせてあり、
+/// 細かい画像（号外第169号 121 ページの CCITT の画像は約 500dpi）では行を見落とす。
+pub const OCR_SCALE: f64 = 300.0 / 72.0;
+
+impl PageImage {
+    /// OCR にかける画像。[`OCR_SCALE`] より 2 割以上細かい画像は、画素の平均で [`OCR_SCALE`] に縮める。
+    pub fn for_ocr(&self) -> PageImage {
+        if self.scale <= OCR_SCALE * 1.2 {
+            return self.clone();
+        }
+        let factor = OCR_SCALE / self.scale;
+        let image = shrink(&self.image, factor);
+        let scale = self.scale * f64::from(image.width) / f64::from(self.image.width);
+        PageImage { image, scale, ..self.clone() }
+    }
+}
+
+/// 画像を `factor`（1 未満）倍に縮める。出力の各画素は、元の画像で覆う画素の平均。
+pub fn shrink(image: &GrayImage, factor: f64) -> GrayImage {
+    let (w, h) = (image.width as usize, image.height as usize);
+    let (ow, oh) = (((w as f64) * factor).round().max(1.0) as usize, ((h as f64) * factor).round().max(1.0) as usize);
+    let mut pixels = Vec::with_capacity(ow * oh);
+    for oy in 0..oh {
+        let (y0, y1) = (oy * h / oh, ((oy + 1) * h / oh).max(oy * h / oh + 1).min(h));
+        for ox in 0..ow {
+            let (x0, x1) = (ox * w / ow, ((ox + 1) * w / ow).max(ox * w / ow + 1).min(w));
+            let mut sum = 0u32;
+            for y in y0..y1 {
+                sum += image.pixels[y * w + x0..y * w + x1].iter().map(|&p| u32::from(p)).sum::<u32>();
+            }
+            pixels.push((sum / ((y1 - y0) * (x1 - x0)) as u32) as u8);
+        }
+    }
+    GrayImage { width: ow as u32, height: oh as u32, pixels }
+}
+
 /// 字のある画像とみなす、黒い画素（128 未満）の割合の下限。
 pub const MIN_INK: f64 = 0.0005;
 
@@ -370,6 +406,16 @@ mod tests {
         assert_eq!((up.left, up.top), (0.0, 0.0));
         let px = |x: usize, y: usize| up.image.pixels[y * 3 + x];
         assert_eq!((px(1, 0), px(1, 1)), (255, 0), "{:?}", up.image.pixels);
+    }
+
+    #[test]
+    fn fine_images_are_shrunk_to_300dpi_for_ocr() {
+        let img = PageImage { page: 0, image: GrayImage { width: 4, height: 2, pixels: vec![0, 0, 255, 255, 0, 0, 255, 255] }, left: 0.0, top: 0.0, scale: OCR_SCALE * 2.0, page_width: 595.0, page_height: 842.0 };
+        let ocr = img.for_ocr();
+        assert_eq!((ocr.image.width, ocr.image.height, ocr.image.pixels.clone()), (2, 1, vec![0, 255]));
+        assert!((ocr.scale - OCR_SCALE).abs() < 1e-9);
+        let near = PageImage { scale: OCR_SCALE * 1.1, ..img };
+        assert_eq!(near.for_ocr().image.width, 4, "close to 300dpi is kept");
     }
 
     #[test]

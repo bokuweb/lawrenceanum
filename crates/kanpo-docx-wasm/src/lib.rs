@@ -13,13 +13,13 @@ fn set(o: &Object, k: &str, v: impl Into<JsValue>) -> Result<(), JsError> {
     Reflect::set(o, &k.into(), &v.into()).map(|_| ()).map_err(|_| JsError::new("set"))
 }
 
-/// PDF のページの画像を、`{page, width, height, left, top, scale, pageWidth, pageHeight, pixels}` の配列で返す。
+/// PDF のページの画像（OCR にかける大きさ、300dpi まで縮めたもの）を、`{page, width, height, left, top, scale, pageWidth, pageHeight, pixels}` の配列で返す。
 /// `pixels` は 1 画素 1 バイト（0 が黒）。`page` は 0 始まり。位置・大きさの単位は pt（左上原点）。
 #[wasm_bindgen(js_name = pageImages)]
 pub fn page_images(pdf: &[u8]) -> Result<Array, JsError> {
     let images = kanpo_docx::page_images(pdf).map_err(|e| JsError::new(&format!("{e:#}")))?;
     let out = Array::new();
-    for img in images {
+    for img in images.iter().map(kanpo_docx::PageImage::for_ocr) {
         let o = Object::new();
         set(&o, "page", img.page as u32)?;
         set(&o, "width", img.image.width)?;
@@ -44,7 +44,7 @@ pub fn convert(pdf: &[u8], traces_json: &str) -> Result<Vec<u8>, JsError> {
     let ocr = if traces.iter().all(serde_json::Value::is_null) {
         vec![]
     } else {
-        let images = kanpo_docx::page_images(pdf).map_err(err)?;
+        let images: Vec<kanpo_docx::PageImage> = kanpo_docx::page_images(pdf).map_err(err)?.iter().map(kanpo_docx::PageImage::for_ocr).collect();
         if images.len() != traces.len() {
             return Err(JsError::new(&format!("{} traces for {} page images", traces.len(), images.len())));
         }

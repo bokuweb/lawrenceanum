@@ -49,7 +49,7 @@ pub fn page_count(pdf: &[u8]) -> Result<usize> {
 
 /// PDF のページ数分の OCR 結果を、`engine` で画像を認識して作る。字のある画像の無いページは `None`。
 pub fn recognize_pages(pdf: &[u8], engine: &mut dyn OcrEngine) -> Result<Vec<Option<OcrPage>>> {
-    let images = page_images(pdf)?;
+    let images: Vec<PageImage> = page_images(pdf)?.iter().map(PageImage::for_ocr).collect();
     let pages = page_count(pdf)?;
     let mut per_page: Vec<Vec<(&PageImage, Vec<OcrRegion>)>> = vec![Vec::new(); pages];
     for image in &images {
