@@ -58,6 +58,7 @@ const items: { path: string; label: string; icon: any; matchPrefix?: string; kan
   { path: "/updates", label: "更新履歴", icon: History },
   // 表示可否は kanpo-parser-flag.ts（今は本番でも常に表示）。
   { path: "/kanpo-playground", label: "官報パーサ", icon: ScanText, kanpoParser: true },
+  { path: "/kanpo-docx", label: "官報 PDF → DOCX", icon: FileText, kanpoParser: true },
   { path: "/settings", label: "設定", icon: Settings },
 ];
 

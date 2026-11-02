@@ -29,6 +29,8 @@ const ShingikaiView = lazy(() => import("./components/views/shingikai-view").the
 const BudgetView = lazy(() => import("./components/views/budget-view").then(m => ({ default: m.BudgetView })));
 // 官報パーサ playground は pdf.js と WASM を抱えるので、ここも遅延ロードで本体から切り離す。
 const KanpoPlaygroundView = lazy(() => import("./components/views/kanpo-playground-view").then(m => ({ default: m.KanpoPlaygroundView })));
+// 官報 PDF → DOCX も WASM（と OCR のモデル）を抱えるので遅延ロードにする。
+const KanpoDocxView = lazy(() => import("./components/views/kanpo-docx-view").then(m => ({ default: m.KanpoDocxView })));
 
 function ViewFallback() {
   return <div className="p-6 text-sm text-muted-foreground">読み込み中…</div>;
@@ -238,6 +240,7 @@ function AppShell() {
               <Route path="/kanpo/:date" element={<KanpoRoute />} />
               <Route path="/kanpo/:date/:issue/:item" element={<KanpoRoute />} />
               {kanpoParser && <Route path="/kanpo-playground" element={<KanpoPlaygroundView />} />}
+              {kanpoParser && <Route path="/kanpo-docx" element={<KanpoDocxView />} />}
               <Route path="/settings" element={<SettingsView />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

@@ -6,7 +6,7 @@ const BASE = `http://127.0.0.1:${PORT}/`;
 
 export default defineConfig({
   testDir: "./tests",
-  testMatch: "kanpo-playground.spec.ts",
+  testMatch: ["kanpo-playground.spec.ts", "kanpo-docx.spec.ts"],
   use: { headless: true, viewport: { width: 1280, height: 900 }, baseURL: BASE },
   reporter: [["list"]],
   webServer: {

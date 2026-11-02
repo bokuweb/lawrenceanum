@@ -1,0 +1,5 @@
+官報 本紙第1749号（2026-07-16）13ページ。
+PR #348 の既存手動検証ファイル tmp-sample13.pdf を固定したもの。
+画像本文の読み込みに /Rotate 270 の補正が必要な PDF。
+画像だけの本文を OCR しなければ、テストで要求する会社名・破産管財人・本文長に届かない。
+188650692a4bfa689abd62262a8ca496c513cd8b41578996d1e6ae7d952f2349  figma/tests/fixtures/kanpo-docx-image.pdf

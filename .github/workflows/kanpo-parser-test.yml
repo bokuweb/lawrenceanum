@@ -8,6 +8,8 @@ on:
     paths:
       - "crates/kanpo-parser/**"
       - "crates/kanpo-parser-wasm/**"
+      - "crates/kanpo-docx/**"
+      - "crates/kanpo-docx-wasm/**"
       - "crates/kanpo-pdf/**"
       - "crates/kanpo-lm/**"
       - "Cargo.lock"
@@ -17,6 +19,8 @@ on:
     paths:
       - "crates/kanpo-parser/**"
       - "crates/kanpo-parser-wasm/**"
+      - "crates/kanpo-docx/**"
+      - "crates/kanpo-docx-wasm/**"
       - "crates/kanpo-pdf/**"
       - "crates/kanpo-lm/**"
       - "Cargo.lock"
@@ -32,10 +36,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
       - uses: Swatinem/rust-cache@v2
       # スナップショットが変わったら CI では更新せずに落とす（差分は手元で cargo insta review）。
       - name: Test
         env:
           INSTA_UPDATE: "no"
           CI: "true"
-        run: cargo test -p kanpo-pdf -p kanpo-parser -p kanpo-parser-wasm -p kanpo-lm --locked
+        run: cargo test -p kanpo-pdf -p kanpo-parser -p kanpo-parser-wasm -p kanpo-docx -p kanpo-lm --locked
+      # 官報 PDF → DOCX はブラウザでも動かす（/kanpo-docx）。WASM でビルドが通ることを確かめる。
+      - name: Build kanpo-docx for WASM
+        run: cargo build -p kanpo-docx-wasm --target wasm32-unknown-unknown --locked

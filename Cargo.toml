@@ -7,6 +7,8 @@ members = [
     "crates/kanpo-client",
     "crates/kanpo-parser",
     "crates/kanpo-parser-wasm",
+    "crates/kanpo-docx",
+    "crates/kanpo-docx-wasm",
     "crates/kanpo-lm",
     "crates/kanpo-pdf",
     "crates/kanpo-linker",
