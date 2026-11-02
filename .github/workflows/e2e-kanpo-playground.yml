@@ -37,7 +37,24 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium
+      - name: Restore JADE Core preview
+        id: jade
+        uses: actions/cache/restore@v4
+        with:
+          path: figma/src/wasm/jade-core
+          key: jade-core-wasm-v1-${{ hashFiles('figma/scripts/build-jade-core.sh') }}
+      - name: Build JADE Core preview
+        if: steps.jade.outputs.cache-hit != 'true'
+        run: pnpm build:jade
+      - name: Cache built JADE Core preview
+        if: steps.jade.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: figma/src/wasm/jade-core
+          key: ${{ steps.jade.outputs.cache-primary-key }}
       - run: pnpm exec playwright test --config playwright.kanpo.config.ts
+        env:
+          JADE_CORE_PREBUILT: "1"
       - name: Build browser OCR and fetch verified models
         run: pnpm build:ocr
         env:

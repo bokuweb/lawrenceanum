@@ -10,7 +10,13 @@ if [ -z "${NDLOCR_SOURCE:-}" ]; then
     git -C "$source_dir" init --quiet
     git -C "$source_dir" remote add origin https://github.com/bokuweb/ndlocr-lite-rs.git
   fi
-  git -C "$source_dir" sparse-checkout set --no-cone '/Cargo.toml' '/src/' '/web/' '/tools/' '/examples/' '/benches/' '/docs/upstream-assets.json'
+  # Configure patterns directly: sparse-checkout set can reject a cached or
+  # unborn checkout on newer Git versions before the pinned commit is fetched.
+  git -C "$source_dir" config --worktree core.sparseCheckout true
+  git -C "$source_dir" config --worktree core.sparseCheckoutCone false
+  git_dir=$(git -C "$source_dir" rev-parse --absolute-git-dir)
+  mkdir -p "$git_dir/info"
+  printf '%s\n' '/Cargo.toml' '/src/' '/web/' '/tools/' '/examples/' '/benches/' '/docs/upstream-assets.json' > "$git_dir/info/sparse-checkout"
   if [ "$(git -C "$source_dir" rev-parse HEAD 2>/dev/null || true)" != "$revision" ]; then
     # Skip the repository's large benchmark archives. Only package sources are needed.
     git -C "$source_dir" config remote.origin.promisor true

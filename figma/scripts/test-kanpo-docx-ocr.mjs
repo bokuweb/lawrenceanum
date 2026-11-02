@@ -64,6 +64,41 @@ try {
   assert.match(await page.locator('main').innerText(), /画像 1 枚、OCR 1 枚/);
   assert.deepEqual(errors, []);
   console.log(`Production subpath PDF → OCR → DOCX passed (${text.length} text characters)`);
+  await page.goto(`http://127.0.0.1:${server.address().port}${prefix}#/kanpo-docx-preview`);
+  await page.getByRole('heading', {name:'官報 PDF・DOCX 比較'}).waitFor();
+  await page.getByLabel('入力元').selectOption('local');
+  await page.getByLabel('PDFファイル').setInputFiles(fileURLToPath(new URL('../tests/fixtures/kanpo-docx-image.pdf', import.meta.url)));
+  await page.getByRole('button',{name:'DOCXに変換'}).click();
+  await page.waitForFunction(() => {
+    const elements = ['kanpo-original-canvas','jade-docx-canvas'].map(id => document.querySelector(`[data-testid="${id}"]`));
+    return elements.every(canvas => {
+      if(!canvas || !canvas.width || !canvas.height) return false;
+      const {data} = canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height);
+      let ink=0;
+      for(let i=0;i<data.length;i+=16) if(data[i+3] && data[i]+data[i+1]+data[i+2]<600) ink++;
+      return ink>100;
+    });
+  }, null, {timeout:180000});
+  assert.equal(await page.getByRole('button',{name:'PDFの次のページ'}).isDisabled(),true);
+  const nextDocx = page.getByRole('button',{name:'DOCXの次のページ'});
+  assert.equal(await nextDocx.isEnabled(),true,'reflowed DOCX has more pages than its one-page original');
+  const bitmap = await page.getByTestId('jade-docx-canvas').evaluate(canvas=>canvas.toDataURL());
+  await nextDocx.click();
+  await page.waitForFunction(previous => {
+    const canvas=document.querySelector('[data-testid="jade-docx-canvas"]');
+    return canvas?.getAttribute('aria-label')==='DOCX 2ページ' && canvas.toDataURL()!==previous;
+  },bitmap);
+  const previewDownload = page.getByRole('link',{name:'DOCXをダウンロード'});
+  const [previewFile] = await Promise.all([page.waitForEvent('download'),previewDownload.click()]);
+  const previewText = zipEntry(await readFile(await previewFile.path()),'word/document.xml').replace(/<[^>]+>/g,'');
+  assert.ok(previewText.includes('株式会社楽一産業'));
+  assert.ok(previewText.includes('破産管財人'));
+  assert.deepEqual(errors,[]);
+  await page.getByRole('button',{name:'DOCXの前のページ'}).click();
+  await page.waitForFunction(()=>document.querySelector('[data-testid="jade-docx-canvas"]')?.getAttribute('aria-label')==='DOCX 1ページ');
+  if(process.env.KANPO_PREVIEW_SCREENSHOT) await page.screenshot({path:process.env.KANPO_PREVIEW_SCREENSHOT,fullPage:true});
+  console.log(`Production subpath PDF → OCR → JADE comparison passed (${previewText.length} text characters; independent page navigation)`);
+
 } finally {
   await browser?.close();
   await new Promise(resolve => server.close(resolve));
