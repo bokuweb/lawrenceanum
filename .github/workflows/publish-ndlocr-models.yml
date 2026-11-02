@@ -1,15 +1,10 @@
 name: publish ndlocr models
 
-# 官報 PDF → DOCX（/kanpo-docx）のブラウザ OCR（ndlocr-lite-rs の WASM 版）が読むモデルを、R2 の
-# `ndlocr-models/` に置く（Pages のビルドは `VITE_NDLOCR_MODEL_BASE` でここを指す）。モデルは
-# ndl-lab/ndlocr-lite のリリース（ndlocr-lite-rs の tools/fetch_models_from_ndlocr_release.sh と同じもの、
-# CC BY 4.0）。モデルを替えるときだけ手で実行する。
+# 官報 PDF → DOCX のブラウザ OCR が読むモデルを R2 の ndlocr-models/ へ置く。
+# CI と同じ固定 manifest の SHA-256 を検証し、文字集合とライセンスも一緒に配る。
+# モデル更新時は checkout の ref と、その revision に含まれる manifest を更新する。
 on:
   workflow_dispatch:
-    inputs:
-      tag:
-        description: ndl-lab/ndlocr-lite のリリースのタグ
-        default: "1.2.1"
 
 permissions:
   contents: read
@@ -24,23 +19,23 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
       AWS_DEFAULT_REGION: auto
-      GH_TOKEN: ${{ github.token }}
     steps:
-      - name: Fetch models from the ndlocr-lite release
+      - name: Checkout pinned model manifest and fetcher
+        uses: actions/checkout@v4
+        with:
+          repository: bokuweb/ndlocr-lite-rs
+          ref: e9d2670fb163d77d6e166362869056f032be423b
+          path: upstream
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /tools/fetch_upstream_assets.py
+            /docs/upstream-assets.json
+
+      - name: Fetch and verify pinned models, charset and licenses
         run: |
-          set -euo pipefail
-          mkdir -p work out
-          gh release download "${{ inputs.tag }}" -R ndl-lab/ndlocr-lite -p "*windows.zip" -D work
-          unzip -o -j work/*windows.zip "*app.zip" -d work >/dev/null || true
-          test -f work/app.zip
-          unzip -o -j work/app.zip \
-            "src/model/deim-s-1024x1024.onnx" \
-            "src/model/parseq-ndl-24x256-30-tiny-189epoch-tegaki3-r8data-202604.onnx" \
-            "src/model/parseq-ndl-24x384-50-tiny-300epoch-tegaki3-r8data-202604.onnx" \
-            "src/model/parseq-ndl-24x768-100-tiny-153epoch-tegaki3-r8data-202604.onnx" \
-            "src/config/NDLmoji.yaml" \
-            -d out >/dev/null
-          unzip -o -j work/app.zip "LICENCE*" "*/LICENCE*" -d out >/dev/null || true
+          python3 upstream/tools/fetch_upstream_assets.py out
+          python3 upstream/tools/fetch_upstream_assets.py out --offline
           ls -lh out
 
       - name: Upload to R2

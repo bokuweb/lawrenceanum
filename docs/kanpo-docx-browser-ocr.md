@@ -21,7 +21,11 @@ onnxruntime-web 1.24.3 の対応する MJS/WASM、型定義、ライセンスを
 - `parseq-ndl-24x768-100-tiny-153epoch-tegaki3-r8data-202604.onnx`
 - `NDLmoji.yaml`
 
-既存の `publish-ndlocr-models.yml` で R2 に配信する。
+`publish-ndlocr-models.yml` を手動実行して R2 に配信する。
+CI と同じ固定 manifest の SHA-256 を検証し、`NDLmoji.yaml` と
+`LICENCE` / `LICENCE_DEPENDENCEIES` も同じ版から取得する。
+モデル4本はリリース版とバイト一致するが、Windows配布ZIPの文字集合には
+CRLF差分があるため、公開物は固定manifestの原本に揃える。
 OCR はサイトの service worker が設定する COOP/COEP と SharedArrayBuffer を使う。
 OCR パッケージ自体は service worker を追加しない。
 
