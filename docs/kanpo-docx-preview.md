@@ -41,7 +41,8 @@ JADE Coreは `a0647cc6542cc14a922a5d67c9997a588efb77b9` に固定する。
 LLVMのarchiverで構築する。生成物はGitに含めず、Pagesの配信ビルドと官報E2Eで生成する。
 OCR / JADEとも、固定コミットの取得前に疎なチェックアウトのパターンを設定し、
 空のリポジトリでも配信環境のGitで取得できるようにする。
-初回はJADEのコンパイルに数分かかる。JADEのWASMとフォントは比較ページで遅延ロードする。
+初回はJADEのコンパイルに数分かかる。CIではビルドスクリプトのハッシュで
+WASM・フォント・ライセンスをキャッシュし、失敗したE2Eの再実行でも再利用する。JADEのWASMとフォントは比較ページで遅延ロードする。
 
 ```sh
 pnpm --dir figma exec playwright test --config playwright.kanpo.config.ts

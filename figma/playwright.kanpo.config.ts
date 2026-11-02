@@ -10,7 +10,7 @@ export default defineConfig({
   use: { headless: true, viewport: { width: 1280, height: 900 }, baseURL: BASE },
   reporter: [["list"]],
   webServer: {
-    command: "pnpm test:amend-document && pnpm build:wasm && pnpm build:jade && node tests/serve.mjs",
+    command: `pnpm test:amend-document && pnpm build:wasm && ${process.env.JADE_CORE_PREBUILT === "1" ? "" : "pnpm build:jade && "}node tests/serve.mjs`,
     url: BASE,
     timeout: 1_800_000,
     reuseExistingServer: !process.env.CI,

@@ -1,6 +1,12 @@
 import { test, expect } from "@playwright/test";
 import { readFileSync } from "node:fs";
 
+test.afterEach(async ({ page }) => {
+  // The app also fetches sidebar metadata. Let route teardown finish before the
+  // context closes so an unfinished route.fetch does not fail a completed test.
+  await page.unrouteAll({ behavior: "ignoreErrors" });
+});
+
 async function painted(locator: import("@playwright/test").Locator) {
   await expect(locator).toBeVisible({ timeout: 120_000 });
   await expect

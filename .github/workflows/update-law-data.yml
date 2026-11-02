@@ -433,9 +433,24 @@ jobs:
         if: steps.detect.outputs.changed == 'true'
         run: bash figma/scripts/build-ndlocr-wasm.sh
 
-      - name: Build JADE Core DOCX preview
+      - name: Restore JADE Core DOCX preview
         if: steps.detect.outputs.changed == 'true'
+        id: jade
+        uses: actions/cache/restore@v4
+        with:
+          path: figma/src/wasm/jade-core
+          key: jade-core-wasm-v1-${{ hashFiles('figma/scripts/build-jade-core.sh') }}
+
+      - name: Build JADE Core DOCX preview
+        if: steps.detect.outputs.changed == 'true' && steps.jade.outputs.cache-hit != 'true'
         run: bash figma/scripts/build-jade-core.sh
+
+      - name: Cache built JADE Core DOCX preview
+        if: steps.detect.outputs.changed == 'true' && steps.jade.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: figma/src/wasm/jade-core
+          key: ${{ steps.jade.outputs.cache-primary-key }}
 
       - name: Build web UI
         if: steps.detect.outputs.changed == 'true'
