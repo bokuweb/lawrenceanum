@@ -424,6 +424,11 @@ jobs:
         if: steps.detect.outputs.changed == 'true'
         run: bash figma/scripts/build-kanpo-wasm.sh || echo "::warning::kanpo-parser WASM build failed; playground will show a build hint"
 
+      # 官報 PDF → DOCX (/kanpo-docx) も同じように WASM にする。失敗しても UI 本体のビルドは止めない。
+      - name: Build kanpo-docx WASM (best-effort)
+        if: steps.detect.outputs.changed == 'true'
+        run: bash figma/scripts/build-kanpo-wasm.sh kanpo-docx-wasm kanpo-docx || echo "::warning::kanpo-docx WASM build failed; /kanpo-docx will show a build hint"
+
       - name: Build web UI
         if: steps.detect.outputs.changed == 'true'
         working-directory: figma
@@ -431,6 +436,8 @@ jobs:
           # 官報パーサ playground が原本 PDF・座標付きテキストを読む R2 のアーカイブ
           # (collect-kanpo-pdf.yml)。未設定ならリポジトリのコーパスとローカルファイルだけ。
           VITE_KANPO_ARCHIVE_URL: ${{ secrets.R2_PUBLIC_URL && format('{0}/kanpo-pdf', secrets.R2_PUBLIC_URL) || '' }}
+          # 官報 PDF → DOCX のブラウザ OCR（ndlocr-lite-rs）のモデルの置き場所。未設定なら同 origin の ndlocr-models/。
+          VITE_NDLOCR_MODEL_BASE: ${{ secrets.R2_PUBLIC_URL && format('{0}/ndlocr-models/', secrets.R2_PUBLIC_URL) || '' }}
           # Frontend が search.db を取りにいく URL。R2 公開 URL を渡す。
           # 未設定なら ./search.db (同 origin) を試す。
           VITE_SEARCH_DB_URL: ${{ secrets.R2_PUBLIC_URL && format('{0}/search.db', secrets.R2_PUBLIC_URL) || '' }}
