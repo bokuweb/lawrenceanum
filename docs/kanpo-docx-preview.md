@@ -39,6 +39,8 @@ pnpm --dir figma build
 JADE Coreは `a0647cc6542cc14a922a5d67c9997a588efb77b9` に固定する。
 ビルドスクリプトはRust 1.93.1・対応するwasm-bindgenを用意し、WASMのC依存も
 LLVMのarchiverで構築する。生成物はGitに含めず、Pagesの配信ビルドと官報E2Eで生成する。
+OCR / JADEとも、固定コミットの取得前に疎なチェックアウトのパターンを設定し、
+空のリポジトリでも配信環境のGitで取得できるようにする。
 初回はJADEのコンパイルに数分かかる。JADEのWASMとフォントは比較ページで遅延ロードする。
 
 ```sh

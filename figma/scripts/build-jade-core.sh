@@ -10,7 +10,13 @@ if [ -z "${JADE_CORE_SOURCE:-}" ]; then
     git -C "$source_dir" init --quiet
     git -C "$source_dir" remote add origin https://github.com/jade-rs/jade-core.git
   fi
-  git -C "$source_dir" sparse-checkout set --no-cone '/Cargo.toml' '/Cargo.lock' '/crates/' '/fonts/' '/third_party/' '/scripts/optimize-wasm-js.mjs' '/LICENSE' '/THIRD_PARTY_LICENSES.html'
+  # Configure patterns directly: sparse-checkout set can reject a cached or
+  # unborn checkout on newer Git versions before the pinned commit is fetched.
+  git -C "$source_dir" config --worktree core.sparseCheckout true
+  git -C "$source_dir" config --worktree core.sparseCheckoutCone false
+  git_dir=$(git -C "$source_dir" rev-parse --absolute-git-dir)
+  mkdir -p "$git_dir/info"
+  printf '%s\n' '/Cargo.toml' '/Cargo.lock' '/crates/' '/fonts/' '/third_party/' '/scripts/optimize-wasm-js.mjs' '/LICENSE' '/THIRD_PARTY_LICENSES.html' > "$git_dir/info/sparse-checkout"
   if [ "$(git -C "$source_dir" rev-parse HEAD 2>/dev/null || true)" != "$revision" ]; then
     git -C "$source_dir" config remote.origin.promisor true
     git -C "$source_dir" fetch --filter=blob:none --depth 1 origin "$revision"
