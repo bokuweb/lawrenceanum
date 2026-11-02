@@ -1,0 +1,30 @@
+[package]
+name = "kanpo-docx"
+description = "官報 PDF を DOCX にする（画像の本文は OCR の結果から読む）。ライブラリと CLI（`kanpo-docx`）。WASM 可"
+version.workspace = true
+edition.workspace = true
+license-file.workspace = true
+publish.workspace = true
+
+[features]
+default = ["cli"]
+# CLI（`kanpo-docx`）。OCR は ndlocr-lite-rs の `recognize-page --trace-json` を外部コマンドとして呼ぶ。
+cli = ["dep:clap", "dep:png"]
+
+[[bin]]
+name = "kanpo-docx"
+path = "src/main.rs"
+required-features = ["cli"]
+
+[dependencies]
+anyhow.workspace = true
+docx-rs = { version = "0.4.22", default-features = false }
+fax = "0.3"
+kanpo-parser = { path = "../kanpo-parser" }
+kanpo-pdf = { path = "../kanpo-pdf" }
+miniz_oxide = "0.8"
+serde = { workspace = true }
+serde_json.workspace = true
+zune-jpeg = "0.4"
+clap = { workspace = true, optional = true }
+png = { version = "0.17", optional = true }
