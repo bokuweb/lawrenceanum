@@ -433,6 +433,10 @@ jobs:
         if: steps.detect.outputs.changed == 'true'
         run: bash figma/scripts/build-ndlocr-wasm.sh
 
+      - name: Build JADE Core DOCX preview
+        if: steps.detect.outputs.changed == 'true'
+        run: bash figma/scripts/build-jade-core.sh
+
       - name: Build web UI
         if: steps.detect.outputs.changed == 'true'
         working-directory: figma

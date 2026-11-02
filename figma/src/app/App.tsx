@@ -32,6 +32,9 @@ const KanpoPlaygroundView = lazy(() => import("./components/views/kanpo-playgrou
 // 官報 PDF → DOCX も WASM（と OCR のモデル）を抱えるので遅延ロードにする。
 const KanpoDocxView = lazy(() => import("./components/views/kanpo-docx-view").then(m => ({ default: m.KanpoDocxView })));
 
+// Direct-link comparison tool; intentionally absent from sidebar navigation.
+const KanpoDocxPreviewView = lazy(() => import("./components/views/kanpo-docx-preview-view").then(m => ({ default: m.KanpoDocxPreviewView })));
+
 function ViewFallback() {
   return <div className="p-6 text-sm text-muted-foreground">読み込み中…</div>;
 }
@@ -241,6 +244,7 @@ function AppShell() {
               <Route path="/kanpo/:date/:issue/:item" element={<KanpoRoute />} />
               {kanpoParser && <Route path="/kanpo-playground" element={<KanpoPlaygroundView />} />}
               {kanpoParser && <Route path="/kanpo-docx" element={<KanpoDocxView />} />}
+              <Route path="/kanpo-docx-preview" element={<KanpoDocxPreviewView />} />
               <Route path="/settings" element={<SettingsView />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

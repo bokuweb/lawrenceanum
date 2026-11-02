@@ -6,14 +6,14 @@ const BASE = `http://127.0.0.1:${PORT}/`;
 
 export default defineConfig({
   testDir: "./tests",
-  testMatch: ["kanpo-playground.spec.ts", "kanpo-docx.spec.ts"],
+  testMatch: ["kanpo-playground.spec.ts", "kanpo-docx.spec.ts", "kanpo-docx-preview.spec.ts"],
   use: { headless: true, viewport: { width: 1280, height: 900 }, baseURL: BASE },
   reporter: [["list"]],
   webServer: {
-    command: "pnpm test:amend-document && pnpm build:wasm && node tests/serve.mjs",
+    command: "pnpm test:amend-document && pnpm build:wasm && pnpm build:jade && node tests/serve.mjs",
     url: BASE,
-    timeout: 180_000,
+    timeout: 1_800_000,
     reuseExistingServer: !process.env.CI,
-    env: { PORT: String(PORT), REBUILD: "1" },
+    env: { PORT: String(PORT), REBUILD: "1", VITE_KANPO_ARCHIVE_URL: "/__test_kanpo_archive" },
   },
 });

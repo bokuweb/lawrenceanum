@@ -126,6 +126,9 @@ export default defineConfig({
     },
   },
 
+  // Keep the optional JADE WASM loader in one worker bundle. Other workers remain classic-compatible.
+  worker: { rollupOptions: { output: { inlineDynamicImports: true } } },
+
   // 相対パスでアセット参照することで GitHub Pages の任意サブパス配信に対応する。
   base: './',
 
