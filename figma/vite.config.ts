@@ -89,9 +89,29 @@ function lawpubSearchDbDevServer() {
   }
 }
 
+// cross-origin isolated にする service worker（src/coi/coi-serviceworker.js）を、サイトの直下
+// （/coi-serviceworker.js）に出し、開発サーバーでも同じ場所で配る。官報 PDF → DOCX のブラウザ OCR 用。
+function coiServiceWorker() {
+  const source = path.resolve(__dirname, 'src/coi/coi-serviceworker.js')
+  return {
+    name: 'coi-serviceworker',
+    configureServer(server: { middlewares: { use: (fn: (req: { url?: string }, res: any, next: () => void) => void) => void } }) {
+      server.middlewares.use((req, res, next) => {
+        if (req.url?.split('?')[0] !== '/coi-serviceworker.js') return next()
+        res.setHeader('Content-Type', 'text/javascript')
+        fs.createReadStream(source).pipe(res)
+      })
+    },
+    generateBundle(this: { emitFile: (f: { type: 'asset'; fileName: string; source: string }) => void }) {
+      this.emitFile({ type: 'asset', fileName: 'coi-serviceworker.js', source: fs.readFileSync(source, 'utf8') })
+    },
+  }
+}
+
 export default defineConfig({
   plugins: [
     figmaAssetResolver(),
+    coiServiceWorker(),
     lawpubJsonDevServer(),
     lawpubSearchDbDevServer(),
     // The React and Tailwind plugins are both required for Make, even if

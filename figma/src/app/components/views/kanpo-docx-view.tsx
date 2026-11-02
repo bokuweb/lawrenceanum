@@ -4,7 +4,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { AlertTriangle, Download, FileUp, Loader2 } from "lucide-react";
 import { Button } from "../ui/button";
-import { loadKanpoDocx, loadOcr, OCR_AVAILABLE, pdfToDocx, type KanpoDocx } from "../../data/kanpo-docx";
+import { ensureCrossOriginIsolated, loadKanpoDocx, loadOcr, OCR_AVAILABLE, pdfToDocx, type KanpoDocx } from "../../data/kanpo-docx";
 
 type Result = { url: string; name: string; images: number; recognized: number; seconds: number };
 
@@ -19,6 +19,10 @@ export function KanpoDocxView() {
   useEffect(() => {
     loadKanpoDocx().then(setDocx, (e) => setError(String(e)));
   }, []);
+  // ブラウザの OCR は cross-origin isolated なページでしか動かない。OCR を使うなら、先に service worker を入れて読み直す。
+  useEffect(() => {
+    if (useOcr && OCR_AVAILABLE) void ensureCrossOriginIsolated();
+  }, [useOcr]);
   useEffect(() => () => {
     if (result) URL.revokeObjectURL(result.url);
   }, [result]);

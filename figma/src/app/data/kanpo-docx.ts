@@ -84,6 +84,23 @@ export function loadOcr(onProgress?: (message: string) => void): Promise<OcrEngi
   return ocrPromise;
 }
 
+/**
+ * ページを cross-origin isolated にする（ブラウザの OCR が SharedArrayBuffer を使うため）。まだなら service worker
+ * （`coi-serviceworker.js`）を登録してページを読み直し、false を返す（呼出元はそのまま待てばよい）。読み直しても
+ * isolated にならない（service worker が使えない）ときは、1 度だけ試して false を返し続ける。
+ */
+export async function ensureCrossOriginIsolated(): Promise<boolean> {
+  if (window.crossOriginIsolated) return true;
+  if (!("serviceWorker" in navigator)) return false;
+  const KEY = "coi-serviceworker-reloaded";
+  if (sessionStorage.getItem(KEY)) return false;
+  await navigator.serviceWorker.register(`${import.meta.env.BASE_URL}coi-serviceworker.js`);
+  await navigator.serviceWorker.ready;
+  sessionStorage.setItem(KEY, "1");
+  window.location.reload();
+  return false;
+}
+
 /** OCR のモジュールがビルドに含まれているか（モデルの読み込み前に分かる）。 */
 export const OCR_AVAILABLE = Object.keys(ndlocrModules).length > 0;
 
