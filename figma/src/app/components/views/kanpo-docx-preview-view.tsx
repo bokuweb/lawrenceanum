@@ -70,6 +70,9 @@ export function KanpoDocxPreviewView() {
     [useOcr, setUseOcr] = useState(true);
   const [progress, setProgress] = useState(""),
     [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+  const [preparing, setPreparing] = useState(
+    OCR_AVAILABLE && !window.crossOriginIsolated,
+  );
   const operation = useRef(0);
   const manifest = loaded?.date === date ? loaded.manifest : null;
   const issue = manifest?.issues.find(
@@ -104,7 +107,16 @@ export function KanpoDocxPreviewView() {
         if (active) setError(String(e));
       },
     );
-    if (OCR_AVAILABLE) void ensureCrossOriginIsolated().catch(() => {});
+    let reloading = false;
+    if (OCR_AVAILABLE) {
+      void ensureCrossOriginIsolated(() => {
+        reloading = true;
+      })
+        .catch(() => {})
+        .finally(() => {
+          if (active && !reloading) setPreparing(false);
+        });
+    }
     return () => {
       active = false;
       operation.current++;
@@ -283,7 +295,10 @@ export function KanpoDocxPreviewView() {
           </Button>
         )}
       </header>
-      <div className="space-y-3 rounded-xl border bg-background p-4">
+      <fieldset
+        disabled={preparing}
+        className="min-w-0 space-y-3 rounded-xl border bg-background p-4"
+      >
         <div className="grid items-end gap-3 md:grid-cols-[180px_minmax(0,1fr)]">
           <label className="space-y-1 text-xs font-medium">
             入力元
@@ -428,13 +443,15 @@ export function KanpoDocxPreviewView() {
             role="status"
             className="min-w-0 truncate text-xs text-muted-foreground"
           >
-            {loading
-              ? "PDFを読み込んでいます"
-              : converting
-                ? progress
-                : result
-                  ? `${result.name}・${result.seconds.toFixed(1)}秒`
-                  : (input?.name ?? "官報を選択してください")}
+            {preparing
+              ? "文字認識の初期準備をしています"
+              : loading
+                ? "PDFを読み込んでいます"
+                : converting
+                  ? progress
+                  : result
+                    ? `${result.name}・${result.seconds.toFixed(1)}秒`
+                    : (input?.name ?? "官報を選択してください")}
           </span>
         </div>
         {error && (
@@ -442,7 +459,7 @@ export function KanpoDocxPreviewView() {
             {error}
           </p>
         )}
-      </div>
+      </fieldset>
       <div
         className="grid min-h-0 flex-1 grid-cols-2 gap-4"
         style={{ minHeight: 420 }}

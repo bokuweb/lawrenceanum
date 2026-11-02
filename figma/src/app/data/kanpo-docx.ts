@@ -91,8 +91,9 @@ export function loadOcr(onProgress?: (message: string) => void): Promise<OcrEngi
  * ページを cross-origin isolated にする（ブラウザの OCR が SharedArrayBuffer を使うため）。まだなら service worker
  * （`coi-serviceworker.js`）を登録してページを読み直し、false を返す（呼出元はそのまま待てばよい）。読み直しても
  * isolated にならない（service worker が使えない）ときは、1 度だけ試して false を返し続ける。
+ * onReload は自動再読み込みの直前に呼ぶ。入力画面はそれまで選択操作を待たせられる。
  */
-export async function ensureCrossOriginIsolated(): Promise<boolean> {
+export async function ensureCrossOriginIsolated(onReload?: () => void): Promise<boolean> {
   if (window.crossOriginIsolated) return true;
   if (!("serviceWorker" in navigator)) return false;
   const KEY = "coi-serviceworker-reloaded";
@@ -100,6 +101,7 @@ export async function ensureCrossOriginIsolated(): Promise<boolean> {
   await navigator.serviceWorker.register(`${import.meta.env.BASE_URL}coi-serviceworker.js`);
   await navigator.serviceWorker.ready;
   sessionStorage.setItem(KEY, "1");
+  onReload?.();
   window.location.reload();
   return false;
 }

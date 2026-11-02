@@ -117,6 +117,19 @@ test("archive Selects load the selected issue and page, and keep the conversion 
       import.meta.url,
     ),
   );
+  // A real archive response passes through the COI service worker. Keep this
+  // mocked archive test isolated via HTTP headers so page.route can see fetches.
+  await page.route("**/*", async (route) => {
+    const response = await route.fetch();
+    await route.fulfill({
+      response,
+      headers: {
+        ...response.headers(),
+        "Cross-Origin-Opener-Policy": "same-origin",
+        "Cross-Origin-Embedder-Policy": "credentialless",
+      },
+    });
+  });
   const requests: string[] = [];
   await page.route("**/__test_kanpo_archive/**", async (route) => {
     const path = new URL(route.request().url()).pathname;
