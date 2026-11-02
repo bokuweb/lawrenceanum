@@ -66,7 +66,7 @@ type NdlocrModule = {
 const ndlocrModules = import.meta.glob<NdlocrModule>("../../wasm/ndlocr/ndlocr.js");
 
 /** OCR のモデルの置き場所（ビルド時に `VITE_NDLOCR_MODEL_BASE` で変えられる）。 */
-export const NDLOCR_MODEL_BASE: string = import.meta.env.VITE_NDLOCR_MODEL_BASE ?? `${import.meta.env.BASE_URL}ndlocr-models/`;
+export const NDLOCR_MODEL_BASE: string = import.meta.env.VITE_NDLOCR_MODEL_BASE || `${import.meta.env.BASE_URL}ndlocr-models/`;
 
 let ocrPromise: Promise<OcrEngine | null> | null = null;
 
@@ -78,6 +78,9 @@ export function loadOcr(onProgress?: (message: string) => void): Promise<OcrEngi
       ? load().then(async (m) => {
           const recognizer = await m.createRecognizer({ modelBaseUrl: NDLOCR_MODEL_BASE, onProgress });
           return { name: "ndlocr-lite-rs", recognize: (gray: Uint8Array, width: number, height: number) => recognizer.recognizePage(gray, width, height) };
+        }).catch((error) => {
+          ocrPromise = null;
+          throw error;
         })
       : Promise.resolve(null);
   }
