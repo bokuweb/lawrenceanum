@@ -5,11 +5,13 @@
   "type": "module",
   "scripts": {
     "build": "vite build",
-    "build:wasm": "bash scripts/build-kanpo-wasm.sh",
+    "build:wasm": "bash scripts/build-kanpo-wasm.sh && bash scripts/build-kanpo-wasm.sh kanpo-docx-wasm kanpo-docx",
     "test:e2e": "playwright test",
     "test:amend-document": "node scripts/test-amend-document.mjs",
     "test:e2e:history": "playwright test --config playwright.history.config.ts",
-    "dev": "vite"
+    "dev": "vite",
+    "build:ocr": "bash scripts/build-ndlocr-wasm.sh",
+    "test:kanpo-docx-ocr": "node scripts/test-kanpo-docx-ocr.mjs"
   },
   "dependencies": {
     "@emotion/react": "11.14.0",

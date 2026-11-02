@@ -38,3 +38,9 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm exec playwright test --config playwright.kanpo.config.ts
+      - name: Build browser OCR and fetch verified models
+        run: pnpm build:ocr
+        env:
+          NDLOCR_FETCH_MODELS: "1"
+      - run: pnpm build
+      - run: pnpm test:kanpo-docx-ocr
