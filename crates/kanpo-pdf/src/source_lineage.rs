@@ -9,7 +9,10 @@ pub(crate) struct Tape {
     scene_images: Vec<[f64;4]>,
     scene_backgrounds: Vec<(usize,BackgroundProgram)>,
     scene_rectangles: std::collections::BTreeMap<usize,[f64;4]>,
+    separate_rectangles: std::collections::BTreeMap<usize,Vec<[f64;4]>>,
+    rectangle_frames: std::collections::BTreeMap<usize,crate::source_aj1::RectangleFrame>,
     scene_glyph_obstacles: std::collections::BTreeMap<usize,[f64;4]>,
+    text_axes: std::collections::BTreeMap<usize,crate::source_aj1::SourceTextAxes>,
 }
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct Edge {
@@ -149,7 +152,10 @@ impl Default for Capture {
                 scene_images: vec![],
                 scene_backgrounds: vec![],
                 scene_rectangles: Default::default(),
+                separate_rectangles: Default::default(),
+                rectangle_frames: Default::default(),
                 scene_glyph_obstacles: Default::default(),
+                text_axes: Default::default(),
             },
             previous: None,
             armed: false,

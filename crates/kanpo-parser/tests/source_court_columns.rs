@@ -1,5 +1,7 @@
 //! Original judicial case boundaries certified by native column scope.
 //! Historical149 JSON anchors material; it is not independent accuracy gold.
+#[path = "support/source_reviewed_expectations.rs"]
+mod source_reviewed_expectations;
 #[path = "support/native_court_article_contracts.rs"]
 mod court_contract;
 use serde_json::Value;
@@ -11,7 +13,7 @@ fn data(name: &str) -> PathBuf {
         .join(name)
 }
 fn baseline(name: &str) -> Value {
-    serde_json::from_slice(&std::fs::read(data(name)).unwrap()).unwrap()
+    source_reviewed_expectations::current(serde_json::from_slice(&std::fs::read(data(name)).unwrap()).unwrap())
 }
 fn analyze(keys: &[&str]) -> Value {
     let inputs: Vec<_> = keys

@@ -1,0 +1,389 @@
+[
+  {
+    "source_pdf": "crates/kanpo-pdf/tests/data/native-compound-scene/20260828g001920025.pdf",
+    "review": "Full PDF rendering confirms the joint title 農林水産省 / 環 境 省 令第七号.",
+    "anchor": {
+      "id": 48,
+      "raw": "環",
+      "source_box": [
+        339.6961,
+        60.8158,
+        347.6961,
+        68.8158
+      ]
+    },
+    "old_owners": [
+      46,
+      45,
+      47
+    ],
+    "current_owners": [
+      46,
+      45,
+      48,
+      49,
+      50,
+      47
+    ],
+    "raw_sequence": [
+      "〇",
+      "農林水産省",
+      "環",
+      "境",
+      "省",
+      "令第七号"
+    ]
+  },
+  {
+    "source_pdf": "crates/kanpo-parser/tests/data/native-role-prefix/20261015g002260018.pdf",
+    "review": "Full PDF rendering confirms the joint title デジタル庁 / 総 務 省 告示第三十八号.",
+    "anchor": {
+      "id": 59,
+      "raw": "総",
+      "source_box": [
+        301.9621,
+        60.8399,
+        309.9621,
+        68.8399
+      ]
+    },
+    "old_owners": [
+      57,
+      56,
+      58
+    ],
+    "current_owners": [
+      57,
+      56,
+      59,
+      60,
+      61,
+      58
+    ],
+    "raw_sequence": [
+      "〇",
+      "デジタル庁",
+      "総",
+      "務",
+      "省",
+      "告示第三十八号"
+    ]
+  },
+  {
+    "source_pdf": "crates/kanpo-parser/tests/data/native-role-prefix/20261015g002260019.pdf",
+    "review": "Full PDF rendering confirms the joint title 文部科学省 / 経済産業省 告示第二号.",
+    "anchor": {
+      "id": 3,
+      "raw": "経済産業省",
+      "source_box": [
+        537.0001,
+        60.8399,
+        545.0001,
+        100.8399
+      ]
+    },
+    "old_owners": [
+      1,
+      0,
+      2
+    ],
+    "current_owners": [
+      1,
+      0,
+      3,
+      2
+    ],
+    "raw_sequence": [
+      "〇",
+      "文部科学省",
+      "経済産業省",
+      "告示第二号"
+    ]
+  },
+  {
+    "source_pdf": "crates/kanpo-parser/tests/data/source-comparison-labels/20260724h017540002.pdf",
+    "review": "Original full-page PDF rendering confirms the joint agency title and the complete split-character source sequence.",
+    "anchor": {
+      "id": 120,
+      "raw": "金",
+      "source_box": [
+        173.8152,
+        60.8399,
+        181.8152,
+        68.8399
+      ]
+    },
+    "old_owners": [
+      118,
+      117,
+      119
+    ],
+    "current_owners": [
+      118,
+      117,
+      120,
+      121,
+      122,
+      119
+    ],
+    "raw_sequence": [
+      "〇",
+      "個人情報保護委員会",
+      "金",
+      "融",
+      "庁",
+      "告示第一号"
+    ]
+  },
+  {
+    "source_pdf": "crates/kanpo-parser/tests/data/source-comparison-labels/20260805g001760048.pdf",
+    "review": "Original full-page PDF rendering confirms the joint agency title and the complete split-character source sequence.",
+    "anchor": {
+      "id": 1,
+      "raw": "務",
+      "source_box": [
+        545.0001,
+        76.8399,
+        553.0001,
+        84.8399
+      ]
+    },
+    "old_owners": [
+      3,
+      0,
+      4
+    ],
+    "current_owners": [
+      3,
+      0,
+      1,
+      2,
+      5,
+      4
+    ],
+    "raw_sequence": [
+      "〇",
+      "財",
+      "務",
+      "省",
+      "農林水産省",
+      "令第二号"
+    ]
+  },
+  {
+    "source_pdf": "crates/kanpo-parser/tests/data/source-comparison-labels/20260805g001760048.pdf",
+    "review": "Original full-page PDF rendering confirms the joint agency title and the complete split-character source sequence.",
+    "anchor": {
+      "id": 57,
+      "raw": "務",
+      "source_box": [
+        290.9681,
+        76.8399,
+        298.9681,
+        84.8399
+      ]
+    },
+    "old_owners": [
+      59,
+      56,
+      60
+    ],
+    "current_owners": [
+      59,
+      56,
+      57,
+      58,
+      61,
+      60
+    ],
+    "raw_sequence": [
+      "〇",
+      "財",
+      "務",
+      "省",
+      "農林水産省",
+      "令第三号"
+    ]
+  },
+  {
+    "source_pdf": "crates/kanpo-parser/tests/data/source-comparison-labels/20260824g001880052.pdf",
+    "review": "Original full-page PDF rendering confirms the joint agency title and the complete split-character source sequence.",
+    "anchor": {
+      "id": 1,
+      "raw": "融",
+      "source_box": [
+        545.0001,
+        76.8399,
+        553.0001,
+        84.8399
+      ]
+    },
+    "old_owners": [
+      3,
+      0,
+      4
+    ],
+    "current_owners": [
+      3,
+      0,
+      1,
+      2,
+      5,
+      4
+    ],
+    "raw_sequence": [
+      "〇",
+      "金",
+      "融",
+      "庁",
+      "農林水産省",
+      "告示第十三号"
+    ]
+  },
+  {
+    "source_pdf": "crates/kanpo-parser/tests/data/source-comparison-labels/20260824g001880052.pdf",
+    "review": "Original full-page PDF rendering confirms the joint agency title and the complete split-character source sequence.",
+    "anchor": {
+      "id": 80,
+      "raw": "融",
+      "source_box": [
+        234.5681,
+        76.8399,
+        242.5681,
+        84.8399
+      ]
+    },
+    "old_owners": [
+      82,
+      79,
+      83
+    ],
+    "current_owners": [
+      82,
+      79,
+      80,
+      81,
+      84,
+      83
+    ],
+    "raw_sequence": [
+      "〇",
+      "金",
+      "融",
+      "庁",
+      "農林水産省",
+      "告示第十四号"
+    ]
+  },
+  {
+    "source_pdf": "crates/kanpo-parser/tests/archive/pages/20260727g00167/20260727g001670021.pdf",
+    "review": "Full original PDF rendering confirms the complete split joint title. Frozen historical owners omitted these used source occurrences.",
+    "anchor": {
+      "id": 87,
+      "raw": "閣",
+      "display_box": [
+        284.9964,
+        452.8399,
+        292.9964,
+        460.8399
+      ]
+    },
+    "old_owners": [
+      89,
+      86,
+      90
+    ],
+    "current_owners": [
+      89,
+      86,
+      87,
+      88,
+      93,
+      90
+    ],
+    "raw_sequence": [
+      "〇",
+      "内",
+      "閣",
+      "府",
+      "厚生労働省",
+      "告示第二号"
+    ]
+  },
+  {
+    "source_pdf": "crates/kanpo-parser/tests/archive/pages/20260727g00167/20260727g001670022.pdf",
+    "review": "Full original PDF rendering confirms the complete split joint title. Frozen historical owners omitted these used source occurrences.",
+    "anchor": {
+      "id": 1,
+      "raw": "閣",
+      "display_box": [
+        540.9418,
+        84.8399,
+        548.9418,
+        92.8399
+      ]
+    },
+    "old_owners": [
+      3,
+      0,
+      4
+    ],
+    "current_owners": [
+      3,
+      0,
+      1,
+      2,
+      5,
+      4
+    ],
+    "raw_sequence": [
+      "〇",
+      "内",
+      "閣",
+      "府",
+      "厚生労働省",
+      "告示第三号"
+    ]
+  },
+  {
+    "source_pdf": "crates/kanpo-parser/tests/data/partial-rule-columns/20261015g002260005.pdf",
+    "review": "Full original PDF rendering confirms the complete split joint title. Frozen historical owners omitted these used source occurrences.",
+    "anchor": {
+      "id": 37,
+      "raw": "総",
+      "display_box": [
+        388.8321,
+        68.8398,
+        396.8321,
+        76.8398
+      ],
+      "source_box": [
+        392.8321,
+        60.8398,
+        400.8321,
+        68.8398
+      ]
+    },
+    "old_owners": [
+      35,
+      34,
+      36
+    ],
+    "current_owners": [
+      35,
+      34,
+      37,
+      38,
+      39,
+      36
+    ],
+    "raw_sequence": [
+      "〇",
+      "デジタル庁",
+      "総",
+      "務",
+      "省",
+      "令第二十一号"
+    ]
+  }
+]

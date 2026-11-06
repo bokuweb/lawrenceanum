@@ -8,6 +8,10 @@ use crate::{
     ComparisonLabels,
 };
 use std::collections::{BTreeMap, BTreeSet};
+
+pub(crate) fn existing_units(page: &PageTrace) -> Option<Vec<Unit>> {
+    prefix::original_units(page)
+}
 #[derive(Clone)]
 struct Material {
     bounds: [f64; 4],
@@ -38,6 +42,7 @@ struct Token {
 #[derive(Default)]
 pub(crate) struct State {
     token: Option<Token>,
+    tiles: Option<Token>,
 }
 fn source_size(p: &PageTrace, node: scraper::ElementRef<'_>) -> Option<[f64; 2]> {
     let dims = [
@@ -49,6 +54,10 @@ fn source_size(p: &PageTrace, node: scraper::ElementRef<'_>) -> Option<[f64; 2]>
         || !display.iter().all(|v| v.is_finite() && *v > 0.)
     {
         return None;
+    }
+    if node.value().attr("data-native-device-size").is_some() {
+        if ![dims,[dims[1],dims[0]]].iter().any(|v|v.map(|x|x as f32)==display) {return None;}
+        return crate::native_page_size::device(node);
     }
     // The original bbox convention retains the paper dimensions on /Rotate
     // pages while glyph coordinates use device axes. Bind either orthogonal
@@ -184,6 +193,29 @@ fn side(m: &Material, axis: NativeAxis, q: [f64; 3]) -> Option<usize> {
         None
     }
 }
+// A mixed plain line may contain exactly one native writing line per field.
+// A flattened table or a collection of unrelated columns cannot satisfy this
+// exact baseline/axis/ordered-envelope and shared cross-band proof.
+fn single_flow_fragments(ids: &[usize], sides: &[usize], material: &BTreeMap<usize, Material>, axis: NativeAxis) -> bool {
+    if ids.len() != sides.len() || ids.is_empty() { return false; }
+    let cross = usize::from(axis == NativeAxis::Right);
+    let mut band = [f64::NEG_INFINITY, f64::INFINITY];
+    let mut paths: [Option<f64>; 2] = [None, None];
+    let mut ends: [Option<f64>; 2] = [None, None];
+    for (&id, &field) in ids.iter().zip(sides) {
+        if field > 1 { return false; }
+        let m = &material[&id];
+        let Some(path) = (if axis == NativeAxis::Down { m.down } else { m.right }) else { return false; };
+        if paths[field].is_some_and(|p| p != path) { return false; }
+        paths[field] = Some(path);
+        band[0] = band[0].max(m.bounds[cross]);
+        band[1] = band[1].min(m.bounds[cross+2]);
+        let [lo, hi] = m.interval(axis);
+        if ends[field].is_some_and(|end| lo < end) { return false; }
+        ends[field] = Some(hi);
+    }
+    band[0] < band[1] && paths.iter().all(Option::is_some)
+}
 pub(crate) struct Observation {
     pub(crate) printed: bool,
     pub(crate) units: Option<Vec<Unit>>,
@@ -213,6 +245,7 @@ fn aligned_cuts(token: &Token, fences: &[f64], size: f64) -> Option<[f64; 3]> {
 impl State {
     pub(crate) fn clear(&mut self) {
         self.token = None;
+        self.tiles = None;
     }
     pub(crate) fn observe(
         &mut self,
@@ -221,11 +254,21 @@ impl State {
         rules: &PageRules,
         has_next_page: bool,
     ) -> Observation {
-        let printed = printed_pair(RoleSource {
+        let previous_tiles = self.tiles.take();
+        if let Some(restored) = tiles::restore(p, node, rules, previous_tiles.as_ref()) {
+            self.token = None;
+            self.tiles = restored.next;
+            return Observation { printed: restored.printed, units: Some(restored.units) };
+        }
+        let role_source = RoleSource {
             regions: &p.regions,
             words: &p.words,
             bounds: &p.native_bounds,
             axes: &p.native_axes,
+        };
+        let printed = printed_pair(role_source).or_else(|| {
+            let scene = crate::native_source_scene::for_page(node, rules).filter(|s| s.matches(&p.words))?;
+            super::printed_pair_in_scene(role_source, Some(&scene))
         });
         let prefix = printed.and_then(|_| self.token.as_ref())
             .and_then(|token| prefix::restore(p, node, rules, token));
@@ -239,10 +282,16 @@ impl State {
                 units: prefix,
             };
         }
-        Observation {
-            printed: printed.is_some(),
-            units: self.prove(p, node, rules, printed).map(|unit| vec![unit]).or(prefix),
+        let previous = self.token.clone();
+        let units = self.prove(p, node, rules, printed).map(|unit| vec![unit]).or(prefix);
+        if units.is_none() {
+            if let Some(restored) = tiles::restore(p,node,rules,previous.as_ref()) {
+                self.token=None;
+                self.tiles=restored.next;
+                return Observation{printed:restored.printed,units:Some(restored.units)};
+            }
         }
+        Observation { printed: printed.is_some(), units }
     }
     #[cfg(test)]
     pub(crate) fn step(
@@ -277,9 +326,10 @@ impl State {
                 printed.is_none() || r.unit == unit && matches!(r.role, Role::After | Role::Before)
             })
             .collect::<Vec<_>>();
+        let plain_partition = printed.is_none() && selected.iter().all(|r| r.role == Role::Body);
         if selected.is_empty()
             || selected.iter().any(|r| {
-                r.unit != unit || !matches!(r.role, Role::Body | Role::After | Role::Before)
+                (!plain_partition && r.unit != unit) || !matches!(r.role, Role::Body | Role::After | Role::Before)
             })
         {
             return None;
@@ -380,19 +430,23 @@ impl State {
             let mut fields: [Vec<Line>; 2] = Default::default();
             let mut consistent = true;
             for (role, line, ids) in &rows {
-                let Some(first) = side(&material[&ids[0]], axis, q) else {
+                let Some(sides) = ids.iter().map(|id|side(&material[id],axis,q)).collect::<Option<Vec<_>>>() else {
                     consistent = false;
                     break;
                 };
-                if ids
-                    .iter()
-                    .any(|id| side(&material[id], axis, q) != Some(first))
-                    || (*role != Role::Body && *role != [Role::After, Role::Before][first])
-                {
+                let first = sides[0];
+                if sides.iter().any(|&s|s != first) {
+                    if *role != Role::Body || printed.is_some() || !single_flow_fragments(ids,&sides,&material,axis) {
+                        consistent = false; break;
+                    }
+                    let Some(parts) = line_spans::partition(line,&p.words,&sides) else { consistent = false; break; };
+                    for (field, part) in parts.into_iter().enumerate() { if let Some(part)=part { fields[field].push(part); } }
+                } else if *role != Role::Body && *role != [Role::After, Role::Before][first] {
                     consistent = false;
                     break;
+                } else {
+                    fields[first].push((*line).clone());
                 }
-                fields[first].push((*line).clone());
             }
             if consistent && fields.iter().all(|f| !f.is_empty()) {
                 candidates.push((token, fields));
@@ -422,6 +476,71 @@ impl State {
 #[cfg(test)]
 mod geometry_tests {
     use super::*;
+    #[test]
+    fn original_nested_table_scope_retains_its_source_frame() {
+        let inputs=crate::page_inputs(include_bytes!("../tests/data/workbook/case-11.pdf")).unwrap();
+        let analysis=crate::analyze_item(&inputs);
+        let mut state=State::default();
+        for (i,input) in inputs.iter().take(3).enumerate() {
+            let page=&analysis.pages[i];
+            let dom=scraper::Html::parse_document(&input.xhtml);
+            let node=dom.select(&scraper::Selector::parse("page").unwrap()).next().unwrap();
+            let scene=crate::native_source_scene::for_page(node,input.rules.as_ref().unwrap());
+            assert!(scene.as_ref().is_some_and(|s|s.matches(&page.words)),"complete scene page {}",i+1);
+
+            state.observe(page,node,input.rules.as_ref().unwrap(),true);
+            assert!(state.token.is_some()||state.tiles.is_some(),"open frame page {}",i+1);
+        }
+    }
+    #[test]
+    fn horizontal_change_original_root_has_complete_native_provenance() {
+        let inputs=crate::page_inputs(include_bytes!("../tests/data/workbook/case-04.pdf")).unwrap();
+        let mut state=State::default();
+        for (i,input) in inputs.iter().take(5).enumerate() {
+            let page=crate::analyze_item(std::slice::from_ref(input)).pages.remove(0);
+            let dom=scraper::Html::parse_document(&input.xhtml);
+            let node=dom.select(&scraper::Selector::parse("page").unwrap()).next().unwrap();
+            state.observe(&page,node,input.rules.as_ref().unwrap(),true);
+            assert!(state.token.is_some()||state.tiles.is_some(),"page {}",i+1);
+        }
+    }
+    #[test]
+    fn mixed_fields_require_one_exact_native_flow_per_fragment_and_a_shared_cross_band() {
+        for axis in [NativeAxis::Right, NativeAxis::Down] {
+            for scale in [0.125, 1., 64.] {
+                for offset in [-32., 0., 256.] {
+                    let mut material = BTreeMap::new();
+                    for (i,b) in [[1.,3.,2.,4.],[3.,3.,4.,4.],[11.,3.25,12.,4.25],[13.,3.25,14.,4.25]].into_iter().enumerate() {
+                        let b = if axis==NativeAxis::Down { [b[1],b[0],b[3],b[2]] } else {b};
+                        let path = (if i<2 {3.5}else{3.75})*scale+offset;
+                        material.insert(i,Material{bounds:b.map(|v|v*scale+offset),down:(axis==NativeAxis::Down).then_some(path),right:(axis==NativeAxis::Right).then_some(path)});
+                    }
+                    let sides = [0,0,1,1];
+                    assert!(single_flow_fragments(&[0,1,2,3],&sides,&material,axis));
+                    assert!(!single_flow_fragments(&[1,0,2,3],&sides,&material,axis));
+                    let m = material.get_mut(&1).unwrap();
+                    if axis==NativeAxis::Down {m.down=m.down.map(f64::next_up);}else{m.right=m.right.map(f64::next_up);}
+                    assert!(!single_flow_fragments(&[0,1,2,3],&sides,&material,axis));
+                }
+            }
+        }
+    }
+    #[test]
+    fn original_comparison_continues_across_separate_plain_band_units() {
+        let pdf = include_bytes!("../tests/data/workbook/case-01.pdf");
+        let inputs = crate::page_inputs(pdf).unwrap();
+        let mut state = State::default();
+        for (i, input) in inputs.iter().take(3).enumerate() {
+            let page = crate::analyze_with_rules(&input.xhtml, &[input.rules.clone()]).pages.remove(0);
+            let html = scraper::Html::parse_document(&input.xhtml);
+            let node = html.select(&scraper::Selector::parse("page").unwrap()).next().unwrap();
+            let observed = state.observe(&page, node, input.rules.as_ref().unwrap(), true);
+            assert!(state.token.is_some(), "page {} lost its original comparison scope", i + 1);
+            if i > 0 {
+                assert!(observed.units.is_some(), "page {} has two printed fields", i + 1);
+            }
+        }
+    }
     #[test]
     fn role_material_has_no_tolerance_across_the_original_divider() {
         for axis in [NativeAxis::Down, NativeAxis::Right] {
@@ -470,3 +589,9 @@ mod geometry_tests {
 
 #[path="native_role_prefix.rs"]
 mod prefix;
+
+#[path="native_line_field_spans.rs"]
+mod line_spans;
+
+#[path="native_role_tiles.rs"]
+mod tiles;

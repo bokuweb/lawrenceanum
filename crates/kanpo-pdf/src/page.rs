@@ -155,6 +155,8 @@ struct GState {
     ink_geometry_complete:bool,
     ink_fill_components:Option<usize>,
     source_graphics_states:Option<Vec<Vec<u8>>>,
+    source_paint_state: Option<Vec<crate::source_images::PaintStateOperator>>,
+    source_paint_matrices: Option<Vec<[f64;6]>>,
 }
 
 const MAX_FORM_DEPTH: usize = 12;
@@ -177,6 +179,8 @@ struct Interp<'a> {
     source_rects:Option<Vec<Option<[f64;4]>>>,
     ink_viewport:[f64;4],
     image_draws: Option<Vec<crate::source_images::ImageDraw>>,
+    source_paths: Option<Vec<crate::source_images::PathDraw>>,
+    source_path_commands: Vec<crate::source_images::PathCommand>,
     image_gaps:Option<Vec<crate::source_images::CaptureGap>>,
     source_pending_clip:Option<crate::source_images::ClipRule>,
     paths: Vec<PathItem>,
@@ -195,15 +199,15 @@ pub fn extract_page(doc: &Document, page: &PageRef) -> Page {
     interpret_page(doc, page, false, false).0
 }
 pub(crate) fn extract_page_source_aj1(doc: &Document, page: &PageRef) -> crate::Aj1PageSources {
-    let (page, resolved, ink_rects, aliases, lineage, _, _) = interpret_page(doc, page, true, false);
+    let (page, resolved, ink_rects, aliases, lineage, _, _, _) = interpret_page(doc, page, true, false);
     crate::source_aj1::Aj1PageSources { lineage, original: page, resolved, ink_rects, aliases }
 }
 
 pub(crate) fn extract_page_source_images(doc:&Document,page:&PageRef)->crate::source_images::XObjectPageSources{
- let(original,resolved,ink_rects,aliases,lineage,draws,gaps)=interpret_page(doc,page,true,true);
- crate::source_images::XObjectPageSources{native:crate::source_aj1::Aj1PageSources{lineage,original,resolved,ink_rects,aliases},crop:page.crop_box,draws,gaps,document_digest:[0;32],media:page.media_box}
+ let(original,resolved,ink_rects,aliases,lineage,draws,gaps,paths)=interpret_page(doc,page,true,true);
+ crate::source_images::XObjectPageSources{paths,native:crate::source_aj1::Aj1PageSources{lineage,original,resolved,ink_rects,aliases},crop:page.crop_box,draws,gaps,document_digest:[0;32],media:page.media_box}
 }
-fn interpret_page(doc: &Document, page: &PageRef, source: bool, image_sources:bool) -> (Page, Vec<Option<char>>,Vec<Option<[f64;4]>>,crate::font::source_alias::Aliases,crate::source_lineage::Tape,Vec<crate::source_images::ImageDraw>,Vec<crate::source_images::CaptureGap>) {
+fn interpret_page(doc: &Document, page: &PageRef, source: bool, image_sources:bool) -> (Page, Vec<Option<char>>,Vec<Option<[f64;4]>>,crate::font::source_alias::Aliases,crate::source_lineage::Tape,Vec<crate::source_images::ImageDraw>,Vec<crate::source_images::CaptureGap>,Vec<crate::source_images::PathDraw>) {
     let [x0, y0, x1, y1] = page.crop_box;
     let device = match page.rotate {
         90 => Matrix([0.0, 1.0, 1.0, 0.0, -y0, -x0]),
@@ -233,6 +237,8 @@ fn interpret_page(doc: &Document, page: &PageRef, source: bool, image_sources:bo
             ink_geometry_complete:true,
             ink_fill_components:Some(1),
             source_graphics_states:image_sources.then(Vec::new),
+            source_paint_state:image_sources.then(Vec::new),
+            source_paint_matrices:image_sources.then(Vec::new),
         },
         stack: Vec::new(),
         tm: Matrix::IDENTITY,
@@ -246,6 +252,8 @@ fn interpret_page(doc: &Document, page: &PageRef, source: bool, image_sources:bo
         source_rects:source.then(Vec::new),
         ink_viewport:[0.,0.,width,height],
         image_draws: image_sources.then(Vec::new),
+        source_paths:image_sources.then(Vec::new),
+        source_path_commands:Vec::new(),
         image_gaps:image_sources.then(Vec::new),
         source_pending_clip:None,
         paths: Vec::new(),
@@ -292,6 +300,7 @@ fn interpret_page(doc: &Document, page: &PageRef, source: bool, image_sources:bo
         lineage,
         image_draws,
         image_gaps,
+        it.source_paths.take().unwrap_or_default(),
     )
 }
 
@@ -342,6 +351,20 @@ impl Interp<'_> {
     }
 
     fn op(&mut self, op: &[u8], o: &[Object], resources: &Dict) {
+        if self.source_paths.is_some() {
+            if matches!(op,b"m"|b"l"|b"c"|b"v"|b"y"|b"h"|b"re") {
+                self.source_path_commands.push(crate::source_images::PathCommand{operator:op.to_vec(),operands:o.to_vec(),matrix:self.gs.ctm.0,matrices:self.gs.source_paint_matrices.clone().unwrap_or_default()});
+            }
+            if matches!(op,b"w"|b"J"|b"j"|b"M"|b"d"|b"ri"|b"i"|b"gs"|b"CS"|b"cs"|b"SC"|b"SCN"|b"sc"|b"scn"|b"G"|b"g"|b"RG"|b"rg"|b"K"|b"k") {
+                let category=match op{b"gs"=>Some(&b"ExtGState"[..]),b"CS"|b"cs"=>Some(&b"ColorSpace"[..]),b"SCN"|b"scn"=>Some(&b"Pattern"[..]),_=>None};
+                let resource=category.and_then(|category|{
+                    let name=o.iter().rev().find_map(Object::as_name)?;
+                    let dict=self.doc.dict_get(resources,category)?;
+                    self.doc.dict_get(dict.as_dict()?,name)
+                });
+                if let Some(state)=self.gs.source_paint_state.as_mut(){state.push(crate::source_images::PaintStateOperator{operator:op.to_vec(),operands:o.to_vec(),resource});}
+            }
+        }
         let lineage_first=self.glyphs.len();
         if !matches!(op,b"TD"|b"Td"|b"T*"|b"Tj"|b"TJ"){if let Some(c)=self.source_lineage.as_mut(){c.reset();}}
         self.observe_ink_op(op,o,resources);
@@ -358,6 +381,7 @@ impl Interp<'_> {
                 if self.image_gaps.is_some()&&!(o.len()==6&&o.iter().all(|v|v.as_f64().is_some_and(f64::is_finite))){self.image_gap(crate::source_images::GapKind::InvalidContentMatrix,b"");self.gs.source_geometry_complete=false;}
                 if let Some(m) = Matrix::from_operands(o) {
                     self.gs.ctm = m.then(&self.gs.ctm);
+                    if let Some(matrices)=self.gs.source_paint_matrices.as_mut(){matrices.push(m.0);}
                 }
             }
             b"gs"=>{if let Some(names)=self.gs.source_graphics_states.as_mut(){if let Some(name)=o.first().and_then(Object::as_name){names.push(name.to_vec());}}},
@@ -474,16 +498,17 @@ impl Interp<'_> {
                     rect: true,
                 });
             }
-            b"S" => self.paint(true, false, false),
-            b"s" => self.paint(true, false, true),
-            b"f" | b"F" | b"f*" => self.paint(false, true, false),
-            b"B" | b"B*" => self.paint(true, true, false),
-            b"b" | b"b*" => self.paint(true, true, true),
+            b"S" => self.paint(true, false, false, op),
+            b"s" => self.paint(true, false, true, op),
+            b"f" | b"F" | b"f*" => self.paint(false, true, false, op),
+            b"B" | b"B*" => self.paint(true, true, false, op),
+            b"b" | b"b*" => self.paint(true, true, true, op),
             b"W" | b"W*" => {self.pending_clip=true;if self.image_gaps.is_some()||self.source_rects.is_some(){self.source_pending_clip=Some(if op==b"W*"{crate::source_images::ClipRule::EvenOdd}else{crate::source_images::ClipRule::NonZero});}},
             b"n" => {
                 self.flush_subpath();
                 self.apply_clip();
                 self.path.clear();
+                self.source_path_commands.clear();
             }
             // ---- XObject ----
             b"Do" => {
@@ -600,7 +625,15 @@ impl Interp<'_> {
             let ink_rect=if self.source_rects.is_some(){self.capture_ink_rectangle(&font,&c,&trm)}else{None};
             let scene_rect=if self.source_lineage.is_some(){if font.vertical&&!crate::bbox::readable_ordering(font.ordering.as_deref(),font.has_to_unicode){self.capture_scene_rectangle(&font,&c,&trm)}else{ink_rect}}else{None};
             let compound=if self.source_lineage.is_some()&&scene_rect.is_none(){self.capture_scene_compound_envelope(&font,&c,&trm)}else{None};
-            if let Some(tape)=self.source_lineage.as_mut(){tape.scene_rectangle(self.glyphs.len(),scene_rect);tape.scene_compound_obstacle(self.glyphs.len(),compound);}
+            let separate=if compound.is_some(){self.capture_separate_rectangles(&font,&c,&trm)}else{None};
+            let frame=if compound.is_some()&&separate.is_none(){self.capture_rectangle_frame(&font,&c,&trm)}else{None};
+            if let Some(tape)=self.source_lineage.as_mut(){
+                tape.scene_rectangle(self.glyphs.len(),scene_rect);tape.scene_compound_obstacle(self.glyphs.len(),compound);
+                tape.separate_rectangles(self.glyphs.len(),separate);
+                tape.rectangle_frame(self.glyphs.len(),frame);
+                let [a,b,c,d,_,_] = trm.0;
+                tape.text_axes(self.glyphs.len(), [a,b,c,d]);
+            }
             self.tm = advance.then(&self.tm);
             self.glyphs.push(Glyph {
                 text: font.unicode(&c),
@@ -640,7 +673,7 @@ impl Interp<'_> {
         }
     }
 
-    fn paint(&mut self, stroke: bool, fill: bool, close: bool) {
+    fn paint(&mut self, stroke: bool, fill: bool, close: bool, operator: &[u8]) {
         if close {
             if let Some(sp) = self.current.as_mut() {
                 sp.closed = true;
@@ -649,7 +682,9 @@ impl Interp<'_> {
         self.flush_subpath();
         // `W` で狭めたクリップは、同じパスを描いた後から効く。
         let clip = self.gs.clip;
+        let clips=self.gs.source_clips.clone().unwrap_or_default();
         self.apply_clip();
+        let commands=std::mem::take(&mut self.source_path_commands);
         let subpaths = std::mem::take(&mut self.path);
         if subpaths.is_empty() {
             return;
@@ -659,6 +694,10 @@ impl Interp<'_> {
         let conformal=a*a+b*b==c*c+d*d&&a*c+b*d==0.;
         if let Some(c)=self.source_lineage.as_mut(){c.paint(&subpaths,stroke,fill,line_width,conformal);}
 
+        if let Some(paths)=self.source_paths.as_mut(){paths.push(crate::source_images::PathDraw{
+            path:self.paths.len(),operator:operator.to_vec(),commands,
+            state:self.gs.source_paint_state.clone().unwrap_or_default(),matrix:self.gs.ctm.0,matrices:self.gs.source_paint_matrices.clone().unwrap_or_default(),clips,form_path:self.forms.clone(),
+        });}
         self.paths.push(PathItem {
             subpaths,
             stroke,
@@ -673,7 +712,7 @@ impl Interp<'_> {
     fn apply_clip(&mut self) {
         if let Some(rule)=self.source_pending_clip.take(){
             let complete=self.gs.source_geometry_complete&&!self.path.is_empty()&&self.path.iter().all(|sp|!sp.curved&&sp.points.iter().flatten().all(|v|v.is_finite()));
-            if let Some(clips)=self.gs.source_clips.as_mut(){clips.push(crate::source_images::SourceClip{origin:crate::source_images::ClipOrigin::Path,rule,subpaths:self.path.clone(),form_box:None,page_quad:None,geometry_complete:complete});}
+            if let Some(clips)=self.gs.source_clips.as_mut(){clips.push(crate::source_images::SourceClip{commands:self.source_path_commands.clone(),origin:crate::source_images::ClipOrigin::Path,rule,subpaths:self.path.clone(),form_box:None,page_quad:None,geometry_complete:complete});}
             if !complete{self.gs.source_geometry_complete=false;self.image_gap(crate::source_images::GapKind::PathGeometryIncomplete,b"");}
         }
         if !std::mem::take(&mut self.pending_clip) || self.path.iter().any(|sp| sp.curved) {
@@ -749,7 +788,9 @@ impl Interp<'_> {
         let invalid_matrix=matrix_value.as_ref().is_some_and(|m|m.as_array().is_none_or(|a|a.len()!=6||!a.iter().all(|v|v.as_f64().is_some_and(f64::is_finite))));
         let saved=(self.gs.clone(),self.stack.len(),self.tm,self.tlm,self.current.take(),std::mem::take(&mut self.path));
         let saved_pending=self.source_pending_clip.take();
+        let saved_commands=std::mem::take(&mut self.source_path_commands);
         self.gs.ctm=matrix.then(&self.gs.ctm);
+        if let Some(matrices)=self.gs.source_paint_matrices.as_mut(){matrices.push(matrix.0);}
         if self.image_draws.is_some()||self.source_rects.is_some(){
             if saved_pending.is_some()||saved.4.is_some()||!saved.5.is_empty(){self.image_gap(GapKind::OpenPathAtForm,name);self.gs.source_geometry_complete=false;}
             if invalid_matrix{self.image_gap(GapKind::InvalidFormMatrix,name);self.gs.source_geometry_complete=false;}
@@ -760,13 +801,13 @@ impl Interp<'_> {
             if bbox.is_none(){self.image_gap(GapKind::InvalidFormBox,name);}
             if quad.is_some_and(|q|!q.iter().flatten().all(|v|v.is_finite())){self.image_gap(GapKind::UnrepresentableGeometry,name);}
             if !complete{self.gs.source_geometry_complete=false;}
-            if let Some(clips)=self.gs.source_clips.as_mut(){clips.push(SourceClip{origin:ClipOrigin::FormBox,rule:ClipRule::NonZero,subpaths:vec![],form_box:bbox,page_quad:quad,geometry_complete:complete});}
+            if let Some(clips)=self.gs.source_clips.as_mut(){clips.push(SourceClip{commands:vec![],origin:ClipOrigin::FormBox,rule:ClipRule::NonZero,subpaths:vec![],form_box:bbox,page_quad:quad,geometry_complete:complete});}
         }
         if let Some(r)=r{self.forms.push(r);}
         self.run(&content,form_resources.as_ref().unwrap_or(resources));
         if r.is_some(){self.forms.pop();}
         let(gs,depth,tm,tlm,current,path)=saved;
-        self.gs=gs;self.stack.truncate(depth);self.tm=tm;self.tlm=tlm;self.current=current;self.path=path;self.source_pending_clip=saved_pending;
+        self.gs=gs;self.stack.truncate(depth);self.tm=tm;self.tlm=tlm;self.current=current;self.path=path;self.source_pending_clip=saved_pending;self.source_path_commands=saved_commands;
     }
 
 }

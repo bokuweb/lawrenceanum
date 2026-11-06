@@ -1,4 +1,6 @@
 //! Original source caps close an earlier comparison before a later root.
+#[path="support/source_reviewed_expectations.rs"]
+mod source_reviewed_expectations;
 fn inputs(name: &str) -> Vec<kanpo_parser::PageInput> {
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
     let index: serde_json::Value =
@@ -44,7 +46,7 @@ fn stored(folder: &str, name: &str) -> serde_json::Value {
             "tests/data/native-role-prefix/{folder}/{name}.json"
         ))
     });
-    serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap()
+    source_reviewed_expectations::current(serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap())
 }
 #[test]
 fn complete_original_radio_comparison_closes_before_the_next_notice() {
@@ -141,5 +143,7 @@ fn a_mixed_footer_without_its_original_scene_keeps_the_entire_previous_abstentio
         "data/katakana-headings263/226-three-missing-scene.json"
     ))
     .unwrap();
-    assert!(actual(&input) == expected);
+    // Apply only the independently reviewed source Word ownership correction;
+    // all text, regions, roles and article boundaries remain frozen.
+    assert!(actual(&input) == source_reviewed_expectations::current(expected));
 }

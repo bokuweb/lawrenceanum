@@ -1,0 +1,530 @@
+[
+  {
+    "source_pdf": "crates/kanpo-parser/tests/data/native-instrument-roots/pdfs/20260806h017630009.pdf",
+    "sha256": "874dbcc791130b6fb4a91ff497b47bdde18c00924c8dbb99e60e2c367c6d5980",
+    "media_box": [
+      0,
+      0,
+      595,
+      842
+    ],
+    "crop_box": [
+      0,
+      0,
+      595,
+      842
+    ],
+    "rotate": 270,
+    "old_size": [
+      595.0,
+      842.0
+    ],
+    "device_size": [
+      842.0,
+      595.0
+    ],
+    "anchor": {
+      "id": 46,
+      "raw": "告示第1107号）第３条第５項の規定により、次の",
+      "x0": 245.0,
+      "y0": 255.8597,
+      "x1": 421.0,
+      "y1": 264.0437
+    }
+  },
+  {
+    "source_pdf": "crates/kanpo-parser/tests/data/native-instrument-roots/pdfs/20261015h018080009.pdf",
+    "sha256": "c1e36e500332e7920f7f934fd5a798fee27ede72a167f82cf30820d447aea765",
+    "media_box": [
+      0,
+      0,
+      595,
+      842
+    ],
+    "crop_box": [
+      0,
+      0,
+      595,
+      842
+    ],
+    "rotate": 270,
+    "old_size": [
+      595.0,
+      842.0
+    ],
+    "device_size": [
+      842.0,
+      595.0
+    ],
+    "anchor": {
+      "id": 13,
+      "raw": "E‑mail：tsunodatwd@mso.dss.mod.go.jp",
+      "x0": 261.032,
+      "y0": 186.7466,
+      "x1": 409.2752,
+      "y1": 194.9306
+    }
+  },
+  {
+    "source_pdf": "crates/kanpo-parser/tests/data/native-instrument-roots/pdfs/20260914h017890010.pdf",
+    "sha256": "7bc3820514d4ca4c247bb2f16b9fb47025cf98dc97313acc9d55547f7d5db860",
+    "media_box": [
+      0,
+      0,
+      595,
+      842
+    ],
+    "crop_box": [
+      0,
+      0,
+      595,
+      842
+    ],
+    "rotate": 270,
+    "old_size": [
+      595.0,
+      842.0
+    ],
+    "device_size": [
+      842.0,
+      595.0
+    ],
+    "anchor": {
+      "id": 20,
+      "raw": "所得税法（昭和40年法律第33号）第214条第２",
+      "x0": 69.0358,
+      "y0": 68.3597,
+      "x1": 236.9886,
+      "y1": 76.5437
+    }
+  },
+  {
+    "source_pdf": "crates/kanpo-parser/tests/data/native-court-body-fonts/20260916h017910022.pdf",
+    "sha256": "a0f250a1c542d8de850176aaa43ee855627567269a8fcd2a1fa8861ca5c4ac6b",
+    "media_box": [
+      0,
+      0,
+      595,
+      842
+    ],
+    "crop_box": [
+      0,
+      0,
+      595,
+      842
+    ],
+    "rotate": 270,
+    "old_size": [
+      595.0,
+      842.0
+    ],
+    "device_size": [
+      842.0,
+      595.0
+    ],
+    "anchor": {
+      "id": 2,
+      "raw": "",
+      "x0": 44.0657,
+      "y0": 150.0,
+      "x1": 54.2957,
+      "y1": 190.0
+    }
+  },
+  {
+    "source_pdf": "crates/kanpo-parser/tests/data/native-court-columns/20260929h017970020.pdf",
+    "sha256": "74d4358364f6407cb2c7885bd8c25eef020a2ea4f1be4a0acec2d97d9caf2659",
+    "media_box": [
+      0,
+      0,
+      595,
+      842
+    ],
+    "crop_box": [
+      0,
+      0,
+      595,
+      842
+    ],
+    "rotate": 270,
+    "old_size": [
+      595.0,
+      842.0
+    ],
+    "device_size": [
+      842.0,
+      595.0
+    ],
+    "anchor": {
+      "id": 13,
+      "raw": "令和８年10月29日から同年11月16日まで",
+      "x0": 261.0,
+      "y0": 350.8477,
+      "x1": 405.0,
+      "y1": 359.0317
+    }
+  },
+  {
+    "source_pdf": "crates/kanpo-parser/tests/data/native-court-columns/20260831h017790020.pdf",
+    "sha256": "1bdb92a0b7f5410f439762f1e2a32def692eed13c756782e841a9f0d581065c0",
+    "media_box": [
+      0,
+      0,
+      595,
+      842
+    ],
+    "crop_box": [
+      0,
+      0,
+      595,
+      842
+    ],
+    "rotate": 270,
+    "old_size": [
+      595.0,
+      842.0
+    ],
+    "device_size": [
+      842.0,
+      595.0
+    ],
+    "anchor": {
+      "id": 0,
+      "raw": "破産手続終結",
+      "x0": 122.0,
+      "y0": 490.9449,
+      "x1": 176.0,
+      "y1": 500.1519
+    }
+  },
+  {
+    "source_pdf": "crates/kanpo-parser/tests/data/native-court-columns/20260831h017790022.pdf",
+    "sha256": "84febcc87ff7b5cfa6763838faabdf0bac2e61de987056364264f9c120f1d609",
+    "media_box": [
+      0,
+      0,
+      595,
+      842
+    ],
+    "crop_box": [
+      0,
+      0,
+      595,
+      842
+    ],
+    "rotate": 270,
+    "old_size": [
+      595.0,
+      842.0
+    ],
+    "device_size": [
+      842.0,
+      595.0
+    ],
+    "anchor": {
+      "id": 1,
+      "raw": "小規模個人再生による再生手",
+      "x0": 90.5,
+      "y0": 254.5889,
+      "x1": 207.5,
+      "y1": 263.7959
+    }
+  },
+  {
+    "source_pdf": "crates/kanpo-parser/tests/archive/pages/20260723g00163/20260723g001630103.pdf",
+    "sha256": "ec102e1979cc06c894f36588af78c4dfcdfa31c5418a7056425fd58e4c52aed2",
+    "media_box": [
+      0,
+      0,
+      595,
+      842
+    ],
+    "crop_box": [
+      0,
+      0,
+      595,
+      842
+    ],
+    "rotate": 270,
+    "old_size": [
+      595.0,
+      842.0
+    ],
+    "device_size": [
+      842.0,
+      595.0
+    ],
+    "anchor": {
+      "id": 84,
+      "raw": "電波法第27条の20の４第３項の規定により、特定高周波数無線局の開設の認定の取消しを受け",
+      "x0": 83.242,
+      "y0": 215.8854,
+      "x1": 419.242,
+      "y1": 224.0694
+    }
+  },
+  {
+    "source_pdf": "crates/kanpo-parser/tests/data/orthogonal-gutters/20260717h017500021.pdf",
+    "sha256": "23199b350eac0999b91e682283bc3df8ab6e4490ee732d2fb2ce12615b35fc43",
+    "media_box": [
+      0.0,
+      0.0,
+      595.0,
+      842.0
+    ],
+    "crop_box": [
+      0.0,
+      0.0,
+      595.0,
+      842.0
+    ],
+    "rotate": 270,
+    "old_size": [
+      595.0,
+      842.0
+    ],
+    "device_size": [
+      842.0,
+      595.0
+    ],
+    "anchor": {
+      "id": 20,
+      "raw": "川崎市中原区下小田中３丁目２６番６号",
+      "x0": 253.0,
+      "y0": 397.1477,
+      "x1": 397.0,
+      "y1": 405.3317
+    }
+  },
+  {
+    "source_pdf": "crates/kanpo-parser/tests/data/native-court-categories/20260803h017600020.pdf",
+    "sha256": "3f825050988ad2485341fc5f6651bbd3d803ccf5906c1d117e8cbe4f3ed97c74",
+    "media_box": [
+      0.0,
+      0.0,
+      595.0,
+      842.0
+    ],
+    "crop_box": [
+      0.0,
+      0.0,
+      595.0,
+      842.0
+    ],
+    "rotate": 270,
+    "old_size": [
+      595.0,
+      842.0
+    ],
+    "device_size": [
+      842.0,
+      595.0
+    ],
+    "anchor": {
+      "id": 57,
+      "raw": "るまでの間､開始前会社の業務及び財産に関し、",
+      "x0": 69.0,
+      "y0": 470.9414,
+      "x1": 241.0,
+      "y1": 479.1254
+    }
+  },
+  {
+    "source_pdf": "crates/kanpo-parser/tests/data/native-court-categories/20260810h017650020.pdf",
+    "sha256": "266ed6f84f327ddc999040ac0a1404d37d6f77811a44f14a6323a32080246dfe",
+    "media_box": [
+      0.0,
+      0.0,
+      595.0,
+      842.0
+    ],
+    "crop_box": [
+      0.0,
+      0.0,
+      595.0,
+      842.0
+    ],
+    "rotate": 270,
+    "old_size": [
+      595.0,
+      842.0
+    ],
+    "device_size": [
+      842.0,
+      595.0
+    ],
+    "anchor": {
+      "id": 10,
+      "raw": "清算株式会社につき特別清算の開始を",
+      "x0": 101.0,
+      "y0": 343.8597,
+      "x1": 237.0,
+      "y1": 352.0437
+    }
+  },
+  {
+    "source_pdf": "crates/kanpo-parser/tests/data/native-court-categories/20260819h017710021.pdf",
+    "sha256": "fe84cb0600e8a02ac01d70d06a8fbc8e01e2e8a018cd762ec94ccd11f1fd2cbd",
+    "media_box": [
+      0.0,
+      0.0,
+      595.0,
+      842.0
+    ],
+    "crop_box": [
+      0.0,
+      0.0,
+      595.0,
+      842.0
+    ],
+    "rotate": 270,
+    "old_size": [
+      595.0,
+      842.0
+    ],
+    "device_size": [
+      842.0,
+      595.0
+    ],
+    "anchor": {
+      "id": 29,
+      "raw": "大阪府豊中市新千里東町一丁目３番４１７号",
+      "x0": 69.0,
+      "y0": 314.8577,
+      "x1": 229.0,
+      "y1": 323.0417
+    }
+  },
+  {
+    "source_pdf": "crates/kanpo-parser/tests/data/native-court-categories/20260826h017760024.pdf",
+    "sha256": "f52a87b92fb89ff907497d38d793c920d0394cc0197b2618de8f5c800f684848",
+    "media_box": [
+      0.0,
+      0.0,
+      595.0,
+      842.0
+    ],
+    "crop_box": [
+      0.0,
+      0.0,
+      595.0,
+      842.0
+    ],
+    "rotate": 270,
+    "old_size": [
+      595.0,
+      842.0
+    ],
+    "device_size": [
+      842.0,
+      595.0
+    ],
+    "anchor": {
+      "id": 28,
+      "raw": "控除した残額を弁済する。この場合においては、",
+      "x0": 253.0,
+      "y0": 80.6637,
+      "x1": 425.0,
+      "y1": 88.8477
+    }
+  },
+  {
+    "source_pdf": "crates/kanpo-parser/tests/data/native-atomic-columns/20260917h017920023.pdf",
+    "sha256": "a1bb8e26035e16f61e15026ade2f8667cfa078d466b9b1a9a8d1c9ef4eeef814",
+    "media_box": [
+      0.0,
+      0.0,
+      595.0,
+      842.0
+    ],
+    "crop_box": [
+      0.0,
+      0.0,
+      595.0,
+      842.0
+    ],
+    "rotate": 270,
+    "old_size": [
+      595.0,
+      842.0
+    ],
+    "device_size": [
+      842.0,
+      595.0
+    ],
+    "anchor": {
+      "id": 12,
+      "raw": "の金額は切り捨てるものとする。）。この場",
+      "x0": 445.0,
+      "y0": 143.6817,
+      "x1": 597.0,
+      "y1": 151.8657
+    }
+  },
+  {
+    "source_pdf": "crates/kanpo-parser/tests/data/native-court-categories/20261008h018040024.pdf",
+    "sha256": "ce83c2472edf9a8eed2ec8bc27cc21c12d6c6d9e516aa16631eea64b5cc6dbce",
+    "media_box": [
+      0.0,
+      0.0,
+      595.0,
+      842.0
+    ],
+    "crop_box": [
+      0.0,
+      0.0,
+      595.0,
+      842.0
+    ],
+    "rotate": 270,
+    "old_size": [
+      595.0,
+      842.0
+    ],
+    "device_size": [
+      842.0,
+      595.0
+    ],
+    "anchor": {
+      "id": 26,
+      "raw": "業譲渡について会社法467条1項に規定する株主",
+      "x0": 253.0,
+      "y0": 278.3357,
+      "x1": 421.0,
+      "y1": 286.5197
+    }
+  },
+  {
+    "source_pdf": "crates/kanpo-parser/tests/data/native-atomic-columns/20261020h018110017.pdf",
+    "sha256": "b229a189c736e066b961f83ff8537ac63ae7716508b5e0357db22c38c6469413",
+    "media_box": [
+      0.0,
+      0.0,
+      595.0,
+      842.0
+    ],
+    "crop_box": [
+      0.0,
+      0.0,
+      595.0,
+      842.0
+    ],
+    "rotate": 270,
+    "old_size": [
+      595.0,
+      842.0
+    ],
+    "device_size": [
+      842.0,
+      595.0
+    ],
+    "anchor": {
+      "id": 23,
+      "raw": "滋賀県愛知郡愛荘町東円堂仲切1117番地の５",
+      "x0": 253.0,
+      "y0": 57.1514,
+      "x1": 413.0,
+      "y1": 65.3354
+    }
+  }
+]

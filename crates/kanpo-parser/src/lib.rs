@@ -31,6 +31,13 @@
 //! ```
 
 use anyhow::Result;
+pub mod painted_text;
+pub mod source_underlines;
+pub mod source_baseline_shifts;
+pub mod source_line_projection;
+pub mod media;
+mod native_page_size;
+mod native_plain_columns;
 mod notice_boundaries;
 mod native_quote_scopes;
 mod company_document_parts;
@@ -147,6 +154,10 @@ pub fn analyze(xhtml: &str) -> Analysis {
 /// 表（[`model::Run::table`]）として返す。複数ページの XHTML（`<page>` が複数）も渡せる。
 pub fn analyze_with_rules(xhtml: &str, rules: &[Option<lines::PageRules>]) -> Analysis {
     let pages = vertical::analyze_pages_with_rules(xhtml, rules);
+    analysis_from_pages(pages, xhtml, rules)
+}
+
+fn analysis_from_pages(pages: Vec<trace::PageTrace>, xhtml: &str, rules: &[Option<lines::PageRules>]) -> Analysis {
     let join = |f: &dyn Fn(&trace::PageTrace) -> &str| {
         trace::join_page_texts(&pages, f)
     };
@@ -1199,13 +1210,15 @@ pub fn bbox_xhtml(pdf: &[u8]) -> Result<String> {
 
 /// PDF の各ページを [`analyze_item`] の入力（座標付きテキストと罫線）にする。
 pub fn page_inputs(pdf: &[u8]) -> Result<Vec<PageInput>> {
-    Ok(kanpo_pdf::extract_pages_with_aj1_sources(pdf)?
-        .into_iter()
-        .map(|source| PageInput {
+    Ok(page_inputs_from_sources(&kanpo_pdf::extract_pages_with_aj1_sources(pdf)?))
+}
+
+fn page_inputs_from_sources(sources: &[kanpo_pdf::Aj1PageSources]) -> Vec<PageInput> {
+    sources.iter().map(|source| PageInput {
             rules: Some(kanpo_pdf::page_rules(source.page())),
-            xhtml: kanpo_pdf::bbox::bbox_layout_with_native_styles(std::slice::from_ref(&source)),
+            xhtml: kanpo_pdf::bbox::bbox_layout_with_native_styles(std::slice::from_ref(source)),
         })
-        .collect())
+        .collect()
 }
 
 /// PDF（1 ページ）の罫線（縦線・横線）を抽出する。[`analyze_with_rules`] に渡すと、新旧対照表の

@@ -1,0 +1,29 @@
+{
+  "reason": "No.10記載法令とリンク先PDFの両方を対象にするという利用者指定",
+  "sources": [
+    {
+      "fixture": "case-10-listed-1.pdf",
+      "sha256": "bea9c78ce057170fa7e3bfa872e919173c1de9b0fad4cd109c60c832ac28b2f5",
+      "bytes": 131700,
+      "pages": 1,
+      "issue": "2026-10-13 号外第224号",
+      "printed_page": 1
+    },
+    {
+      "fixture": "case-10-listed-2.pdf",
+      "sha256": "6f8c897c83a190cdffcf69b3cc33ab0b23328a439c61f3925bd3c4f984e1b535",
+      "bytes": 97341,
+      "pages": 1,
+      "issue": "2026-10-13 号外第224号",
+      "printed_page": 2
+    },
+    {
+      "fixture": "case-10-listed-3.pdf",
+      "sha256": "6b3f724ba878afb873a28578b00f72985ead5ddc73216a46f45aa81ca774c18e",
+      "bytes": 140202,
+      "pages": 1,
+      "issue": "2026-10-13 号外第224号",
+      "printed_page": 3
+    }
+  ]
+}

@@ -41,6 +41,89 @@ fn sample_pdf() -> Vec<u8> {
 }
 
 #[test]
+fn source_text_axes_use_actual_text_and_page_matrices_including_reflections() {
+    use kanpo_pdf::SourceTextAxes;
+    for (matrix, expected) in [
+        (
+            "1 0 0 1",
+            Some(SourceTextAxes {
+                x: [1, 0],
+                y: [0, -1],
+            }),
+        ),
+        (
+            "-2 0 0 3",
+            Some(SourceTextAxes {
+                x: [-1, 0],
+                y: [0, -1],
+            }),
+        ),
+        (
+            "2 0 0 -3",
+            Some(SourceTextAxes {
+                x: [1, 0],
+                y: [0, 1],
+            }),
+        ),
+        (
+            "0 2 -3 0",
+            Some(SourceTextAxes {
+                x: [0, -1],
+                y: [-1, 0],
+            }),
+        ),
+        (
+            "0 -2 3 0",
+            Some(SourceTextAxes {
+                x: [0, 1],
+                y: [1, 0],
+            }),
+        ),
+        ("1 0.01 0 1", None),
+        ("0 0 0 1", None),
+        ("1 0 2 0", None),
+    ] {
+        for rotate in [0, 90, 180, 270] {
+            let content =
+                format!("q 1 0 0 1 10 20 cm BT /F1 10 Tf {matrix} 100 100 Tm (AB) Tj ET Q");
+            let bytes=build_pdf(&[
+                "<< /Type /Catalog /Pages 2 0 R >>".into(),
+                "<< /Type /Pages /Kids [3 0 R] /Count 1 >>".into(),
+                format!("<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Rotate {rotate} /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>"),
+                "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /FirstChar 65 /LastChar 66 /Widths [667 667] >>".into(),
+                format!("<< /Length {} >>\nstream\n{content}\nendstream",content.len()),
+            ]);
+            let pages = kanpo_pdf::extract_pages(&bytes).unwrap();
+            let sources = kanpo_pdf::extract_pages_with_aj1_sources(&bytes).unwrap();
+            assert_eq!(
+                serde_json::to_value(&pages[0]).unwrap(),
+                serde_json::to_value(sources[0].page()).unwrap()
+            );
+            let rotate_axis = |[x, y]: [i8; 2]| match rotate {
+                0 => [x, y],
+                90 => [-y, x],
+                180 => [-x, -y],
+                270 => [y, -x],
+                _ => unreachable!(),
+            };
+            let expected = expected.map(|a| SourceTextAxes {
+                x: rotate_axis(a.x),
+                y: rotate_axis(a.y),
+            });
+            assert_eq!(pages[0].glyphs.len(), 2);
+            for id in 0..2 {
+                assert_eq!(
+                    sources[0].glyph_text_axes(id),
+                    expected,
+                    "{matrix}; Rotate={rotate}"
+                );
+            }
+            assert!(sources[0].glyph_text_axes(2).is_none());
+        }
+    }
+}
+
+#[test]
 fn reads_text_positions_from_a_simple_pdf() {
     let pages = kanpo_pdf::extract_pages(&sample_pdf()).unwrap();
     assert_eq!(pages.len(), 1);

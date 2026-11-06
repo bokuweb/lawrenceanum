@@ -139,6 +139,8 @@ fn unsupported_masks_patterns_clips_text_modes_and_shears_are_not_certificates()
         let html = html(&bytes);
         assert!(!has_rule(&html), "{prefix} {text} {gs}");
         assert!(!html.contains("data-native-outline-rectangle"), "{prefix} {text} {gs}");
+        let sources=extract_pages_with_aj1_sources(&bytes).unwrap();
+        assert!((0..sources[0].page().glyphs.len()).all(|id|sources[0].glyph_painted_rectangle(id).is_none()));
     }
 }
 #[test]
@@ -224,6 +226,12 @@ fn complete_owned_rectangle_words_keep_original_outline_evidence() {
         assert!(!legacy.contains("data-native-outline-rectangle"));
         let styled = html(&bytes);
         assert!(styled.contains("data-native-outline-rectangle=\"1 "), "arbitrary CID {cid}");
+        let sources=extract_pages_with_aj1_sources(&bytes).unwrap();
+        assert_eq!(bbox::words(sources[0].page()).len(),1);
+        for (id,want) in [[20.,49.,28.,50.],[28.,49.,36.,50.],[36.,49.,44.,50.]].into_iter().enumerate() {
+            assert_eq!(sources[0].glyph_painted_rectangle(id),Some(want));
+        }
+        assert_eq!(sources[0].glyph_painted_rectangle(3),None);
     }
 }
 #[test]
@@ -244,6 +252,73 @@ fn compound_font188(cid:u16)->Vec<u8>{
     let program=vec![248,44,250,6,21,254,128,199,250,128,79,7,247,14,22,254,128,199,250,128,79,7,14];
     font(cid,program,"Arbitrary","Any","Other",&[],&[])
 }
+fn frame_font(cid:u16)->Vec<u8> {
+    let mut program=Vec::new();let mut previous=[0i16,0i16];
+    for path in [vec![[0,0],[1000,0],[1000,800],[0,800]],vec![[30,20],[30,740],[950,740],[950,20]]] {
+        for (index,point) in path.into_iter().enumerate() {
+            for n in [point[0]-previous[0],point[1]-previous[1]] {program.push(28);program.extend(n.to_be_bytes());}
+            program.push(if index==0{21}else{5});previous=point;
+        }
+    }
+    program.push(14);font(cid,program,"Arbitrary","Any","Other",&[],&[])
+}
+
+#[test]
+fn original_hollow_frame_contours_keep_their_hole_under_all_cardinal_transforms() {
+    for [a,b,c,d] in [[1,0,0,1],[-1,0,0,1],[1,0,0,-1],[-1,0,0,-1],[0,1,1,0],[0,1,-1,0],[0,-1,1,0],[0,-1,-1,0]] {
+        let tx=100-100*a-100*c;let ty=100-100*b-100*d;
+        let prefix=format!("{a} {b} {c} {d} {tx} {ty} cm");
+        for encoding in ["Identity-H","Identity-V"] {
+            let bytes=pdf_scene(43021,frame_font(43021),&prefix,"","",encoding,false);
+            let sources=extract_pages_with_aj1_sources(&bytes).unwrap();
+            let frame=sources[0].glyph_rectangle_frame(0).unwrap();
+            let (vx,vy)=if encoding=="Identity-V"{(0.5,0.88)}else{(0.,0.)};
+            for (rect,[x0,y0,x1,y1]) in [frame.outer,frame.inner].iter().zip([[0.,0.,1000.,800.],[30.,20.,950.,740.]]) {
+                let points=[[x0,y0],[x0,y1],[x1,y0],[x1,y1]].map(|[x,y]| {
+                    let x=20.+8.*(x/1000.-vx);let y=150.+8.*(y/1000.-vy);
+                    [a as f64*x+c as f64*y+tx as f64,200.-(b as f64*x+d as f64*y+ty as f64)]
+                });
+                let expected=[points.iter().map(|p|p[0]).reduce(f64::min).unwrap(),points.iter().map(|p|p[1]).reduce(f64::min).unwrap(),points.iter().map(|p|p[0]).reduce(f64::max).unwrap(),points.iter().map(|p|p[1]).reduce(f64::max).unwrap()];
+                assert!(rect.iter().zip(expected).all(|(got,want)|(*got-want).abs()<1e-10));
+            }
+            assert!(sources[0].glyph_painted_rectangle(0).is_none());
+            assert!(sources[0].glyph_separate_painted_rectangles(0).is_none());
+            assert!(sources[0].glyph_rectangle_frame(3).is_none());
+            assert_eq!(serde_json::to_value(extract_pages(&bytes).unwrap()).unwrap(),serde_json::to_value(vec![sources[0].page()]).unwrap());
+        }
+    }
+    for (prefix,text,gs) in [("","3 Tr",""),("/ArbitraryState gs","","/ca 0.5"),("0 0 25 200 re W n","",""),("1 0.5 0 1 0 0 cm","",""),("1 0 cm","","")] {
+        let bytes=pdf_scene(73,frame_font(73),prefix,text,gs,"Identity-H",false);
+        let sources=extract_pages_with_aj1_sources(&bytes).unwrap();
+        assert!((0..3).all(|id|sources[0].glyph_rectangle_frame(id).is_none()),"{prefix} {text} {gs}");
+    }
+}
+#[test]
+fn separate_contours_follow_original_font_origins_rotations_and_reflections() {
+    for [a,b,c,d] in [[1,0,0,1],[-1,0,0,1],[1,0,0,-1],[-1,0,0,-1],[0,1,1,0],[0,1,-1,0],[0,-1,1,0],[0,-1,-1,0]] {
+        let tx=100-100*a-100*c;let ty=100-100*b-100*d;
+        let prefix=format!("{a} {b} {c} {d} {tx} {ty} cm");
+        for encoding in ["Identity-H","Identity-V"] {
+            let bytes=pdf_scene(43021,compound_font188(43021),&prefix,"","",encoding,false);
+            let sources=extract_pages_with_aj1_sources(&bytes).unwrap();
+            let rects=sources[0].glyph_separate_painted_rectangles(0).unwrap();
+            let (vx,vy)=if encoding=="Identity-V"{(0.5,0.88)}else{(0.,0.)};
+            for (rect,[x0,y0,x1,y1]) in rects.iter().zip([[408.,-122.,468.,882.],[530.,-122.,590.,882.]]) {
+                let points=[[x0,y0],[x0,y1],[x1,y0],[x1,y1]].map(|[x,y]| {
+                    let x=20.+8.*(x/1000.-vx);let y=150.+8.*(y/1000.-vy);
+                    [a as f64*x+c as f64*y+tx as f64,200.-(b as f64*x+d as f64*y+ty as f64)]
+                });
+                let expected=[points.iter().map(|p|p[0]).reduce(f64::min).unwrap(),points.iter().map(|p|p[1]).reduce(f64::min).unwrap(),points.iter().map(|p|p[0]).reduce(f64::max).unwrap(),points.iter().map(|p|p[1]).reduce(f64::max).unwrap()];
+                assert!(rect.iter().zip(expected).all(|(got,want)|(*got-want).abs()<1e-10),"{prefix} {encoding}: {rect:?} {expected:?}");
+            }
+        }
+    }
+    for (prefix,text,gs) in [("","3 Tr",""),("/ArbitraryState gs","","/ca 0.5"),("0 0 10 10 re W n","",""),("1 0.5 0 1 0 0 cm","",""),("1 0 cm","","")] {
+        let bytes=pdf_scene(73,compound_font188(73),prefix,text,gs,"Identity-H",false);
+        let sources=extract_pages_with_aj1_sources(&bytes).unwrap();
+        assert!((0..3).all(|id|sources[0].glyph_separate_painted_rectangles(id).is_none()),"{prefix} {text} {gs}");
+    }
+}
 #[test]
 fn compound_contours_are_opaque_paint_and_never_a_continuous_ruling(){
     for cid in [73,43021]{for encoding in ["Identity-H","Identity-V"]{
@@ -254,6 +329,13 @@ fn compound_contours_are_opaque_paint_and_never_a_continuous_ruling(){
         let(vx,vy)=if encoding=="Identity-V"{(0.5,0.88)}else{(0.,0.)};
         let want=[20.+8.*(0.408-vx),50.-8.*(0.882-vy),20.+8.*(0.590-vx),50.-8.*(-0.122-vy)];
         assert_eq!(scene.glyph_obstacles[0].1,want);
+        let separate=sources[0].glyph_separate_painted_rectangles(0).unwrap();
+        let expected=[[408.,-122.,468.,882.],[530.,-122.,590.,882.]].map(|[a,b,c,d]|[
+            20.+8.*(a/1000.-vx),50.-8.*(d/1000.-vy),20.+8.*(c/1000.-vx),50.-8.*(b/1000.-vy),
+        ]);
+        assert_eq!(separate,expected);
+        assert_eq!(sources[0].glyph_painted_rectangle(0),None);
+        assert_eq!(sources[0].glyph_separate_painted_rectangles(3),None);
         assert!(!has_rule(&bbox::bbox_layout_with_native_styles(&sources)));
     }}
 }

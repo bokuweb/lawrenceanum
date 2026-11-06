@@ -449,8 +449,9 @@ fn layout<'a>(pages: impl IntoIterator<Item=(&'a Page,Option<&'a [Option<char>]>
         let obstacles=if emit_styles{lineage.and_then(|l|l.obstacle_attribute()).map(|x|format!(" data-native-lineage-obstacles=\"{x}\"")).unwrap_or_default()}else{String::new()};
         let ink=if emit_styles{lineage.and_then(|l|l.ink_attribute()).map(|x|format!(" data-native-lineage-ink=\"{x}\"")).unwrap_or_default()}else{String::new()};
         let count=if emit_styles{format!(" data-native-glyph-count=\"{}\"",page.glyphs.len())}else{String::new()};
+        let device_size=if emit_styles{format!(" data-native-device-size=\"1 {} {}\"",page.width,page.height)}else{String::new()};
         let scene=if emit_styles{lineage.and_then(|l|l.scene_attribute(page,&native_words)).map(|x|format!(" data-native-scene=\"{}\"",escape(&x))).unwrap_or_default()}else{String::new()};
-        let _ = writeln!(s, "  <page width=\"{w:.6}\" height=\"{h:.6}\"{count}{coverage}{obstacles}{ink}{scene}>");
+        let _ = writeln!(s, "  <page width=\"{w:.6}\" height=\"{h:.6}\"{count}{device_size}{coverage}{obstacles}{ink}{scene}>");
         for word in native_words {
             let attrs = format!(
                 "xMin=\"{:.6}\" yMin=\"{:.6}\" xMax=\"{:.6}\" yMax=\"{:.6}\"",
@@ -723,7 +724,7 @@ mod native_style_tests {
         let old = bbox_layout_with_aj1_sources(&sources);
         let mut new = bbox_layout_with_native_styles(&sources);
         assert_eq!(new.matches(" data-native-styles=\"").count(), 2);
-        for attr in ["data-native-terminal-glyph", "data-native-cell-origin", "data-native-glyph-count", "data-native-flow-first-glyph", "data-native-flow-after-glyph", "data-native-flow-start","data-native-flow-baseline","data-native-flow-end","data-native-flow-leading", "data-native-flow-trailing", "data-native-flow-prefix","data-native-styles", "data-native-content-styles", "data-native-axis", "data-native-ruling", "data-native-ink-xmin", "data-native-ink-ymin", "data-native-ink-xmax", "data-native-ink-ymax"] {
+        for attr in ["data-native-device-size", "data-native-terminal-glyph", "data-native-cell-origin", "data-native-glyph-count", "data-native-flow-first-glyph", "data-native-flow-after-glyph", "data-native-flow-start","data-native-flow-baseline","data-native-flow-end","data-native-flow-leading", "data-native-flow-trailing", "data-native-flow-prefix","data-native-styles", "data-native-content-styles", "data-native-axis", "data-native-ruling", "data-native-ink-xmin", "data-native-ink-ymin", "data-native-ink-xmax", "data-native-ink-ymax"] {
             let needle = format!(" {attr}=\"");
             while let Some(start) = new.find(&needle) {
                 let from = start + needle.len();

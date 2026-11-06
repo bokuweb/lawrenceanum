@@ -1,0 +1,1767 @@
+{
+  "workbook_sha256": "682745f88a7f1b8d8aa14abb857b0ad43e5ab942baaa1e759ac5ea110cf45c62",
+  "cases": [
+    {
+      "number": 1,
+      "row": 2,
+      "metadata": {
+        "A": "1.0",
+        "B": "低",
+        "C": "R8.9.15",
+        "D": "号外",
+        "E": "205.0",
+        "F": "H508800010025",
+        "G": "廃棄物の処理及び清掃に関する法律施行規則の一部を改正する省令",
+        "H": "環境省令25号",
+        "I": "一部改正",
+        "J": "新旧",
+        "K": "なし",
+        "L": "なし",
+        "M": "なし",
+        "N": "No.1_H508800010025.pdf",
+        "O": "20261104183120.pdf",
+        "P": "h508800010025",
+        "Q": "k50809151205_017p_002.rtf"
+      },
+      "sources": [
+        {
+          "cell": "N2",
+          "kind": "pdf",
+          "name": "No.1_H508800010025.pdf",
+          "url": "https://drive.google.com/file/d/1Orb-4scpUGrowI0Zf-ELMLoP5eAmQXoB/view?usp=drive_link",
+          "sha256": "58280044abeac3c4da7b21b59056d4a2361ed1dc898e7751dcc5c57c3832450a",
+          "bytes": 120185,
+          "fixture": "case-01.pdf"
+        },
+        {
+          "cell": "O2",
+          "kind": "annotated_pdf",
+          "name": "20261104183120.pdf",
+          "url": "https://drive.google.com/open?id=1QUa_WSt0xpjBBH5hmihpe0tkoCYJ0ecD",
+          "sha256": "c5ba663ba42ef000e21ad94a6bc3d0b190bd897b0cbd5330379b24f74a8c4637",
+          "bytes": 6704620
+        },
+        {
+          "cell": "Q2",
+          "kind": "rtf",
+          "name": "k50809151205_017p_002.rtf",
+          "url": "https://docs.google.com/document/u/0/d/19gyaSeR7AVhVZyB9PZ4Da_W5IPBj97VA/edit",
+          "sha256": "6a119e946bc279c3d0e32e0aff15c0ebdfe67dcf9610a28973a91b8d8d457691",
+          "bytes": 32284
+        },
+        {
+          "cell": "Q3",
+          "kind": "rtf",
+          "name": "k50809151205_017p_003.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1QkImTybDuuHQha2DHB9WRrMlf3SVON2U/edit",
+          "sha256": "b801729e8cf284aab50816e1c5623a6dc03472e2385616fd6a4bd6d688100206",
+          "bytes": 88033
+        },
+        {
+          "cell": "Q4",
+          "kind": "rtf",
+          "name": "k50809151205_021p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1JmgYbaGsuMoMjjk1l9Gdx6Gc8ykdLXTE/edit",
+          "sha256": "e82f9e9fe3063428f3c5cba523ca833e9c70a623d0b05cabaf7dac9a608af519",
+          "bytes": 107335
+        },
+        {
+          "cell": "Q5",
+          "kind": "rtf",
+          "name": "k50809151205_025p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1JPGNGWBjhrnbBWz68MD_OCKLo16EIHmL/edit",
+          "sha256": "bee863690a9d8d043efcb467359cd0fce6157d061c5f366cd3f98a4f85358390",
+          "bytes": 28248
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "row": 6,
+      "metadata": {
+        "A": "2.0",
+        "B": "低",
+        "C": "R8.9.16",
+        "D": "号外",
+        "E": "206.0",
+        "F": "H508050010080",
+        "G": "金融商品取引法第六章の二の規定による課徴金に関する内閣府令の一部を改正する内閣府令",
+        "H": "内閣府令80号",
+        "I": "一部改正",
+        "J": "新旧",
+        "K": "なし",
+        "L": "なし",
+        "M": "なし",
+        "N": "No.2_H508050010080.pdf",
+        "O": "20261104183155.pdf",
+        "P": "h508050010080",
+        "Q": "k50809161206_027p_001.rtf"
+      },
+      "sources": [
+        {
+          "cell": "N6",
+          "kind": "pdf",
+          "name": "No.2_H508050010080.pdf",
+          "url": "https://drive.google.com/file/d/1aDVBhyNsyf3od8N1VJC63MxRpaX5M3eK/view?usp=drive_link",
+          "sha256": "1c925217fcdbf75827cc72f293816e2d396250478571427dd60105e1d6a565dd",
+          "bytes": 147988,
+          "fixture": "case-02.pdf"
+        },
+        {
+          "cell": "O6",
+          "kind": "annotated_pdf",
+          "name": "20261104183155.pdf",
+          "url": "https://drive.google.com/open?id=1xRWJX2p5yYUdndfxWOL7fhB0FX3oJQpw",
+          "sha256": "bc05576bc5a9c52ebedb126bcfdd89dd2d54cc31f13fb401c5dc7d57723d5b06",
+          "bytes": 7071320
+        },
+        {
+          "cell": "Q6",
+          "kind": "rtf",
+          "name": "k50809161206_027p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1Z3MtOC9_IIn_fwbpLtedvJMnOCTDr2RS/edit",
+          "sha256": "a4e166ea79a83f32bb5ba6930a33bee4de3dc6e82dbd60663959f7054e727e78",
+          "bytes": 33837
+        },
+        {
+          "cell": "Q7",
+          "kind": "rtf",
+          "name": "k50809161206_027p_002.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1cdvJVI1Du-gaD5QJdG2FzawB_QWLdEmY/edit",
+          "sha256": "93e377872b3e1b33bcc785decc9d2c75312d1562346329b537216fcfad3de48f",
+          "bytes": 113822
+        },
+        {
+          "cell": "Q8",
+          "kind": "rtf",
+          "name": "k50809161206_031p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1GwvEQJ9wxAjvyYopEi0tWMnDgnc0H9El/edit",
+          "sha256": "3bfe4b11a095ec0c3dc2b5d51183bf32d890cc33ea9e0e0bfc961be378ed0fab",
+          "bytes": 97354
+        },
+        {
+          "cell": "Q9",
+          "kind": "rtf",
+          "name": "k50809161206_034p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1wHTyJ20ft6g91ML2PIbf97moICkL-stF/edit",
+          "sha256": "2665d532372e407a6ed063839868d2fe51287e34d7745b2ada2ff9c181e62818",
+          "bytes": 59016
+        },
+        {
+          "cell": "Q10",
+          "kind": "rtf",
+          "name": "k50809161206_036p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1RbovaL__Wdmo0EouxpUOWkBQit99Xlft/edit",
+          "sha256": "6a9e149aae02c99dbf7a6a0ce008f06a2589a43b9d36fc1dd902d77f6730bf7c",
+          "bytes": 36834
+        },
+        {
+          "cell": "Q11",
+          "kind": "rtf",
+          "name": "k50809161206_036p_002.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1ot0utQNGrWQ7dNCF9cXBIDD9rlVho6nB/edit",
+          "sha256": "780b7a76479bbb2c2bda7527689dc66d89cc31e8bb452f39e5f93d09f485867a",
+          "bytes": 22351
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "row": 12,
+      "metadata": {
+        "A": "3.0",
+        "B": "低",
+        "C": "R8.10.22",
+        "D": "本号",
+        "F": "H508410010149",
+        "G": "雇用保険法施行規則の一部を改正する省令",
+        "H": "厚生労働省令149号",
+        "I": "一部改正",
+        "J": "新旧",
+        "K": "なし",
+        "L": "なし",
+        "M": "なし",
+        "N": "No.3_H508410010149.pdf",
+        "O": "20261104183240.pdf",
+        "P": "h508410010149",
+        "Q": "k50810220000_002p_001.rtf"
+      },
+      "sources": [
+        {
+          "cell": "N12",
+          "kind": "pdf",
+          "name": "No.3_H508410010149.pdf",
+          "url": "https://drive.google.com/file/d/1ldSm9bvJcQTc2iC-JSIJ496dB0HEnSpo/view?usp=drive_link",
+          "sha256": "6c39eb65a931986dccd95287e4042b00a23277dab498dba67542f964e54836bf",
+          "bytes": 95720,
+          "fixture": "case-03.pdf"
+        },
+        {
+          "cell": "O12",
+          "kind": "annotated_pdf",
+          "name": "20261104183240.pdf",
+          "url": "https://drive.google.com/open?id=1cNyA9I_m6_1WJJ9khJVTFg9w3l89-Mzu",
+          "sha256": "4d41d86066a87d1eb0a44353262b4b24381a59e3a8ba11d94d73453d4ef1ee02",
+          "bytes": 2462520
+        },
+        {
+          "cell": "Q12",
+          "kind": "rtf",
+          "name": "k50810220000_002p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1yF7JsXXX725K7XQHCt5M67NLXeeeGW6B/edit",
+          "sha256": "39cd2dd599845f707e2ba68c6705e68a1ee6c42e13d034650a4731670d3f22e9",
+          "bytes": 28906
+        },
+        {
+          "cell": "Q13",
+          "kind": "rtf",
+          "name": "k50810220000_002p_002.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1VtOcuXI4bvKO7Plsdg5UGSpUdXHggT2e/edit",
+          "sha256": "d2a4b27369d538300c7e328ded5ee09196b1fab9563ca6e64c7ba3dca5e9fd82",
+          "bytes": 62039
+        },
+        {
+          "cell": "Q14",
+          "kind": "rtf",
+          "name": "k50810220000_004p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1_GValzTY1NUvtiZRslf28IKc6n3jnhdr/edit",
+          "sha256": "f5920d2da1a109628a68cdab584db57d67a6216cab66ea0dacc6d22a0e6f7758",
+          "bytes": 27330
+        }
+      ]
+    },
+    {
+      "number": 4,
+      "row": 15,
+      "metadata": {
+        "A": "4.0",
+        "B": "低",
+        "C": "R8.10.22",
+        "D": "号外",
+        "E": "232.0",
+        "F": "H508200020386",
+        "G": "電気通信番号計画の一部を変更する件",
+        "H": "総務省告示386号",
+        "I": "一部改正",
+        "J": "新旧",
+        "K": "なし",
+        "L": "なし",
+        "M": "なし",
+        "N": "No.4_H508200020386.pdf",
+        "O": "20261104183304.pdf",
+        "P": "h508200020386",
+        "Q": "k50810221232_014d_001.rtf"
+      },
+      "sources": [
+        {
+          "cell": "N15",
+          "kind": "pdf",
+          "name": "No.4_H508200020386.pdf",
+          "url": "https://drive.google.com/file/d/1j51tnvY8YH4mrDgLRnnDmfKXGzVfslSL/view?usp=drive_link",
+          "sha256": "6ee5f459a43d2c5214add2c778e59febeee5f748420fdd39347bfc1d28f64b9d",
+          "bytes": 120454,
+          "fixture": "case-04.pdf"
+        },
+        {
+          "cell": "O15",
+          "kind": "annotated_pdf",
+          "name": "20261104183304.pdf",
+          "url": "https://drive.google.com/open?id=1FM-XJZxn-oy7RcAwhsnSB_ZPq_hVtGvD",
+          "sha256": "f83a711fa217ef17d2f7ea62d49bfb4f4a8674645a7cd25a0c60adabec4a1366",
+          "bytes": 5242014
+        },
+        {
+          "cell": "Q15",
+          "kind": "rtf",
+          "name": "k50810221232_014d_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1WljDSnq2ghEblJELQQppfIYvu2wiVAiY/edit",
+          "sha256": "6e878c233e02f94f8bc3d32fcc14e7a3a10605774464b4018f225f39f56bd30b",
+          "bytes": 29451
+        },
+        {
+          "cell": "Q16",
+          "kind": "rtf",
+          "name": "k50810221232_014d_002.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1oJkR1T1dEdPVBWR5-tTvtRiKS34RQJ6-/edit",
+          "sha256": "c6c12881a25a6e6e9a4cbdf5f1eda1266c27a60c915673f8b2221c77fdf94482",
+          "bytes": 78929
+        },
+        {
+          "cell": "Q17",
+          "kind": "rtf",
+          "name": "k50810221232_017d_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/135P93b0WbEweCugd7qWcU8QfsbhWf3fC/edit",
+          "sha256": "0a08629b3834011ef30628e94a4e0ed69c6cd1cd0342de32091802b7108057c1",
+          "bytes": 41579
+        },
+        {
+          "cell": "Q18",
+          "kind": "rtf",
+          "name": "k50810221232_019d_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1crNfZuaoMbdxiMAEL1ZVQnR4xnkyqDpW/edit",
+          "sha256": "942c902de26cebbf77d6edfc882df9099177db06d5dfc35c2fb2f9094c90f1ba",
+          "bytes": 54950
+        },
+        {
+          "cell": "Q19",
+          "kind": "rtf",
+          "name": "k50810221232_022d_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1TuXJogic_Nr13KcjSwo3ilhGk79m95nb/edit",
+          "sha256": "1ae0d2e576398f77fd2ce6c2d2c2e2cc1da9c3f62d993ecfec28a408b0de9a20",
+          "bytes": 31131
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "row": 20,
+      "metadata": {
+        "A": "5.0",
+        "B": "低",
+        "C": "R8.3.31",
+        "D": "特号",
+        "E": "17.0",
+        "F": "H508020000102",
+        "G": "東日本大震災の被災者等に係る国税関係法律の臨時特例に関する法律施行令の一部を改正する政令",
+        "H": "政令102号",
+        "I": "一部改正",
+        "J": "改め文",
+        "K": "なし",
+        "L": "なし",
+        "M": "なし",
+        "N": "No.5_H508020000102.pdf",
+        "O": "20261104183327.pdf",
+        "P": "h508020000102",
+        "Q": "k50803312017_188p_001.rtf"
+      },
+      "sources": [
+        {
+          "cell": "N20",
+          "kind": "pdf",
+          "name": "No.5_H508020000102.pdf",
+          "url": "https://drive.google.com/file/d/1dHc9lurVuXgMGRL9Fc4e_WzC4yZ20yLQ/view?usp=drive_link",
+          "sha256": "7115473a021195708546ca008a894d63c85c95968d068665a7e235e8008fef47",
+          "bytes": 118409,
+          "fixture": "case-05.pdf"
+        },
+        {
+          "cell": "O20",
+          "kind": "annotated_pdf",
+          "name": "20261104183327.pdf",
+          "url": "https://drive.google.com/open?id=1SorbO3D4QpYVC43aiFXFFexr3pve_b2S",
+          "sha256": "335db911c146045884ec132cf355dea5b205af323d1dac090b62b9db45ed7a57",
+          "bytes": 5913632
+        },
+        {
+          "cell": "Q20",
+          "kind": "rtf",
+          "name": "k50803312017_188p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/18VzRuSbwAKcinBJPjrS9GUP3tI1Ziji3/edit",
+          "sha256": "676cbc284efacf060d3db92a89486969858b98024cf470a8e8482f455cafcee7",
+          "bytes": 178081
+        }
+      ]
+    },
+    {
+      "number": 6,
+      "row": 21,
+      "metadata": {
+        "A": "6.0",
+        "B": "低",
+        "C": "R8.3.31",
+        "D": "特号",
+        "E": "17.0",
+        "F": "H508320010017",
+        "G": "所得税法施行規則の一部を改正する省令",
+        "H": "財務省令17号",
+        "I": "一部改正",
+        "J": "改め文",
+        "K": "なし",
+        "L": "なし",
+        "M": "なし",
+        "N": "No.6_H508320010017.pdf",
+        "O": "20261104183348.pdf",
+        "P": "h508320010017",
+        "Q": "k50803312017_254p_001.rtf"
+      },
+      "sources": [
+        {
+          "cell": "N21",
+          "kind": "pdf",
+          "name": "No.6_H508320010017.pdf",
+          "url": "https://drive.google.com/file/d/1wMPC9JhcFpZ2sP1n63LPkQuNE2g49tyt/view?usp=drive_link",
+          "sha256": "d37dda20c7b4cad3b374f43a82c499b0c9259859558ab4e36ad459a0da6f40dc",
+          "bytes": 129157,
+          "fixture": "case-06.pdf"
+        },
+        {
+          "cell": "O21",
+          "kind": "annotated_pdf",
+          "name": "20261104183348.pdf",
+          "url": "https://drive.google.com/open?id=1e_qOXrpyBU6NopMQjT7P87EScscLoYWW",
+          "sha256": "3634d08a7ab1f51dc347fb1203e88ac940c329ea9e8987526fda88a1c079ca38",
+          "bytes": 3200982
+        },
+        {
+          "cell": "Q21",
+          "kind": "rtf",
+          "name": "k50803312017_254p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1Zublef5niWpKPo7frm846kmwAqcQiqGR/edit",
+          "sha256": "20da30dd3a62aea93352a71ebe44f5d20afba515c230ba7cfcfdcddbebada98f",
+          "bytes": 102909
+        }
+      ]
+    },
+    {
+      "number": 7,
+      "row": 22,
+      "metadata": {
+        "A": "7.0",
+        "B": "低",
+        "C": "R8.3.31",
+        "D": "特号",
+        "E": "17.0",
+        "F": "H508320010019",
+        "G": "消費税法施行規則の一部を改正する省令",
+        "H": "財務省令19号",
+        "I": "一部改正",
+        "J": "改め文",
+        "K": "なし",
+        "L": "なし",
+        "M": "なし",
+        "N": "No.7_H508320010019.pdf",
+        "O": "20261104183408.pdf",
+        "P": "h508320010019",
+        "Q": "k50803312017_270p_002.rtf"
+      },
+      "sources": [
+        {
+          "cell": "N22",
+          "kind": "pdf",
+          "name": "No.7_H508320010019.pdf",
+          "url": "https://drive.google.com/file/d/1CXPS2BSq1QbyOpa1uE-y0gWUIahKJtE8/view?usp=drive_link",
+          "sha256": "2e2f0d6d4f5edf44e0c95ff021f48f3e1ed412edce91cb8680d866336d438615",
+          "bytes": 105675,
+          "fixture": "case-07.pdf"
+        },
+        {
+          "cell": "O22",
+          "kind": "annotated_pdf",
+          "name": "20261104183408.pdf",
+          "url": "https://drive.google.com/open?id=1vOk6_C3wr1Yag3iFd926hhwT_q-TV1sK",
+          "sha256": "df7222e464fcc1a27b9b40644cf9e6faaf5b0a6dcd5f2de01648f4d0190b2c95",
+          "bytes": 3664995
+        },
+        {
+          "cell": "Q22",
+          "kind": "rtf",
+          "name": "k50803312017_270p_002.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1XL_rk7duiDu4xErtaRAcQ5zoGAGlngvC/edit",
+          "sha256": "776993c4f572fcc62e34407c6522d0efea5b5629f74729849a2e4560f1d157e0",
+          "bytes": 115078
+        }
+      ]
+    },
+    {
+      "number": 8,
+      "row": 23,
+      "metadata": {
+        "A": "8.0",
+        "B": "低",
+        "C": "R8.3.31",
+        "D": "特号",
+        "E": "17.0",
+        "F": "H508020000093",
+        "G": "所得税法施行令の一部を改正する政令",
+        "H": "政令93号",
+        "I": "一部改正",
+        "J": "改め文",
+        "K": "なし",
+        "L": "なし",
+        "M": "なし",
+        "N": "No.8_H508020000093.pdf",
+        "O": "20261104183433.pdf",
+        "P": "h508020000093",
+        "Q": "k50803312017_137p_002.rtf"
+      },
+      "sources": [
+        {
+          "cell": "N23",
+          "kind": "pdf",
+          "name": "No.8_H508020000093.pdf",
+          "url": "https://drive.google.com/file/d/1_wC0N5vhZ6Pw4B8AIs4CHLaY7QX6Orsz/view?usp=drive_link",
+          "sha256": "c4b7ff0c054cd1e3ecdc8730317e578e7b28fd37e99c79ed06329841a0344d45",
+          "bytes": 127938,
+          "fixture": "case-08.pdf"
+        },
+        {
+          "cell": "O23",
+          "kind": "annotated_pdf",
+          "name": "20261104183433.pdf",
+          "url": "https://drive.google.com/open?id=1z9pIhWzzRpldaDHlaO7iUgOuRAZCuwlV",
+          "sha256": "bc0c3ecdbf834d214357024c69f8354b94a625296ffd99509895e2333dd5c9da",
+          "bytes": 4359968
+        },
+        {
+          "cell": "Q23",
+          "kind": "rtf",
+          "name": "k50803312017_137p_002.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1t-185q4y_jQ037C-2gZQ5xoCZzFTdAia/edit",
+          "sha256": "a07c4bc60f93b21004390d1e4aba9158bcd8c612e11e408891e42d52c018a316",
+          "bytes": 127520
+        }
+      ]
+    },
+    {
+      "number": 9,
+      "row": 24,
+      "metadata": {
+        "A": "9.0",
+        "B": "中",
+        "C": "R8.10.1",
+        "D": "号外",
+        "E": "217.0",
+        "F": "H508200010115",
+        "G": "電波法施行規則等の一部を改正する省令",
+        "H": "総務省令115号",
+        "I": "一部改正",
+        "J": "新旧",
+        "K": "なし",
+        "L": "あり",
+        "M": "あり",
+        "N": "No.9_H508200010115.pdf",
+        "P": "h508200010115",
+        "Q": "k50810011217_008p_001.rtf",
+        "R": "テキストのとれない箇所あり"
+      },
+      "sources": [
+        {
+          "cell": "N24",
+          "kind": "pdf",
+          "name": "No.9_H508200010115.pdf",
+          "url": "https://drive.google.com/file/d/1VtdI2J3BGwxfcXftilBXu_7NUvkKs3GS/view?usp=drive_link",
+          "sha256": "52e9d10e91a5b65dfa4dc46cba8b71be2d7a4672911ae1bdc30293d8cdcdf14f",
+          "bytes": 111226,
+          "fixture": "case-09.pdf"
+        },
+        {
+          "cell": "Q24",
+          "kind": "rtf",
+          "name": "k50810011217_008p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/18M2TnSAGVf2wMnVLe8fQPY7EKIc6BYnM/edit",
+          "sha256": "f317ea7e76258382a44622f06069abc2fe9afdd472ef4e1b7123f51c10e765e0",
+          "bytes": 31062
+        },
+        {
+          "cell": "Q25",
+          "kind": "rtf",
+          "name": "k50810011217_008p_002.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1En50dWQBF8TRK7DWyHYj8r70ittnEmtB/edit",
+          "sha256": "5690411b3f973242fc65528bec8fbf036c4fb4cd7fe4a848045d51893db32ef8",
+          "bytes": 37033
+        },
+        {
+          "cell": "Q26",
+          "kind": "rtf",
+          "name": "k50810011217_008p_003.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1jEF-DtYBuUjJfZlkaOdXA9wI4BluQqaj/edit",
+          "sha256": "bcc2babf6773454880d4603f5bb71cc7d11999316043a00b016fd15c68a6bd0f",
+          "bytes": 31814
+        },
+        {
+          "cell": "Q27",
+          "kind": "rtf",
+          "name": "k50810011217_008p_004.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1GslkTuYkioVmbyCLrBf24iX3BKLOjArW/edit",
+          "sha256": "289323eca9a8dd626309c532a254b0b7031a2a5dca19fcdec9eef6b8959cefb0",
+          "bytes": 85938
+        },
+        {
+          "cell": "Q28",
+          "kind": "rtf",
+          "name": "k50810011217_012p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1OE862uJQ5y7zQ6MEq90S6M3F1q6XtziF/edit",
+          "sha256": "f5095239bc46c5251cdc45975e8339b6e4e0f36ad0089b8eb77ec2493dcb3a25",
+          "bytes": 28182
+        },
+        {
+          "cell": "Q29",
+          "kind": "rtf",
+          "name": "k50810011217_012p_002.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1LQec-IL8IlJivjdApI4AxqzWL3Si7aCL/edit",
+          "sha256": "0245db7e0942b4065571ab9aa2591f8f075bdcc2e8791dcd2bf1c802480fa378",
+          "bytes": 26903
+        },
+        {
+          "cell": "Q30",
+          "kind": "rtf",
+          "name": "k50810011217_012p_003.rtf",
+          "url": "https://docs.google.com/document/u/0/d/171AJo76kCjcruDlR12SBt6JrZt7TKsVc/edit",
+          "sha256": "f77988175d5dec2696db0957aa4818b30d11dec0cc3238345ea8d5d314f57e99",
+          "bytes": 28707
+        },
+        {
+          "cell": "Q31",
+          "kind": "rtf",
+          "name": "k50810011217_012p_004.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1T57uV-tL_0p-XTv0LJS09Q1G7nh_K-tL/edit",
+          "sha256": "3f1cf01d8ef49bfb13e42151382cc3ce495cdca8bcb713fc9afafdf987ed67c6",
+          "bytes": 24777
+        },
+        {
+          "cell": "Q32",
+          "kind": "rtf",
+          "name": "k50810011217_013p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/11dfLeyKMzU4dfYCPSnSu5d0WBRVe-o0L/edit",
+          "sha256": "d26712a1e738c01d14457095190cfc260391e0dfd9bacc9de8fb2648ac731474",
+          "bytes": 43290
+        }
+      ]
+    },
+    {
+      "number": 10,
+      "row": 33,
+      "metadata": {
+        "A": "10.0",
+        "B": "中",
+        "C": "R8.10.1",
+        "D": "号外",
+        "E": "224.0",
+        "F": "H508410020373",
+        "G": "使用薬剤の薬価（薬価基準）等の一部を改正する告示",
+        "H": "厚生労働省告示373号",
+        "I": "一部改正",
+        "J": "新旧",
+        "K": "なし",
+        "L": "あり",
+        "M": "あり",
+        "N": "No.10_H5084710020373.pdf",
+        "P": "h508410020373",
+        "Q": "k50810131224_001d_001.rtf",
+        "R": "ルビ"
+      },
+      "sources": [
+        {
+          "cell": "N33",
+          "kind": "pdf",
+          "name": "No.10_H5084710020373.pdf",
+          "url": "https://drive.google.com/file/d/1dRMkWg26U8VFMi5ImmvtC-HTdhHqyNot/view?usp=drive_link",
+          "sha256": "21b45363d1368a44f869407351d18d219bb36858694d011af9458b56e47f2cb1",
+          "bytes": 668460,
+          "fixture": "case-10.pdf"
+        },
+        {
+          "cell": "Q33",
+          "kind": "rtf",
+          "name": "k50810131224_001d_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1mL6CxSp_Yijt_KlLgLY0JJ7fdX4PYZK2/edit",
+          "sha256": "f59ba0ef5cb8c23256f3aaf91874698a064d5bde7a08c9c2186bce1d4010614c",
+          "bytes": 51623
+        },
+        {
+          "cell": "Q34",
+          "kind": "rtf",
+          "name": "k50810131224_003d_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1o6eMw-OI50t-XPIYGpUqTU4Pyq0d4aUV/edit",
+          "sha256": "4bbe55a78ded11b8a1bb64e4a6e575353a8863b284edca153dcca56015dab4bb",
+          "bytes": 22234
+        },
+        {
+          "cell": "Q35",
+          "kind": "rtf",
+          "name": "k50810131224_003d_002.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1UZYPlSagPAO7395EqAweWOxkc9kljHyV/edit",
+          "sha256": "80c838d3b2f2a7feb1c6484550c52e029e6c4e46600051bccc0a7334c3ebd82f",
+          "bytes": 27714
+        }
+      ],
+      "source_discrepancy": {
+        "workbook_date": "R8.10.1",
+        "listed_law_actual_issue": "2026-10-13 号外224号 厚生労働省告示373号",
+        "linked_pdf_actual_issue": "2026-05-21 号外112号 厚生労働省告示224号",
+        "supplemental_sources": [
+          {
+            "fixture": "case-10-listed-1.pdf",
+            "original_page": "20261013g002240001",
+            "sha256": "bea9c78ce057170fa7e3bfa872e919173c1de9b0fad4cd109c60c832ac28b2f5",
+            "bytes": 131700
+          },
+          {
+            "fixture": "case-10-listed-2.pdf",
+            "original_page": "20261013g002240002",
+            "sha256": "6f8c897c83a190cdffcf69b3cc33ab0b23328a439c61f3925bd3c4f984e1b535",
+            "bytes": 97341
+          },
+          {
+            "fixture": "case-10-listed-3.pdf",
+            "original_page": "20261013g002240003",
+            "sha256": "6b3f724ba878afb873a28578b00f72985ead5ddc73216a46f45aa81ca774c18e",
+            "bytes": 140202
+          }
+        ]
+      }
+    },
+    {
+      "number": 11,
+      "row": 36,
+      "metadata": {
+        "A": "11.0",
+        "B": "中",
+        "C": "R8.10.1",
+        "D": "号外",
+        "E": "217.0",
+        "F": "H508200020362",
+        "G": "シングルキャリア周波数分割多元接続方式携帯移動衛星通信を行う携帯移動地球局の無線設備等の不要発射の強度の許容値その他の条件を定める件の一部を改正する件",
+        "H": "総務省告示362号",
+        "I": "一部改正",
+        "J": "新旧",
+        "K": "なし",
+        "L": "あり",
+        "M": "あり",
+        "N": "No.11_H508200020362.pdf",
+        "P": "h508200020362",
+        "Q": "k50810011217_040d_003.rtf"
+      },
+      "sources": [
+        {
+          "cell": "N36",
+          "kind": "pdf",
+          "name": "No.11_H508200020362.pdf",
+          "url": "https://drive.google.com/file/d/153-zCvU6az8MppVEVUC8IHIK8ehdVzWC/view?usp=drive_link",
+          "sha256": "23f50241b967f1cde0898a7d4a76afbbc354f9e1ab8fdc3fdd6d5968f06d7324",
+          "bytes": 87461,
+          "fixture": "case-11.pdf"
+        },
+        {
+          "cell": "Q36",
+          "kind": "rtf",
+          "name": "k50810011217_040d_003.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1Jokw1YmTiXNsSIN9DMq1BKU7DY6E_RRI/edit",
+          "sha256": "11a405d516f13ba1ff53b4c2369e7d0449c62a738a8a13f36eb56875729a1ad4",
+          "bytes": 31342
+        },
+        {
+          "cell": "Q37",
+          "kind": "rtf",
+          "name": "k50810011217_040d_004.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1KuBgCQLzVZkGfTKCMY9aufQLhUqm9OC-/edit",
+          "sha256": "f3ee36c08cd2dd19e1405b66f69005030f89f6088ab1220fb7fac751211557e7",
+          "bytes": 36511
+        },
+        {
+          "cell": "Q38",
+          "kind": "rtf",
+          "name": "k50810011217_041d_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1l16PLzUKaKEXZu8yqhMPUiC2zxwuH5qQ/edit",
+          "sha256": "c935c2d0e3c72269a665fb6e0ca4de0252acf78864cf7d78c0652259db71b940",
+          "bytes": 42743
+        },
+        {
+          "cell": "Q39",
+          "kind": "rtf",
+          "name": "k50810011217_041d_002.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1vhdl1nLSEqW1tubMQGUnLxffS0VXOZ4D/edit",
+          "sha256": "66588d9dbb63b4ca9c5b30a0a86c0c2e5cae42a6986eba526e90073283a83369",
+          "bytes": 28086
+        },
+        {
+          "cell": "Q40",
+          "kind": "rtf",
+          "name": "k50810011217_041d_003.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1jdC4sxMUN74coqFwEql-uOpHK5b1kEDB/edit",
+          "sha256": "df7e79538ef51c9241beb653ccab3abb9127bdd24b700778d686ae773bc6339e",
+          "bytes": 41895
+        },
+        {
+          "cell": "Q41",
+          "kind": "rtf",
+          "name": "k50810011217_042d_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1rIy6OHD4SyskMbs_iTJKrU-Si60xWpX1/edit",
+          "sha256": "8cb3ba20eee155b1116f9ef7b300eedbb50f3836a6c6ca8c2d71aa82bd88d2cc",
+          "bytes": 30389
+        },
+        {
+          "cell": "Q42",
+          "kind": "rtf",
+          "name": "k50810011217_042d_002.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1SNJeLICGCj5m5XNs8-caZLyV1ZGSMCmt/edit",
+          "sha256": "a3231887e1fab2d9c38b597fad0fde9ac3943eaab5349ada76d6b5327b169dec",
+          "bytes": 49821
+        },
+        {
+          "cell": "Q43",
+          "kind": "rtf",
+          "name": "k50810011217_044d_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/19QVao45l_wXDrojEzJ6Onjnrs6FDFmV8/edit",
+          "sha256": "52b5c2225608abbdbf75f66d5ea201527e96cf27a6ea27610102c11fae6140ff",
+          "bytes": 104310
+        }
+      ]
+    },
+    {
+      "number": 12,
+      "row": 44,
+      "metadata": {
+        "A": "12.0",
+        "B": "中",
+        "C": "R8.3.31",
+        "D": "特号",
+        "E": "15.0",
+        "F": "H508020000092",
+        "G": "重要電子計算機に対する不正な行為による被害の防止に関する法律の一部の施行に伴う関係政令の整備に関する政令",
+        "H": "政令92号",
+        "I": "一部改正",
+        "J": "改め文",
+        "K": "なし",
+        "L": "あり",
+        "M": "なし",
+        "N": "No.12_H508020000092.pdf",
+        "P": "h508020000092",
+        "Q": "k50803312015_121p_001.rtf",
+        "R": "段落指定あり"
+      },
+      "sources": [
+        {
+          "cell": "N44",
+          "kind": "pdf",
+          "name": "No.12_H508020000092.pdf",
+          "url": "https://drive.google.com/file/d/1Hd21hs1PqEsTuvlDrkVHdGSm2aDbyGUD/view?usp=drive_link",
+          "sha256": "68ae7b4f2cbaa0a918127581fc6a04512b5d4de8602ff0c3ec1941f73053fbfd",
+          "bytes": 55152,
+          "fixture": "case-12.pdf"
+        },
+        {
+          "cell": "Q44",
+          "kind": "rtf",
+          "name": "k50803312015_121p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1o-nFPYwIT4D-VDGWBb5b-eJICy7yjA66/edit",
+          "sha256": "1350eb45297a3c4dd0b68c22358cbfdb130aa617c54967d984366c8989a925a4",
+          "bytes": 49231
+        }
+      ]
+    },
+    {
+      "number": 13,
+      "row": 45,
+      "metadata": {
+        "A": "13.0",
+        "B": "中",
+        "C": "R8.3.31",
+        "D": "特号",
+        "E": "17.0",
+        "F": "H508020000098",
+        "G": "租税特別措置法施行令の一部を改正する政令",
+        "H": "政令98号",
+        "I": "一部改正",
+        "J": "改め文",
+        "K": "なし",
+        "L": "あり",
+        "M": "なし",
+        "N": "No.13_H508020000098.pdf",
+        "P": "h508020000098",
+        "Q": "k50803312017_151p_002.rtf",
+        "R": "段落指定あり"
+      },
+      "sources": [
+        {
+          "cell": "N45",
+          "kind": "pdf",
+          "name": "No.13_H508020000098.pdf",
+          "url": "https://drive.google.com/file/d/1TDt6C7ogeQRHzVw8qbxiYHXMBITf82G7/view?usp=drive_link",
+          "sha256": "383bc55c9178e75054b2b1c2a6decd47d3001ca1841fca4c379214141f89505d",
+          "bytes": 325751,
+          "fixture": "case-13.pdf"
+        },
+        {
+          "cell": "Q45",
+          "kind": "rtf",
+          "name": "k50803312017_151p_002.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1hifHfQuek1LPtvJdu3wLils7AUAb-oBM/edit",
+          "sha256": "7115f205343f18d6cd991f278673a73b00013090051a6f8fb7699ca154f333c9",
+          "bytes": 132995
+        },
+        {
+          "cell": "Q46",
+          "kind": "rtf",
+          "name": "k50803312017_155p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1kJUYPX47Pgxf6s4Zgx5zokJdf3A_ogSs/edit",
+          "sha256": "cdeb9df1c2a60158751377c56c1fcdea8b8270a99273233fdd73b2319b51cf65",
+          "bytes": 124585
+        },
+        {
+          "cell": "Q47",
+          "kind": "rtf",
+          "name": "k50803312017_158p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/16yZEdVflYT1Tp1Jaw8d2nUX4XiTtuPxe/edit",
+          "sha256": "cf2575443465025c3195c0336bd03973554dffa4d9b56cb1d4718f103e57fa04",
+          "bytes": 116881
+        },
+        {
+          "cell": "Q48",
+          "kind": "rtf",
+          "name": "k50803312017_161p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1J2K1UPAyuSqU8oWIObiT0-FPm1woWN6p/edit",
+          "sha256": "bfdb910228c08597e0e7d54a5627644a04e72b1d75fd7a6382149039a6b098d8",
+          "bytes": 124362
+        },
+        {
+          "cell": "Q49",
+          "kind": "rtf",
+          "name": "k50803312017_164p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/18j875_clIYnMiTSaGYYfpN_UGDRN5zYS/edit",
+          "sha256": "09dfd87562913226db0d600cd4f2c97d8feb077083c0da2529f602ec7ef1c34e",
+          "bytes": 134407
+        },
+        {
+          "cell": "Q50",
+          "kind": "rtf",
+          "name": "k50803312017_167p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1k9TQvJYQd8Vh6uKdapJ0ZQEEi4NNaASJ/edit",
+          "sha256": "5078f5123322b2b570f819fa20565e4fedce3c0503b4d53195362b24b6913d58",
+          "bytes": 148338
+        },
+        {
+          "cell": "Q51",
+          "kind": "rtf",
+          "name": "k50803312017_171p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1I-qHrUR2ZTYqV8piOvtfHdeXBNl_T0W7/edit",
+          "sha256": "b7519ba4aa6d0d859094d199bc3596da65dd560030ec705dd7bbf9a9eb2fa03b",
+          "bytes": 126470
+        },
+        {
+          "cell": "Q52",
+          "kind": "rtf",
+          "name": "k50803312017_174p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1rVxyb80JPCPt0ltiPUzYAQiOAZY9TszX/edit",
+          "sha256": "3e6c0dcd1b1345ec2975cb2e56eef76d821fab7c461cedbc462343e6f6c11790",
+          "bytes": 123549
+        },
+        {
+          "cell": "Q53",
+          "kind": "rtf",
+          "name": "k50803312017_177p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1CNCV2OkHVwnRXZN3czHzlpLzxjWv2Xet/edit",
+          "sha256": "f44be1fb49f17ee9835c0642dafdfc9e325c45451a4a3824f4a68db00fe3c76e",
+          "bytes": 123263
+        },
+        {
+          "cell": "Q54",
+          "kind": "rtf",
+          "name": "k50803312017_180p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1VhhhUIa3-1csGOsOAO9eBKDe11dFzqX2/edit",
+          "sha256": "0dbc0a70fe96fff40aa9c2d67e6644fa734b84792bd5dfc258c900e9aecbadf3",
+          "bytes": 127706
+        },
+        {
+          "cell": "Q55",
+          "kind": "rtf",
+          "name": "k50803312017_183p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1eonXVHFcINc7eVSnINGBSj6ixU7EC6T4/edit",
+          "sha256": "05bab55adad8f0544be3486cddb68a26156d650c886cbd9c9e15f7d4daab0063",
+          "bytes": 164599
+        }
+      ]
+    },
+    {
+      "number": 14,
+      "row": 56,
+      "metadata": {
+        "A": "14.0",
+        "B": "中",
+        "C": "R8.9.16",
+        "D": "号外",
+        "E": "206.0",
+        "F": "H508020000296",
+        "G": "外国為替及び外国貿易法の一部を改正する法律の施行に伴う関係政令の整備等に関する政令",
+        "H": "政令296号",
+        "I": "一部改正",
+        "J": "改め文",
+        "K": "なし",
+        "L": "あり",
+        "M": "なし",
+        "N": "No.14_H508020000296.pdf",
+        "P": "h508020000296",
+        "Q": "k50809161206_014p_001.rtf"
+      },
+      "sources": [
+        {
+          "cell": "N56",
+          "kind": "pdf",
+          "name": "No.14_H508020000296.pdf",
+          "url": "https://drive.google.com/file/d/1vl-fsZ1QpT1NRepvXcyH2BVQ59IR8f6p/view?usp=drive_link",
+          "sha256": "2dbc145c5cc0adb9868cfbbbdf6ce31a6b4c2dce658bbbb84f682228cd1003a2",
+          "bytes": 177638,
+          "fixture": "case-14.pdf"
+        },
+        {
+          "cell": "Q56",
+          "kind": "rtf",
+          "name": "k50809161206_014p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1z7om2mIgklFS1or9jabPjLlCnjBPxHnH/edit",
+          "sha256": "058ba22ebeed09574046084b85b88a0e61dbe7c6800b00933ca0ba4b131b392c",
+          "bytes": 123464
+        },
+        {
+          "cell": "Q57",
+          "kind": "rtf",
+          "name": "k50809161206_017p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1AAk1akggueSpq7J2Dnam5oGu2qkXqbi7/edit",
+          "sha256": "81d59d74c1e90bb7afcd635df3245753204cb1ec147c077cd2f9652299329296",
+          "bytes": 117238
+        },
+        {
+          "cell": "Q58",
+          "kind": "rtf",
+          "name": "k50809161206_020p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1K4bf6n47yOBtIfnQuCHFpMtBsi3r5s4r/edit",
+          "sha256": "3daa39c9802c50233ef6912a0c29ddad87415f0365dfc2bfb6f0dc89239306d7",
+          "bytes": 122951
+        },
+        {
+          "cell": "Q59",
+          "kind": "rtf",
+          "name": "k50809161206_023p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1iHbRb7foDgqXpjaj2T9gz0MNvFUgiUus/edit",
+          "sha256": "14f29d20dcb23aba2a896619071c15866af4d58a3c099e7160868fe228528cbf",
+          "bytes": 146381
+        }
+      ]
+    },
+    {
+      "number": 15,
+      "row": 60,
+      "metadata": {
+        "A": "15.0",
+        "B": "高",
+        "C": "R8.9.30",
+        "D": "号外",
+        "E": "215.0",
+        "F": "H508410010144",
+        "G": "医療法等の一部を改正する法律の一部の施行に伴う厚生労働省関係省令の整備に関する省令",
+        "H": "厚生労働省令144号",
+        "I": "一部改正",
+        "J": "新旧",
+        "K": "あり",
+        "L": "あり",
+        "M": "あり",
+        "N": "No.15_H508410010144.pdf",
+        "P": "h508410010144",
+        "Q": "k50809301215_182p_001.rtf",
+        "R": "縦書き中の横書きファンクション指定"
+      },
+      "sources": [
+        {
+          "cell": "N60",
+          "kind": "pdf",
+          "name": "No.15_H508410010144.pdf",
+          "url": "https://drive.google.com/file/d/11BzrMKMZgmDPo3F_apHMtE4MbjdeVKg8/view?usp=drive_link",
+          "sha256": "60d875b347d5844982f7329ab1e3828a30bd632a43ca2d7cf6c7a2973c375fec",
+          "bytes": 423019,
+          "fixture": "case-15.pdf"
+        },
+        {
+          "cell": "Q60",
+          "kind": "rtf",
+          "name": "k50809301215_182p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1XekJ8ahP20mof8yOpBqa4rIdJ_PmX5Qb/edit",
+          "sha256": "7016189f6bd77c7a2958479332810796cc2c47ceccfa5734e34e63a2fd3b3341",
+          "bytes": 30091
+        },
+        {
+          "cell": "Q61",
+          "kind": "rtf",
+          "name": "k50809301215_182p_002.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1lK7A0_noiMGHctqp0iCTDthW6IVQQzUh/edit",
+          "sha256": "87cd89037c2d65192332c0832e716d13062d96ec85e460a18ba03cf4082cb0cc",
+          "bytes": 35858
+        },
+        {
+          "cell": "Q62",
+          "kind": "rtf",
+          "name": "k50809301215_182p_003.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1zsoI1aIpuQMeEF_3CwDVG0Jt0Yq4rI4B/edit",
+          "sha256": "9999af2f3849de404355e3a29e4b42f179314c1866feb182b14464ced822dc10",
+          "bytes": 30611
+        },
+        {
+          "cell": "Q63",
+          "kind": "rtf",
+          "name": "k50809301215_184p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/12lACrSw-5mJVvoZopZaT55g4tq-x_UKn/edit",
+          "sha256": "5cb27fa5fdd9ff10185bc90bd0c85d4bfdb0f23c372eb575652b12b18ba53202",
+          "bytes": 30217
+        },
+        {
+          "cell": "Q64",
+          "kind": "rtf",
+          "name": "k50809301215_184p_002.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1eIROQLKJsj6z8X_kTB8Wd3Oa17jUBpq4/edit",
+          "sha256": "eb663b143ccb0515fd2fcec282db2f5a0be83d10dccb4beefa783aca0702731f",
+          "bytes": 56157
+        },
+        {
+          "cell": "Q65",
+          "kind": "rtf",
+          "name": "k50809301215_185p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1uMsxtW4mDxBBa-iLiT_awgvunBaVZRvu/edit",
+          "sha256": "1489d0b1ac6b0025ef944759da677a9c7abbb697c795df8c06da1509bcddd2e5",
+          "bytes": 30200
+        },
+        {
+          "cell": "Q66",
+          "kind": "rtf",
+          "name": "k50809301215_185p_002.rtf",
+          "url": "https://docs.google.com/document/u/0/d/11_RD-_wPX8VTME4py_vTivU6BBy1vS94/edit",
+          "sha256": "7f2ef9c5dd01fbd69f0826e21f786eb1791484875f336e16484c1a95c8fac24a",
+          "bytes": 39513
+        },
+        {
+          "cell": "Q67",
+          "kind": "rtf",
+          "name": "k50809301215_185p_003.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1Xw5xd8aj9l-nRx4asbQk4Lr5qcC00xLQ/edit",
+          "sha256": "9aad9a7725addabdebe52ebf8ff5a80c8fef96441352ec47bb80f58f56ee72c4",
+          "bytes": 30261
+        },
+        {
+          "cell": "Q68",
+          "kind": "rtf",
+          "name": "k50809301215_185p_004.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1_CESJi3B1UyklaWtmjyjjcBLfQ_PFRnn/edit",
+          "sha256": "95e9f373dc65ebee2b086c4be8056c3162503522b794570e947629ae4efcf033",
+          "bytes": 37486
+        },
+        {
+          "cell": "Q69",
+          "kind": "rtf",
+          "name": "k50809301215_186p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1a4OdAUy6TyvAMx__UChmQ4yY_tewlGyj/edit",
+          "sha256": "bd5914425b8d80b8f860e04c0b5145bd2821f596ff8db314cfaf8aaceb232cbf",
+          "bytes": 30530
+        },
+        {
+          "cell": "Q70",
+          "kind": "rtf",
+          "name": "k50809301215_186p_002.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1VphyTcsvaqB3MoMcby3vQfpr-4aCyqAd/edit",
+          "sha256": "dac47897d96ae10b13c5df360b125abaf68711ec7b18728d9487a61b91c4369e",
+          "bytes": 38598
+        },
+        {
+          "cell": "Q71",
+          "kind": "rtf",
+          "name": "k50809301215_186p_003.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1gsNB28yjZIUVPTFY6Ys10cO1dQvwKP-m/edit",
+          "sha256": "80dd815daaaf855f377be0651c88db74f5860e143c9e68bc0936c659da6a9212",
+          "bytes": 30906
+        },
+        {
+          "cell": "Q72",
+          "kind": "rtf",
+          "name": "k50809301215_186p_004.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1iU2PSww9OZ6x1T-3B2nnKknqBsJ-dsGK/edit",
+          "sha256": "afee965a1b332fa911dfc82c9f6ec6cddbdde11f17849255a660f8737d9596e2",
+          "bytes": 39810
+        },
+        {
+          "cell": "Q73",
+          "kind": "rtf",
+          "name": "k50809301215_187p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1p21sfo2dUMZn8ohQcAY3C6GPEfsfBg7s/edit",
+          "sha256": "3f997fcfdb1b64af26bd3bc1550ee886e8cc6c654daf7e01753c41f3fa7a69aa",
+          "bytes": 30713
+        },
+        {
+          "cell": "Q74",
+          "kind": "rtf",
+          "name": "k50809301215_187p_002.rtf",
+          "url": "https://docs.google.com/document/u/0/d/17XsWGcyIEHkaqSo8iCAs3SXNnNf--HWd/edit",
+          "sha256": "ee95aa82d92532b060966c149b7e3769cbcb6bc0514611544ee3a9e0ee0e33c6",
+          "bytes": 50775
+        },
+        {
+          "cell": "Q75",
+          "kind": "rtf",
+          "name": "k50809301215_187p_003.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1xZ-xWljtFTPq1JAA0j5WIU7VFonax4io/edit",
+          "sha256": "94a01826adfb06bcedb553e94f5cb7195613c3c422f07e80141c6064c2e3b603",
+          "bytes": 31264
+        },
+        {
+          "cell": "Q76",
+          "kind": "rtf",
+          "name": "k50809301215_188p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/12VLSyKOI9KgLkp4k5n58cZ6KXSNJbqbA/edit",
+          "sha256": "5cd71294cb67d5a711698747d9da3504c2bea1c02b06b26aee46a37e61c6b4a4",
+          "bytes": 160109
+        },
+        {
+          "cell": "Q77",
+          "kind": "rtf",
+          "name": "k50809301215_192p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1jsx8-JjQURhMdfPrL-O4G1OSVSRAj2KH/edit",
+          "sha256": "3b5eb109518561f8f720715d40e72a6c0eb0248d392bc847ad70b8f806c5ebfb",
+          "bytes": 30828
+        },
+        {
+          "cell": "Q78",
+          "kind": "rtf",
+          "name": "k50809301215_192p_002.rtf",
+          "url": "https://docs.google.com/document/u/0/d/13sEX9jkcBmmWEw7Gzz-oF42Erabwd6aG/edit",
+          "sha256": "f768373fb64fa611a55b4bed62d19b3314dd6ddee0394a020869a9f2ddb11864",
+          "bytes": 39238
+        },
+        {
+          "cell": "Q79",
+          "kind": "rtf",
+          "name": "k50809301215_193p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1PIrddFke-X0rbFRp4sXlvZHlCUup1njb/edit",
+          "sha256": "32122d642f3bdce3c170c70b6110cd656ba78798c46f668d243844d012e973cb",
+          "bytes": 30724
+        },
+        {
+          "cell": "Q80",
+          "kind": "rtf",
+          "name": "k50809301215_193p_002.rtf",
+          "url": "https://docs.google.com/document/u/0/d/13N6_oEQZwgek5DMO9Sp2qjlwlAEOQDoI/edit",
+          "sha256": "0b65549df7d09067137f139f3b9e5d143d9f0303ab52db409497ed7a9dab381b",
+          "bytes": 117904
+        },
+        {
+          "cell": "Q81",
+          "kind": "rtf",
+          "name": "k50809301215_196p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1X26iKJh_SMwshN2Um5RLhaoCsJVP3fjk/edit",
+          "sha256": "1b5cf18068016e682a29d2491c7065e5c21f74cd88760cb2456a17e018858116",
+          "bytes": 27872
+        },
+        {
+          "cell": "Q82",
+          "kind": "rtf",
+          "name": "k50809301215_196p_002.rtf",
+          "url": "https://docs.google.com/document/u/0/d/12zoXm0WaK1XfssJveLvabV4h21UVfjNl/edit",
+          "sha256": "5a7cd31cd65614371e6f6d3e954ca91764c72380ee6e52b8ca784d4c7ef7fc55",
+          "bytes": 21848
+        },
+        {
+          "cell": "Q83",
+          "kind": "rtf",
+          "name": "k50809301215_197p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1INcnIln7RE1Z0cauNgSoopBc-mrJkBXY/edit",
+          "sha256": "f44b60c2950c658a8d89f82dccdb8d426865417b7cede049f6ae1d1cb3db23c9",
+          "bytes": 30441
+        },
+        {
+          "cell": "Q84",
+          "kind": "rtf",
+          "name": "k50809301215_197p_002.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1sFYIVpA-ZcpLpLx9zE2MBAnwHV_ObbOe/edit",
+          "sha256": "53f29302f39c6cca0280d7bac7e309dd90ee27553b5320a7e99b7ae265c471db",
+          "bytes": 71342
+        },
+        {
+          "cell": "Q85",
+          "kind": "rtf",
+          "name": "k50809301215_198p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1xXZlv3o-mC3byC6qhwbxPWkC4y4WX8wv/edit",
+          "sha256": "34a36adc719497ef3ad0cd12836085ad88117b01247d95e111a0c273e0678b79",
+          "bytes": 30780
+        },
+        {
+          "cell": "Q86",
+          "kind": "rtf",
+          "name": "k50809301215_198p_002.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1kS6wowg-YRoYrzA8azX3i4B0NZQwQRY3/edit",
+          "sha256": "477a35487561ab2d29ceb4a85d58fc4dfe3253969c8a508f149162b63fbfef0a",
+          "bytes": 32906
+        },
+        {
+          "cell": "Q87",
+          "kind": "rtf",
+          "name": "k50809301215_199p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1m8DsGzx7du53dYldhVwQLx3-MNp899fE/edit",
+          "sha256": "4eec897ee75a3a32197d995f734279e57c9b8b2f35a6a6bb38919ef0d3158d93",
+          "bytes": 30668
+        },
+        {
+          "cell": "Q88",
+          "kind": "rtf",
+          "name": "k50809301215_199p_002.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1-bmazVV5tVJq5PUnlVvvx1HTPhexn5Ry/edit",
+          "sha256": "5184a9dd679c8771775d6c0a7d508ffdc229de2910e1bf538ed929666faa54e3",
+          "bytes": 98929
+        },
+        {
+          "cell": "Q89",
+          "kind": "rtf",
+          "name": "k50809301215_201p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1aUupihFkCXj_JWeuIhOENJoH5r8aOgni/edit",
+          "sha256": "95464ac1113b558c62783b93a9562da2f7cc3345bd5ceb030e65d57602ffd3ec",
+          "bytes": 30231
+        },
+        {
+          "cell": "Q90",
+          "kind": "rtf",
+          "name": "k50809301215_201p_002.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1QsNMrdZIAmBTBOytRzck1lmAORlqzzzR/edit",
+          "sha256": "a4798de5e4cf658cbf39930d4035ff768b377145ef0495be35d0a00a74c70893",
+          "bytes": 37838
+        },
+        {
+          "cell": "Q91",
+          "kind": "rtf",
+          "name": "k50809301215_202p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1k1Oj5BH8qIAJHy6stnoE6gqlx1_wSt3n/edit",
+          "sha256": "1f270ebccee1f9e5219f5927a8d9d4670e626119f3a6cb294c09b35338da6568",
+          "bytes": 30239
+        },
+        {
+          "cell": "Q92",
+          "kind": "rtf",
+          "name": "k50809301215_202p_002.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1ivi0hLN4ZwxRFvhXWwEkodkxf8Z340rd/edit",
+          "sha256": "608526091e9d9ca3841dbad57cfc3bb0157f0143cbbb27c0da712f4a371622df",
+          "bytes": 33687
+        },
+        {
+          "cell": "Q93",
+          "kind": "rtf",
+          "name": "k50809301215_202p_003.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1sJu0AvfOWbaaXlTEQJjC26ESiNQW0FnE/edit",
+          "sha256": "d74e1a1b142c056e1f5031773b93081bba224f26e1a0c9c0f83dd5091e9eb97a",
+          "bytes": 30564
+        },
+        {
+          "cell": "Q94",
+          "kind": "rtf",
+          "name": "k50809301215_202p_004.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1mjUaaTK0tGGKCG5DLGrHuy864lt9pqhy/edit",
+          "sha256": "f9ac34c219b470c2ef5e96ddf6105a417217acfafd840231221ead3888115760",
+          "bytes": 54941
+        },
+        {
+          "cell": "Q95",
+          "kind": "rtf",
+          "name": "k50809301215_203p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1HyBWd-OvaAVbAA7y37gyVc4C6hfKHMJN/edit",
+          "sha256": "bee11ad13c8ef391f45bb4511258ae836dfd23887028b8c0c39b02c667746864",
+          "bytes": 30756
+        },
+        {
+          "cell": "Q96",
+          "kind": "rtf",
+          "name": "k50809301215_203p_002.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1bp_XXptgETgMXn6j9IK3-CAZ792XVbTD/edit",
+          "sha256": "9e955c35c6d4317feb4a4d986642c050da45836868cf4f9c0de85c4f81b1cc57",
+          "bytes": 99074
+        },
+        {
+          "cell": "Q97",
+          "kind": "rtf",
+          "name": "k50809301215_206p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1l6Epyn64gsQwocpe27o2M43N-sdm7-vu/edit",
+          "sha256": "c8fa9ae52ae687120551f889a1ae63104a640088a8ac406b4dc9df4c533c8249",
+          "bytes": 30868
+        },
+        {
+          "cell": "Q98",
+          "kind": "rtf",
+          "name": "k50809301215_206p_002.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1TeT3jgik3LL9DTnq6S-KMD3e0BVo9drd/edit",
+          "sha256": "9c12c34de03840c7fd4a588b9d2f81d80e39a72476363a734498819431738815",
+          "bytes": 34096
+        },
+        {
+          "cell": "Q99",
+          "kind": "rtf",
+          "name": "k50809301215_206p_003.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1eUmK3fN8nDvIf9dKoxP2R6yQ-AdSBqeg/edit",
+          "sha256": "8c498291646d287bf534c045d684d00889902327eeda2e83d90a6f4329e51027",
+          "bytes": 30965
+        },
+        {
+          "cell": "Q100",
+          "kind": "rtf",
+          "name": "k50809301215_206p_004.rtf",
+          "url": "https://docs.google.com/document/u/0/d/12faqidz1B_bV6ot5FiVriNxizS4aq3Wc/edit",
+          "sha256": "ad675f1084a2091892d21a5b6e9b699b746688d8b46f28d06f0e78d5a14fd53e",
+          "bytes": 93199
+        },
+        {
+          "cell": "Q101",
+          "kind": "rtf",
+          "name": "k50809301215_208p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1S07IgHDLeyuO2xikXpya5QMKWC1AHCrw/edit",
+          "sha256": "7aab9f8139e6c2992707171a258ac4a95b60f84b19955b1a759cbc0de935a035",
+          "bytes": 34639
+        },
+        {
+          "cell": "Q102",
+          "kind": "rtf",
+          "name": "k50809301215_209p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/144LzRRldw4aub1gUjlmM8aUzDgG7X5ef/edit",
+          "sha256": "0da18617cb8152eb8431f0cd89fb78a3e180b8156f1e6bcb9be9324f524a5fc7",
+          "bytes": 34349
+        },
+        {
+          "cell": "Q103",
+          "kind": "rtf",
+          "name": "k50809301215_209p_002.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1GTxrF71U-kbvxzuwBcvn3vOWUJ5HStCb/edit",
+          "sha256": "d6a214545cff21187c977d6c12c429a3d187ae92dd623beabbf1c6717587dea4",
+          "bytes": 30918
+        },
+        {
+          "cell": "Q104",
+          "kind": "rtf",
+          "name": "k50809301215_209p_003.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1c4FkfTmyJVo77zcYiYFe2iQNl7TQElD-/edit",
+          "sha256": "6843c3d74194cda1b4b7d18a93decdbed84877921a593b93b6b388342243e78c",
+          "bytes": 87424
+        },
+        {
+          "cell": "Q105",
+          "kind": "rtf",
+          "name": "k50809301215_211p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/19frfVv8eJebfBJk1folqJLWtVQsB_Kmv/edit",
+          "sha256": "48e6969b81ac7de2fa661787fa2c868a04d306fc6e5b210dcbd9f2aad479479d",
+          "bytes": 30450
+        },
+        {
+          "cell": "Q106",
+          "kind": "rtf",
+          "name": "k50809301215_211p_002.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1F08z9zHdOQxu1vZ5Q7M3p8q3BbCFQDno/edit",
+          "sha256": "6cfc18979c9b0e5f75c8a5181ca6bd2afb29a5510805d31cd292647c262aecd3",
+          "bytes": 39687
+        },
+        {
+          "cell": "Q107",
+          "kind": "rtf",
+          "name": "k50809301215_212p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1g3s5am7X9XrAzFD9186M8dnUXjBFYRy9/edit",
+          "sha256": "5f820ef7b46a76e7aa842f46dc9a947f08e1bb75aa1b0090841427c8d655ed4a",
+          "bytes": 30651
+        },
+        {
+          "cell": "Q108",
+          "kind": "rtf",
+          "name": "k50809301215_212p_002.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1ZXyGHyl4eC3xW5NyX2BlO4uyQoINgrRQ/edit",
+          "sha256": "bb9fb6d83e81aebbbe2b391f15d4a9e491f7046ea0d1fcfe8c8502e5bcc6b8d3",
+          "bytes": 34980
+        },
+        {
+          "cell": "Q109",
+          "kind": "rtf",
+          "name": "k50809301215_212p_003.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1J955Zk2LC_zsLpRIh0RnoLxEmKlARCOj/edit",
+          "sha256": "bcb06ff3743e849e31f19e72b976259cc231497a12a9fa1a355d44893001163e",
+          "bytes": 69278
+        },
+        {
+          "cell": "Q110",
+          "kind": "rtf",
+          "name": "k50809301215_215p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1cqTxuEKBocabYbWGeQ5ttixnjugWPytK/edit",
+          "sha256": "dc42a8a2bb515bef7f6cd7cdea360e2498d3dd132146952f1dd186177b58a7d8",
+          "bytes": 85074
+        },
+        {
+          "cell": "Q111",
+          "kind": "rtf",
+          "name": "k50809301215_218p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1FlTorJiLg41DKZvCgiK_qyTL0YIKujhC/edit",
+          "sha256": "4a6ffb33c90cf43be1260a779632a061f8d155d39a49e91ee831a0852794270d",
+          "bytes": 32867
+        },
+        {
+          "cell": "Q112",
+          "kind": "rtf",
+          "name": "k50809301215_219p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1Cpz4p0oJ-E2ruYJnkgzckl-0CojaDu9x/edit",
+          "sha256": "a7d84f8bbe7f76e092eab7609a7cc9ed17b6edfd255306b032117e5f14d74a51",
+          "bytes": 39122
+        },
+        {
+          "cell": "Q113",
+          "kind": "rtf",
+          "name": "k50809301215_219p_002.rtf",
+          "url": "https://docs.google.com/document/u/0/d/19YA4IdGSLBUmNFUTXjMz3SsOYfKiNyvT/edit",
+          "sha256": "8bec619ec38c46c2bff34803af80151ba0f3e292b2f8145e8f848b5851a90734",
+          "bytes": 30217
+        },
+        {
+          "cell": "Q114",
+          "kind": "rtf",
+          "name": "k50809301215_219p_003.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1-IhR6tISQrHBC9G4ZnfJYXofsA_C6bbD/edit",
+          "sha256": "214b9e30e8dd55453a49a390f48e95cf09b9abff73e18b9a3d5ecca16fb38d17",
+          "bytes": 46238
+        },
+        {
+          "cell": "Q115",
+          "kind": "rtf",
+          "name": "k50809301215_220p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1Zt-gYDRds1Slwp1hfAkxXG1lZ1EeiuvC/edit",
+          "sha256": "ddc11d7d7614cd0cc105f36cb6bcbe13ba7109f15ee43951ce27edac99c9f721",
+          "bytes": 30828
+        },
+        {
+          "cell": "Q116",
+          "kind": "rtf",
+          "name": "k50809301215_220p_002.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1wxY6R1NJ6i2JNTt24GZ-0b4veKkEP6wQ/edit",
+          "sha256": "6887486949b808ea5dcc214fb069f0273504dfda41bd8f1807d36f8f45d7bc0c",
+          "bytes": 35278
+        },
+        {
+          "cell": "Q117",
+          "kind": "rtf",
+          "name": "k50809301215_220p_003.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1e1lJuIYnCZxQWhQ48rCGtWZy0DTwwiEH/edit",
+          "sha256": "d62b0dbe3120e170390b00e6e9853b5cafabd76d884782139ae2cd352a7b8b49",
+          "bytes": 28206
+        },
+        {
+          "cell": "Q118",
+          "kind": "rtf",
+          "name": "k50809301215_220p_004.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1Zc_I-SVc7vE9mrYt9u_w67ctmV3v5nPg/edit",
+          "sha256": "b171120dda9363265301d4f9f7fb88d66607034c19ace5c36464f34dcb788e60",
+          "bytes": 23638
+        },
+        {
+          "cell": "Q119",
+          "kind": "rtf",
+          "name": "k50809301215_221p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1f-EiCxdin1duw3lqAt_sImAre7C2BpDk/edit",
+          "sha256": "ecec47107bbc1e4c43f8215116d09676a0f2527e284b1e61cab6ad471dc35442",
+          "bytes": 30406
+        },
+        {
+          "cell": "Q120",
+          "kind": "rtf",
+          "name": "k50809301215_221p_002.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1wh_TcYT1Ji9jq4xTGXoQ16G8h35BFIHz/edit",
+          "sha256": "5fe3e59c421f7db9cfbe598eecc3e702412457bec6fec45cc90b09752f7cb59d",
+          "bytes": 26944
+        },
+        {
+          "cell": "Q121",
+          "kind": "rtf",
+          "name": "k50809301215_221p_003.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1Tq8lHjsHM7lCJhjFuKi2mh9DGalKf4hS/edit",
+          "sha256": "b49674458ba07cdbca4aef7df5f5cdbb9ea120e42d44b03b7210a0a2c2f35626",
+          "bytes": 28544
+        },
+        {
+          "cell": "Q122",
+          "kind": "rtf",
+          "name": "k50809301215_221p_004.rtf",
+          "url": "https://docs.google.com/document/u/0/d/17F_yi0W_HNV-MQRN65CgWpiiYcM53vPh/edit",
+          "sha256": "aa2cc03fc89fe76b595475872e452bdf96a6c5adaa32f6afbcf4dba1012a9eb6",
+          "bytes": 25205
+        },
+        {
+          "cell": "Q123",
+          "kind": "rtf",
+          "name": "k50809301215_221p_005.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1AJFW3HkVACjavV8-X-0lTmLTkOnuhydH/edit",
+          "sha256": "52a2a6675052b397bf4f4eaea45628eaf3f8c87fff53a908d9d425d48141c1b0",
+          "bytes": 34439
+        },
+        {
+          "cell": "Q124",
+          "kind": "rtf",
+          "name": "k508093012152181w.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1gn943wqnBdbi8WMLW8yNZ5UXeBu6pw9P/edit",
+          "sha256": "0927830a778809de0a51afc1f563945dcafd8f0fd4720c59d2d64928eadfdc75",
+          "bytes": 28494
+        }
+      ]
+    },
+    {
+      "number": 16,
+      "row": 125,
+      "metadata": {
+        "A": "16.0",
+        "B": "高",
+        "C": "R8.10.1",
+        "D": "号外",
+        "E": "217.0",
+        "F": "H508560010082",
+        "G": "船員法施行規則等の一部を改正する省令",
+        "H": "国土交通省令82号",
+        "I": "一部改正",
+        "J": "新旧・改め分の混在",
+        "K": "あり",
+        "L": "あり",
+        "M": "あり",
+        "N": "No.16_H508560010082.pdf",
+        "P": "h508560010082",
+        "Q": "k50810011217_014p_004.rtf",
+        "R": "テキストのとれない箇所あり"
+      },
+      "sources": [
+        {
+          "cell": "N125",
+          "kind": "pdf",
+          "name": "No.16_H508560010082.pdf",
+          "url": "https://drive.google.com/file/d/1GCVYoO1_TO2P3sKNPtV3fcIjiSs5XYpj/view?usp=drive_link",
+          "sha256": "16dedee9b08ff701654a647734e5776646125d7db8586de51baae03fac7f6b4c",
+          "bytes": 952199,
+          "fixture": "case-16.pdf"
+        },
+        {
+          "cell": "Q125",
+          "kind": "rtf",
+          "name": "k50810011217_014p_004.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1sMLgM_4da6LvDmt5WgWB27-e6goMxCIm/edit",
+          "sha256": "4edf9ef3a605478b717075c8b63090d7cd53c44f4a341ac3ae5fb0d2abd887f6",
+          "bytes": 127031
+        },
+        {
+          "cell": "Q126",
+          "kind": "rtf",
+          "name": "k50810011217_024p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1-6bVpuLzzAMkfgtPG27JKLM0JbDAzzaz/edit",
+          "sha256": "2af21b53eb4051f73f574d23442dadb39aa3e15453ca621a2ae1b27e5d8071aa",
+          "bytes": 20852
+        },
+        {
+          "cell": "Q127",
+          "kind": "rtf",
+          "name": "k50810011217_024p_002.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1Lht4X12709RRzhFZ8jD_CyQRtK1Q9XUm/edit",
+          "sha256": "ad227527fb10eeb88c8b45e8ffdd0ddcba85861d3159245bc454e6f60c3c4ef4",
+          "bytes": 26924
+        },
+        {
+          "cell": "Q128",
+          "kind": "rtf",
+          "name": "k50810011217_024p_003.rtf",
+          "url": "https://docs.google.com/document/u/0/d/13HzWr3MPhAM0nOfhaMAMAn5ejMSbk9-n/edit",
+          "sha256": "2ed00c81e95ec0e383120b6b6be3c9ba21efeb8d9da0d667b752885dfe77a939",
+          "bytes": 22090
+        },
+        {
+          "cell": "Q129",
+          "kind": "rtf",
+          "name": "k50810011217_025p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/15gsa3pEfut1CqJWDzguypsLPr3zYt80L/edit",
+          "sha256": "843e5b63233dbec11851ebc123f7b5a70b232776603bdda386f4c728d8ee72cd",
+          "bytes": 26908
+        },
+        {
+          "cell": "Q130",
+          "kind": "rtf",
+          "name": "k50810011217_025p_002.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1WXfZbOXCyyCUsMJmYumjeOCkXSkBlNCI/edit",
+          "sha256": "609f1cc96ae82946ac5b177716e1a62cab48d527800f50a2bb583112f34668f2",
+          "bytes": 25739
+        },
+        {
+          "cell": "Q131",
+          "kind": "rtf",
+          "name": "k50810011217_025p_003.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1b-W_hAerALDgHRFIEmCZN7Zese0nkQe_/edit",
+          "sha256": "8badcd75a48ad43a61c553edf0a79b93361aa76673c1ce7a2ab41de1b2e81773",
+          "bytes": 28122
+        }
+      ]
+    },
+    {
+      "number": 17,
+      "row": 140,
+      "metadata": {
+        "A": "17.0",
+        "B": "高",
+        "C": "R8.9.16",
+        "D": "号外",
+        "E": "206.0",
+        "F": "H508070010006",
+        "G": "株式会社国際協力銀行の会計に関する命令",
+        "H": "内閣府・財務令6号",
+        "I": "一部改正",
+        "J": "改め文",
+        "K": "あり",
+        "L": "なし",
+        "M": "なし",
+        "N": "No.17_H508070010006.pdf",
+        "P": "h508070010006",
+        "Q": "k50809161206_243p_001.rtf",
+        "R": "新規制定（前段部手入れ）+廃止"
+      },
+      "sources": [
+        {
+          "cell": "N140",
+          "kind": "pdf",
+          "name": "No.17_H508070010006.pdf",
+          "url": "https://drive.google.com/file/d/19N0yiId3O3Z2hxvq7U6j2sJmWH5CnOra/view?usp=drive_link",
+          "sha256": "d7dd4c1d6433e031dfa6a5442dcececc04c8a8d6140447e03cd01b98be2c4fd7",
+          "bytes": 208641,
+          "fixture": "case-17.pdf"
+        },
+        {
+          "cell": "Q140",
+          "kind": "rtf",
+          "name": "k50809161206_243p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1o1N3YcQ9g0iu2jNFLG1c97xiLHTFoO6H/edit",
+          "sha256": "1edcf415341913c0529e89f122d2d311c65d32705635998a1e312fb558e9393b",
+          "bytes": 63264
+        },
+        {
+          "cell": "Q141",
+          "kind": "rtf",
+          "name": "k50809161206_248p_001.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1JgT_G8CmXd_ieIQTl4w0uX-Er1y-0VgE/edit",
+          "sha256": "a365112cadcdc7e8e90f1493219c28dcc89f7df2f4674ee7fbbe5629bee3abe5",
+          "bytes": 32808
+        },
+        {
+          "cell": "Q142",
+          "kind": "rtf",
+          "name": "k50809161206_243p_002.rtf",
+          "url": "https://docs.google.com/document/u/0/d/1TwgmxKjvzmKu6YYulR4eBLAyJVKrsLqo/edit",
+          "sha256": "c922119817670672b3a8aedc40a9e247ce6cc74f4c2ec1e333011d2f10fd008c",
+          "bytes": 33279
+        }
+      ]
+    },
+    {
+      "number": 18,
+      "row": 146,
+      "metadata": {
+        "A": "18.0",
+        "B": "高",
+        "C": "R8.9.16",
+        "D": "号外",
+        "E": "206.0",
+        "F": "H508020000285",
+        "G": "通貨の単位及び貨幣の発行等に関する法律施行令の一部を改正する政令",
+        "H": "政令285号",
+        "I": "一部改正",
+        "J": "改め文",
+        "K": "あり",
+        "L": "あり",
+        "M": "なし",
+        "N": "No.18_H508020000285.pdf",
+        "P": "h508020000285"
+      },
+      "sources": [
+        {
+          "cell": "N146",
+          "kind": "pdf",
+          "name": "No.18_H508020000285.pdf",
+          "url": "https://drive.google.com/file/d/1Ocr39s2ptm2dK5NpR3l23wPH7-XGghuc/view?usp=drive_link",
+          "sha256": "c988d59c190d0410800f751d8f42fefaebc98b1b98df97a5c06f49adf7e19b2a",
+          "bytes": 104421,
+          "fixture": "case-18.pdf"
+        }
+      ]
+    }
+  ],
+  "download_errors": [],
+  "scope": "Main PDFs (column N) are parser inputs. Annotated PDFs (O) and RTFs (Q) are reference materials, not runtime inputs."
+}

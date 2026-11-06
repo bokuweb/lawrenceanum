@@ -89,8 +89,10 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         let (width, height) = page_size(page);
         let line_moves=crate::native_cell_lineage::for_page(page);
         let ((cols, mut words, rotated, sideways, merged, minus, native_styles, native_bounds, native_content_styles, native_axes, native_rulings, inline_merged, native_flows, projected_flows, cell_origins),advance_bands) = page_words_with_styles_and_bands(page, width, height, rules.get(pi).and_then(|r| r.as_ref()));
+        let global_caption_scene=(!crate::comparison_labels::horizontal_headers(&cols).is_empty())
+            .then(||rules.get(pi).and_then(Option::as_ref).and_then(|r|crate::native_source_scene::for_page(page,r))).flatten();
         let native_header_words:std::collections::HashSet<_>=crate::comparison_labels::headers(&cols).into_iter().flat_map(|h|h.words).collect();
-        let explicit_comparison_label=!native_header_words.is_empty() || !shinkyu_labels(&cols,'後').is_empty() || !shinkyu_labels(&cols,'前').is_empty();
+        let explicit_comparison_label=!native_header_words.is_empty() || !shinkyu_labels(&cols,'後',rules.get(pi).and_then(Option::as_ref),global_caption_scene.as_ref()).is_empty() || !shinkyu_labels(&cols,'前',rules.get(pi).and_then(Option::as_ref),global_caption_scene.as_ref()).is_empty();
         // Omitted headers require open scope. Current printed labels remain
         // independent evidence for the established explicit comparison path.
         prev_table |= prev_comparison && explicit_comparison_label;
@@ -199,7 +201,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             let cut_y = local_mid
                 .map(|m| {
                     let crossing = cols.iter().filter(|c| c.x < m - 2.0 && c.x1 > m + 2.0).map(|c| c.y).reduce(f32::min);
-                    let label = shinkyu_labels(&cols, '後').iter().map(|l| l.2).reduce(f32::min);
+                    let label = shinkyu_labels(&cols, '後', page_rules, global_caption_scene.as_ref()).iter().map(|l| l.2).reduce(f32::min);
                     crossing.into_iter().chain(label).fold(f32::INFINITY, f32::min)
                 })
                 .unwrap_or(f32::INFINITY);
@@ -210,6 +212,10 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             // 横書きの 2 列の新旧対照表（左の列が改正後、右の列が改正前）を組む。欄見出しより上は前文。
             // 戻り値は（表, 表の下端より下の語の本文）。
             let two_columns = |cols: Vec<Col>, mid: f32, label_y: f32, label_ids: Vec<usize>| -> (Unit, Option<Unit>) {
+                let wanted:std::collections::BTreeSet<_>=label_ids.iter().copied().collect();
+                let labels=crate::comparison_labels::horizontal_headers(&cols).into_iter().find(|h|
+                    h.fields.iter().flat_map(|f|f.3.iter().copied()).collect::<std::collections::BTreeSet<_>>()==wanted)
+                    .map(|h|h.labels).filter(|l|*l!=crate::ComparisonLabels::AMENDMENT);
                 let (pre, cols): (Vec<Col>, Vec<Col>) =
                     cols.into_iter().filter(|c| !label_ids.contains(&c.id)).partition(|c| c.y1 <= label_y + 1.0);
                 // 表の下端は改正後・改正前の欄の境の縦の罫線の下端。それより下（表の後ろの別の記事）は表の外。
@@ -258,7 +264,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                     }
                     lines
                 };
-                let unit = Unit::Shinkyu {labels:None,
+                let unit = Unit::Shinkyu {labels,
                     // 欄見出しより上（前の記事の表の続きが上にあるページも）も罫線の表を組んで読む。
                     preamble: {
                         let pre_geom = pre.clone();
@@ -318,7 +324,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             // 1 つの表として組む（号外第 202 号 2 ページ: 欄見出しが 2 組あって、どちらの表も左右に分けられなかった）。
             // 欄見出しの組（上端の y と、改正後の見出しの右端・改正前の見出しの左端）。
             let label_rows: Vec<(f32, f32, f32)> = {
-                let (after, before) = (shinkyu_labels(&cols, '後'), shinkyu_labels(&cols, '前'));
+                let (after, before) = (shinkyu_labels(&cols, '後', page_rules, global_caption_scene.as_ref()), shinkyu_labels(&cols, '前', page_rules, global_caption_scene.as_ref()));
                 let mut rows: Vec<(f32, f32, f32)> = after
                     .iter()
                     .filter_map(|a| before.iter().find(|b| (a.2 - b.2).abs() <= 2.0 && a.1 < b.0).map(|b| (a.2, a.1, b.0)))
@@ -368,7 +374,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                     bands[k].push(c);
                 }
                 for band in bands.into_iter().filter(|b| !b.is_empty()) {
-                    match split_horizontal_shinkyu(&band, false) {
+                    match split_horizontal_shinkyu(&band, false, page_rules, global_caption_scene.as_ref()) {
                         Some((mid, label_y, label_ids)) => {
                             let (unit, t) = two_columns(band, mid, label_y, label_ids);
                             (two_columns_here, mid_here) = (t.is_none(), Some(mid));
@@ -385,7 +391,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                 let split = continued
                     .or(side_by_side)
                     .map(|m| (m, f32::NEG_INFINITY, Vec::new()))
-                    .or_else(|| split_horizontal_shinkyu(&cols, prev_table && prev_two_columns));
+                    .or_else(|| split_horizontal_shinkyu(&cols, prev_table && prev_two_columns, page_rules, global_caption_scene.as_ref()));
                 // 続きのページに次の記事・次の表の欄見出しがあれば、そこより上を前の表の続き、下を新しい表か本文として組む。
                 let next_label_y = continued.and(Some(cut_y)).filter(|y| y.is_finite());
                 match (split, next_label_y) {
@@ -411,14 +417,14 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                         if !pre.is_empty() {
                             units.push(Unit::Plain(horizontal_lines_with_tables(pre, &grids, &vrules, &hrules)));
                         }
-                        match split_horizontal_shinkyu(&rest, false) {
+                        match split_horizontal_shinkyu(&rest, false, page_rules, global_caption_scene.as_ref()) {
                             Some((mid, label_y, label_ids)) => {
                                 let (unit, tail) = two_columns(rest, mid, label_y, label_ids);
                                 (two_columns_here, mid_here) = (tail.is_none(), Some(mid));
                                 units.push(unit);
                                 units.extend(tail);
                             }
-                            None => match split_horizontal_shinkyu_pairs(&rest, None, &vrules) {
+                            None => match split_horizontal_shinkyu_pairs(&rest, None, &vrules, page_rules, global_caption_scene.as_ref()) {
                                 Some((unit, rest, geometry)) => {
                                     if rest.is_empty() {
                                         pairs_here = Some(geometry);
@@ -438,7 +444,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                         units.push(unit);
                         tail = t;
                     }
-                    (None, _) => match split_horizontal_shinkyu_pairs(&cols, prev_pairs.filter(|_| prev_table), &vrules) {
+                    (None, _) => match split_horizontal_shinkyu_pairs(&cols, prev_pairs.filter(|_| prev_table), &vrules, page_rules, global_caption_scene.as_ref()) {
                         Some((unit, rest, geometry)) => {
                             if rest.is_empty() {
                                 pairs_here = Some(geometry);
@@ -449,7 +455,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
                         }
                         // 組が横に 2 組入る幅でも、2 組に分けられなければ（改正後・改正前の表の下に 2 段組の別の記事が
                         // 続き、ページが広く見えるもの）、1 組の表として組む。
-                        None => match split_horizontal_shinkyu_by(&cols, false, false).filter(|&(mid, label_y, _)| {
+                        None => match split_horizontal_shinkyu_by(&cols, false, false, page_rules, global_caption_scene.as_ref()).filter(|&(mid, label_y, _)| {
                             // 表の範囲がはっきりしているとき（境目の縦線が欄見出しの所から下へ引かれ、その下端で境目をまたぐ横線が
                             // 閉じる）だけ。
                             page_rules.is_some_and(|r| {
@@ -547,6 +553,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             if prev_table {crate::comparison_labels::inherit(&mut units,prev_comparison_labels,explicit_comparison_label);}
             prev_comparison_labels=match units.last(){Some(Unit::Shinkyu{labels,..})=>*labels,_=>None};
             crate::native_latin_wraps::restore(&mut units,&words,&native_bounds,&native_axes);
+            crate::native_plain_columns::restore(&mut units,&words,&native_bounds,&native_axes,&projected_flows,page,rules.get(pi).and_then(Option::as_ref));
             let text = units.iter().map(Unit::text).filter(|t| !t.is_empty()).collect::<Vec<_>>().join("\n");
             let (doc_text, tables) = doc_text_of(&units, &mut table_count);
             prev_table = crate::legacy_comparison_scope::continues(&units);
@@ -560,6 +567,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             let native_comparison_labels=units.iter().map(|u|match u{Unit::Shinkyu{labels,..}=>*labels,_=>None}).collect();
         let mut regions: Vec<_> = units.into_iter().enumerate().flat_map(|(i, u)| u.regions(i)).collect();
             enclosed_warichu::expand(&mut regions,&inline_merged,&merged);
+            enclosed_warichu::expand_literal_legacy(&mut regions, &words, &merged, &native_bounds, &native_axes, crate::shinkyu::complete_numbered_publication_heading);
         mark_unused(&mut words, &regions, &merged);
         for word in &mut words {if word.status==WordStatus::Noise && native_header_words.contains(&word.id){word.status=WordStatus::HeaderLabel;}}
             pages.push(PageTrace {native_comparison_labels,native_horizontal_baselines:crate::native_word_flow::horizontal_baselines(&native_bounds,&native_axes,&native_flows),native_atomic_columns,native_axes,native_rulings,
@@ -925,6 +933,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         if prev_table {crate::comparison_labels::inherit(&mut units,prev_comparison_labels,explicit_comparison_label);}
         prev_comparison_labels=match units.last(){Some(Unit::Shinkyu{labels,..})=>*labels,_=>None};
         crate::native_latin_wraps::restore(&mut units,&words,&native_bounds,&native_axes);
+        crate::native_plain_columns::restore(&mut units,&words,&native_bounds,&native_axes,&projected_flows,page,rules.get(pi).and_then(Option::as_ref));
         let text = units
             .iter()
             .map(Unit::text)
@@ -942,6 +951,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         enclosed_warichu::expand(
             &mut regions, marker_members.as_deref().unwrap_or(&inline_merged), &merged,
         );
+        enclosed_warichu::expand_literal_legacy(&mut regions, &words, &merged, &native_bounds, &native_axes, crate::shinkyu::complete_numbered_publication_heading);
         mark_unused(&mut words, &regions, &merged);
         for word in &mut words {if word.status==WordStatus::Noise && native_header_words.contains(&word.id){word.status=WordStatus::HeaderLabel;}}
         pages.push(PageTrace {native_comparison_labels,native_horizontal_baselines:crate::native_word_flow::horizontal_baselines(&native_bounds,&native_axes,&native_flows),native_atomic_columns:vec![],native_axes,native_rulings,
@@ -1888,7 +1898,7 @@ fn after_band_only(tier: &[Col], height: f32) -> bool {
 }
 
 /// 構造化用テキスト（表は目印）とそのページの表。`count` は表の通し番号。
-fn doc_text_of(units: &[Unit], count: &mut usize) -> (String, Vec<crate::trace::Table>) {
+pub(crate) fn doc_text_of(units: &[Unit], count: &mut usize) -> (String, Vec<crate::trace::Table>) {
     let start = *count;
     let mut tables = Vec::new();
     let parts: Vec<String> = units.iter().map(|u| u.doc_text(&mut tables, start)).collect();
@@ -1946,6 +1956,7 @@ pub(crate) fn parse_page_cols(xhtml: &str) -> Vec<(f32, Vec<Col>)> {
 /// 向きで出すのに `<page>` の幅・高さは回す前のままなので、語が幅をはみ出して高さに収まる
 /// ときは入れ替える（可視化で PDF の表示と語の枠を重ねるため）。
 fn page_size(page: scraper::ElementRef) -> (f32, f32) {
+    if let Some([width,height])=crate::native_page_size::device(page) {return (width as f32,height as f32);}
     let dim = |k: &str, default: f32| page.value().attr(k).and_then(|s| s.parse::<f32>().ok()).unwrap_or(default);
     let (width, height) = (dim("width", 595.0), dim("height", 842.0));
     let word_sel = Selector::parse("word").unwrap();
@@ -2045,7 +2056,7 @@ fn is_horizontal_page(cols: &[Col]) -> bool {
 
 /// 欄見出し「改正後」「改正前」（`last` が「後」か「前」）の (左端, 右端, 上端, 語の ID)。字間を空けた
 /// 1 字ずつの語（「改　正　後」）か、1 語の「改正後」。
-fn shinkyu_labels(cols: &[Col], last: char) -> Vec<(f32, f32, f32, Vec<usize>)> {
+fn shinkyu_labels(cols: &[Col], last: char, rules: Option<&PageRules>, scene: Option<&crate::native_source_scene::Scene>) -> Vec<(f32, f32, f32, Vec<usize>)> {
     let one = |c: &Col, ch: char| c.text.trim() == ch.to_string();
     let mut out: Vec<(f32, f32, f32, Vec<usize>)> = cols
         .iter()
@@ -2061,6 +2072,13 @@ fn shinkyu_labels(cols: &[Col], last: char) -> Vec<(f32, f32, f32, Vec<usize>)> 
             }
         }
     }
+    // Preserve the established partial-marker path. Complete source pairs add
+    // fragmented or widely spaced captions and the other publication family.
+    let field=match last {'後'=>0,'前'=>1,_=>return out};
+    for header in crate::comparison_labels::horizontal_global_headers(cols, rules, scene) {
+        let candidate=header.fields[field].clone();
+        if !out.iter().any(|v| v.3==candidate.3) {out.push(candidate);}
+    }
     out
 }
 
@@ -2072,13 +2090,13 @@ fn shinkyu_labels(cols: &[Col], last: char) -> Vec<(f32, f32, f32, Vec<usize>)> 
 /// ページ中央付近に、横組みの語が 1 つもまたがない縦の切れ目があり、左右の同じ高さに
 /// 対応する行（同じ文、または改正前欄の「〔同左〕」）が並ぶなら新旧対照表とみなす。前のページが
 /// 横書きの新旧対照表なら（`continuation`）、欄見出しの無い続きのページも同じ文が並べば表とする。
-fn split_horizontal_shinkyu(cols: &[Col], continuation: bool) -> Option<(f32, f32, Vec<usize>)> {
-    split_horizontal_shinkyu_by(cols, continuation, true)
+fn split_horizontal_shinkyu(cols: &[Col], continuation: bool, rules: Option<&PageRules>, scene: Option<&crate::native_source_scene::Scene>) -> Option<(f32, f32, Vec<usize>)> {
+    split_horizontal_shinkyu_by(cols, continuation, true, rules, scene)
 }
 
 /// [`split_horizontal_shinkyu`] の、組が横に 2 組以上入る幅のページを除くか（`check_pairs`）を選べる版。
-fn split_horizontal_shinkyu_by(cols: &[Col], continuation: bool, check_pairs: bool) -> Option<(f32, f32, Vec<usize>)> {
-    if let ([a], [b]) = (shinkyu_labels(cols, '後').as_slice(), shinkyu_labels(cols, '前').as_slice()) {
+fn split_horizontal_shinkyu_by(cols: &[Col], continuation: bool, check_pairs: bool, rules: Option<&PageRules>, scene: Option<&crate::native_source_scene::Scene>) -> Option<(f32, f32, Vec<usize>)> {
+    if let ([a], [b]) = (shinkyu_labels(cols, '後', rules, scene).as_slice(), shinkyu_labels(cols, '前', rules, scene).as_slice()) {
         let (page_x0, page_x1) = cols.iter().fold((f32::INFINITY, f32::NEG_INFINITY), |(p, q), c| (p.min(c.x), q.max(c.x1)));
         // 改正後・改正前の組が横に 2 組以上入る幅のページは [`split_horizontal_shinkyu_pairs`] が見る。
         let gap = ((a.0 + a.1) - (b.0 + b.1)).abs() / 2.0;
@@ -2162,8 +2180,8 @@ fn split_horizontal_shinkyu_by(cols: &[Col], continuation: bool, check_pairs: bo
 /// `vrules` は縦の罫線 `(x, y0, y1)`。最初の組より右で欄見出しより上に終わる縦の罫線（紙面の幅いっぱいの表の欄の線）が
 /// あり、その下端より上の最初の組より右の語が 12 語までなら、それも前文（表の右の欄「令和10年４月１日」を改正前の続きの
 /// 列にしない）。
-fn split_horizontal_shinkyu_pairs(cols: &[Col], prev: Option<f32>, vrules: &[(f32, f32, f32)]) -> Option<(Unit, Vec<Col>, f32)> {
-    let labels = |last: char| shinkyu_labels(cols, last);
+fn split_horizontal_shinkyu_pairs(cols: &[Col], prev: Option<f32>, vrules: &[(f32, f32, f32)], rules: Option<&PageRules>, scene: Option<&crate::native_source_scene::Scene>) -> Option<(Unit, Vec<Col>, f32)> {
+    let labels = |last: char| shinkyu_labels(cols, last, rules, scene);
     let (after, before) = (labels('後'), labels('前'));
     let center = |l: &(f32, f32, f32, Vec<usize>)| (l.0 + l.1) / 2.0;
     // (列の幅, 欄見出しの高さ, 改正前の欄見出しの中心, 欄見出しの語, 改正後の欄見出しの中心)。
@@ -2456,6 +2474,22 @@ fn page_words_with_styles_and_bands(
     page_width: f32,
     height: f32,
     page_rules: Option<&PageRules>,
+) -> (StyledPageWords,Vec<Option<crate::native_advance_band::Band>>) {
+    page_words_with_styles_capture(page,page_width,height,page_rules,None)
+}
+
+pub(crate) fn source_line_projection(
+    page:scraper::ElementRef,page_width:f32,height:f32,page_rules:Option<&PageRules>,
+)->(Vec<Col>,Vec<Word>,crate::source_line_projection::Capture) {
+    let mut capture=crate::source_line_projection::Capture::default();
+    let ((cols,words,_,_,_,_,_,_,_,_,_,_,_,_,_),_)=
+        page_words_with_styles_capture(page,page_width,height,page_rules,Some(&mut capture));
+    (cols,words,capture)
+}
+
+fn page_words_with_styles_capture(
+    page:scraper::ElementRef,page_width:f32,height:f32,page_rules:Option<&PageRules>,
+    mut source_projection:Option<&mut crate::source_line_projection::Capture>,
 ) -> (StyledPageWords,Vec<Option<crate::native_advance_band::Band>>) {
     let word_sel = Selector::parse("word").unwrap();
     let line_sel = Selector::parse("line").unwrap();
@@ -2774,11 +2808,12 @@ fn page_words_with_styles_and_bands(
         }
     }
     drop_ruby(&mut cols, &mut words);
-    let minus = attach_minus_signs(&mut cols, &words);
+    let minus = if source_projection.is_some(){attach_minus_signs_observed(&mut cols,&words,source_projection.as_deref_mut())}else{attach_minus_signs(&mut cols,&words)};
     // Resolve complete native citation spans before the older lossy projections.
     let inline_merged = page_rules.map(|r| enclosed_warichu::merge(&mut cols,r)).unwrap_or_default();
     let protected = inline_merged.iter().map(|&(_, owner)| owner).collect();
-    let merged = merge_warichu(&mut cols, &protected);
+    if let Some(capture)=source_projection.as_deref_mut(){capture.seed(&cols,&words);}
+    let merged = if source_projection.is_some(){merge_warichu_observed(&mut cols,&protected,source_projection)}else{merge_warichu(&mut cols,&protected)};
     ((cols, words, rotated, sideways, merged, minus, native_styles, native_bounds, native_content_styles, native_axes, native_rulings, inline_merged, native_flows, projected_flows, cell_origins),advance_bands)
 }
 
@@ -2844,6 +2879,9 @@ pub(crate) fn vertical_inside(cols: &[Col], g: &Grid) -> bool {
 /// 欄では「△」が欄の左端に置かれる）に始まるもの。数の語を先に選ぶ。位置は表示用の座標（`words`）で見る（横倒しのページは読み順の復元用に
 /// 座標を回しているので、回した座標では「△」と数の並びの向きが揃わない）。
 fn attach_minus_signs(cols: &mut Vec<Col>, words: &[Word]) -> std::collections::HashSet<usize> {
+    attach_minus_signs_observed(cols,words,None)
+}
+fn attach_minus_signs_observed(cols:&mut Vec<Col>,words:&[Word],mut capture:Option<&mut crate::source_line_projection::Capture>)->std::collections::HashSet<usize> {
     let geom = |id: usize| words.get(id).map(|w| (w.x0, w.y0, w.x1, w.y1));
     let mut drop: Vec<usize> = Vec::new();
     let mut targets: std::collections::HashSet<usize> = std::collections::HashSet::new();
@@ -2927,6 +2965,9 @@ fn attach_minus_signs(cols: &mut Vec<Col>, words: &[Word]) -> std::collections::
                 if selected_below && (0..cols.len()).any(horizontal_amount) {continue;}
             }
             targets.insert(cols[j].id);
+            if let Some(capture)=capture.as_deref_mut(){capture.prefixes.push(crate::source_line_projection::Prefix{
+                word:cols[i].id,target:cols[j].id,text:cols[i].text.trim().to_owned(),
+            });}
             drop.push(cols[i].id);
             // 印に重なる開き括弧だけの語（「(△135)」の「(」）は、印を付けた金額の語のすぐ左に置き直す（括弧だけが金額の
             // 欄の外の升に入り、次の行の頭に出ていた）。閉じ括弧で終わる金額のときだけ。
@@ -2951,27 +2992,7 @@ fn prefix_minus(units: &mut [Unit], minus: &std::collections::HashSet<usize>, te
     if minus.is_empty() {
         return;
     }
-    let insert = |text: &mut String, words: &[usize]| {
-        let mut pos = 0;
-        for id in words {
-            let Some(wt) = texts.get(id).map(|t| t.trim()).filter(|t| !t.is_empty()) else { continue };
-            // 語の並び（表のセルは回した座標の順のことがある）と文の字の順が違えば、文の頭から探し直す。
-            let at = match text[pos..].find(wt) {
-                Some(k) => pos + k,
-                None if minus.contains(id) => match text.find(wt) {
-                    Some(k) => k,
-                    None => continue,
-                },
-                None => continue,
-            };
-            if minus.contains(id) {
-                text.insert(at, '△');
-                pos = at + '△'.len_utf8() + wt.len();
-            } else {
-                pos = at + wt.len();
-            }
-        }
-    };
+    let insert = |text: &mut String, words: &[usize]| insert_source_prefixes(text,words,minus,texts,None);
     let mut fix = |line: &mut Line| {
         if let Some(t) = line.table.as_mut() {
             let mut touched = false;
@@ -2999,6 +3020,25 @@ fn prefix_minus(units: &mut [Unit], minus: &std::collections::HashSet<usize>, te
                 }
             }
         }
+    }
+}
+
+// The same forward renderer operation is observed before final documents exist.
+// Byte positions refer to the current source text at each individual insertion.
+pub(crate) fn insert_source_prefixes(text:&mut String,words:&[usize],minus:&std::collections::HashSet<usize>,
+    texts:&std::collections::HashMap<usize,String>,mut edits:Option<&mut Vec<(usize,usize,char)>>) {
+    let mut pos=0;
+    for id in words {
+        let Some(wt)=texts.get(id).map(|t|t.trim()).filter(|t|!t.is_empty())else{continue;};
+        let at=match text[pos..].find(wt) {
+            Some(k)=>pos+k,
+            None if minus.contains(id)=>match text.find(wt){Some(k)=>k,None=>continue,},
+            None=>continue,
+        };
+        if minus.contains(id) {
+            if let Some(edits)=edits.as_deref_mut(){edits.push((*id,at,'△'));}
+            text.insert(at,'△');pos=at+'△'.len_utf8()+wt.len();
+        }else{pos=at+wt.len();}
     }
 }
 
@@ -3072,8 +3112,11 @@ fn drop_ruby(cols: &mut Vec<Col>, words: &mut [Word]) {
 #[path = "enclosed_warichu.rs"]
 mod enclosed_warichu;
 fn merge_warichu(cols: &mut Vec<Col>, protected: &std::collections::HashSet<usize>) -> Vec<(usize, usize)> {
-    let mut merged = merge_warichu_pass(cols, false, protected);
-    merged.extend(merge_warichu_pass(cols, true, protected));
+    merge_warichu_observed(cols,protected,None)
+}
+fn merge_warichu_observed(cols:&mut Vec<Col>,protected:&std::collections::HashSet<usize>,mut capture:Option<&mut crate::source_line_projection::Capture>)->Vec<(usize,usize)> {
+    let mut merged = merge_warichu_pass(cols, false, protected,capture.as_deref_mut());
+    merged.extend(merge_warichu_pass(cols, true, protected,capture));
     merged
 }
 
@@ -3102,7 +3145,7 @@ fn warichu_spaced_part(text: &str, extended: bool) -> bool {
 /// （読点を挟んだ「府、総」も）、中の段を字間を空けずに組んだ 1 語（「文部科学省、厚生労働省、農林水産省、」）も
 /// 見て探す（本文の中の「（平成二十六年内閣府、総務省、…環境省告示第一号）」）。先に広く見ると、標題の
 /// 「〇内閣府、総務省、…」の割注が崩れた。
-fn merge_warichu_pass(cols: &mut Vec<Col>, ext: bool, protected: &std::collections::HashSet<usize>) -> Vec<(usize, usize)> {
+fn merge_warichu_pass(cols: &mut Vec<Col>, ext: bool, protected: &std::collections::HashSet<usize>,mut capture:Option<&mut crate::source_line_projection::Capture>) -> Vec<(usize, usize)> {
     let mut merged = Vec::new();
     let mut i = 0;
     while i < cols.len() {
@@ -3218,6 +3261,13 @@ fn merge_warichu_pass(cols: &mut Vec<Col>, ext: bool, protected: &std::collectio
                     v.sort_by(|a, b| a.y.total_cmp(&b.y));
                     v.iter().flat_map(|c| c.text.chars()).filter(|ch| !ch.is_whitespace()).collect::<String>()
                 };
+                let parts=[r.text.clone(),text_of(&left),text_of(&third)];
+                let mut joins=[false;3];
+                let text=parts.iter().enumerate().fold(String::new(),|mut acc,(index,part)|{
+                    if !acc.is_empty() && !(ext && acc.ends_with(comma)) {joins[index]=true;acc.push('・');}
+                    acc.push_str(part);acc
+                });
+                if let Some(capture)=capture.as_deref_mut(){capture.three(cols,&spaced,&left,&third,r.id,&parts,joins,&text);}
                 cols[i] = Col {
                     id: r.id,
                     x: r.x - w,
@@ -3225,13 +3275,7 @@ fn merge_warichu_pass(cols: &mut Vec<Col>, ext: bool, protected: &std::collectio
                     y: r.y,
                     y1: r.y1,
                     // 読点で終わる段（「…財務省、」）の後ろには「・」を挟まない。
-                    text: [r.text.clone(), text_of(&left), text_of(&third)].iter().fold(String::new(), |mut acc, part| {
-                        if !acc.is_empty() && !(ext && acc.ends_with(comma)) {
-                            acc.push('・');
-                        }
-                        acc.push_str(part);
-                        acc
-                    }),
+                    text,
                 };
                 let mut gone: Vec<usize> = left.iter().chain(third.iter()).copied().chain(spaced.iter().skip(1).copied()).collect();
                 gone.sort_unstable();
@@ -3269,7 +3313,7 @@ fn merge_warichu_pass(cols: &mut Vec<Col>, ext: bool, protected: &std::collectio
             let c = &cols[j];
             let chars: Vec<char> = c.text.chars().collect();
             let pitch = (c.y1 - c.y) / chars.len().max(1) as f32;
-            let k = chars.iter().enumerate().take_while(|(k, _)| c.y + pitch * (*k as f32 + 0.5) < r.y1).count();
+            let k = crate::source_line_projection::prefix_len(c,r.y1);
             left_chars.extend(chars[..k].iter().enumerate().map(|(m, ch)| (c.y + pitch * m as f32, *ch)));
             if k < chars.len() {
                 rest.push(Col {
@@ -3295,6 +3339,9 @@ fn merge_warichu_pass(cols: &mut Vec<Col>, ext: bool, protected: &std::collectio
             i += 1;
             continue;
         }
+        let join=!r.text.ends_with(['、','・','，']);
+        let text=if join {format!("{}・{}",r.text,left_text)}else{format!("{}{}",r.text,left_text)};
+        if let Some(capture)=capture.as_deref_mut(){capture.two(cols,&spaced,&left,&r,&left_text,join,&text);}
         cols[i] = Col {
             id: r.id,
             x: r.x - w / 2.0,
@@ -3302,7 +3349,7 @@ fn merge_warichu_pass(cols: &mut Vec<Col>, ext: bool, protected: &std::collectio
             y: r.y,
             y1: r.y1,
             // 右半分が読点で終わる（「総務省、」）ときは「・」でつながない。
-            text: if r.text.ends_with(['、', '・', '，']) { format!("{}{}", r.text, left_text) } else { format!("{}・{}", r.text, left_text) },
+            text,
         };
         let mut gone: Vec<usize> = left.iter().copied().chain(spaced.iter().skip(1).copied()).collect();
         gone.sort_unstable();
@@ -6925,3 +6972,21 @@ mod native_band_binding_tests;
 #[cfg(test)]
 #[path = "vertical_candidate_cost_tests.rs"]
 mod candidate_cost_tests;
+
+#[cfg(test)]
+mod horizontal_caption_scope_tests {
+    use super::*;
+    #[test]
+    fn adjacent_source_records_do_not_authorize_a_global_horizontal_split() {
+        let input=crate::page_inputs(include_bytes!("../tests/data/source-comparison-labels/20260805g001760106.pdf")).unwrap();
+        let dom=Html::parse_document(&input[0].xhtml);
+        let page=dom.select(&Selector::parse("page").unwrap()).next().unwrap();
+        let (w,h)=page_size(page);
+        let ((cols,_,rotated,sideways,..),_)=page_words_with_styles_and_bands(page,w,h,input[0].rules.as_ref());
+        let turned=sideways.then(||turn_rules(input[0].rules.as_ref().unwrap(),w));
+        let rules=turned.as_ref().unwrap_or(input[0].rules.as_ref().unwrap());
+        let scene=crate::native_source_scene::for_page(page,rules);
+        let hs=crate::comparison_labels::horizontal_global_headers(&cols,Some(rules),scene.as_ref());
+        assert!(hs.is_empty(),"rotated={rotated},sideways={sideways},headers={}",hs.len());
+    }
+}

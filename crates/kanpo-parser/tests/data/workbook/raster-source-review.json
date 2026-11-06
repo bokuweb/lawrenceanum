@@ -1,0 +1,452 @@
+{
+  "schema": 1,
+  "kind": "manual_raster_region_review",
+  "source": {
+    "document_sha256": "21b45363d1368a44f869407351d18d219bb36858694d011af9458b56e47f2cb1",
+    "encoded_sha256": "f41d89f5e4820025b01b7eff464e7fefd183e12f6694856eff0af485ccac6965",
+    "source_PNG_sha256": "10dbd41a9dbbfe495fa41f9ed60cbb277d92ad10e81e44a1d6fb2c246d78043d",
+    "source_RGBA_sha256": "8b692ba4d507ea3d04d6cea291b6ee847c939e7db0edf3a4c7af68632038fd86",
+    "page": 0,
+    "draw": 0
+  },
+  "canvas": {
+    "pixel_width": 1617,
+    "pixel_height": 6067
+  },
+  "review_basis": "Independently read original decoded PNG; visual source contact sheet x460..927 y1950..4800. These are manual text-review ROIs, not physical table boundaries. Transcriptions are evaluation data only, never parser inputs.",
+  "comparison": "NFKC_then_remove_whitespace_for_optical_diagnostic_only",
+  "scope": "43 numbered specialty labels in one raster form; excludes remaining form text and graphics; not a whole-page or whole-workbook certificate",
+  "regions": [
+    {
+      "id": "specialty-01",
+      "source_pixels": [
+        460,
+        1981,
+        927,
+        2039
+      ],
+      "text": "01内科"
+    },
+    {
+      "id": "specialty-02",
+      "source_pixels": [
+        460,
+        2045,
+        927,
+        2103
+      ],
+      "text": "02呼吸器内科"
+    },
+    {
+      "id": "specialty-03",
+      "source_pixels": [
+        460,
+        2109,
+        927,
+        2167
+      ],
+      "text": "03循環器内科"
+    },
+    {
+      "id": "specialty-04",
+      "source_pixels": [
+        460,
+        2173,
+        927,
+        2230
+      ],
+      "text": "04消化器内科(胃腸内科)"
+    },
+    {
+      "id": "specialty-05",
+      "source_pixels": [
+        460,
+        2236,
+        927,
+        2294
+      ],
+      "text": "05腎臓内科"
+    },
+    {
+      "id": "specialty-06",
+      "source_pixels": [
+        460,
+        2300,
+        927,
+        2358
+      ],
+      "text": "06脳神経内科"
+    },
+    {
+      "id": "specialty-07",
+      "source_pixels": [
+        460,
+        2364,
+        927,
+        2422
+      ],
+      "text": "07糖尿病内科(代謝内科)"
+    },
+    {
+      "id": "specialty-08",
+      "source_pixels": [
+        460,
+        2428,
+        927,
+        2485
+      ],
+      "text": "08血液内科"
+    },
+    {
+      "id": "specialty-09",
+      "source_pixels": [
+        460,
+        2491,
+        927,
+        2549
+      ],
+      "text": "09皮膚科"
+    },
+    {
+      "id": "specialty-10",
+      "source_pixels": [
+        460,
+        2555,
+        927,
+        2613
+      ],
+      "text": "10アレルギー科"
+    },
+    {
+      "id": "specialty-11",
+      "source_pixels": [
+        460,
+        2619,
+        927,
+        2677
+      ],
+      "text": "11リウマチ科"
+    },
+    {
+      "id": "specialty-12",
+      "source_pixels": [
+        460,
+        2683,
+        927,
+        2740
+      ],
+      "text": "12感染症内科"
+    },
+    {
+      "id": "specialty-13",
+      "source_pixels": [
+        460,
+        2746,
+        927,
+        2804
+      ],
+      "text": "13小児科"
+    },
+    {
+      "id": "specialty-14",
+      "source_pixels": [
+        460,
+        2810,
+        927,
+        2868
+      ],
+      "text": "14精神科"
+    },
+    {
+      "id": "specialty-15",
+      "source_pixels": [
+        460,
+        2874,
+        927,
+        2932
+      ],
+      "text": "15心療内科"
+    },
+    {
+      "id": "specialty-16",
+      "source_pixels": [
+        460,
+        2938,
+        927,
+        2995
+      ],
+      "text": "16外科"
+    },
+    {
+      "id": "specialty-17",
+      "source_pixels": [
+        460,
+        3001,
+        927,
+        3059
+      ],
+      "text": "17呼吸器外科"
+    },
+    {
+      "id": "specialty-18",
+      "source_pixels": [
+        460,
+        3065,
+        927,
+        3123
+      ],
+      "text": "18心臓血管外科"
+    },
+    {
+      "id": "specialty-19",
+      "source_pixels": [
+        460,
+        3129,
+        927,
+        3187
+      ],
+      "text": "19乳腺外科"
+    },
+    {
+      "id": "specialty-20",
+      "source_pixels": [
+        460,
+        3193,
+        927,
+        3251
+      ],
+      "text": "20気管食道外科"
+    },
+    {
+      "id": "specialty-21",
+      "source_pixels": [
+        460,
+        3257,
+        927,
+        3314
+      ],
+      "text": "21消化器外科(胃腸外科)"
+    },
+    {
+      "id": "specialty-22",
+      "source_pixels": [
+        460,
+        3320,
+        927,
+        3378
+      ],
+      "text": "22泌尿器科"
+    },
+    {
+      "id": "specialty-23",
+      "source_pixels": [
+        460,
+        3384,
+        927,
+        3442
+      ],
+      "text": "23肛門外科"
+    },
+    {
+      "id": "specialty-24",
+      "source_pixels": [
+        460,
+        3448,
+        927,
+        3506
+      ],
+      "text": "24脳神経外科"
+    },
+    {
+      "id": "specialty-25",
+      "source_pixels": [
+        460,
+        3512,
+        927,
+        3569
+      ],
+      "text": "25整形外科"
+    },
+    {
+      "id": "specialty-26",
+      "source_pixels": [
+        460,
+        3575,
+        927,
+        3633
+      ],
+      "text": "26形成外科"
+    },
+    {
+      "id": "specialty-27",
+      "source_pixels": [
+        460,
+        3639,
+        927,
+        3697
+      ],
+      "text": "27美容外科"
+    },
+    {
+      "id": "specialty-28",
+      "source_pixels": [
+        460,
+        3703,
+        927,
+        3761
+      ],
+      "text": "28眼科"
+    },
+    {
+      "id": "specialty-29",
+      "source_pixels": [
+        460,
+        3767,
+        927,
+        3824
+      ],
+      "text": "29耳鼻いんこう科"
+    },
+    {
+      "id": "specialty-30",
+      "source_pixels": [
+        460,
+        3830,
+        927,
+        3888
+      ],
+      "text": "30小児外科"
+    },
+    {
+      "id": "specialty-31",
+      "source_pixels": [
+        460,
+        3894,
+        927,
+        3952
+      ],
+      "text": "31産婦人科"
+    },
+    {
+      "id": "specialty-32",
+      "source_pixels": [
+        460,
+        3958,
+        927,
+        4016
+      ],
+      "text": "32産科"
+    },
+    {
+      "id": "specialty-33",
+      "source_pixels": [
+        460,
+        4022,
+        927,
+        4080
+      ],
+      "text": "33婦人科"
+    },
+    {
+      "id": "specialty-34",
+      "source_pixels": [
+        460,
+        4086,
+        927,
+        4143
+      ],
+      "text": "34リハビリテーション科"
+    },
+    {
+      "id": "specialty-35",
+      "source_pixels": [
+        460,
+        4149,
+        927,
+        4207
+      ],
+      "text": "35放射線科"
+    },
+    {
+      "id": "specialty-36",
+      "source_pixels": [
+        460,
+        4213,
+        927,
+        4271
+      ],
+      "text": "36麻酔科"
+    },
+    {
+      "id": "specialty-37",
+      "source_pixels": [
+        460,
+        4277,
+        927,
+        4335
+      ],
+      "text": "37病理診断科"
+    },
+    {
+      "id": "specialty-38",
+      "source_pixels": [
+        460,
+        4341,
+        927,
+        4399
+      ],
+      "text": "38臨床検査科"
+    },
+    {
+      "id": "specialty-39",
+      "source_pixels": [
+        460,
+        4405,
+        927,
+        4462
+      ],
+      "text": "39救急科"
+    },
+    {
+      "id": "specialty-40",
+      "source_pixels": [
+        460,
+        4468,
+        927,
+        4526
+      ],
+      "text": "40歯科"
+    },
+    {
+      "id": "specialty-41",
+      "source_pixels": [
+        460,
+        4532,
+        927,
+        4590
+      ],
+      "text": "41矯正歯科"
+    },
+    {
+      "id": "specialty-42",
+      "source_pixels": [
+        460,
+        4596,
+        927,
+        4653
+      ],
+      "text": "42小児歯科"
+    },
+    {
+      "id": "specialty-43",
+      "source_pixels": [
+        460,
+        4659,
+        927,
+        4717
+      ],
+      "text": "43歯科口腔外科"
+    }
+  ],
+  "coverage_verified": false
+}

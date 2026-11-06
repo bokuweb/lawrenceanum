@@ -2,6 +2,17 @@
 use super::*;
 
 impl Capture {
+    pub(crate) fn rectangle_frame(&mut self,id:usize,frame:Option<crate::RectangleFrame>) {
+        if let Some(frame)=frame {self.tape.rectangle_frames.insert(id,frame);}
+    }
+    pub(crate) fn separate_rectangles(&mut self,id:usize,rects:Option<Vec<[f64;4]>>) {
+        if let Some(rects)=rects {self.tape.separate_rectangles.insert(id,rects);}
+    }
+    pub(crate) fn text_axes(&mut self, id: usize, matrix: [f64; 4]) {
+        if let Some(axes) = crate::source_aj1::SourceTextAxes::from_matrix(matrix) {
+            self.tape.text_axes.insert(id, axes);
+        }
+    }
     pub(crate) fn scene_compound_obstacle(&mut self,id:usize,b:Option<[f64;4]>){
         if let Some(b)=b{self.tape.scene_glyph_obstacles.insert(id,b);}
     }
@@ -12,6 +23,18 @@ impl Capture {
     }
 }
 impl Tape {
+    pub(crate) fn glyph_rectangle_frame(&self,id:usize)->Option<crate::RectangleFrame> {
+        self.rectangle_frames.get(&id).copied()
+    }
+    pub(crate) fn glyph_separate_rectangles(&self,id:usize)->Option<&[[f64;4]]> {
+        self.separate_rectangles.get(&id).map(Vec::as_slice)
+    }
+    pub(crate) fn glyph_painted_rectangle(&self, id:usize) -> Option<[f64;4]> {
+        self.scene_rectangles.get(&id).copied()
+    }
+    pub(crate) fn text_axes(&self, id: usize) -> Option<crate::source_aj1::SourceTextAxes> {
+        self.text_axes.get(&id).copied()
+    }
     #[cfg(test)]
     pub(crate) fn scene_capture(&self, page: &crate::Page) -> Option<crate::source_scene::Scene> {
         self.scene_capture_with_words(page, &crate::bbox::words(page))

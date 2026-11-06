@@ -1,0 +1,15 @@
+{
+  "scope": "Engineering transcription from all eight original PDF paint crops; non-blind development review, not whole-page OCR accuracy. Runtime recognition does not read this file.",
+  "fixture": "case-06.pdf",
+  "document_sha256": "d37dda20c7b4cad3b374f43a82c499b0c9259859558ab4e36ad459a0da6f40dc",
+  "observations": [
+    {"page": 1, "before_glyph": 761, "after_glyph": 762, "text": "（二十八）"},
+    {"page": 1, "before_glyph": 919, "after_glyph": 920, "text": "（三十一）"},
+    {"page": 1, "before_glyph": 1293, "after_glyph": 1294, "text": "（二十八）"},
+    {"page": 1, "before_glyph": 1580, "after_glyph": 1581, "text": "（三十一）"},
+    {"page": 2, "before_glyph": 1141, "after_glyph": 1142, "text": "（二十八）"},
+    {"page": 2, "before_glyph": 1293, "after_glyph": 1294, "text": "（三十一）"},
+    {"page": 2, "before_glyph": 2014, "after_glyph": 2015, "text": "（二十八）"},
+    {"page": 2, "before_glyph": 2019, "after_glyph": 2020, "text": "（三十一）"}
+  ]
+}

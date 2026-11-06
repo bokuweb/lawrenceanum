@@ -47,14 +47,25 @@ pub(crate) fn word_text(raw: &str) -> String {
         return String::new();
     }
     let mut out = String::new();
-    for c in raw.chars() {
+    let mut chars=raw.chars().peekable();
+    while let Some(c)=chars.next() {
         match identity_cid(c) {
-            Some(cid) => match cid_glyph(&[cid_char(cid)], 1.0, 1.0, true) {
+            Some(cid) => {
+                // A complete numbered glyph may consist of two adjacent CID
+                // halves. An unknown following glyph must not destroy that
+                // independently decodable token. Never join across other text.
+                let pair=chars.peek().and_then(|&next|identity_cid(next))
+                    .and_then(|next|cid_glyph(&[cid_char(cid),cid_char(next)],1.,1.,true));
+                if let Some(pair)=pair {
+                    out.push_str(&pair.text);chars.next();continue;
+                }
+                match cid_glyph(&[cid_char(cid)], 1.0, 1.0, true) {
                 Some(g) => out.push_str(&g.text),
                 // A CID is a glyph identifier, not a Unicode scalar. Keep
                 // unresolved source occurrences visible without inventing text.
                 // The source-verified AJ1 candidate is applied separately.
                 None => out.push('\u{fffd}'),
+                }
             },
             None => match paren_number(c) {
                 Some(t) => out.push_str(&t),
@@ -969,6 +980,17 @@ mod unresolved_identity_tests167 {
     fn mixed_unknown_occurrences_keep_their_positions() {
         let raw = format!("前{}中{}後", tag(65), tag(0x4238));
         assert_eq!(word_text(&raw), "前\u{fffd}中\u{fffd}後");
+    }
+    #[test]
+    fn unknown_neighbors_do_not_destroy_independent_two_piece_number_tokens(){
+        for tens in 1..=9{for ones in 0..=9{
+            let raw=tag(0x661c+tens)+&tag(if ones==0{0x6630}else{0x6626+ones});
+            let decoded=private_cid_glyph(&raw,1.,1.).unwrap().text;
+            assert_eq!(word_text(&format!("前{}{raw}{}後",tag(65),tag(66))),format!("前�{decoded}�後"));
+        }}
+        assert_eq!(word_text(&(tag(0x661d)+&tag(65)+&tag(0x662e))),"���");
+        assert_eq!(word_text(&(tag(0x662e)+&tag(0x661d))),"��");
+        assert_eq!(word_text("昝昮"),"昝昮");
     }
     #[test]
     fn explicit_unicode_with_same_number_stays_literal() {

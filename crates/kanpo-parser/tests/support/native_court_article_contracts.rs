@@ -1,4 +1,6 @@
 //! Exact in-place article partitions; historical native/source fields remain authoritative.
+#[path = "source_reviewed_expectations.rs"]
+mod source_reviewed_expectations;
 use serde_json::Value;
 #[path = "native_numeric_frame_contracts.rs"]
 mod numeric_contract;
@@ -97,6 +99,8 @@ pub(crate) fn preserved(old: &Value, new: &Value) {
 /// Fixed reviewed arrays preserve exact regression coverage while keeping the
 /// historical132/133 native/material anchors and independent source witnesses.
 pub(crate) fn reviewed_regression(key: &str, old: &Value, actual: &Value) {
+    let reviewed_source=source_reviewed_expectations::current(old.clone());
+    let old=&reviewed_source;
     let reviewed: Value = serde_json::from_str(include_str!(
         "../data/native-court-columns/reviewed-article-projections150.json"
     ))

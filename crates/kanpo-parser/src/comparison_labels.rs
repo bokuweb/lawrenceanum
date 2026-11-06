@@ -135,6 +135,72 @@ pub(crate) fn headers(cols: &[Col]) -> Vec<Header> {
     out
 }
 
+pub(crate) struct HorizontalHeader {
+    pub(crate) labels: ComparisonLabels,
+    pub(crate) fields: [(f32, f32, f32, Vec<usize>); 2],
+}
+
+/// Apply the same complete caption grammar in the orthogonal writing basis.
+/// Both fields must use one family and cannot skip intervening source words.
+pub(crate) fn horizontal_headers(cols: &[Col]) -> Vec<HorizontalHeader> {
+    let projected = cols.iter().map(|c| Col {
+        id:c.id, x:c.y, x1:c.y1, y:c.x, y1:c.x1,
+        text:c.text.chars().filter(|ch|!ch.is_whitespace()).collect(),
+    }).collect::<Vec<_>>();
+    let candidates=headers(&projected);
+    let caption_ids=candidates.iter().flat_map(|h|h.words.iter().copied()).collect::<std::collections::BTreeSet<_>>();
+    let mut out = vec![];
+    for header in candidates {
+        let band=cols.iter().filter(|c|header.words.contains(&c.id)).fold([f32::NEG_INFINITY,f32::INFINITY],|b,c|[b[0].max(c.y),b[1].min(c.y1)]);
+        // A comparison caption strip consists of its role captions. In an
+        // ordinary record grid these same words may be just two of several
+        // column names; other material in the strip prevents that inference.
+        if band[0]>=band[1] || cols.iter().any(|c|!caption_ids.contains(&c.id)&&c.y<band[1]&&band[0]<c.y1) {continue;}
+        let mut split = 0;
+        let mut text = String::new();
+        for id in &header.words {
+            let Some(c) = projected.iter().find(|c|c.id==*id) else { break; };
+            text.push_str(&c.text);
+            split += 1;
+            if text==header.labels.after { break; }
+        }
+        if text!=header.labels.after || split==header.words.len() { continue; }
+        let field = |ids:&[usize]| {
+            let parts = ids.iter().map(|id| {
+                let mut found = cols.iter().filter(|c|c.id==*id);
+                let c=found.next()?;
+                found.next().is_none().then_some(c)
+            }).collect::<Option<Vec<_>>>()?;
+            Some((parts.iter().map(|c|c.x).fold(f32::INFINITY,f32::min),
+                  parts.iter().map(|c|c.x1).fold(f32::NEG_INFINITY,f32::max),
+                  parts.iter().map(|c|c.y).fold(f32::INFINITY,f32::min),ids.to_vec()))
+        };
+        if let (Some(after),Some(before))=(field(&header.words[..split]),field(&header.words[split..])) {
+            out.push(HorizontalHeader{labels:header.labels,fields:[after,before]});
+        }
+    }
+    out
+}
+
+/// The legacy horizontal splitter consumes a complete band. A caption in a
+/// smaller ruled field cannot authorize it to consume an adjacent article.
+/// Native field-level reconstruction remains independent of this global gate.
+pub(crate) fn horizontal_global_headers(cols: &[Col], rules: Option<&crate::lines::PageRules>, scene: Option<&crate::native_source_scene::Scene>) -> Vec<HorizontalHeader> {
+    let (Some(rules),Some(scene))=(rules,scene) else {return vec![];};
+    if rules.vertical.iter().any(|r| ![r.x,r.y0,r.y1].iter().all(|v|v.is_finite()) || r.y0>=r.y1) {return vec![];}
+    horizontal_headers(cols).into_iter().filter(|h| {
+        let [a,b]=&h.fields;
+        let y=a.2.max(b.2);
+        let boundaries=rules.vertical.iter().filter(|r|r.y0<=y&&y<r.y1).collect::<Vec<_>>();
+        let left=boundaries.iter().filter(|r|r.x<=a.0).max_by(|a,b|a.x.total_cmp(&b.x));
+        let right=boundaries.iter().filter(|r|r.x>=b.1).min_by(|a,b|a.x.total_cmp(&b.x));
+        let (Some(left),Some(right))=(left,right) else {return false;};
+        let bottom=left.y1.min(right.y1);
+        !scene.opaque_outside_x_band(left.x as f64,right.x as f64,y as f64,bottom as f64)
+            && !cols.iter().any(|c| c.y<bottom&&y<c.y1&&(c.x1<=left.x||c.x>=right.x))
+    }).collect()
+}
+
 #[cfg(test)]
 #[path = "comparison_labels_tests147.rs"]
 mod tests;

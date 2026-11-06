@@ -64,7 +64,7 @@ mod aj1_provenance_pdf_tests;
 
 mod cff_aj1;
 mod source_aj1;
-pub use source_aj1::Aj1PageSources;
+pub use source_aj1::{Aj1PageSources, SourceTextAxes,RectangleFrame};
 /// Extract opaque owned pages with source evidence. The read-only native page
 /// is available through `Aj1PageSources::page`; it cannot be re-paired with
 /// evidence from another extraction. Legacy public values remain unchanged.
@@ -81,7 +81,7 @@ pub fn extract_pages_with_aj1_sources(pdf: &[u8]) -> Result<Vec<Aj1PageSources>>
 mod source_aj1_api_tests;
 
 mod source_images;
-pub use source_images::{ImageDraw,XObjectPageSources,CaptureGap as ImageCaptureGap,GapKind as ImageCaptureGapKind,SourceClip as ImageSourceClip,ClipOrigin as ImageClipOrigin,ClipRule as ImageClipRule};
+pub use source_images::{PathDraw,PathCommand,PaintStateOperator,ImageDraw,XObjectPageSources,CaptureGap as ImageCaptureGap,GapKind as ImageCaptureGapKind,SourceClip as ImageSourceClip,ClipOrigin as ImageClipOrigin,ClipRule as ImageClipRule};
 pub fn extract_pages_with_xobject_sources(pdf:&[u8])->Result<Vec<XObjectPageSources>>{source_images::extract(pdf)}
 
 mod source_ruling;
@@ -92,3 +92,6 @@ mod source_lineage;
 
 mod source_scene;
 mod uniform_samples;
+
+#[cfg(test)]
+mod source_path_tests;

@@ -167,8 +167,30 @@ impl Interp<'_> {
             SourceOutline::SceneRectangle=>font.source_scene_rectangle(self.doc,c)?,
             SourceOutline::CompoundEnvelope=>font.source_scene_compound_envelope(self.doc,c)?,
         };
+        self.capture_font_rectangle(font,c,trm,[x0,y0,x1,y1],!matches!(kind,SourceOutline::InkRectangle))
+    }
+    pub(super) fn capture_separate_rectangles(&self,font:&Font,c:&crate::font::CharCode,trm:&Matrix)->Option<Vec<[f64;4]>> {
+        if !self.gs.ink_geometry_complete || !self.gs.source_geometry_complete
+            || self.gs.render!=0 || self.gs.ink_fill_components.is_none() {return None;}
+        let rects=font.source_separate_rectangles(self.doc,c)?.iter()
+            .map(|&b|self.capture_font_rectangle(font,c,trm,b,true)).collect::<Option<Vec<_>>>()?;
+        for (i,a) in rects.iter().enumerate() {for b in &rects[i+1..] {
+            if !(a[2]<b[0] || b[2]<a[0] || a[3]<b[1] || b[3]<a[1]) {return None;}
+        }}
+        Some(rects)
+    }
+    pub(super) fn capture_rectangle_frame(&self,font:&Font,c:&crate::font::CharCode,trm:&Matrix)->Option<crate::RectangleFrame> {
+        if !self.gs.ink_geometry_complete || !self.gs.source_geometry_complete
+            || self.gs.render!=0 || self.gs.ink_fill_components.is_none() {return None;}
+        let frame=font.source_rectangle_frame(self.doc,c)?;
+        let outer=self.capture_font_rectangle(font,c,trm,frame.outer,true)?;
+        let inner=self.capture_font_rectangle(font,c,trm,frame.inner,true)?;
+        if !(outer[0]<inner[0]&&inner[2]<outer[2]&&outer[1]<inner[1]&&inner[3]<outer[3]) {return None;}
+        Some(crate::RectangleFrame{outer,inner})
+    }
+    fn capture_font_rectangle(&self,font:&Font,c:&crate::font::CharCode,trm:&Matrix,[x0,y0,x1,y1]:[f64;4],vertical_origin:bool)->Option<[f64;4]> {
         // PDF origin1 = origin0 + v; embedded outlines use origin0.
-        let (vx,vy)=if !matches!(kind,SourceOutline::InkRectangle)&&font.vertical{let(_,vx,vy)=font.vertical_metrics(c);(vx,vy)}else{(0.,0.)};
+        let (vx,vy)=if vertical_origin&&font.vertical{let(_,vx,vy)=font.vertical_metrics(c);(vx,vy)}else{(0.,0.)};
         if !vx.is_finite()||!vy.is_finite(){return None;}
         let points = [[x0, y0], [x1, y0], [x1, y1], [x0, y1]].map(|[x, y]| {
             let (x, y) = trm.apply(x / 1000.-vx, y / 1000.-vy);

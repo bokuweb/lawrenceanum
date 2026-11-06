@@ -188,7 +188,38 @@ fn default_geometry(d: &BTreeMap<u16, Vec<Option<i64>>>) -> bool {
 }
 pub(crate) fn rectangles(data:&[u8])->Option<BTreeMap<u16,[f64;4]>>{map_outlines(data,outline)}
 pub(crate) fn compound_envelopes(data:&[u8])->Option<BTreeMap<u16,[f64;4]>>{map_outlines(data,compound_outline)}
-fn map_outlines(data: &[u8],parse:fn(&[u8])->Option<[f64;4]>) -> Option<BTreeMap<u16, [f64; 4]>> {
+fn separate_outline(data:&[u8])->Option<Vec<[f64;4]>> {
+    let paths=contours(data)?;
+    if paths.len()<2 {return None;}
+    let rects=paths.iter().map(|p|filled_rectangle(p)).collect::<Option<Vec<_>>>()?;
+    for (i,a) in rects.iter().enumerate() {for b in &rects[i+1..] {
+        // Positive separation excludes holes, overlap, shared edges and joins;
+        // contour winding cannot cancel any part of these independent fills.
+        if !(a[2]<b[0] || b[2]<a[0] || a[3]<b[1] || b[3]<a[1]) {return None;}
+    }}
+    Some(rects)
+}
+pub(crate) fn separate_rectangles(data:&[u8])->Option<BTreeMap<u16,Vec<[f64;4]>>>{map_outlines(data,separate_outline)}
+fn contour_direction(points:&[[f64;2]])->Option<bool> {
+    for i in 0..points.len() {
+        let (p,q,r)=(points[i],points[(i+1)%points.len()],points[(i+2)%points.len()]);
+        let turn=(q[0]-p[0])*(r[1]-q[1])-(q[1]-p[1])*(r[0]-q[0]);
+        if !turn.is_finite(){return None;}
+        if turn!=0. {return Some(turn>0.);}
+    }
+    None
+}
+fn frame_outline(data:&[u8])->Option<crate::source_aj1::RectangleFrame> {
+    let paths=contours(data)?;
+    let [a,b]=paths.as_slice() else{return None;};
+    let (ra,rb)=(filled_rectangle(a)?,filled_rectangle(b)?);
+    if contour_direction(a)?==contour_direction(b)? {return None;}
+    let inside=|a:[f64;4],b:[f64;4]|a[0]<b[0]&&b[2]<a[2]&&a[1]<b[1]&&b[3]<a[3];
+    let (outer,inner)=if inside(ra,rb){(ra,rb)}else if inside(rb,ra){(rb,ra)}else{return None;};
+    Some(crate::source_aj1::RectangleFrame{outer,inner})
+}
+pub(crate) fn rectangle_frames(data:&[u8])->Option<BTreeMap<u16,crate::source_aj1::RectangleFrame>>{map_outlines(data,frame_outline)}
+fn map_outlines<T>(data: &[u8],parse:fn(&[u8])->Option<T>) -> Option<BTreeMap<u16, T>> {
     if data.get(..2)? != [1, 0] {
         return None;
     }

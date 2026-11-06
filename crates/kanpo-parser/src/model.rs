@@ -5,8 +5,8 @@
 //! - `Block` — 段落（散文）か、新旧対照表（改正後/改正前）。
 //! - `Run` — 連続するテキスト片。傍線（下線）の有無を持つ。
 //!
-//! 傍線は現状の `pdftotext`/`pdftocairo` 出力からは復元できないため、いまは常に
-//! `false`（型としてのみ用意し、将来の傍線抽出で充填できるようにする）。
+//! 通常のテキスト解析では傍線は `false`。PDF の元の字形を使う
+//! `source_underlines` の明示実行で、対応が確認できた欄の Run に傍線を付けられる。
 
 use serde::Serialize;
 
@@ -76,7 +76,7 @@ pub struct CellMerge {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct Run {
     pub text: String,
-    /// 傍線（下線）が付いているか。現状は常に false（将来の傍線抽出用の予約フィールド）。
+    /// 傍線（下線）が付いているか。通常の文字解析では false。
     #[serde(default, skip_serializing_if = "is_false")]
     pub underline: bool,
     /// 本文の流れの中に置かれた表（あれば `text` は空）。新旧対照表のセルの中の別表など。

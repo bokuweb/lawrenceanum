@@ -1,0 +1,297 @@
+{
+  "scope": "Original image streams independently checked with pypdf 6.10.0 against native source observations; pixels decoded by Pillow 12.3.0. Placement/source-image review is separate from OCR accuracy and final compositing visibility. Runtime parser never reads this test manifest.",
+  "cases": [
+    {
+      "case": 10,
+      "fixture": "case-10.pdf",
+      "document_sha256": "21b45363d1368a44f869407351d18d219bb36858694d011af9458b56e47f2cb1",
+      "images": [
+        {
+          "page": 0,
+          "draw": 0,
+          "object_ref": [
+            42,
+            0
+          ],
+          "encoded_sha256": "f41d89f5e4820025b01b7eff464e7fefd183e12f6694856eff0af485ccac6965",
+          "encoded_bytes": 624115,
+          "encoded_fnv1a64": "0b08181d896e58f7",
+          "pixel_width": 1617,
+          "pixel_height": 6067,
+          "crop_box": [
+            0.0,
+            0.0,
+            595.0,
+            842.0
+          ],
+          "rotate": 0,
+          "decoded_png_sha256": "10dbd41a9dbbfe495fa41f9ed60cbb277d92ad10e81e44a1d6fb2c246d78043d",
+          "decoded_rgba_sha256": "8b692ba4d507ea3d04d6cea291b6ee847c939e7db0edf3a4c7af68632038fd86"
+        }
+      ]
+    },
+    {
+      "case": 15,
+      "fixture": "case-15.pdf",
+      "document_sha256": "60d875b347d5844982f7329ab1e3828a30bd632a43ca2d7cf6c7a2973c375fec",
+      "images": [
+        {
+          "page": 36,
+          "draw": 0,
+          "object_ref": [
+            207,
+            0
+          ],
+          "encoded_sha256": "c4e1ed9b7a48e77b2fc10cef17ef4efdc1b17bc8e94702d5c0541ef6459bf42a",
+          "encoded_bytes": 15781,
+          "encoded_fnv1a64": "ffe9ca0ddbfb78f1",
+          "pixel_width": 4100,
+          "pixel_height": 2550,
+          "crop_box": [
+            0.0,
+            0.0,
+            595.0,
+            842.0
+          ],
+          "rotate": 0,
+          "decoded_png_sha256": "ebc16981aac06878a2c4219c9f158a2fcbad8be11eb5934b00629637d85789a1",
+          "decoded_rgba_sha256": "8746385d9e2cea589c297af0feb8f875784e97d02eca071a1657312f74d7d4ad"
+        },
+        {
+          "page": 36,
+          "draw": 1,
+          "object_ref": [
+            208,
+            0
+          ],
+          "encoded_sha256": "51267a916ef357faf06d27d44380cd31d94b27c1668bbc57555fa320ac380afa",
+          "encoded_bytes": 90707,
+          "encoded_fnv1a64": "250a294294518311",
+          "pixel_width": 4100,
+          "pixel_height": 2533,
+          "crop_box": [
+            0.0,
+            0.0,
+            595.0,
+            842.0
+          ],
+          "rotate": 0,
+          "decoded_png_sha256": "78441ad1e9ba7bb3615f34e3ef93b87792f2f203076da855ba7f45638108960f",
+          "decoded_rgba_sha256": "c42f33bed8460f268b35907c420d03d0ac367043d6893d033e57b526cc52b965"
+        }
+      ]
+    },
+    {
+      "case": 16,
+      "fixture": "case-16.pdf",
+      "document_sha256": "16dedee9b08ff701654a647734e5776646125d7db8586de51baae03fac7f6b4c",
+      "images": [
+        {
+          "page": 1,
+          "draw": 0,
+          "object_ref": [
+            148,
+            0
+          ],
+          "encoded_sha256": "aeaad7424388783dece48239fa2547d57a0bb0b4bc95d927fb8a08a1c209e598",
+          "encoded_bytes": 40277,
+          "encoded_fnv1a64": "4fc7d2fa7a7d9807",
+          "pixel_width": 3917,
+          "pixel_height": 6067,
+          "crop_box": [
+            0.0,
+            0.0,
+            595.0,
+            842.0
+          ],
+          "rotate": 0,
+          "decoded_png_sha256": "de0b5fc1b6ac102f7fb896bd5643e664175bef9c1c00eddcf5cea4b985683479",
+          "decoded_rgba_sha256": "9b5de58e936ba54d6f2f950835259476e0e7f3d87ec2d0f203c53570d81fba59"
+        },
+        {
+          "page": 2,
+          "draw": 0,
+          "object_ref": [
+            146,
+            0
+          ],
+          "encoded_sha256": "3f95268b8cf03a859492b0ea4cf1e573ddb270f8c59d97e2d1e9a38fe1a5f4d7",
+          "encoded_bytes": 43198,
+          "encoded_fnv1a64": "0af997d0781ab03f",
+          "pixel_width": 4100,
+          "pixel_height": 6067,
+          "crop_box": [
+            0.0,
+            0.0,
+            595.0,
+            842.0
+          ],
+          "rotate": 0,
+          "decoded_png_sha256": "f20933740e5e321e0eb25f40952b7f7ecc1e2c9492710cfdb3f6c5174884fca4",
+          "decoded_rgba_sha256": "b048c3fc7ffb9548afb5de6ab48e9b3ad1d02c896861af104daaf1416465c9f0"
+        },
+        {
+          "page": 3,
+          "draw": 0,
+          "object_ref": [
+            144,
+            0
+          ],
+          "encoded_sha256": "d19998ae2f4dd30fd91b82144f63679583f9fecfd14e2a86631a7c64c5cf3001",
+          "encoded_bytes": 55929,
+          "encoded_fnv1a64": "63c1f4a3b8ca476b",
+          "pixel_width": 3392,
+          "pixel_height": 6067,
+          "crop_box": [
+            0.0,
+            0.0,
+            595.0,
+            842.0
+          ],
+          "rotate": 0,
+          "decoded_png_sha256": "61417a8e045bff38c36ea5d83d61fed486be57f76114a5fbe85bf2ea278edd60",
+          "decoded_rgba_sha256": "312368ada54f75fe94b524a5a092face5b1856e04007637313d1af799bc7657f"
+        },
+        {
+          "page": 4,
+          "draw": 0,
+          "object_ref": [
+            142,
+            0
+          ],
+          "encoded_sha256": "9c9a80eb87e7269e14e599759a0731a7c04f2ff57da02a1c335056a42a2a79c1",
+          "encoded_bytes": 40324,
+          "encoded_fnv1a64": "74cac58f3f054877",
+          "pixel_width": 3917,
+          "pixel_height": 6067,
+          "crop_box": [
+            0.0,
+            0.0,
+            595.0,
+            842.0
+          ],
+          "rotate": 270,
+          "decoded_png_sha256": "91e75b018e7ffd6c3ecdd4dcfc271c31da4f991be54970c31db3d1627ece55e7",
+          "decoded_rgba_sha256": "ae6412b42b7ccb976bcad6552ed0f7444bd70d12c790b74699440538d0957249"
+        },
+        {
+          "page": 6,
+          "draw": 0,
+          "object_ref": [
+            137,
+            0
+          ],
+          "encoded_sha256": "b5a1aec2d13e55d76da92caf1dc1a5424fefabc7bd1113e165f6de92779e1a6f",
+          "encoded_bytes": 204533,
+          "encoded_fnv1a64": "2957820719cc0d7a",
+          "pixel_width": 4100,
+          "pixel_height": 6067,
+          "crop_box": [
+            0.0,
+            0.0,
+            595.0,
+            842.0
+          ],
+          "rotate": 0,
+          "decoded_png_sha256": "24cbd215331247f33387b10c6c5e6dc4a874a78664600b2f7bffe25573d9e665",
+          "decoded_rgba_sha256": "3fb223916be25f5c5ab7834b8a80733535fe0b6e574e798fbce7692a275b2341"
+        },
+        {
+          "page": 7,
+          "draw": 0,
+          "object_ref": [
+            135,
+            0
+          ],
+          "encoded_sha256": "e30f66a99f6f97411ad9a21427e477b3629206d5a2ecd0a91b332de9fd5ad8ca",
+          "encoded_bytes": 208941,
+          "encoded_fnv1a64": "79183b07000486dd",
+          "pixel_width": 4192,
+          "pixel_height": 6067,
+          "crop_box": [
+            0.0,
+            0.0,
+            595.0,
+            842.0
+          ],
+          "rotate": 0,
+          "decoded_png_sha256": "f67424322ce6692a0448c68c06cc04b4a319694080be74b50bbb101acc49e3f4",
+          "decoded_rgba_sha256": "b11e92614b3c11308a2d71a3826d5319e8583e26eb55899bb757fd7b481fb6a3"
+        },
+        {
+          "page": 11,
+          "draw": 0,
+          "object_ref": [
+            104,
+            0
+          ],
+          "encoded_sha256": "36385fde13f9b401149e54cb01a2f799c805e75128de73242f9220c861a8391b",
+          "encoded_bytes": 54217,
+          "encoded_fnv1a64": "66bed1ad563306c5",
+          "pixel_width": 3258,
+          "pixel_height": 2867,
+          "crop_box": [
+            0.0,
+            0.0,
+            595.0,
+            842.0
+          ],
+          "rotate": 0,
+          "decoded_png_sha256": "30be66d8919826739e4318aca8d5ea02dae0a437947b38f0cd170dacbf12fb16",
+          "decoded_rgba_sha256": "437818ac472e13ef448aa04a86cf957c36f81386d33ac54983b3e76362c1a7f7"
+        },
+        {
+          "page": 11,
+          "draw": 1,
+          "object_ref": [
+            105,
+            0
+          ],
+          "encoded_sha256": "fa5c93cddb429c9a8a0d1508c665545ac218365805956961f5dd5bc0e633ac69",
+          "encoded_bytes": 65811,
+          "encoded_fnv1a64": "6ad39c4d089f1b30",
+          "pixel_width": 3258,
+          "pixel_height": 2867,
+          "crop_box": [
+            0.0,
+            0.0,
+            595.0,
+            842.0
+          ],
+          "rotate": 0,
+          "decoded_png_sha256": "6ffe4808ff4f181a1f9f9950120c5f32abb2a58a0151b023846d781b23849622",
+          "decoded_rgba_sha256": "8d954f98ac62a8cc2bf268522f5353e7bb9cf9d065d86f152548cf4670eba3d0"
+        }
+      ]
+    },
+    {
+      "case": 18,
+      "fixture": "case-18.pdf",
+      "document_sha256": "c988d59c190d0410800f751d8f42fefaebc98b1b98df97a5c06f49adf7e19b2a",
+      "images": [
+        {
+          "page": 1,
+          "draw": 0,
+          "object_ref": [
+            51,
+            0
+          ],
+          "encoded_sha256": "d0a4bfd6499912b34d35dd7a2d197dcd28c983fb38a0347e11d4cc3503478df9",
+          "encoded_bytes": 26365,
+          "encoded_fnv1a64": "d69263cfd9949954",
+          "pixel_width": 243,
+          "pixel_height": 631,
+          "crop_box": [
+            0.0,
+            0.0,
+            595.0,
+            842.0
+          ],
+          "rotate": 0,
+          "decoded_png_sha256": "8d8b8674b4236bed1b9e3a0e6a5fcb6929650c9bcd6af83b7db3d0dec00d28eb",
+          "decoded_rgba_sha256": "4e180444aa70f9bc65fd1d18872ebdb16017d7b62606c3a5175d2b41445e46a0"
+        }
+      ]
+    }
+  ]
+}

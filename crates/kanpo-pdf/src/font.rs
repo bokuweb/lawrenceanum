@@ -67,6 +67,8 @@ pub struct Font {
     source_charset: OnceLock<Option<Vec<u16>>>,
     source_cid0: bool,
     source_rectangles: OnceLock<Option<std::collections::BTreeMap<u16,[f64;4]>>>,
+    source_separate_rectangles: OnceLock<Option<std::collections::BTreeMap<u16,Vec<[f64;4]>>>>,
+    source_rectangle_frames: OnceLock<Option<std::collections::BTreeMap<u16,crate::source_aj1::RectangleFrame>>>,
     source_compound_envelopes: OnceLock<Option<std::collections::BTreeMap<u16,[f64;4]>>>,
     source_alias_program: OnceLock<Option<source_alias::Program>>,
 }
@@ -115,6 +117,8 @@ impl Font {
             source_charset: OnceLock::new(),
             source_cid0: false,
             source_rectangles: OnceLock::new(),
+            source_separate_rectangles: OnceLock::new(),
+            source_rectangle_frames: OnceLock::new(),
             source_compound_envelopes: OnceLock::new(),
             source_alias_program: OnceLock::new(),
         };
@@ -403,6 +407,22 @@ impl Font {
         self.source_compound_envelopes.get_or_init(||{
             let bytes=doc.decode_stream(self.source_cff.as_ref()?).ok()?;
             crate::cff_aj1::rectangles::compound_envelopes(&bytes)
+        }).as_ref()?.get(&cid).copied()
+    }
+    pub(crate) fn source_separate_rectangles(&self,doc:&Document,c:&CharCode)->Option<&[[f64;4]]>{
+        if !self.composite||!self.source_cid0||!self.identity_encoding{return None;}
+        let cid=u16::try_from(c.cid).ok()?;
+        self.source_separate_rectangles.get_or_init(||{
+            let bytes=doc.decode_stream(self.source_cff.as_ref()?).ok()?;
+            crate::cff_aj1::rectangles::separate_rectangles(&bytes)
+        }).as_ref()?.get(&cid).map(Vec::as_slice)
+    }
+    pub(crate) fn source_rectangle_frame(&self,doc:&Document,c:&CharCode)->Option<crate::source_aj1::RectangleFrame>{
+        if !self.composite||!self.source_cid0||!self.identity_encoding{return None;}
+        let cid=u16::try_from(c.cid).ok()?;
+        self.source_rectangle_frames.get_or_init(||{
+            let bytes=doc.decode_stream(self.source_cff.as_ref()?).ok()?;
+            crate::cff_aj1::rectangles::rectangle_frames(&bytes)
         }).as_ref()?.get(&cid).copied()
     }
 

@@ -29,6 +29,69 @@ fn fixture() -> Vec<Col> {
     c
 }
 #[test]
+fn horizontal_caption_families_use_the_same_complete_grammar_at_any_scale_or_origin() {
+    for stem in ["改正","変更"] {
+        for split in [false,true] {
+            let mut c=vec![];
+            if split {
+                let a=stem.chars().map(|c|c.to_string()).chain(["後".into()]).collect::<Vec<_>>();
+                let b=stem.chars().map(|c|c.to_string()).chain(["前".into()]).collect::<Vec<_>>();
+                label(&mut c,&a.iter().map(String::as_str).collect::<Vec<_>>(),300.,100.);
+                label(&mut c,&b.iter().map(String::as_str).collect::<Vec<_>>(),300.,500.);
+            } else {
+                label(&mut c,&[&format!("{stem}後")],300.,100.);
+                label(&mut c,&[&format!("{stem}前")],300.,500.);
+            }
+            for scale in [0.125,1.,64.] {
+                for offset in [-1024.,0.,256.] {
+                    let mut projected=c.iter().map(|c|Col{id:c.id,x:c.y*scale+offset,x1:c.y1*scale+offset,y:c.x*scale+offset,y1:c.x1*scale+offset,text:c.text.clone()}).collect::<Vec<_>>();
+                    projected.reverse();
+                    let result=horizontal_headers(&projected);
+                    assert_eq!(result.len(),1);
+                    assert_eq!(result[0].labels.after,format!("{stem}後"));
+                    assert_eq!(result[0].labels.before,format!("{stem}前"));
+                    let ids=result[0].fields.iter().flat_map(|f|f.3.iter().copied()).collect::<Vec<_>>();
+                    assert_eq!(ids,(0..c.len()).collect::<Vec<_>>());
+                }
+            }
+        }
+    }
+}
+#[test]
+fn horizontal_caption_pairs_cannot_skip_words_mix_families_or_reuse_ids() {
+    for mode in 0..5 {
+        let mut c=fixture();
+        match mode {
+            0=>c[3].text="改".into(),
+            1=>{c.remove(1);},
+            2=>c.push(Col{id:100,x:600.,x1:608.,y:300.,y1:320.,text:"intervening".into()}),
+            3=>c.push(c[0].clone()),
+            _=>c.push(Col{id:100,x:600.,x1:608.,y:10.,y1:30.,text:"other column".into()}),
+        }
+        for c in &mut c {let b=[c.x,c.y,c.x1,c.y1];c.x=b[1];c.y=b[0];c.x1=b[3];c.y1=b[2];}
+        assert!(horizontal_headers(&c).is_empty(),"mode {mode}");
+    }
+}
+#[test]
+fn global_horizontal_pairs_require_source_bounds_and_exclude_adjacent_material() {
+    use crate::lines::{PageRules,VRule};
+    let mut base=fixture();
+    for c in &mut base {let b=[c.x,c.y,c.x1,c.y1];c.x=b[1];c.y=b[0];c.x1=b[3];c.y1=b[2];}
+    let scene=crate::native_source_scene::Scene::for_test(&[]);
+    for scale in [0.125,1.,64.] {for offset in [-1024.,0.,256.] {
+        let mut c=base.iter().map(|c|Col{id:c.id,x:c.x*scale+offset,x1:c.x1*scale+offset,y:c.y*scale+offset,y1:c.y1*scale+offset,text:c.text.clone()}).collect::<Vec<_>>();
+        let mut rules=PageRules::default();
+        rules.vertical=[50.,350.,600.].into_iter().map(|x|VRule{x:x*scale+offset,y0:590.*scale+offset,y1:750.*scale+offset}).collect();
+        assert_eq!(horizontal_global_headers(&c,Some(&rules),Some(&scene)).len(),1);
+        assert!(horizontal_global_headers(&c,Some(&rules),None).is_empty());
+        assert!(horizontal_global_headers(&c,None,Some(&scene)).is_empty());
+        c.push(Col{id:100,x:-200.*scale+offset,x1:-190.*scale+offset,y:650.*scale+offset,y1:658.*scale+offset,text:"independent source".into()});
+        assert!(horizontal_global_headers(&c,Some(&rules),Some(&scene)).is_empty());
+        c.pop();rules.vertical.pop();
+        assert!(horizontal_global_headers(&c,Some(&rules),Some(&scene)).is_empty());
+    }}
+}
+#[test]
 fn labels147_fragmented_pair_has_complete_source_ids() {
     let c = fixture();
     let h = headers(&c);
