@@ -1,3 +1,5 @@
+#[path = "support/source_reviewed_expectations.rs"]
+mod source_reviewed_expectations;
 #[path = "support/legacy_analysis.rs"]
 mod legacy_analysis;
 use kanpo_parser::{analyze_item,page_inputs};
@@ -11,7 +13,7 @@ fn instructions_keep_both_printed_checkbox_squares_in_their_original_lines(){let
 #[test]
 fn parking_choices_keep_one_printed_checkbox_before_each_option(){let a=analyze("20260731g001720141");assert!(a.text.lines().any(|l|l=="機械式駐車場設備の有無　□有　□無"));for id in [9,11]{assert_eq!(a.pages[0].words[id].raw,"\u{e712}");assert_eq!(a.pages[0].words[id].text,"□");assert_eq!(a.pages[0].words[id].status,kanpo_parser::trace::WordStatus::Used);}}
 #[test]
-fn neighboring_pages_keep_every_line_article_document_and_source_id(){for p in ["20260723g001630103","20260730g001710013","20260730g001710015","20260731g001720145"]{let old:Value=serde_json::from_slice(&std::fs::read(format!("{P}/{p}-baseline44.json")).unwrap()).unwrap();assert_eq!(value(&analyze(p)),old,"neighbor {p}");}}
+fn neighboring_pages_keep_every_line_article_document_and_source_id(){for p in ["20260723g001630103","20260730g001710013","20260730g001710015","20260731g001720145"]{let old:Value=serde_json::from_slice(&std::fs::read(format!("{P}/{p}-baseline44.json")).unwrap()).unwrap();assert_eq!(value(&analyze(p)),source_reviewed_expectations::current(old),"neighbor {p}");}}
 
 #[test]
 fn a_vertical_mixed_word_keeps_its_original_used_owner_and_square_suffix(){let a=analyze("20260730g001710014");let w=&a.pages[0].words[132];assert_eq!(w.raw,"表示は、次の様式に記号\u{E712}");assert_eq!(w.text,"表示は、次の様式に記号□");assert_eq!(w.status,kanpo_parser::trace::WordStatus::Used);assert!(a.text.contains("表示は、次の様式に記号□"));let b:Value=serde_json::from_slice(&std::fs::read(format!("{P}/20260730g001710014-baseline44.json")).unwrap()).unwrap();let v=value(&a);for k in ["id","raw","x0","y0","x1","y1","status"]{assert_eq!(v["pages"][0]["words"][132][k],b["pages"][0]["words"][132][k]);}}

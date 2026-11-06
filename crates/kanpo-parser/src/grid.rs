@@ -29,6 +29,26 @@ pub struct GridCell {
 }
 
 impl Grid {
+    /// Preserve the existing smallest-cell ownership while representing each
+    /// owner's occupied lattice with disjoint vertical rectangles. Ambiguous
+    /// equal-area owners or entirely hidden cells cannot prove a partition.
+    pub(crate) fn disjoint_vertical_cells(&self)->Option<Grid>{
+        if !self.cells.iter().enumerate().any(|(i,a)|self.cells[i+1..].iter().any(|b|a.x0<b.x1&&b.x0<a.x1&&a.y0<b.y1&&b.y0<a.y1)){return None;}
+        let(nx,ny)=(self.xs.len().checked_sub(1)?,self.ys.len().checked_sub(1)?);
+        let mut owners=Vec::new();let mut seen=std::collections::BTreeSet::new();
+        for y in 0..ny{for x in 0..nx{
+            let mut candidates=self.cells.iter().enumerate().filter(|(_,c)|c.x0<=x&&x<c.x1&&c.y0<=y&&y<c.y1).map(|(i,c)|(i,(self.xs[c.x1]-self.xs[c.x0])*(self.ys[c.y1]-self.ys[c.y0]))).collect::<Vec<_>>();
+            if candidates.iter().any(|(_,area)|!area.is_finite()||*area<=0.){return None;}
+            candidates.sort_by(|a,b|a.1.total_cmp(&b.1));
+            let &(owner,area)=candidates.first()?;
+            if candidates.get(1).is_some_and(|c|c.1==area){return None;}
+            owners.push(owner);seen.insert(owner);
+        }}
+        if seen.len()!=self.cells.len(){return None;}
+        let mut cells=component_rectangles(&owners,nx,ny);
+        cells.sort_by(|a,b|b.x1.cmp(&a.x1).then(a.y0.cmp(&b.y0)));
+        Some(Grid{xs:self.xs.clone(),ys:self.ys.clone(),cells})
+    }
     pub fn left(&self) -> f32 {
         self.xs[0]
     }
@@ -295,27 +315,81 @@ fn build_grid(vs: &[VRule], hs: &[HRule]) -> Option<Grid> {
             }
         }
     }
-    // 結合したマスの外接矩形をセルにする。
+    // Keep the connected-component envelopes for consumers which interpret
+    // indentation and wrapped rows before constructing their logical cells.
     let mut rects: std::collections::BTreeMap<usize, GridCell> = Default::default();
-    for j in 0..ny {
-        for i in 0..nx {
-            let r = find(&mut parent, id(i, j));
-            let c = rects.entry(r).or_insert(GridCell { x0: i, x1: i + 1, y0: j, y1: j + 1 });
-            c.x0 = c.x0.min(i);
-            c.x1 = c.x1.max(i + 1);
-            c.y0 = c.y0.min(j);
-            c.y1 = c.y1.max(j + 1);
-        }
-    }
-    let mut cells: Vec<GridCell> = rects.into_values().collect();
+    for j in 0..ny {for i in 0..nx {
+        let r=find(&mut parent,id(i,j));
+        let c=rects.entry(r).or_insert(GridCell{x0:i,x1:i+1,y0:j,y1:j+1});
+        c.x0=c.x0.min(i);c.x1=c.x1.max(i+1);c.y0=c.y0.min(j);c.y1=c.y1.max(j+1);
+    }}
+    let mut cells=rects.into_values().collect::<Vec<_>>();
     // 右上から（縦組みの読み順: 右→左、上→下）。
     cells.sort_by(|a, b| b.x1.cmp(&a.x1).then(a.y0.cmp(&b.y0)));
     Some(Grid { xs, ys, cells })
 }
 
+fn component_rectangles(components:&[usize],nx:usize,ny:usize)->Vec<GridCell>{
+    let mut out=Vec::<GridCell>::new();
+    let mut previous=std::collections::BTreeMap::<(usize,usize,usize),usize>::new();
+    for x in 0..nx {
+        let mut current=std::collections::BTreeMap::new();let mut y=0;
+        while y<ny {
+            let root=components[y*nx+x];let start=y;y+=1;
+            while y<ny&&components[y*nx+x]==root{y+=1;}
+            let key=(root,start,y);
+            let index=if let Some(&index)=previous.get(&key){out[index].x1=x+1;index}
+                else{out.push(GridCell{x0:x,x1:x+1,y0:start,y1:y});out.len()-1};
+            current.insert(key,index);
+        }
+        previous=current;
+    }
+    out
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn vertical_partition_keeps_existing_physical_owners_and_refuses_ambiguous_envelopes(){
+        let g=Grid{xs:vec![0.,10.,20.],ys:vec![0.,10.,20.,21.],cells:vec![
+            GridCell{x0:0,x1:2,y0:0,y1:3},GridCell{x0:1,x1:2,y0:0,y1:1},GridCell{x0:1,x1:2,y0:1,y1:2},
+        ]};
+        let p=g.disjoint_vertical_cells().unwrap();
+        let mut covered=std::collections::BTreeSet::new();
+        for c in &p.cells{
+            let center=|(x0,x1,y0,y1):(usize,usize,usize,usize)|((g.xs[x0]+g.xs[x1])/2.,(g.ys[y0]+g.ys[y1])/2.);
+            let(cx,cy)=center((c.x0,c.x1,c.y0,c.y1));let owner=g.cell_at(cx,cy).unwrap();
+            for y in c.y0..c.y1{for x in c.x0..c.x1{
+                assert!(covered.insert((x,y)));let(cx,cy)=center((x,x+1,y,y+1));assert_eq!(g.cell_at(cx,cy),Some(owner));
+            }}
+        }
+        assert_eq!(covered.len(),6);
+        assert!(p.disjoint_vertical_cells().is_none());
+        let mut ambiguous=g.clone();ambiguous.cells.push(g.cells[1]);
+        assert!(ambiguous.disjoint_vertical_cells().is_none());
+        let hidden=Grid{xs:vec![0.,10.,20.],ys:vec![0.,10.],cells:vec![GridCell{x0:0,x1:2,y0:0,y1:1},GridCell{x0:0,x1:1,y0:0,y1:1},GridCell{x0:1,x1:2,y0:0,y1:1}]};
+        assert!(hidden.disjoint_vertical_cells().is_none());
+    }
+
+    #[test]
+    fn nonrectangular_components_never_cover_or_overwrite_another_components_cells(){
+        // Every assignment in a 3 x 3 lattice, including reflected/transposed
+        // L, T, U and disconnected shapes. No words or expected output used.
+        for pattern in 0..512usize{
+            let roots=(0..9).map(|i|(pattern>>i)&1).collect::<Vec<_>>();
+            let cells=component_rectangles(&roots,3,3);let mut owned=[0;9];
+            for c in cells{
+                let root=roots[c.y0*3+c.x0];
+                for y in c.y0..c.y1{for x in c.x0..c.x1{
+                    assert_eq!(roots[y*3+x],root);owned[y*3+x]+=1;
+                }}
+            }
+            assert_eq!(owned,[1;9]);
+        }
+        assert_eq!(component_rectangles(&[4;12],3,4),vec![GridCell{x0:0,x1:3,y0:0,y1:4}]);
+    }
 
     fn rules(vs: &[(f32, f32, f32)], hs: &[(f32, f32, f32)]) -> PageRules {
         PageRules {

@@ -1,4 +1,6 @@
 //! Complete original Analysis, independently constructed from old AST source cuts.
+#[path = "support/source_reviewed_expectations.rs"]
+mod source_reviewed_expectations;
 use serde_json::Value;
 use std::path::PathBuf;
 fn fixture(name: &str) -> PathBuf {
@@ -26,7 +28,7 @@ fn gold(case: &Value, field: &str) -> Value {
         case[field].as_str()
     }
     .unwrap();
-    serde_json::from_slice(&std::fs::read(fixture(path)).unwrap()).unwrap()
+    source_reviewed_expectations::current(serde_json::from_slice(&std::fs::read(fixture(path)).unwrap()).unwrap())
 }
 fn inputs(case: &Value) -> Vec<kanpo_parser::PageInput> {
     case["pdfs"]

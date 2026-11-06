@@ -1,0 +1,218 @@
+{
+  "schema": 1,
+  "kind": "native_glyph_observations",
+  "source": {
+    "document_sha256": "d37dda20c7b4cad3b374f43a82c499b0c9259859558ab4e36ad459a0da6f40dc",
+    "document_bytes": 129157
+  },
+  "native_snapshot_sha256": "42af2853987694b01bc548a739676cb7eba8ac8533a7eef4a6141a5bcd2b0856",
+  "script_sha256": "79ec59791fb0f653badee9dcb5bbb04a1fc7f6cf577ea0d8fa3cfe8be7a92813",
+  "swift_sha256": "33a28fb9a5c4d3ab431146bbadf4f6f372bf1c0a1508126d6307dea07823c1aa",
+  "engine": "Version 27.0.1 (Build 26A434)",
+  "libraries": {
+    "pypdfium2": "5.14.0",
+    "Pillow": "12.3.0",
+    "numpy": "2.3.5"
+  },
+  "observations": [
+    {
+      "candidate": {
+        "source_document_sha256": "d37dda20c7b4cad3b374f43a82c499b0c9259859558ab4e36ad459a0da6f40dc",
+        "page": 1,
+        "word": 178,
+        "glyph": 2807,
+        "raw_index": 2,
+        "cid": 25968,
+        "font": 4,
+        "font_x": [
+          1,
+          0
+        ],
+        "font_y": [
+          0,
+          -1
+        ],
+        "bounds": [
+          253.00009999999997,
+          688.8399,
+          261.0001,
+          696.8399
+        ],
+        "source_word_box": [
+          257.0001,
+          672.8399,
+          265.0001,
+          688.8399
+        ]
+      },
+      "text": "（ヲ）",
+      "status": "candidate_unverified",
+      "render": {
+        "candidate": {
+          "source_document_sha256": "d37dda20c7b4cad3b374f43a82c499b0c9259859558ab4e36ad459a0da6f40dc",
+          "page": 1,
+          "word": 178,
+          "glyph": 2807,
+          "raw_index": 2,
+          "cid": 25968,
+          "font": 4,
+          "font_x": [
+            1,
+            0
+          ],
+          "font_y": [
+            0,
+            -1
+          ],
+          "bounds": [
+            253.00009999999997,
+            688.8399,
+            261.0001,
+            696.8399
+          ],
+          "source_word_box": [
+            257.0001,
+            672.8399,
+            265.0001,
+            688.8399
+          ]
+        },
+        "layout": {
+          "arcs": [
+            [
+              2,
+              8,
+              16,
+              93
+            ],
+            [
+              80,
+              8,
+              93,
+              93
+            ]
+          ],
+          "inner": [
+            21,
+            21,
+            75,
+            80
+          ]
+        },
+        "PNG": "glyph-0.png",
+        "PNG_sha256": "0106b22610d39ec453e3bae37fd747de87e048763a462209604e8284021f0034",
+        "pixel_box": [
+          3036,
+          8266,
+          3133,
+          8363
+        ],
+        "scale": 12,
+        "source_PNG": "glyph-0-source.png",
+        "source_PNG_sha256": "0106b22610d39ec453e3bae37fd747de87e048763a462209604e8284021f0034",
+        "text": "（ヲ）",
+        "status": "candidate_unverified"
+      }
+    },
+    {
+      "candidate": {
+        "source_document_sha256": "d37dda20c7b4cad3b374f43a82c499b0c9259859558ab4e36ad459a0da6f40dc",
+        "page": 1,
+        "word": 186,
+        "glyph": 2839,
+        "raw_index": 2,
+        "cid": 25968,
+        "font": 4,
+        "font_x": [
+          1,
+          0
+        ],
+        "font_y": [
+          0,
+          -1
+        ],
+        "bounds": [
+          241.50009999999997,
+          188.83989999999994,
+          249.50009999999997,
+          196.83989999999994
+        ],
+        "source_word_box": [
+          245.5001,
+          172.8399,
+          253.5001,
+          188.8399
+        ]
+      },
+      "text": "（ヲ）",
+      "status": "candidate_unverified",
+      "render": {
+        "candidate": {
+          "source_document_sha256": "d37dda20c7b4cad3b374f43a82c499b0c9259859558ab4e36ad459a0da6f40dc",
+          "page": 1,
+          "word": 186,
+          "glyph": 2839,
+          "raw_index": 2,
+          "cid": 25968,
+          "font": 4,
+          "font_x": [
+            1,
+            0
+          ],
+          "font_y": [
+            0,
+            -1
+          ],
+          "bounds": [
+            241.50009999999997,
+            188.83989999999994,
+            249.50009999999997,
+            196.83989999999994
+          ],
+          "source_word_box": [
+            245.5001,
+            172.8399,
+            253.5001,
+            188.8399
+          ]
+        },
+        "layout": {
+          "arcs": [
+            [
+              2,
+              8,
+              16,
+              93
+            ],
+            [
+              80,
+              8,
+              93,
+              93
+            ]
+          ],
+          "inner": [
+            21,
+            21,
+            75,
+            80
+          ]
+        },
+        "PNG": "glyph-1.png",
+        "PNG_sha256": "73862e21c962d8718722731ca79dff1071ea9db446cc7de9f522c0d205d09f1d",
+        "pixel_box": [
+          2898,
+          2266,
+          2995,
+          2363
+        ],
+        "scale": 12,
+        "source_PNG": "glyph-1-source.png",
+        "source_PNG_sha256": "73862e21c962d8718722731ca79dff1071ea9db446cc7de9f522c0d205d09f1d",
+        "text": "（ヲ）",
+        "status": "candidate_unverified"
+      }
+    }
+  ],
+  "coverage_verified": false
+}

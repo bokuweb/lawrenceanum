@@ -30,9 +30,11 @@ pub(crate) fn detect_shinkyu_headers(cols: &[Col]) -> Vec<(f32, f32)> {
 // A reconstructed line may begin with a heading while also containing a
 // neighboring table cell. Only a complete numbered publication lexeme can
 // authorize a new preamble boundary; a prefix cannot claim the full line.
-fn complete_numbered_publication_heading(text:&str)->bool{
+pub(crate) fn complete_numbered_publication_heading(text:&str)->bool{
     let text:String=text.chars().filter(|c|!c.is_whitespace()).collect();
-    if !is_heading_mark(&text){return false;}
+    let katakana_name=text.strip_prefix('〇').and_then(|s|s.chars().next())
+        .is_some_and(|c| ('\u{30a1}'..='\u{30fa}').contains(&c));
+    if !is_heading_mark(&text)&&!katakana_name{return false;}
     let Some(core)=text.strip_suffix('号')else{return false;};
     let Some((name,number))=core.rsplit_once('第')else{return false;};
     !name.contains('号')
@@ -1243,6 +1245,8 @@ pub(crate) fn place_tables(rest: Vec<Col>, mut tables: Vec<Table>, rest_lines: i
 /// 文字の列（物質名と係数が同じ縦の線上に並ぶ）を 1 行の頭とし、1 つの欄にしか字の無い
 /// 列（セルの中の折り返し）はその行に入れる。
 pub(crate) fn grid_table(g: &Grid, cols: Vec<Col>) -> Table {
+    let partition=g.disjoint_vertical_cells();
+    let original=partition.as_ref().map(|_|cols.clone());
     let nx = g.xs.len() - 1;
     // 語 → セル。縦中横の短い語（「３番13号」の「13」）は字面が列から横にずれて隣のセルの
     // 境に掛かることがあるので、すぐ上に続く語のある列の中心で決める。
@@ -1466,7 +1470,7 @@ pub(crate) fn grid_table(g: &Grid, cols: Vec<Col>) -> Table {
         }
     }
     cells.sort_by_key(|c| (c.row, c.col));
-    trim_empty_edges(Table {
+    let table=trim_empty_edges(Table {
         x0: g.left(),
         y0: g.top(),
         x1: g.right(),
@@ -1474,7 +1478,30 @@ pub(crate) fn grid_table(g: &Grid, cols: Vec<Col>) -> Table {
         rows: offset[nx],
         cols: g.ys.len() - 1,
         cells,
-    })
+    });
+    // Only repair an actual logical-cell collision. Horizontal and wrapped-row
+    // consumers retain their own component interpretation. A repeated anchor
+    // would otherwise overwrite one source cell during Table::to_nested.
+    if table.cells.windows(2).any(|c|(c[0].row,c[0].col)==(c[1].row,c[1].col)){
+        if let(Some(partition),Some(original))=(partition,original){return grid_table(&partition,original);}
+    }
+    table
+}
+
+/// Native source style/provenance observers use the same deterministic cell
+/// reading order as the table renderer. No rendered or reference text is used
+/// to pick a permutation; consumers still validate the complete cell stream.
+pub(crate) fn cell_source_word_order(mut words: Vec<Col>) -> Vec<usize> {
+    let horizontal=words.iter().filter(|c|c.x1-c.x>(c.y1-c.y)*1.5).count();
+    if horizontal*2>words.len(){
+        words.sort_by(|a,b|{
+            let row=|c:&Col|((c.y+c.y1)/2.0/4.0).round()as i64;
+            row(a).cmp(&row(b)).then(a.x.partial_cmp(&b.x).unwrap_or(std::cmp::Ordering::Equal))
+        });
+        words.into_iter().map(|w|w.id).collect()
+    }else{
+        cell_lines(words).into_iter().flat_map(|l|l.words).collect()
+    }
 }
 
 /// 表の端の、字の無い細い（20pt 未満）行・列を落とす（二重線の枠の間の欄など）。空でも
@@ -1564,6 +1591,20 @@ mod tests {
     use super::kanji_number;
     use crate::format::detect_format;
     use crate::reconstruct_vertical;
+
+    #[test]
+    fn source_cell_order_places_arbitrary_sideways_fragments_between_vertical_words(){
+        let cols=vec![
+            super::Col{id:0,x:100.,x1:108.,y:100.,y1:116.,text:"甲乙".into()},
+            super::Col{id:1,x:100.,x1:108.,y:124.,y1:140.,text:"丙丁".into()},
+            super::Col{id:2,x:96.,x1:112.,y:116.,y1:124.,text:"ZZ".into()},
+            super::Col{id:3,x:84.,x1:92.,y:100.,y1:116.,text:"戊己".into()},
+        ];
+        let expected=vec![0,2,1,3];
+        for order in [[0,1,2,3],[3,2,1,0],[2,0,3,1]]{
+            assert_eq!(super::cell_source_word_order(order.iter().map(|&i|cols[i].clone()).collect()),expected);
+        }
+    }
 
     #[test]
     fn finds_run_subsequence() {

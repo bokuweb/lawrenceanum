@@ -4,6 +4,20 @@ fn html(p: &Page) -> String {
     layout(std::iter::once((p,None,None,None,None)), true)
 }
 #[test]
+fn native_device_size_is_independent_of_rotation_text_density_and_legacy_paper_basis() {
+    for rotate in [0,90,180,270] {
+        for count in [0,1,17] {
+            let mut p=page((0..count).map(|i|glyph("甲",10.+i as f64*8.,0,8.)).collect());
+            p.width=842.;p.height=595.;p.rotate=rotate;
+            let native=html(&p);
+            assert!(native.contains("data-native-device-size=\"1 842 595\""));
+            let legacy=bbox_layout(std::slice::from_ref(&p));
+            assert!(!legacy.contains("data-native-device-size"));
+            assert!(native.contains(if rotate%180==90 {"width=\"595.000000\" height=\"842.000000\""} else {"width=\"842.000000\" height=\"595.000000\""}));
+        }
+    }
+}
+#[test]
 fn complete_original_advances_define_source_axis_independently_of_font_mode() {
     for (x, y, axis) in [
         (8., 0., "right"),

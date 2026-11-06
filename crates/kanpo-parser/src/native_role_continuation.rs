@@ -25,6 +25,7 @@ pub(crate) enum SceneAtom {
     Pair(Plan),
     Body(Vec<usize>),
 }
+#[derive(Clone, Copy)]
 pub(crate) struct RoleSource<'a> {
     pub(crate) regions: &'a [Region],
     pub(crate) words: &'a [Word],

@@ -2,6 +2,9 @@
 // no body wording, page identity, expected data or spacing/count score is used.
 pub(crate) fn explicit_pair(source: RoleSource<'_>) -> bool { printed_pair(source).is_some() }
 pub(crate) fn printed_pair(source: RoleSource<'_>) -> Option<crate::ComparisonLabels> {
+    printed_pair_in_scene(source, None)
+}
+fn printed_pair_in_scene(source: RoleSource<'_>, scene: Option<&crate::native_source_scene::Scene>) -> Option<crate::ComparisonLabels> {
     use std::collections::{HashMap, HashSet};
     type Rect = [f32; 4];
     fn positive(b: Rect) -> bool {
@@ -168,7 +171,22 @@ pub(crate) fn printed_pair(source: RoleSource<'_>) -> Option<crate::ComparisonLa
             // glyph frame instead of its legacy projected source rectangle.
             // Neither frame authorizes an arbitrary reconstructed position.
             let display=[w.x0,w.y0,w.x1,w.y1];
-            if (display!=w.source_box && display!=boxes[&id]) || !positive(w.source_box) {
+            // Legacy vertical display correction performs f32 subtraction on
+            // the projected bbox. Independently rounded native coordinates
+            // can differ by one ULP. Accept the exact documented transform,
+            // never a coordinate-distance tolerance.
+            let em=w.source_box[2]-w.source_box[0];
+            let legacy=[w.source_box[0]-em/2.,w.source_box[1]+em,w.source_box[2]-em/2.,w.source_box[3]+em];
+            let native=boxes[&id];
+            let rounding_interval=|v:f32|[(v.next_down() as f64+v as f64)/2.,(v as f64+v.next_up() as f64)/2.];
+            let delta=[-em as f64/2.,em as f64,-em as f64/2.,em as f64];
+            let same_projection=(0..4).all(|k| {
+                let a=rounding_interval(w.source_box[k]);
+                let b=rounding_interval(native[k]);
+                a.iter().chain(&b).all(|v|v.is_finite())&&a[0]+delta[k]<=b[1]&&b[0]<=a[1]+delta[k]
+            });
+            let legacy_down=axis==NativeAxis::Down&&display==legacy&&same_projection;
+            if (display!=w.source_box && display!=boxes[&id] && !legacy_down) || !positive(w.source_box) {
                 break;
             }
             if let Some(&(full, stem, role)) = GRAMMAR.iter().find(|g| g.0 == text) {
@@ -258,12 +276,14 @@ pub(crate) fn printed_pair(source: RoleSource<'_>) -> Option<crate::ComparisonLa
             return false;
         }
         let corridor = if label.axis == NativeAxis::Down {
-            if b[0] < body[2] || !overlap((b[1], b[3]), (body[1], body[3])) {
+            if b[0] < body[2] || (!overlap((b[1], b[3]), (body[1], body[3]))
+                && !scene.is_some_and(|s| s.same_ruled_field(label.axis, b, body))) {
                 return false;
             }
             [body[2], b[1].max(body[1]), b[0], b[3].min(body[3])]
         } else {
-            if b[3] > body[1] || !overlap((b[0], b[2]), (body[0], body[2])) {
+            if b[3] > body[1] || (!overlap((b[0], b[2]), (body[0], body[2]))
+                && !scene.is_some_and(|s| s.same_ruled_field(label.axis, b, body))) {
                 return false;
             }
             [b[0].max(body[0]), b[3], b[2].min(body[2]), body[1]]

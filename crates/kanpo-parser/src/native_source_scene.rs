@@ -26,6 +26,11 @@ pub(crate) struct Scene {
     obstacles: Vec<Rect>,
     lines: Vec<(Rect, Rect, bool)>,
 }
+impl Scene {
+    pub(crate) fn opaque_outside_x_band(&self, left:f64, right:f64, top:f64, bottom:f64)->bool {
+        self.obstacles.iter().any(|b|b[1]<bottom&&top<b[3]&&(b[0]<left||b[2]>right))
+    }
+}
 fn valid(b: Rect) -> bool {
     b.iter().all(|x| x.is_finite()) && b[0] < b[2] && b[1] < b[3]
 }

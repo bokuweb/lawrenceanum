@@ -1,3 +1,5 @@
+#[path = "support/source_reviewed_expectations.rs"]
+mod source_reviewed_expectations;
 use kanpo_parser::{Analysis, Block};
 const PDF: &[u8] = include_bytes!("data/source-comparison-labels/20260730g001710030.pdf");
 fn analyze() -> Analysis {
@@ -220,7 +222,7 @@ fn original_joint_headings_keep_complete_source_ownership_and_every_article_exac
         ),
     ] {
         let a = kanpo_parser::analyze_item(&kanpo_parser::page_inputs(pdf).unwrap());
-        let old: serde_json::Value = serde_json::from_str(baseline).unwrap();
+        let old=source_reviewed_expectations::current(serde_json::from_str(baseline).unwrap());
         assert_eq!(source_value(&a),old,"a heading split into joint-agency source columns must remain entirely in its own preamble");
     }
 }
@@ -241,7 +243,7 @@ fn original_partial_marker_streams_keep_existing_complete_documents() {
         ),
     ] {
         let a = kanpo_parser::analyze_item(&kanpo_parser::page_inputs(pdf).unwrap());
-        let old: serde_json::Value = serde_json::from_str(baseline).unwrap();
+        let old=source_reviewed_expectations::current(serde_json::from_str(baseline).unwrap());
         assert_eq!(source_value(&a),old,"missing a role marker after article segmentation cannot flatten or change a previously represented cell");
     }
 }
@@ -270,7 +272,7 @@ fn original_before_first_notices_preserve_all_records_and_native_article_boundar
         ),
     ] {
         let a = kanpo_parser::analyze_item(&kanpo_parser::page_inputs(pdf).unwrap());
-        let old: serde_json::Value = serde_json::from_str(baseline).unwrap();
+        let old=source_reviewed_expectations::current(serde_json::from_str(baseline).unwrap());
         assert_eq!(source_value(&a),old,"ordinary Before/After records stay complete literal notices without cross-record comparison roles");
     }
 }
@@ -280,7 +282,7 @@ fn mixed_scopes(pdf1: &[u8], pdf2: &[u8], baseline: &str, count: usize) {
     pages.extend(kanpo_parser::page_inputs(pdf2).unwrap());
     let a = kanpo_parser::analyze_item(&pages);
     let now = source_value(&a);
-    let old: serde_json::Value = serde_json::from_str(baseline).unwrap();
+    let old=source_reviewed_expectations::current(serde_json::from_str(baseline).unwrap());
     assert_eq!(
         a.articles.len(),
         count,

@@ -42,12 +42,44 @@ pub enum ClipRule {
 }
 #[derive(Debug, Clone)]
 pub struct SourceClip {
+    /// Exact path construction, including Bezier controls and each active CTM.
+    pub commands: Vec<PathCommand>,
     pub origin: ClipOrigin,
     pub rule: ClipRule,
     pub subpaths: Vec<SubPath>,
     pub form_box: Option<[f64; 4]>,
     pub page_quad: Option<[[f64; 2]; 4]>,
     pub geometry_complete: bool,
+}
+
+/// A construction operator uses PDF user coordinates, before page rotation.
+#[derive(Debug, Clone)]
+pub struct PathCommand {
+    pub operator: Vec<u8>,
+    pub operands: Vec<crate::Object>,
+    pub matrix: [f64; 6],
+    pub matrices: Vec<[f64; 6]>,
+}
+
+/// Graphics operators in application order, restored by q/Q and Form return.
+/// ExtGState dictionaries are resolved in the resource scope of the operator.
+#[derive(Debug, Clone)]
+pub struct PaintStateOperator {
+    pub operator: Vec<u8>,
+    pub operands: Vec<crate::Object>,
+    pub resource: Option<crate::Object>,
+}
+
+#[derive(Debug, Clone)]
+pub struct PathDraw {
+    pub path: usize,
+    pub operator: Vec<u8>,
+    pub commands: Vec<PathCommand>,
+    pub state: Vec<PaintStateOperator>,
+    pub matrix: [f64; 6],
+    pub matrices: Vec<[f64; 6]>,
+    pub clips: Vec<SourceClip>,
+    pub form_path: Vec<ObjRef>,
 }
 
 #[derive(Debug, Clone)]
@@ -82,6 +114,7 @@ impl ImageDraw {
 }
 #[derive(Debug, Clone)]
 pub struct XObjectPageSources {
+    pub(crate) paths: Vec<PathDraw>,
     pub(crate) gaps: Vec<CaptureGap>,
     pub(crate) document_digest: [u8; 32],
     pub(crate) media: [f64; 4],
@@ -90,6 +123,10 @@ pub struct XObjectPageSources {
     pub(crate) draws: Vec<ImageDraw>,
 }
 impl XObjectPageSources {
+    /// Source construction and paint state supplement the legacy path bounds.
+    pub fn paths(&self) -> &[PathDraw] {
+        &self.paths
+    }
     pub fn capture_gaps(&self) -> &[CaptureGap] {
         &self.gaps
     }
@@ -131,9 +168,9 @@ pub fn extract(pdf: &[u8]) -> Result<Vec<XObjectPageSources>> {
         .collect())
 }
 #[cfg(test)]
-mod tests {
+pub(crate) mod tests {
     use super::*;
-    fn check(pdf: &[u8]) -> Vec<XObjectPageSources> {
+    pub(crate) fn check(pdf: &[u8]) -> Vec<XObjectPageSources> {
         let old = crate::extract_pages(pdf).unwrap();
         let new = extract(pdf).unwrap();
         assert_eq!(
@@ -188,13 +225,13 @@ mod tests {
         assert_eq!(g.image_to_user, [595., 0., 0., 842., 0., 0.]);
         assert_eq!((g.pixel_width, g.pixel_height), (Some(2480), Some(3509)));
     }
-    pub(super) fn stream(body: &[u8], extra: &str) -> Vec<u8> {
+    pub(crate) fn stream(body: &[u8], extra: &str) -> Vec<u8> {
         let mut v = format!("<< /Length {} {} >>\nstream\n", body.len(), extra).into_bytes();
         v.extend_from_slice(body);
         v.extend_from_slice(b"\nendstream");
         v
     }
-    pub(super) fn pdf(objects: Vec<Vec<u8>>) -> Vec<u8> {
+    pub(crate) fn pdf(objects: Vec<Vec<u8>>) -> Vec<u8> {
         let mut out = b"%PDF-1.4\n".to_vec();
         let mut offsets = vec![0];
         for (i, obj) in objects.iter().enumerate() {
@@ -220,7 +257,7 @@ mod tests {
         );
         out
     }
-    pub(super) fn objects(main: &[u8]) -> Vec<Vec<u8>> {
+    pub(crate) fn objects(main: &[u8]) -> Vec<Vec<u8>> {
         vec![b"<< /Type /Catalog /Pages 2 0 R >>".to_vec(),b"<< /Type /Pages /Count 1 /Kids [3 0 R] >>".to_vec(),b"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 300 400] /Contents 4 0 R /Resources << /XObject << /F 5 0 R /Pic 6 0 R >> >> >>".to_vec(),stream(main,""),stream(b"q 1 0 0 1 2 3 cm /Pic Do Q","/Type /XObject /Subtype /Form /BBox [0 0 10 10] /Matrix [2 0 0 3 10 20] /Resources << /XObject << /Pic 6 0 R >> >>"),stream(&[255;6],"/Type /XObject /Subtype /Image /Width 2 /Height 3 /ColorSpace /DeviceGray /BitsPerComponent 8")]
     }
     #[test]

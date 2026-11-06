@@ -1,6 +1,8 @@
 //! Source-order witnesses are manually checked against original PDF pixels.
 //! Complete Analysis JSON freezes reviewed behavior for regression; it does not
 //! establish that every existing omission or table-role issue is resolved.
+#[path="support/source_reviewed_expectations.rs"]
+mod source_reviewed_expectations;
 fn check(id: &str, pdf: &[u8], reviewed: &str) {
     let analysis = kanpo_parser::analyze_item(&kanpo_parser::page_inputs(pdf).unwrap());
     let witnesses: serde_json::Value = serde_json::from_str(include_str!(
@@ -32,7 +34,7 @@ fn check(id: &str, pdf: &[u8], reviewed: &str) {
     // Compare serialized JSON on both sides, preserving f32 serialization.
     let actual: serde_json::Value =
         serde_json::from_str(&serde_json::to_string(&analysis).unwrap()).unwrap();
-    let expected: serde_json::Value = serde_json::from_str(reviewed).unwrap();
+    let expected=source_reviewed_expectations::current(serde_json::from_str(reviewed).unwrap());
     assert_eq!(
         actual, expected,
         "complete reviewed Analysis regression: {id}"

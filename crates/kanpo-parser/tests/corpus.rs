@@ -25,7 +25,7 @@ use std::path::{Path, PathBuf};
 // Original glyph/envelope/font-size contracts are tested in kanpo-pdf.
 fn source_payload(actual: &str, expected: &str) -> String {
     let mut out = actual.to_owned();
-    for needle in [" data-native-cell-origin=\"", " data-native-advance-band=\"", " data-native-terminal-glyph=\"", " data-native-font-aliases=\"", " data-native-lineage-coverage=\"", " data-native-lineage-obstacles=\"", " data-native-lineage-ink=\"", " data-native-line-moves=\"", " data-native-scene=\"", " data-native-source-occurrence=\""] {
+    for needle in [" data-native-device-size=\"", " data-native-cell-origin=\"", " data-native-advance-band=\"", " data-native-terminal-glyph=\"", " data-native-font-aliases=\"", " data-native-lineage-coverage=\"", " data-native-lineage-obstacles=\"", " data-native-lineage-ink=\"", " data-native-line-moves=\"", " data-native-scene=\"", " data-native-source-occurrence=\""] {
         if expected.contains(needle) {
             continue;
         }

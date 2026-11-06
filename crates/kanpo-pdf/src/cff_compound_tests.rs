@@ -26,6 +26,42 @@ fn make(cid: u16, p: Vec<u8>) -> Vec<u8> {
     font(cid, p, "Arbitrary", "Other", "Random", &[], &[])
 }
 #[test]
+fn nested_opposite_rectangles_keep_empty_interior_and_exact_painted_border() {
+    for cid in [73,43021,65534] {for shift in [-4096,0,4096] {for swap in [false,true] {for reverse in [false,true] {
+        let mut a=box_path(shift,shift,1000,800);
+        let mut b=box_path(shift+30,shift+20,920,720);b.reverse();
+        if reverse {a.reverse();b.reverse();}
+        let contours=if swap{vec![b,a]}else{vec![a,b]};
+        let data=make(cid,paths(&contours));
+        let frame=rectangle_frames(&data).unwrap()[&cid];
+        assert_eq!(frame.outer,[shift as f64,shift as f64,(shift+1000)as f64,(shift+800)as f64]);
+        assert_eq!(frame.inner,[(shift+30)as f64,(shift+20)as f64,(shift+950)as f64,(shift+740)as f64]);
+        let border=frame.painted_rectangles();
+        let area=|r:[f64;4]|(r[2]-r[0])*(r[3]-r[1]);
+        assert_eq!(border.into_iter().map(area).sum::<f64>(),area(frame.outer)-area(frame.inner));
+        for (i,a) in border.iter().enumerate(){for b in &border[i+1..] {
+            assert!(!(a[0]<b[2]&&b[0]<a[2]&&a[1]<b[3]&&b[1]<a[3]));
+        }}
+        assert!(!rectangles(&data).unwrap().contains_key(&cid));
+        assert!(!separate_rectangles(&data).unwrap().contains_key(&cid));
+    }}}}
+}
+
+#[test]
+fn unrelated_rectangles_touching_holes_and_unsupported_contours_do_not_prove_a_frame() {
+    for other in [box_path(0,20,920,720),box_path(1000,0,100,100),box_path(500,400,1000,800),box_path(100,100,800,600)] {
+        // Same orientation is deliberately not a strict hollow-frame proof.
+        let data=make(43021,paths(&[box_path(0,0,1000,800),other]));
+        assert!(!rectangle_frames(&data).unwrap().contains_key(&43021));
+    }
+    let mut hole=box_path(0,20,920,720);hole.reverse();
+    let data=make(73,paths(&[box_path(0,0,1000,800),hole]));
+    assert!(!rectangle_frames(&data).unwrap().contains_key(&73));
+    let mut hole=box_path(30,20,920,720);hole.reverse();
+    let data=make(73,paths(&[box_path(0,0,1000,800),hole,box_path(100,100,20,20)]));
+    assert!(!rectangle_frames(&data).unwrap().contains_key(&73));
+}
+#[test]
 fn original_two_contour_paint_has_an_independently_traced_opaque_envelope() {
     let data = include_bytes!("../tests/data/native-compound-scene/original.cff");
     assert_eq!(
@@ -50,6 +86,8 @@ fn counts_font_names_and_cids_do_not_supply_compound_geometry() {
                 Some(&[0., -32., ((n - 1) * 128 + 64) as f64, 64.])
             );
             assert!(!rectangles(&data).unwrap().contains_key(&cid));
+            let expected=(0..n).map(|i|[(i*128)as f64,-32.,(i*128+64)as f64,64.]).collect::<Vec<_>>();
+            assert_eq!(separate_rectangles(&data).unwrap().get(&cid),Some(&expected));
         }
     }
 }
@@ -70,6 +108,7 @@ fn opaque_bounds_do_not_claim_a_hole_or_overlap_is_empty() {
             compound_envelopes(&data).unwrap().get(&51),
             Some(&[0., 0., hi, hi])
         );
+        assert!(!separate_rectangles(&data).unwrap().contains_key(&51));
         a.reverse();
     }
 }
@@ -96,6 +135,15 @@ fn one_contour_and_a_nonrectangular_contour_do_not_get_compound_authority() {
         assert!(!compound_envelopes(&make(66, paths(&p)))
             .unwrap()
             .contains_key(&66));
+    }
+}
+
+#[test]
+fn touching_contours_never_claim_separate_rectangles() {
+    for other in [box_path(100,0,100,100),box_path(100,100,100,100),box_path(20,20,40,40)] {
+        let data=make(43021,paths(&[box_path(0,0,100,100),other]));
+        assert!(compound_envelopes(&data).unwrap().contains_key(&43021));
+        assert!(!separate_rectangles(&data).unwrap().contains_key(&43021));
     }
 }
 #[test]

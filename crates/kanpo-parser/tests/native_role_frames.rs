@@ -1,4 +1,6 @@
 //! Printed comparison roots and original parent fences survive page rotation.
+#[path="support/source_reviewed_expectations.rs"]
+mod source_reviewed_expectations;
 fn inputs(name: &str) -> Vec<kanpo_parser::PageInput> {
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
     let index: serde_json::Value =
@@ -25,23 +27,23 @@ fn actual(input: &[kanpo_parser::PageInput]) -> serde_json::Value {
 }
 fn expected(name: &str) -> serde_json::Value {
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
-    serde_json::from_str(
+    source_reviewed_expectations::current(serde_json::from_str(
         &std::fs::read_to_string(root.join(format!(
             "tests/data/native-role-frames/expected/{name}.json"
         )))
         .unwrap(),
     )
-    .unwrap()
+    .unwrap())
 }
 fn baseline(name: &str) -> serde_json::Value {
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
-    serde_json::from_str(
+    source_reviewed_expectations::current(serde_json::from_str(
         &std::fs::read_to_string(root.join(format!(
             "tests/data/native-role-frames/baseline/{name}.json"
         )))
         .unwrap(),
     )
-    .unwrap()
+    .unwrap())
 }
 #[test]
 fn complete_original_vertical_forms_keep_their_printed_source_roles() {

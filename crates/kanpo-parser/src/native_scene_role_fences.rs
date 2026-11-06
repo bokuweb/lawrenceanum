@@ -2,6 +2,32 @@
 // material interval needs actual continuous source segments; paint hulls and
 // point tolerances never bridge a missing centerline interval.
 impl Scene {
+    /// Sparse cells need not overlap a centered caption on the writing axis.
+    /// Both complete envelopes must occupy the same original ruled interval.
+    /// A divider, an open boundary or a centerline gap prevents that proof.
+    pub(crate) fn same_ruled_field(
+        &self,
+        axis: crate::native_word_axes::NativeAxis,
+        a: [f32; 4],
+        b: [f32; 4],
+    ) -> bool {
+        use crate::native_word_axes::NativeAxis::{Down, Right};
+        if !matches!(axis, Down | Right) || !valid(a.map(f64::from)) || !valid(b.map(f64::from)) {
+            return false;
+        }
+        let primary = usize::from(axis == Down);
+        let cross = 1 - primary;
+        let supports = [
+            [a[cross] as f64, a[cross + 2] as f64],
+            [b[cross] as f64, b[cross + 2] as f64],
+        ];
+        let lo = a[primary].min(b[primary]) as f64;
+        let hi = a[primary + 2].max(b[primary + 2]) as f64;
+        let fences = self.parallel_fences(axis, &supports);
+        fences.iter().any(|q| *q <= lo)
+            && fences.iter().any(|q| hi <= *q)
+            && !fences.iter().any(|q| lo < *q && *q < hi)
+    }
     pub(crate) fn parallel_fences(
         &self,
         axis: crate::native_word_axes::NativeAxis,
@@ -154,6 +180,39 @@ mod role_fence_tests {
             [2., 10., 13., 10.],
         ];
         (scene(lines.into_iter().map(project).collect()), project)
+    }
+    #[test]
+    fn sparse_caption_and_body_share_a_field_on_either_axis_at_any_scale() {
+        for transpose in [false, true] {
+            let axis = if transpose { Down } else { Right };
+            for scale in [0.125, 1., 64.] {
+                for offset in [-32., 0., 256.] {
+                    let project = |b: Rect| {
+                        let b = if transpose { [b[1], b[0], b[3], b[2]] } else { b };
+                        b.map(|v| v * scale + offset)
+                    };
+                    let s = scene(vec![project([2., 0., 2., 20.]), project([13., 0., 13., 20.])]);
+                    let a = project([3., 11., 4., 12.]).map(|v| v as f32);
+                    let b = project([10., 1., 12., 9.]).map(|v| v as f32);
+                    assert!(s.same_ruled_field(axis, a, b));
+                    let divided = scene(vec![project([2., 0., 2., 20.]), project([7., 0., 7., 20.]), project([13., 0., 13., 20.])]);
+                    assert!(!divided.same_ruled_field(axis, a, b));
+                    let open = scene(vec![project([2., 0., 2., 20.])]);
+                    assert!(!open.same_ruled_field(axis, a, b));
+                }
+            }
+        }
+    }
+    #[test]
+    fn sparse_field_cannot_bridge_a_gap_in_its_original_centerline() {
+        for axis in [Right, Down] {
+            let p = |b: Rect| if axis == Down { [b[1], b[0], b[3], b[2]] } else { b };
+            let a = p([3., 11., 4., 12.]).map(|v| v as f32);
+            let b = p([10., 1., 12., 9.]).map(|v| v as f32);
+            let s = scene(vec![p([2., 0., 2., 11.]), p([2., 11f64.next_up(), 2., 20.]), p([13., 0., 13., 20.])]);
+            assert!(!s.same_ruled_field(axis, a, b));
+            assert!(!s.same_ruled_field(Unknown, a, b));
+        }
     }
     #[test]
     fn a_real_cross_cap_separates_all_material_on_both_axes_and_reading_directions() {

@@ -1,12 +1,10 @@
 //! An earlier printed frame can own an initial part of a later preamble.
 //! The new printed comparison remains an independent source root.
 use super::*;
-#[path = "native_line_field_spans.rs"]
-mod line_spans;
 
 // Reconstruct only canonical existing units. This is a lossless container
 // conversion: every original line, part, role and label must round-trip.
-fn original_units(p: &PageTrace) -> Option<Vec<Unit>> {
+pub(super) fn original_units(p: &PageTrace) -> Option<Vec<Unit>> {
     let mut out = Vec::new();
     for (i, labels) in p.native_comparison_labels.iter().enumerate() {
         let regions = p.regions.iter().filter(|r| r.unit == i).collect::<Vec<_>>();
