@@ -44986,48 +44986,48 @@
     97217
   ],
   "pending": {
-    "94677": {
-      "first_seen": "2026-10-31",
-      "attempts": 2,
+    "94100": {
+      "first_seen": "2026-11-06",
+      "attempts": 1,
       "status": "summary_incomplete",
       "origin": "backfill",
-      "next_attempt": "2026-11-05",
+      "next_attempt": "2026-11-07",
       "selection_reason": "shared_article",
       "refresh": false
     },
     "96871": {
       "first_seen": "2026-11-03",
-      "attempts": 1,
-      "status": "summary_incomplete",
-      "origin": "backfill",
-      "next_attempt": "2026-11-04",
-      "selection_reason": "corpus_cursor",
-      "refresh": false
-    },
-    "96976": {
-      "first_seen": "2026-11-03",
-      "attempts": 1,
-      "status": "summary_incomplete",
-      "origin": "backfill",
-      "next_attempt": "2026-11-04",
-      "selection_reason": "corpus_cursor",
-      "refresh": false
-    },
-    "97036": {
-      "first_seen": "2026-10-31",
       "attempts": 2,
       "status": "summary_incomplete",
       "origin": "backfill",
-      "next_attempt": "2026-11-05",
+      "next_attempt": "2026-11-09",
+      "selection_reason": "corpus_cursor",
+      "refresh": false
+    },
+    "96896": {
+      "first_seen": "2026-11-06",
+      "attempts": 1,
+      "status": "summary_incomplete",
+      "origin": "backfill",
+      "next_attempt": "2026-11-07",
+      "selection_reason": "shared_article",
+      "refresh": false
+    },
+    "97032": {
+      "first_seen": "2026-11-06",
+      "attempts": 1,
+      "status": "summary_incomplete",
+      "origin": "backfill",
+      "next_attempt": "2026-11-07",
       "selection_reason": "corpus_cursor",
       "refresh": false
     },
     "97113": {
       "first_seen": "2026-11-02",
-      "attempts": 2,
+      "attempts": 3,
       "status": "summary_incomplete",
       "origin": "backfill",
-      "next_attempt": "2026-11-06",
+      "next_attempt": "2026-11-13",
       "selection_reason": "corpus_cursor",
       "refresh": false
     },
@@ -45042,17 +45042,17 @@
     },
     "97190": {
       "first_seen": "2026-11-02",
-      "attempts": 2,
+      "attempts": 3,
       "status": "no_case_text",
       "origin": "backfill",
-      "next_attempt": "2026-11-06",
+      "next_attempt": "2026-11-13",
       "selection_reason": "corpus_cursor",
       "refresh": false
     }
   },
-  "backfill_cursor": 96973,
+  "backfill_cursor": 96798,
   "daily": {
-    "date": "2026-11-03",
+    "date": "2026-11-06",
     "new_planned": 0,
     "backfill_planned": 20,
     "new_probes": 0,
