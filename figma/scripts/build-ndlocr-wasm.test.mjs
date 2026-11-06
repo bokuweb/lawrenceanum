@@ -15,6 +15,7 @@ function fixture() {
   const run = (...args) => execFileSync(git, ['-C', remote, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
   run('init', '--quiet');
   run('config', 'uploadpack.allowFilter', 'true');
+  run('config', 'uploadpack.allowReachableSHA1InWant', 'true');
   run('add', '.');
   run('-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '--quiet', '-m', 'pinned');
   const pin = run('rev-parse', 'HEAD');
@@ -38,16 +39,12 @@ function fixture() {
     "    echo fetch >> \"$KANPO_TEST_FETCHES\"",
     "    if [ \"${KANPO_TEST_WRONG_PIN:-0}\" = 1 ]; then",
     "      args[${#args[@]}-1]=HEAD",
-    "    elif [ \"${KANPO_TEST_FALLBACK:-0}\" = 1 ]; then",
-    "      for option in \"$@\"; do",
-    "        if [ \"$option\" = protocol.version=2 ]; then exit 128; fi",
-    "      done",
     "    fi",
     "  fi",
     "done",
     "exec \"$KANPO_TEST_GIT\" \"${args[@]}\"",
   ].join("\n"), { mode: 0o755 });
-  const cache = join(root, `target/ndlocr-web-src-${pin}`);
+  const cache = join(root, `.cache/ndlocr-web-src-${pin}`);
   return { root, remote, pin, script, receipt, cache,
     env: { ...process.env, PATH: `${bin}:${process.env.PATH}`, NDLOCR_FETCH_MODELS: '0', NDLOCR_SOURCE: '',
       KANPO_TEST_GIT: git, KANPO_TEST_RECEIPT: receipt, KANPO_TEST_FETCHES: join(root, 'fetches') } };
@@ -56,17 +53,17 @@ function build(f, env = {}) {
   return spawnSync('bash', [f.script], { env: { ...f.env, ...env }, encoding: 'utf8' });
 }
 
-test('a stale cached origin and protocol failure still resolve the exact pin', () => {
+test('a stale cached origin still resolves the exact pin', () => {
   const f = fixture();
   try {
     mkdirSync(f.cache, { recursive: true });
     execFileSync(git, ['-C', f.cache, 'init', '--quiet']);
     execFileSync(git, ['-C', f.cache, 'remote', 'add', 'origin', join(f.root, 'wrong-remote')]);
-    const result = build(f, { KANPO_TEST_FALLBACK: '1' });
+    const result = build(f);
     assert.equal(result.status, 0, result.stderr);
     assert.equal(execFileSync(git, ['-C', f.cache, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(), f.pin);
     assert.equal(execFileSync(git, ['-C', f.cache, 'remote', 'get-url', 'origin'], { encoding: 'utf8' }).trim(), f.remote);
-    assert.equal(readFileSync(f.env.KANPO_TEST_FETCHES, 'utf8').trim().split('\n').length, 2);
+    assert.equal(readFileSync(f.env.KANPO_TEST_FETCHES, 'utf8').trim().split('\n').length, 1);
     assert.match(readFileSync(f.receipt, 'utf8'), /builder/);
   } finally { rmSync(f.root, { recursive: true, force: true }); }
 });
@@ -102,5 +99,22 @@ test('inherited Git directory variables do not redirect the source checkout', ()
     assert.equal(result.status, 0, result.stderr);
     assert.equal(execFileSync(git, ['-C', f.cache, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(), f.pin);
     assert.equal(execFileSync(git, ['-C', f.root, 'remote', 'get-url', 'origin'], { encoding: 'utf8' }).trim(), originalRemote);
+  } finally { rmSync(f.root, { recursive: true, force: true }); }
+});
+
+
+test('a truncated source cache in Cargo target cannot borrow the parent repository', () => {
+  const f = fixture();
+  try {
+    execFileSync(git, ['-C', f.root, 'init', '--quiet']);
+    const originalRemote = join(f.root, 'unrelated-outer-origin');
+    execFileSync(git, ['-C', f.root, 'remote', 'add', 'origin', originalRemote]);
+    const legacy = join(f.root, `target/ndlocr-web-src-${f.pin}`);
+    mkdirSync(join(legacy, '.git/objects'), { recursive: true });
+    const result = build(f);
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(execFileSync(git, ['-C', f.cache, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(), f.pin);
+    assert.equal(execFileSync(git, ['-C', f.root, 'remote', 'get-url', 'origin'], { encoding: 'utf8' }).trim(), originalRemote);
+    assert.equal(existsSync(join(legacy, '.git/HEAD')), false);
   } finally { rmSync(f.root, { recursive: true, force: true }); }
 });

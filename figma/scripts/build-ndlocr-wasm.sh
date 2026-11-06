@@ -4,7 +4,9 @@ set -euo pipefail
 root=$(cd "$(dirname "$0")/../.." && pwd)
 revision="e9d2670fb163d77d6e166362869056f032be423b"
 source_url="https://github.com/bokuweb/ndlocr-lite-rs.git"
-source_dir="${NDLOCR_SOURCE:-$root/target/ndlocr-web-src-$revision}"
+# Cargo cache pruning can leave a partial .git when source lives in target/.
+# Keep source checkouts outside that build-artifact cache.
+source_dir="${NDLOCR_SOURCE:-$root/.cache/ndlocr-web-src-$revision}"
 if [ -z "${NDLOCR_SOURCE:-}" ]; then
   git_source() {
     env -u GIT_DIR -u GIT_WORK_TREE -u GIT_COMMON_DIR git -C "$source_dir" "$@"
@@ -34,15 +36,8 @@ if [ -z "${NDLOCR_SOURCE:-}" ]; then
     git_source config remote.origin.promisor true
     git_source config remote.origin.partialclonefilter blob:none
     printf 'Fetching browser OCR source %s from %s\n' "$revision" "$source_url"
-    # The origin above is the declared URL, including after cache restoration.
-    # A server can reject a reachable SHA that it did not advertise. Fetching
-    # its advertised HEAD is transport only: the selected revision stays pinned.
-    if git_source -c protocol.version=2 fetch --filter=blob:none --depth 1 origin "$revision"; then
-      resolved=$(git_source rev-parse FETCH_HEAD)
-    else
-      git_source -c protocol.version=1 fetch --filter=blob:none --no-tags origin HEAD
-      resolved=$(git_source rev-parse --verify "$revision^{commit}")
-    fi
+    git_source fetch --filter=blob:none --depth 1 origin "$revision"
+    resolved=$(git_source rev-parse FETCH_HEAD)
     if [ "$resolved" != "$revision" ]; then
       echo "Browser OCR source did not resolve to the pinned commit" >&2
       exit 1
