@@ -554,6 +554,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
             prev_comparison_labels=match units.last(){Some(Unit::Shinkyu{labels,..})=>*labels,_=>None};
             crate::native_latin_wraps::restore(&mut units,&words,&native_bounds,&native_axes);
             crate::native_plain_columns::restore(&mut units,&words,&native_bounds,&native_axes,&projected_flows,page,rules.get(pi).and_then(Option::as_ref));
+        if !sideways && !rotated {crate::native_parallel_quotes::restore(&mut units,&words,&native_bounds,&native_axes,&projected_flows);crate::native_promulgation_order::restore(&mut units,&words,&native_bounds,&native_axes,&projected_flows);}
             let text = units.iter().map(Unit::text).filter(|t| !t.is_empty()).collect::<Vec<_>>().join("\n");
             let (doc_text, tables) = doc_text_of(&units, &mut table_count);
             prev_table = crate::legacy_comparison_scope::continues(&units);
@@ -934,6 +935,7 @@ pub(crate) fn analyze_pages_with_rules(xhtml: &str, rules: &[Option<PageRules>])
         prev_comparison_labels=match units.last(){Some(Unit::Shinkyu{labels,..})=>*labels,_=>None};
         crate::native_latin_wraps::restore(&mut units,&words,&native_bounds,&native_axes);
         crate::native_plain_columns::restore(&mut units,&words,&native_bounds,&native_axes,&projected_flows,page,rules.get(pi).and_then(Option::as_ref));
+        if !sideways && !rotated {crate::native_parallel_quotes::restore(&mut units,&words,&native_bounds,&native_axes,&projected_flows);crate::native_promulgation_order::restore(&mut units,&words,&native_bounds,&native_axes,&projected_flows);}
         let text = units
             .iter()
             .map(Unit::text)
@@ -2811,7 +2813,8 @@ fn page_words_with_styles_capture(
     let minus = if source_projection.is_some(){attach_minus_signs_observed(&mut cols,&words,source_projection.as_deref_mut())}else{attach_minus_signs(&mut cols,&words)};
     // Resolve complete native citation spans before the older lossy projections.
     let inline_merged = page_rules.map(|r| enclosed_warichu::merge(&mut cols,r)).unwrap_or_default();
-    let protected = inline_merged.iter().map(|&(_, owner)| owner).collect();
+    let mut protected:std::collections::HashSet<usize> = inline_merged.iter().map(|&(_, owner)| owner).collect();
+    if !sideways && !rotated {for plan in crate::native_parallel_quotes::prove(&words,&native_bounds,&native_axes,&projected_flows){protected.extend(plan.members());}}
     if let Some(capture)=source_projection.as_deref_mut(){capture.seed(&cols,&words);}
     let merged = if source_projection.is_some(){merge_warichu_observed(&mut cols,&protected,source_projection)}else{merge_warichu(&mut cols,&protected)};
     ((cols, words, rotated, sideways, merged, minus, native_styles, native_bounds, native_content_styles, native_axes, native_rulings, inline_merged, native_flows, projected_flows, cell_origins),advance_bands)

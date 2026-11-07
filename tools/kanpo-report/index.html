@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' file: blob: data:; script-src 'self' file: 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data: blob:; connect-src 'none'; object-src 'none'; worker-src 'none'">
+<title>官報 PDF・Word 変換比較レポート</title>
+<link rel="stylesheet" href="report.css">
+</head>
+<body>
+<header class="masthead"><div><span class="eyebrow">KANPO CONVERSION REPORT</span><h1>官報 PDF・Word 変換比較</h1></div><div class="edition">オフライン版<span>{{CREATED_DOT}}</span></div></header>
+<main>
+<section class="controls" aria-label="比較対象の選択">
+ <div class="selection"><label for="case-select">比較する官報</label><select id="case-select" disabled><option>読み込み中…</option></select></div>
+ <fieldset class="ocr"><legend>変換時のOCR</legend><div class="segmented"><label><input type="radio" name="ocr" value="off" checked><span>OFF</span></label><label><input type="radio" name="ocr" value="on"><span>ON</span></label></div></fieldset>
+ <div class="summary"><strong id="scope">全21原本・185ページ</strong><span>Excel 18件＋No.10記載法令3ページ</span></div>
+</section>
+<section class="document-info" aria-live="polite"><h2 id="document-title">官報を選択してください</h2><p id="document-meta"></p><p id="document-note" class="note" hidden></p></section>
+<div class="comparison-options"><p id="ocr-description">OFF：PDFの文字情報と元画像を保持した変換結果を表示します。</p><label class="sync-option"><input type="checkbox" id="sync">ページ番号を連動</label></div>
+<section class="comparison" aria-label="原本と変換結果の比較">
+ <article class="pane" id="original-pane">
+  <div class="pane-title"><div><span class="side-label">ORIGINAL</span><h3>元の官報 PDF</h3></div><a id="download-original" class="download" download>原本を保存 <span aria-hidden="true">↓</span></a></div>
+  <div class="toolbar" data-side="original"><button data-action="prev" aria-label="原本の前ページ">←</button><label><input type="number" min="1" value="1" aria-label="原本のページ番号"><span class="page-total">/ —</span></label><button data-action="next" aria-label="原本の次ページ">→</button><span class="toolbar-divider"></span><button data-action="out" aria-label="原本を縮小">−</button><output class="zoom-label">幅に合わせる</output><button data-action="in" aria-label="原本を拡大">＋</button><button data-action="fit" class="fit">幅に合わせる</button></div>
+  <div class="viewport" tabindex="0" aria-label="原本PDFの表示"><p class="status" role="status">準備中…</p><canvas hidden aria-label="原本PDFページ"></canvas></div>
+ </article>
+ <article class="pane" id="converted-pane">
+  <div class="pane-title"><div><span class="side-label">CONVERTED <b id="ocr-badge">OCR OFF</b></span><h3>Word 変換後のプレビュー</h3></div><div class="downloads"><a id="download-docx" class="download" download>DOCX ↓</a><a id="download-pdf" class="download" download>PDF ↓</a></div></div>
+  <div class="toolbar" data-side="converted"><button data-action="prev" aria-label="変換後の前ページ">←</button><label><input type="number" min="1" value="1" aria-label="変換後のページ番号"><span class="page-total">/ —</span></label><button data-action="next" aria-label="変換後の次ページ">→</button><span class="toolbar-divider"></span><button data-action="out" aria-label="変換後を縮小">−</button><output class="zoom-label">幅に合わせる</output><button data-action="in" aria-label="変換後を拡大">＋</button><button data-action="fit" class="fit">幅に合わせる</button></div>
+  <div class="viewport" tabindex="0" aria-label="変換後PDFの表示"><p class="status" role="status">準備中…</p><canvas hidden aria-label="変換後PDFページ"></canvas></div>
+ </article>
+</section>
+<footer><p>右側は実際に生成したDOCXをPDF化したものです。Wordとして再組版するため、原本とは改ページや文字の配置が異なります。各欄のページ番号で移動できます。</p><p>OCRは作成時に実行済みです。元画像は両モードで保持し、ONでは帳票などの画像内文字も認識します。元の位置に対応できない画像は、元ページ番号を示す付録に掲載します。認識結果には誤りが含まれる場合があります。閲覧時の通信・インストールは不要です。</p><details><summary>収録内容・確認方法</summary><p>Excelの「官報PDF」列にある18原本と、No.10の記載法令の3ページを収録しています。No.10は記載法令とリンク先PDFの内容が異なるため、別項目として選択できます。指定済PDF・RTFは変換元に使用していません。</p><p>OCR OFF／ONの各DOCXと、そのDOCXからLibreOfficeで出力したPDFを同梱しています。Microsoft Wordで開いた場合は、フォントやアプリの違いにより表示が異なることがあります。認識対象の帳票画像がない官報は、ON／OFFで本文が変わらない場合があります。画像の大きさに応じ、原本とは別ページに図を配置することがあります。</p><p id="conversion-detail"></p><p>原本・変換結果は「files」フォルダーに、作成条件とSHA-256は「manifest.json」に収録しています。表示ライブラリは<a href="https://mozilla.github.io/pdf.js/" target="_blank" rel="noreferrer">Mozilla PDF.js</a>です。ライセンスは「licenses」フォルダーをご確認ください。</p></details></footer>
+</main>
+<noscript>このレポートを表示するにはブラウザーのJavaScriptを有効にしてください。filesフォルダー内のPDFとDOCXは個別に開けます。</noscript>
+<script src="assets/manifest.js"></script><script src="assets/pdf-resources.js"></script><script src="assets/pdf.worker.js"></script><script src="assets/pdf.js"></script><script src="report.js"></script>
+</body></html>

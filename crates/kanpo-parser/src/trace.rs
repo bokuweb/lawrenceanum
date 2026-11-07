@@ -213,6 +213,17 @@ pub struct PageTrace {
     #[serde(skip)]
     pub(crate) tables: Vec<Table>,
 }
+impl PageTrace {
+    /// Original native glyph envelope for this occurrence. Compatibility or
+    /// unknown metadata never acquires authority from a plausible display box.
+    pub fn original_glyph_bounds(&self,word:usize)->Option<[f32;4]>{
+        if self.words.get(word)?.id!=word{return None;}
+        match self.native_bounds.get(word)? {
+            NativeBounds::Glyphs(b) if b.iter().all(|v|v.is_finite())&&b[0]<b[2]&&b[1]<b[3]=>Some(*b),
+            _=>None,
+        }
+    }
+}
 
 /// 構造化用テキストの中で表の位置を示す目印（私用領域の文字で囲んだ通し番号）。
 pub(crate) fn table_marker(index: usize) -> String {

@@ -18,6 +18,9 @@ use crate::vertical::Col;
 #[path="native_ruling_sections.rs"]
 mod native_ruling_sections;
 use native_ruling_sections::{source_table_bottom_cut,SourceGeometry};
+#[cfg(test)]
+#[path = "horizontal_merged_header_tests.rs"]
+mod horizontal_merged_header_tests;
 #[path="native_mode_bands.rs"]mod native_mode_bands;
 #[path = "native_fenced_records.rs"]
 mod native_fenced_records;
@@ -1980,6 +1983,26 @@ fn empty_amount_record_anchors(g: &Grid, cells: &[Vec<Line>]) -> Vec<f32> {
 ///
 /// 左から `item_cols` 欄は、ほかの欄の行と揃わない行も（折り返しの続きでなければ）行の頭にする（行を区切る横線の
 /// 無い表。金額の無い科目の行「財務費用」「経常収益」が前の科目の行につながらないように）。0 なら普通の格子の表。
+// A leading band with both a group spanning columns and cells spanning its
+// subrows is a physical multi-level header. Its internal lines are wrapping,
+// not virtual data records. Require a complete, unambiguous source partition.
+fn ruled_header_rows(g: &Grid) -> usize {
+    let end = g.cells.iter().filter(|c| c.y0 == 0).map(|c| c.y1).max().unwrap_or(0);
+    if end < 2 || end >= g.ys.len() - 1
+        || !g.cells.iter().any(|c| c.y0 == 0 && c.x1 - c.x0 > 1 && c.y1 < end)
+        || !g.cells.iter().any(|c| c.y0 == 0 && c.y1 > 1)
+        || g.cells.iter().any(|c| c.y0 < end && c.y1 > end)
+    { return 0; }
+    for y in 0..end {
+        for x in 0..g.xs.len() - 1 {
+            if g.cells.iter().filter(|c| c.x0 <= x && x < c.x1 && c.y0 <= y && y < c.y1).count() != 1 {
+                return 0;
+            }
+        }
+    }
+    end
+}
+
 fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table> {
     // 2 字以上の語の字数で、横長の語が縦長の語より多いこと。
     // 欄の多い（7 欄以上の）率の表（桁区切りの無い表）の数だけの語（小数の率「1.47」が「1」「.」「47」に割れたもの）は
@@ -2102,6 +2125,15 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
         })
         .count();
     let header_rows = if header_rows <= 3 && header_rows < ny && item_cols == 0 { header_rows } else { 0 };
+    let candidate_header_rows = ruled_header_rows(g);
+    // Supplement the record/financial heuristics only where they did not
+    // establish a header. A sparse leading data record or amount band must not
+    // become a header just because some source cells span rows and columns.
+    let source_header_rows = if header_rows == 0 && g.cells.iter().enumerate()
+        .filter(|(_, c)| c.y1 <= candidate_header_rows)
+        .all(|(i, _)| !cell_lines[i].is_empty() && !cell_lines[i].iter().any(amount_line))
+    { candidate_header_rows } else { 0 };
+    let header_rows = header_rows.max(source_header_rows);
     let header_cell = |i: usize| g.cells[i].y1 <= header_rows;
     let mut anchors: Vec<f32> = Vec::new();
     let mut smaller_account_words = std::collections::HashSet::new();
@@ -2136,6 +2168,7 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
         let band: Vec<usize> = (0..g.cells.len()).filter(|&i| g.cells[i].y0 <= r && r < g.cells[i].y1).collect();
         anchors.push(g.ys[r]);
         let (top, bottom) = (g.ys[r], g.ys[r + 1]);
+        if r < source_header_rows { continue; }
         // 長い欄のある見出し付きの表（[`headed`]）は罫線の行で行を分ける（折り返した欄の行の高さが隣の欄の行と揃い、
         // 左右の欄の行が 1 行ずつ交互に組まれていた）。
         // 4 欄以上に字のある罫線の行で、項目の数がいちばん多い欄が 1 つだけなら、欄ごとに行数の違う 1 件の記録（品種登録の
@@ -2418,7 +2451,9 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
             let narrow = (1..ls.len()).all(|k| narrow_wrapped(&ls[k - 1], g.xs[gc.x0], g.xs[gc.x1]));
             // 2 行以上の欄見出しで、見出しの最後の行まで掛かるセル（「純資産合計」「積立金」を上下中央に置いたもの）は、見出しの
             // 最後の行に置く（下の段の欄見出しが欄の順に 1 行に並ぶ。上下中央の高さの行に分かれていた）。
-            let row = if header_rows >= 2 && header_cell(i) && gc.y1 == header_rows && gc.y1 - gc.y0 >= 2 {
+            let row = if gc.y1 <= source_header_rows {
+                row_of(g.ys[gc.y0] + 0.5)
+            } else if header_rows >= 2 && header_cell(i) && gc.y1 == header_rows && gc.y1 - gc.y0 >= 2 {
                 row_of(g.ys[header_rows - 1] + 0.5)
             } else if let Some(first) = group_label_row(i) {
                 first
@@ -2434,7 +2469,7 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
             cells.push(trace::TableCell {
                 row,
                 col: gc.x0,
-                rowspan: 1,
+                rowspan: if gc.y1 <= source_header_rows { gc.y1 - gc.y0 } else { 1 },
                 colspan: gc.x1 - gc.x0,
                 x0: g.xs[gc.x0],
                 y0: g.ys[gc.y0],
@@ -2581,7 +2616,7 @@ fn grid_table(g: &Grid, words: &[Col], item_cols: usize) -> Option<trace::Table>
         k += 1;
     }
     // 字の無い行は詰める。
-    let mut used: Vec<usize> = cells.iter().map(|c| c.row).collect();
+    let mut used: Vec<usize> = cells.iter().flat_map(|c| c.row..c.row + c.rowspan).collect();
     used.sort_unstable();
     used.dedup();
     for c in &mut cells {

@@ -210,7 +210,7 @@ fn is_agency_notice_title(line: &str, prev: Option<&str>) -> bool {
 /// 折り返し）や単独の印の「〇」は見出しではない。機関名が漢数字で始まる（「〇九州地方整備局告示
 /// 第九十八号」「〇四国地方整備局…」）ときは、行が「第…号」で終わる見出しの形のときだけ見出しとみなす。
 /// 番号の折り返し（「第二八三六・五〇」＋「号、…」で行頭に来た「〇号、」「〇円」）も見出しではない。
-pub(crate) fn is_heading_mark(t: &str) -> bool {
+pub fn is_heading_mark(t: &str) -> bool {
     const NUMERALS: &str = "〇一二三四五六七八九十百千";
     let kanji = |c: char| ('\u{4E00}'..='\u{9FFF}').contains(&c);
     let mut chars = t.chars();

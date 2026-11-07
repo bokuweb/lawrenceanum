@@ -850,6 +850,53 @@ struct TableRun {
     run: Run,
     sources: Vec<usize>,
 }
+/// An independently certified open source seam joins the *same* cells, even
+/// when their text starts with an item number or an earlier cell spans rows.
+/// The certificate is positional; this function never inspects vocabulary.
+pub(crate) fn join_open_table_row(a: &mut NestedTable, b: &NestedTable) -> bool {
+    // Keep source field scalar order, including its style/occurrence tape.
+    // If joining logical owners would permute interleaved physical columns,
+    // retain the two fully editable page fragments instead. Never borrow an
+    // annotation from an equal spelling elsewhere to make a join succeed.
+    fn text(t:&NestedTable)->String {
+        fn runs(rs:&[Run],out:&mut String){for r in rs{out.extend(r.text.chars().filter(|c|!c.is_whitespace()));if let Some(t)=&r.table{out.push_str(&text(t));}}}
+        let mut out=String::new();for row in &t.rows{for cell in row{runs(cell,&mut out);}}out
+    }
+    let expected=format!("{}{}",text(a),text(b));
+    let mut joined=a.clone();
+    if !join_open_table_row_inner(&mut joined,b) || text(&joined)!=expected {return false;}
+    *a=joined;
+    true
+}
+fn join_open_table_row_inner(a: &mut NestedTable, b: &NestedTable) -> bool {
+    let na = a.rows.len();
+    let nb = b.rows.len();
+    let Some(cols) = a.rows.first().map(Vec::len).filter(|n| *n > 0) else {return false};
+    if nb == 0 || a.rows.iter().chain(&b.rows).any(|row| row.len() != cols) {return false;}
+    let owner = |t: &NestedTable, row: usize, col: usize| -> Option<CellMerge> {
+        let covering = t.merges.iter().filter(|m| m.row <= row && row < m.row + m.rowspan && m.col <= col && col < m.col + m.colspan).copied().collect::<Vec<_>>();
+        match covering.as_slice() {
+            [] => Some(CellMerge {row,col,rowspan:1,colspan:1}),
+            [m] if m.colspan == 1 => Some(*m),
+            _ => None,
+        }
+    };
+    let Some(owners) = (0..cols).map(|col| {
+        let left = owner(a,na-1,col)?;
+        let right = owner(b,0,col)?;
+        (left.row + left.rowspan == na && right.row == 0).then_some((left,right))
+    }).collect::<Option<Vec<_>>>() else {return false};
+    for (left,right) in owners {
+        append_runs(&mut a.rows[left.row][left.col], b.rows[0][right.col].clone());
+        a.merges.retain(|m| !(m.row == left.row && m.col == left.col));
+        let rowspan = left.rowspan + right.rowspan - 1;
+        if rowspan > 1 {a.merges.push(CellMerge{rowspan,..left});}
+    }
+    a.rows.extend(b.rows.iter().skip(1).cloned());
+    a.merges.extend(b.merges.iter().filter(|m|m.row>0).map(|m|CellMerge{row:m.row+na-1,..*m}));
+    a.merges.sort_by_key(|m|(m.row,m.col));
+    true
+}
 impl TableRun {
     fn legacy(run: Run) -> Self {
         Self {
@@ -872,7 +919,8 @@ fn join_adjacent_tables(
             });
             if permitted {
                 if let (Some(a), Some(b)) = (last.run.table.as_mut(), next.run.table.as_ref()) {
-                    if join_tables(a, b) {
+                    let open = scopes.is_some_and(|s| last.sources.last().zip(next.sources.first()).is_some_and(|(x,y)|s.continues_open_row(*x,*y)));
+                    if if open {join_open_table_row(a,b)} else {join_tables(a, b)} {
                         last.sources.extend(next.sources);
                         continue;
                     }

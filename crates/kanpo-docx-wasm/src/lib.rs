@@ -10,16 +10,18 @@ use js_sys::{Array, Object, Reflect, Uint8Array};
 use wasm_bindgen::prelude::*;
 
 fn set(o: &Object, k: &str, v: impl Into<JsValue>) -> Result<(), JsError> {
-    Reflect::set(o, &k.into(), &v.into()).map(|_| ()).map_err(|_| JsError::new("set"))
+    Reflect::set(o, &k.into(), &v.into())
+        .map(|_| ())
+        .map_err(|_| JsError::new("set"))
 }
 
 /// PDF のページの画像（OCR にかける大きさ、300dpi まで縮めたもの）を、`{page, width, height, left, top, scale, pageWidth, pageHeight, pixels}` の配列で返す。
 /// `pixels` は 1 画素 1 バイト（0 が黒）。`page` は 0 始まり。位置・大きさの単位は pt（左上原点）。
 #[wasm_bindgen(js_name = pageImages)]
 pub fn page_images(pdf: &[u8]) -> Result<Array, JsError> {
-    let images = kanpo_docx::page_images(pdf).map_err(|e| JsError::new(&format!("{e:#}")))?;
+    let images = kanpo_docx::ocr_images(pdf).map_err(|e| JsError::new(&format!("{e:#}")))?;
     let out = Array::new();
-    for img in images.iter().map(kanpo_docx::PageImage::for_ocr) {
+    for img in &images {
         let o = Object::new();
         set(&o, "page", img.page as u32)?;
         set(&o, "width", img.image.width)?;
@@ -40,16 +42,25 @@ pub fn page_images(pdf: &[u8]) -> Result<Array, JsError> {
 #[wasm_bindgen]
 pub fn convert(pdf: &[u8], traces_json: &str) -> Result<Vec<u8>, JsError> {
     let err = |e: anyhow::Error| JsError::new(&format!("{e:#}"));
-    let traces: Vec<serde_json::Value> = if traces_json.trim().is_empty() { vec![] } else { serde_json::from_str(traces_json).map_err(|e| JsError::new(&format!("traces: {e}")))? };
+    let traces: Vec<serde_json::Value> = if traces_json.trim().is_empty() {
+        vec![]
+    } else {
+        serde_json::from_str(traces_json).map_err(|e| JsError::new(&format!("traces: {e}")))?
+    };
     let ocr = if traces.iter().all(serde_json::Value::is_null) {
         vec![]
     } else {
-        let images: Vec<kanpo_docx::PageImage> = kanpo_docx::page_images(pdf).map_err(err)?.iter().map(kanpo_docx::PageImage::for_ocr).collect();
+        let images = kanpo_docx::ocr_images(pdf).map_err(err)?;
         if images.len() != traces.len() {
-            return Err(JsError::new(&format!("{} traces for {} page images", traces.len(), images.len())));
+            return Err(JsError::new(&format!(
+                "{} traces for {} page images",
+                traces.len(),
+                images.len()
+            )));
         }
         let pages = kanpo_docx::page_count(pdf).map_err(err)?;
-        let mut per_page: Vec<Vec<(&kanpo_docx::PageImage, Vec<kanpo_docx::OcrRegion>)>> = vec![Vec::new(); pages];
+        let mut per_page: Vec<Vec<(&kanpo_docx::PageImage, Vec<kanpo_docx::OcrRegion>)>> =
+            vec![Vec::new(); pages];
         for (img, trace) in images.iter().zip(&traces) {
             if trace.is_null() {
                 continue;
@@ -59,7 +70,10 @@ pub fn convert(pdf: &[u8], traces_json: &str) -> Result<Vec<u8>, JsError> {
                 slot.push((img, page.regions));
             }
         }
-        per_page.iter().map(|imgs| kanpo_docx::ocr_page(imgs)).collect()
+        per_page
+            .iter()
+            .map(|imgs| kanpo_docx::ocr_page(imgs))
+            .collect()
     };
     kanpo_docx::convert(pdf, &ocr).map_err(err)
 }

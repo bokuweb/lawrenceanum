@@ -38,6 +38,8 @@ pub mod source_line_projection;
 pub mod media;
 mod native_page_size;
 mod native_plain_columns;
+mod native_parallel_quotes;
+mod native_promulgation_order;
 mod notice_boundaries;
 mod native_quote_scopes;
 mod company_document_parts;
@@ -157,13 +159,15 @@ pub fn analyze_with_rules(xhtml: &str, rules: &[Option<lines::PageRules>]) -> An
     analysis_from_pages(pages, xhtml, rules)
 }
 
-fn analysis_from_pages(pages: Vec<trace::PageTrace>, xhtml: &str, rules: &[Option<lines::PageRules>]) -> Analysis {
+fn analysis_from_pages(mut pages: Vec<trace::PageTrace>, xhtml: &str, rules: &[Option<lines::PageRules>]) -> Analysis {
+    let open_rows = native_sparse_table_continuations::restore(&mut pages, xhtml, rules);
     let join = |f: &dyn Fn(&trace::PageTrace) -> &str| {
         trace::join_page_texts(&pages, f)
     };
     let text = join(&|p| p.text.as_str());
     let doc_text = join(&|p| p.doc_text.as_str());
-    let table_scopes=native_table_scopes::Scopes::for_pages(&pages,rules);
+    let mut table_scopes=native_table_scopes::Scopes::for_pages(&pages,rules);
+    table_scopes.open_rows(open_rows);
     let tables=table_scopes.tables();
     let mut segments = segment_articles(&doc_text);
     wrapped_notice_titles::repair_wrapped_notice_titles(&mut segments, &pages);
@@ -2206,6 +2210,7 @@ mod native_terminal_glyph;
 mod source_font_alias;
 
 mod native_table_scopes;
+mod native_sparse_table_continuations;
 
 mod native_cell_lineage;
 

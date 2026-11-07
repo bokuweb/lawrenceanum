@@ -27,6 +27,11 @@ pub(crate) struct Scene {
     lines: Vec<(Rect, Rect, bool)>,
 }
 impl Scene {
+    /// Complete native stroke centers, before text-flow clipping splits them.
+    /// These are independently inventoried source paint, never inferred gaps.
+    pub(crate) fn original_lines(&self) -> impl Iterator<Item = [f32; 4]> + '_ {
+        self.lines.iter().map(|(center, _, _)| center.map(|v| v as f32))
+    }
     pub(crate) fn opaque_outside_x_band(&self, left:f64, right:f64, top:f64, bottom:f64)->bool {
         self.obstacles.iter().any(|b|b[1]<bottom&&top<b[3]&&(b[0]<left||b[2]>right))
     }

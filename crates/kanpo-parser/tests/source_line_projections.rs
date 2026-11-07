@@ -7,7 +7,10 @@ use kanpo_parser::{
 fn original_parallel_columns_and_horizontal_item_order_have_forward_scalar_provenance() {
     for (pdf, count, generated) in [
         (include_bytes!("data/workbook/case-12.pdf").as_slice(), 2, 2),
-        (include_bytes!("data/workbook/case-13.pdf").as_slice(), 1, 1),
+        // These are wrapped quotation lanes, not a short agency-name note.
+        // Each lane now retains its direct original Words; no synthetic join
+        // character or composed-line projection is needed.
+        (include_bytes!("data/workbook/case-13.pdf").as_slice(), 0, 0),
         (
             include_bytes!("data/workbook/case-17.pdf").as_slice(),
             26,
@@ -16,6 +19,14 @@ fn original_parallel_columns_and_horizontal_item_order_have_forward_scalar_prove
     ] {
         let result = analyze_pdf(pdf).unwrap();
         assert_eq!(result.underlines.line_projections.len(), count);
+        if count == 0 {
+            for ids in [vec![27,28,29,30,34],vec![32,33,36]] {
+                let page=&result.native.pages[0];
+                let found=page.regions.iter().flat_map(|r| &r.lines).filter(|l|l.words==ids).collect::<Vec<_>>();
+                assert_eq!(found.len(),1);
+                assert_eq!(found[0].text,ids.iter().map(|&id|page.words[id].text.as_str()).collect::<String>());
+            }
+        }
         assert!(!result
             .underlines
             .unresolved_fields

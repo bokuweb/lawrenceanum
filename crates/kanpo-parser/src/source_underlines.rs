@@ -1012,9 +1012,10 @@ fn apply(analysis: &mut Analysis, field: Field, flags: &[bool]) {
     debug_assert_eq!(cursor, flags.len());
 }
 
-// Recognition may add source material to one field while leaving the others
-// exact. Transfer annotations only across a complete, unchanged field stream.
-pub(crate) fn transfer_field(source: &Analysis, target: &mut Analysis, field: Field) -> bool {
+/// Transfer existing underline annotations only across a complete, unchanged
+/// field stream. Recognition may add material to another field independently.
+/// A mismatch returns false without modifying the target.
+pub fn transfer_field(source: &Analysis, target: &mut Analysis, field: Field) -> bool {
     if field_text(source, field) != field_text(target, field) {
         return false;
     }

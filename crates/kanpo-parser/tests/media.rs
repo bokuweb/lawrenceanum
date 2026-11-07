@@ -1,6 +1,33 @@
 use kanpo_parser::media::{analyze_pdf, Block, Document, Field, Inline, Target};
 
 #[test]
+fn certified_source_layout_matches_the_image_aware_fields_and_keeps_raw_native_auditable() {
+    let source = analyze_pdf(include_bytes!("data/workbook/case-04.pdf")).unwrap();
+    for field in [Field::Paragraph, Field::After, Field::Before] {
+        assert_eq!(
+            kanpo_parser::source_underlines::field_text(&source.source_layout, field),
+            source
+                .documents
+                .iter()
+                .map(|d| d.field_text(field))
+                .collect::<String>()
+        );
+    }
+    assert_eq!(source.frames.bindings.len(), 2);
+    assert!(
+        kanpo_parser::source_underlines::field_text(&source.native, Field::After).contains('□')
+    );
+    assert!(
+        !kanpo_parser::source_underlines::field_text(&source.source_layout, Field::After)
+            .contains('□')
+    );
+    assert!(serde_json::to_value(&source)
+        .unwrap()
+        .get("source_layout")
+        .is_none());
+}
+
+#[test]
 fn original_radio_notice_keeps_both_ruby_readings_on_their_source_parent_characters() {
     let pdf = include_bytes!("data/workbook/case-11.pdf");
     let result = analyze_pdf(pdf).unwrap();

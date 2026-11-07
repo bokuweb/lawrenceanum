@@ -306,7 +306,16 @@ fn horizontal_change_captions_keep_their_fields_including_blank_continuations() 
         .iter()
         .filter(|r| r.role == Role::Before)
         .flat_map(|r| &r.lines)
-        .any(|l| l.text == "［新設］"));
+        .filter_map(|l| l.table.as_ref())
+        .any(|t| t.cols==4 && t.cells.iter().any(|c| c.row==0 && c.col==3 && c.text=="［新設］" && !c.words.is_empty())));
+    // The blank before side retains its original four ruled columns too;
+    // empty geometry must not manufacture source words or paragraphs.
+    for page in &result.pages[4..7] {
+        let tables=page.regions.iter().filter(|r|r.role==Role::Before).flat_map(|r|&r.lines).filter_map(|l|l.table.as_ref()).collect::<Vec<_>>();
+        assert_eq!(tables.len(),1);
+        assert_eq!(tables[0].cols,4);
+        assert!(tables[0].cells.iter().all(|c|c.text.is_empty()&&c.words.is_empty()));
+    }
     assert!(result.pages[7]
         .regions
         .iter()

@@ -98,6 +98,17 @@ impl From<&model::Document> for Document {
 }
 
 impl Document {
+    /// Insert a figure at a certified non-whitespace field offset. Figure
+    /// insertion does not change the source text stream or its character count.
+    pub fn insert_image(&mut self, field: super::Field, offset: usize, asset: usize) -> bool {
+        insert_stream(self,field,offset,asset)
+    }
+
+    /// Insert a figure in one uniquely matching complete source table cell.
+    pub fn insert_image_in_table(&mut self,field:super::Field,target:&model::NestedTable,row:usize,col:usize,asset:usize)->bool {
+        insert_cell(self,field,target,row,col,asset)
+    }
+
     /// Complete non-whitespace field text, including nested and standalone
     /// table cells in document order. Ruby offsets use Unicode scalar indices
     /// in this stream; images and ruby readings do not consume body positions.

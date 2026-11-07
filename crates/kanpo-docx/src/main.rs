@@ -19,7 +19,7 @@ struct Cli {
     /// 書き出す DOCX（省略時は入力の拡張子を .docx にしたもの）。
     #[arg(short, long)]
     output: Option<PathBuf>,
-    /// OCR しない（PDF の字だけで書く）。
+    /// OCR しない（PDF の字と元の画像で書く）。
     #[arg(long)]
     no_ocr: bool,
     /// 認識し直さずに読む OCR の結果（NDLOCR の trace JSON）の置き場所。1 ページの PDF は `{dir}/{PDF の名前}.json`、

@@ -21,6 +21,8 @@ pub mod underline_styles;
 pub mod frames;
 #[path = "media_baseline_shifts.rs"]
 pub mod baseline_shifts;
+#[path = "media_fonts.rs"]
+pub mod fonts;
 #[path = "media_raster.rs"]
 pub mod raster;
 pub use model::{Block, Document, Inline, Row, Table};
@@ -102,10 +104,25 @@ pub struct PaintAudit {
     pub observation_report: serde_json::Value,
 }
 #[derive(Debug, Clone, Serialize)]
+pub struct TableContinuation {
+    /// Complete source-certified logical table, before presentation run splits.
+    pub table: crate::model::NestedTable,
+    /// (source table ID, source row, source column, target row, target column).
+    pub cells: Vec<(usize, usize, usize, usize, usize)>,
+}
+#[derive(Debug, Clone, Serialize)]
 pub struct MediaAnalysis {
     pub schema: usize,
     pub kind: &'static str,
     pub native: crate::Analysis,
+    /// Source-certified layout after nontext drawing glyphs and annotations
+    /// are resolved. Raw native material remains in `native` for auditing.
+    /// This in-memory view avoids deriving layout back from rendered output.
+    #[serde(skip)]
+    pub source_layout: crate::Analysis,
+    /// In-memory positional provenance for open cells crossing native pages.
+    #[serde(skip)]
+    pub table_continuations: Vec<TableContinuation>,
     pub documents: Vec<Document>,
     pub assets: Vec<Asset>,
     /// Original vector construction and paint state, retained at page scope.
@@ -118,6 +135,7 @@ pub struct MediaAnalysis {
     pub native_glyphs: native_glyphs::Audit,
     pub frames:frames::Audit,
     pub baseline_shifts:baseline_shifts::Audit,
+    pub fonts:fonts::Audit,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub painted_text: Option<PaintAudit>,
     pub coverage_verified: bool,
@@ -657,6 +675,12 @@ fn analyze(pdf: &[u8], report: Option<serde_json::Value>) -> Result<MediaAnalysi
         let source_pages=sources.iter().map(|s|s.native_sources().clone()).collect::<Vec<_>>();
         styled=crate::source_underlines::analyze_observed(&source_pages,framed,&frames::nontext(&enclosures))?;
     }
+    let continuation_inputs=crate::page_inputs_from_sources(&sources.iter().map(|s|s.native_sources().clone()).collect::<Vec<_>>());
+    let continuation_xhtml=crate::combine_pages(continuation_inputs.iter().map(|p|p.xhtml.as_str()));
+    let continuation_rules=continuation_inputs.iter().map(|p|p.rules.clone()).collect::<Vec<_>>();
+    let mut continuation_pages=styled.styled.pages.clone();
+    let continuation_pairs=crate::native_sparse_table_continuations::restore(&mut continuation_pages,&continuation_xhtml,&continuation_rules);
+    let table_continuations=crate::native_sparse_table_continuations::groups(&continuation_pages,&continuation_pairs);
     let base = &styled.styled;
     ensure!(
         base.pages.len() == sources.len(),
@@ -904,10 +928,14 @@ fn analyze(pdf: &[u8], report: Option<serde_json::Value>) -> Result<MediaAnalysi
     let (parallel_bindings,unresolved_parallel)=underline_styles::bind(&styled.parallel_underlines,&styled.native,&documents,&styled.applied_fields,&sources);
     let frames=frames::bind(&enclosures,frame_unresolved,base,&documents,&sources);
     let baseline_shifts=baseline_shifts::analyze(base,&documents,&sources);
+    let fonts=fonts::analyze(base,&documents,&sources,&ruby,&styled.line_projections);
     Ok(MediaAnalysis {
         schema: 1,
         kind: "source_media_analysis",
         native,
+        source_layout: styled.styled,
+        table_continuations,
+        fonts,
         documents,
         assets,
         page_graphics:sources.iter().enumerate().map(|(page,source)|serde_json::json!({

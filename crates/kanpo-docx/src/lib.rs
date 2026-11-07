@@ -1,16 +1,24 @@
 //! 官報の PDF を DOCX にする。
 //!
-//! 1. [`page_images`] でページに置かれた画像（スキャンした本文）を取り出す。
+//! 1. [`ocr_images`] でページに置かれた画像から認識対象を取り出す。
 //! 2. 呼出元が画像を OCR し（ndlocr-lite-rs。CLI はネイティブ、ブラウザは WASM）、画像の画素の枠で認識領域を返す。
 //!    [`ocr_page`] がページの画素の枠（[`kanpo_parser::OcrPage`]）に写す。NDLOCR の trace JSON は
 //!    [`kanpo_parser::OcrPage::from_ndlocr_trace`] で読める。
 //! 3. [`convert`] が PDF の字と OCR の結果を合わせて解析し（[`kanpo_parser::analyze_item_with_ocr`]）、記事ごとに
-//!    段落・表・新旧対照表を DOCX に書く。OCR を渡さなければ PDF の字だけで書く。
+//!    段落・表・新旧対照表を DOCX に書く。OCR を渡さなければ PDF の字と元画像で書く。
 //!
 //! I/O を持たないので WASM でも使える（`kanpo-docx-wasm`）。
 
+mod annotations;
+mod borders;
+mod continuations;
+mod decorations;
 pub mod docx;
+mod formalities;
 pub mod images;
+mod layout;
+mod pictures;
+mod spacing;
 
 pub use images::{page_images, GrayImage, PageImage};
 pub use kanpo_parser::{OcrPage, OcrRegion};
@@ -30,13 +38,26 @@ pub fn ocr_page(images: &[(&PageImage, Vec<OcrRegion>)]) -> Option<OcrPage> {
     if s <= 0.0 {
         return None;
     }
-    let mut page = OcrPage { width: first.page_width * s, height: first.page_height * s, regions: Vec::new() };
+    let mut page = OcrPage {
+        width: first.page_width * s,
+        height: first.page_height * s,
+        regions: Vec::new(),
+    };
     for (image, regions) in images {
         let k = s / image.scale;
         for r in regions {
             let [x0, y0, x1, y1] = r.bbox;
-            let bbox = [image.left * s + x0 * k, image.top * s + y0 * k, image.left * s + x1 * k, image.top * s + y1 * k];
-            page.regions.push(OcrRegion { text: r.text.clone(), bbox, vertical: r.vertical });
+            let bbox = [
+                image.left * s + x0 * k,
+                image.top * s + y0 * k,
+                image.left * s + x1 * k,
+                image.top * s + y1 * k,
+            ];
+            page.regions.push(OcrRegion {
+                text: r.text.clone(),
+                bbox,
+                vertical: r.vertical,
+            });
         }
     }
     Some(page)
@@ -47,9 +68,33 @@ pub fn page_count(pdf: &[u8]) -> Result<usize> {
     Ok(kanpo_pdf::Document::load(pdf.to_vec())?.pages().len())
 }
 
-/// PDF のページ数分の OCR 結果を、`engine` で画像を認識して作る。字のある画像の無いページは `None`。
+/// OCRにかける画像。原本のセルに一意に対応する図を除き、OCR用の解像度に縮小する。
+pub fn ocr_images(pdf: &[u8]) -> Result<Vec<PageImage>> {
+    let originals = page_images(pdf)?;
+    // A figure bound to one original table cell is retained as a figure in
+    // both modes. Incidental lettering inside a diagram or coin must not
+    // replace that cell's original picture with running OCR prose.
+    let figures = if originals.is_empty() {
+        Vec::new()
+    } else {
+        pictures::table_figures(pdf)?
+    };
+    let images: Vec<PageImage> = originals
+        .iter()
+        .filter(|image| {
+            !figures
+                .iter()
+                .any(|(page, b)| pictures::same_image(image, *page, *b))
+        })
+        .map(PageImage::for_ocr)
+        .collect();
+    Ok(images)
+}
+
+/// Recognize text-bearing page images; figures in certified table cells remain
+/// original pictures in both native and browser conversions.
 pub fn recognize_pages(pdf: &[u8], engine: &mut dyn OcrEngine) -> Result<Vec<Option<OcrPage>>> {
-    let images: Vec<PageImage> = page_images(pdf)?.iter().map(PageImage::for_ocr).collect();
+    let images = ocr_images(pdf)?;
     let pages = page_count(pdf)?;
     let mut per_page: Vec<Vec<(&PageImage, Vec<OcrRegion>)>> = vec![Vec::new(); pages];
     for image in &images {
@@ -71,7 +116,35 @@ pub fn analyze(pdf: &[u8], ocr: &[Option<OcrPage>]) -> Result<kanpo_parser::Anal
 
 /// PDF を DOCX のバイト列にする。`ocr` は [`analyze`] と同じ。
 pub fn convert(pdf: &[u8], ocr: &[Option<OcrPage>]) -> Result<Vec<u8>> {
-    docx::write(&analyze(pdf, ocr)?)
+    let mut analysis = analyze(pdf, ocr)?;
+    let source = kanpo_parser::media::analyze_pdf(pdf)?;
+    let fields = [
+        kanpo_parser::media::Field::Paragraph,
+        kanpo_parser::media::Field::After,
+        kanpo_parser::media::Field::Before,
+    ];
+    // The source layout removes only proven nontext drawing glyphs. OCR may
+    // add text; in that case transfer only complete unchanged source fields.
+    if analysis.articles.len() == source.native.articles.len()
+        && fields.iter().all(|&f| {
+            kanpo_parser::source_underlines::field_text(&analysis, f)
+                == kanpo_parser::source_underlines::field_text(&source.native, f)
+        })
+    {
+        analysis = source.source_layout.clone();
+    } else {
+        for field in fields {
+            kanpo_parser::source_underlines::transfer_field(
+                &source.source_layout,
+                &mut analysis,
+                field,
+            );
+        }
+    }
+    let (documents, pictures) = pictures::prepare_source(pdf, &analysis, &source)?;
+    let mut styles = decorations::SourceStyles::from_media(&source, pdf)?;
+    styles.rebind_fonts(pdf, &analysis, &documents, &source)?;
+    docx::write_documents(&analysis, &documents, &pictures, &styles)
 }
 
 /// `engine` で画像を OCR して PDF を DOCX にする（[`recognize_pages`] + [`convert`]）。
@@ -85,7 +158,19 @@ mod tests {
     use super::*;
 
     fn image(w: u32, h: u32, left: f64, top: f64, scale: f64) -> PageImage {
-        PageImage { page: 0, image: GrayImage { width: w, height: h, pixels: vec![0; (w * h) as usize] }, left, top, scale, page_width: 595.0, page_height: 842.0 }
+        PageImage {
+            page: 0,
+            image: GrayImage {
+                width: w,
+                height: h,
+                pixels: vec![0; (w * h) as usize],
+            },
+            left,
+            top,
+            scale,
+            page_width: 595.0,
+            page_height: 842.0,
+        }
     }
 
     #[test]
@@ -93,7 +178,15 @@ mod tests {
         // 2480 画素の幅の画像が A4 のページ全体に置かれる（300dpi 相当）。
         let s = 2480.0 / 595.0;
         let img = image(2480, 3509, 0.0, 0.0, s);
-        let page = ocr_page(&[(&img, vec![OcrRegion { text: "官報".into(), bbox: [100.0, 200.0, 300.0, 240.0], vertical: false }])]).unwrap();
+        let page = ocr_page(&[(
+            &img,
+            vec![OcrRegion {
+                text: "官報".into(),
+                bbox: [100.0, 200.0, 300.0, 240.0],
+                vertical: false,
+            }],
+        )])
+        .unwrap();
         assert!((page.width - 2480.0).abs() < 1e-6 && (page.height - 842.0 * s).abs() < 1e-6);
         assert_eq!(page.regions[0].bbox, [100.0, 200.0, 300.0, 240.0]);
     }
@@ -103,7 +196,18 @@ mod tests {
         // 右上（x=297.5pt、y=0）に置いた、1pt あたり 2 画素の画像。最初の画像（1pt あたり 4 画素）の解像度に揃える。
         let full = image(2380, 3368, 0.0, 0.0, 4.0);
         let part = image(595, 842, 297.5, 0.0, 2.0);
-        let page = ocr_page(&[(&full, vec![]), (&part, vec![OcrRegion { text: "x".into(), bbox: [0.0, 10.0, 100.0, 20.0], vertical: true }])]).unwrap();
+        let page = ocr_page(&[
+            (&full, vec![]),
+            (
+                &part,
+                vec![OcrRegion {
+                    text: "x".into(),
+                    bbox: [0.0, 10.0, 100.0, 20.0],
+                    vertical: true,
+                }],
+            ),
+        ])
+        .unwrap();
         assert_eq!(page.regions[0].bbox, [1190.0, 20.0, 1390.0, 40.0]);
         assert!(page.regions[0].vertical);
     }

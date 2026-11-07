@@ -8,12 +8,14 @@ use std::collections::HashSet;
 pub(crate) struct Scopes {
     tables: Vec<Table>,
     separate: HashSet<(usize, usize)>,
+    open_rows: HashSet<(usize, usize)>,
 }
 impl Scopes {
     pub(crate) fn for_pages(pages: &[PageTrace], rules: &[Option<PageRules>]) -> Self {
         let mut out = Self {
             tables: vec![],
             separate: HashSet::new(),
+            open_rows: HashSet::new(),
         };
         for (pi, p) in pages.iter().enumerate() {
             let offset = out.tables.len();
@@ -37,6 +39,12 @@ impl Scopes {
     }
     pub(crate) fn tables(&self) -> &[Table] {
         &self.tables
+    }
+    pub(crate) fn open_rows(&mut self, pairs: Vec<(usize, usize)>) {
+        self.open_rows.extend(pairs.into_iter().filter(|&(a,b)| a < self.tables.len() && b < self.tables.len()));
+    }
+    pub(crate) fn continues_open_row(&self, a: usize, b: usize) -> bool {
+        self.may_join(a,b) && self.open_rows.contains(&(a,b))
     }
     pub(crate) fn may_join(&self, a: usize, b: usize) -> bool {
         a != b && a < self.tables.len() && b < self.tables.len() && !self.separate.contains(&(a, b))
