@@ -12,6 +12,7 @@ struct Plan {
     cuts: BTreeSet<usize>,
     spaces: BTreeMap<usize, usize>,
     move_signature: Option<(usize, usize, usize)>,
+    signature_leading: BTreeMap<usize, usize>,
 }
 struct Line {
     text: String,
@@ -23,6 +24,7 @@ struct Source {
     bounds: [f32; 4],
     role_boundary: bool,
     spaces: Vec<(usize, usize)>,
+    regular: bool,
 }
 
 fn compact(s: &str) -> String {
@@ -165,10 +167,77 @@ fn sources(analysis: &Analysis, text: &str) -> Vec<Source> {
                 bounds,
                 role_boundary: office_end(text).is_some_and(|n| ends.contains(&n)),
                 spaces,
+                regular: {
+                    let cross = if bounds[3]-bounds[1] > bounds[2]-bounds[0] { 0 } else { 1 };
+                    let width = bounds[cross+2]-bounds[cross];
+                    words.iter().all(|w| w.source_box[cross+2]-w.source_box[cross] >= width / 1.2)
+                },
             });
         }
     }
     found
+}
+
+#[cfg(test)]
+fn adjacent_signatures(a: &Source, b: &Source) -> bool {
+    signature_pitch(a,b).is_some()
+}
+fn signature_pitch(a: &Source, b: &Source) -> Option<f32> {
+    source_pitch(a,b,true)
+}
+fn source_pitch(a: &Source, b: &Source, require_anchor: bool) -> Option<f32> {
+    if a.page != b.page || !a.regular || !b.regular { return None; }
+    for axis in [0, 1] {
+        let cross = 1 - axis;
+        let extent = |s: &Source, i: usize| s.bounds[i + 2] - s.bounds[i];
+        let em = extent(a, cross).min(extent(b, cross));
+        if em <= 0. || extent(a, axis) < 1.5 * extent(a, cross)
+            || extent(b, axis) < 1.5 * extent(b, cross)
+            || extent(a, cross).max(extent(b, cross)) > 1.2 * em { continue; }
+        let center = |s: &Source| (s.bounds[cross] + s.bounds[cross + 2]) / 2.;
+        let pitch = if axis == 1 { center(a) - center(b) } else { center(b) - center(a) };
+        let aligned = (a.bounds[axis] - b.bounds[axis]).abs() <= 0.5 * em
+            || (a.bounds[axis + 2] - b.bounds[axis + 2]).abs() <= 0.5 * em;
+        if (!require_anchor || aligned) && (0.8 * em..=2.5 * em).contains(&pitch) { return Some(pitch); }
+    }
+    None
+}
+
+// The paragraph immediately before a signature group may share its original
+// leading too, but only when every complete source line has the same measured
+// pitch through the first signer. Mixed-size/ruby lines cannot authorize exact
+// leading. This also keeps a lone signer from overflowing because Word's font
+// fallback has a taller default line box than the source PDF.
+fn preceding_leading(article: &str, analysis: &Analysis, raw: &str, offset: usize, signatures: &BTreeMap<usize,usize>) -> Option<(usize,usize)> {
+    let (&first,&twips) = signatures.range(offset..).next()?;
+    let end = first.checked_sub(offset)?;
+    let mut starts = vec![0];let mut cursor = 0;
+    for c in raw.chars() {
+        if c=='\n' { starts.push(cursor); }
+        else if !c.is_whitespace() { cursor += c.len_utf8(); }
+    }
+    let start = starts.into_iter().filter(|&s| s<end).max()?;
+    let mut at = 0;let mut lines = vec![];let mut first_text = None;
+    for text in article.lines().map(compact).filter(|s|!s.is_empty()) {
+        let begin = at;at += text.len();
+        if begin==first { first_text=Some(text.clone()); }
+        if begin>=offset+start && at<=first { lines.push((begin,at,text)); }
+    }
+    if lines.first()?.0!=offset+start || lines.last()?.1!=first { return None; }
+    let mut physical = vec![];
+    for (_,_,text) in lines {
+        let mut found=sources(analysis,&text);
+        if found.len()!=1 { return None; }
+        let own=found.remove(0);
+        if analysis.pages[own.page].words.iter().any(|w|w.status==WordStatus::Ruby) { return None; }
+        physical.push(own);
+    }
+    let rounded = |p:f32| (p*20.).round() as usize;
+    if physical.windows(2).any(|p|source_pitch(&p[0],&p[1],false).map(rounded)!=Some(twips)) { return None; }
+    let tail=physical.last()?;
+    let next=sources(analysis,&first_text?);
+    if next.iter().filter(|b|source_pitch(tail,b,false).map(rounded)==Some(twips)).count()!=1 { return None; }
+    Some((start,twips))
 }
 
 impl Plan {
@@ -319,17 +388,27 @@ impl Plan {
         // closing area. A role must end at an original Word boundary. Open
         // amendment quotations cannot provide this evidence.
         let mut quotes = 0i32;
+        let mut previous_signatures: Vec<Source> = vec![];
         for (i, l) in lines.iter().enumerate() {
+            let signatures = if office_end(&l.text).is_some() {
+                sources(analysis, &l.text)
+            } else { vec![] };
+            let pitches = previous_signatures.iter().flat_map(|a| signatures.iter().filter_map(move |b| signature_pitch(a,b))).collect::<Vec<_>>();
+            let follows = pitches.len() == 1;
             if quotes == 0
                 && i > 0
-                && lines[i - 1].text.ends_with('。')
-                && office_end(&l.text).is_some()
-                && {
-                    let ss = sources(analysis, &l.text);
-                    !ss.is_empty() && ss.iter().all(|s| s.role_boundary)
-                }
+                && (lines[i - 1].text.ends_with('。') || follows)
+                && !signatures.is_empty() && signatures.iter().all(|s| s.role_boundary)
             {
                 plan.line(l, analysis);
+                if follows {
+                    let twips = (pitches[0] * 20.).round() as usize;
+                    plan.signature_leading.insert(lines[i-1].start, twips);
+                    plan.signature_leading.insert(l.start, twips);
+                }
+                previous_signatures = signatures;
+            } else {
+                previous_signatures.clear();
             }
             for c in l.text.chars() {
                 match c {
@@ -412,8 +491,64 @@ impl Plan {
     }
 }
 
-pub(crate) fn apply(analysis: &Analysis, documents: &mut [Document]) {
+// A table or image ends the preamble-only projection below. A closing text
+// suffix may nevertheless contain independently certified source signatures.
+// Bind the entire suffix at its original terminal position, never search for a
+// person's name in the rendered text, and never traverse or rewrite rich items.
+fn closing_suffix(article: &str, analysis: &Analysis, doc: &mut Document) -> BTreeMap<usize,usize> {
+    let mut start = None;
+    for (bi, block) in doc.blocks.iter().enumerate().rev() {
+        match block {
+            Block::Paragraph { runs } => {
+                if let Some(ri) = runs.iter().rposition(|r| !matches!(r, Inline::Text { .. })) {
+                    start = Some((bi, ri + 1)); break;
+                }
+            }
+            _ => { start = Some((bi + 1, 0)); break; }
+        }
+    }
+    let Some((bi, ri)) = start.filter(|(bi,_)| *bi < doc.blocks.len()) else { return Default::default(); };
+    let mut runs = Runs::new();
+    for (i, block) in doc.blocks[bi..].iter().enumerate() {
+        let Block::Paragraph { runs: items } = block else { return Default::default(); };
+        if i > 0 { runs.push(("\n".into(), false)); }
+        for item in &items[if i == 0 { ri } else { 0 }..] {
+            let Inline::Text { text, underline } = item else { return Default::default(); };
+            runs.push((text.clone(), *underline));
+        }
+    }
+    let actual = runs.iter().map(|(s,_)| compact(s)).collect::<String>();
+    let original = compact(article);
+    if actual.is_empty() || !original.ends_with(&actual) { return Default::default(); }
+    let offset = original.len() - actual.len();
+    let all = Plan::new(article, analysis, original.len());
+    let field_offset = doc.field_text(kanpo_parser::media::Field::Paragraph).chars().count() - actual.chars().count();
+    let mut leading: BTreeMap<usize,usize> = all.signature_leading.iter().filter_map(|(&n,&v)| {
+        let local = n.checked_sub(offset)?;
+        Some((field_offset + actual[..local].chars().count(),v))
+    }).collect();
+    let raw=runs.iter().map(|(s,_)|s.as_str()).collect::<String>();
+    if let Some((n,v))=preceding_leading(article,analysis,&raw,offset,&all.signature_leading) {
+        leading.insert(field_offset+actual[..n].chars().count(),v);
+    }
+    let plan = Plan {
+        cuts: all.cuts.into_iter().filter_map(|n| n.checked_sub(offset)).collect(),
+        spaces: all.spaces.into_iter().filter_map(|(n,v)| n.checked_sub(offset).map(|n|(n,v))).collect(),
+        move_signature: None,
+        signature_leading: Default::default(),
+    };
+    if plan.cuts.is_empty() && plan.spaces.is_empty() { return Default::default(); }
+    let Block::Paragraph { runs: items } = &mut doc.blocks[bi] else { return Default::default(); };
+    items.truncate(ri);
+    items.extend(plan.apply(runs).into_iter().map(|(text,underline)|Inline::Text{text,underline}));
+    doc.blocks.truncate(bi + 1);
+    leading
+}
+
+pub(crate) fn apply(analysis: &Analysis, documents: &mut [Document]) -> Vec<BTreeMap<usize,usize>> {
+    let mut leading = vec![];
     for (article, doc) in analysis.articles.iter().zip(documents) {
+        leading.push(closing_suffix(&article.text, analysis, doc));
         let mut runs = Runs::new();
         let mut count = 0;
         let mut tail = Vec::new();
@@ -463,11 +598,51 @@ pub(crate) fn apply(analysis: &Analysis, documents: &mut [Document]) {
         }
         doc.blocks.splice(..count, blocks);
     }
+    leading
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn consecutive_signatures_need_adjacent_original_lines_at_any_scale_or_origin() {
+        for axis in [0, 1] {
+            for (scale,dx,dy) in [(0.7,42.,73.),(1.,0.,0.),(1.8,93.,23.)] {
+                let source = |start:f32,cross:f32,page:usize| {
+                    let b = if axis==0 {[start,cross,120.,cross+8.]}else{[cross,start,cross+8.,120.]};
+                    Source{page,bounds:[b[0]*scale+dx,b[1]*scale+dy,b[2]*scale+dx,b[3]*scale+dy],role_boundary:true,spaces:vec![],regular:true}
+                };
+                let a=source(16.,40.,0);let b=source(32.,if axis==0 {52.} else {28.},0);
+                assert!(adjacent_signatures(&a,&b));
+                assert!(!adjacent_signatures(&a,&source(32.,if axis==0 {52.} else {28.},1)));
+                assert!(!adjacent_signatures(&a,&source(32.,if axis==0 {92.} else {-12.},0)));
+                assert!(!adjacent_signatures(&b,&a));
+            }
+        }
+    }
+
+    #[test]
+    fn closing_projection_requires_a_complete_suffix_and_closed_source_quotes() {
+        let a=crate::analyze(include_bytes!("../../kanpo-parser/tests/data/workbook/case-12.pdf"),&[]).unwrap();
+        let article=&a.articles[0];let doc=Document::from(&article.document);
+        let mut changed=doc.clone();
+        let leading = closing_suffix(&article.text,&a,&mut changed);
+        assert_eq!(leading.len(),3);
+        assert!(leading.values().all(|&n|n==231),"source column pitch in twips");
+        assert_ne!(serde_json::to_value(&changed).unwrap(),serde_json::to_value(&doc).unwrap());
+        let before=serde_json::to_value(&changed).unwrap();
+        closing_suffix(&format!("{}別の末尾",article.text),&a,&mut changed);
+        assert_eq!(serde_json::to_value(&changed).unwrap(),before);
+        let mut quoted=doc.clone();
+        if let Block::Paragraph{runs}=&mut quoted.blocks[0] {
+            let i=runs.iter().rposition(|r|!matches!(r,Inline::Text{..})).unwrap();
+            if let Inline::Text{text,..}=&mut runs[i+1] {text.insert(0,'「');}
+        }
+        let source=article.text.replace("（国家公務員倫理規程の一部改正）","「（国家公務員倫理規程の一部改正）");
+        let before=serde_json::to_value(&quoted).unwrap();
+        closing_suffix(&source,&a,&mut quoted);
+        assert_eq!(serde_json::to_value(&quoted).unwrap(),before,"quoted officer references are not closing signers");
+    }
     #[test]
     fn dates_are_structural_and_not_tied_to_a_publication_date() {
         for s in [

@@ -77,7 +77,7 @@ pub(crate) fn write_documents(
     let mut documents = documents.to_vec();
     crate::continuations::apply(&mut documents, &layout);
     crate::paragraph_gaps::apply(analysis, &mut documents);
-    crate::formalities::apply(analysis, &mut documents);
+    let signature_leading = crate::formalities::apply(analysis, &mut documents);
     for (field, expected) in fields.into_iter().zip(&original) {
         let bag = |s: &str| {
             let mut b = std::collections::BTreeMap::new();
@@ -102,6 +102,7 @@ pub(crate) fn write_documents(
             docx = docx.add_paragraph(Paragraph::new());
         }
         let mut first = true;
+        let mut paragraph_cursor = 0usize;
         let source_heading = article
             .text
             .lines()
@@ -126,6 +127,10 @@ pub(crate) fn write_documents(
                                 {
                                     let line = source_label_spaces(line, &layout, true);
                                     let mut p = Paragraph::new();
+                                    if let Some(&twips) = signature_leading[k].get(&paragraph_cursor) {
+                                        p = p.line_spacing(docx_rs::LineSpacing::new().line_rule(docx_rs::LineSpacingType::Exact).line(twips as i32));
+                                    }
+                                    paragraph_cursor += line.iter().map(|(s,_)| s.chars().filter(|c| !c.is_whitespace()).count()).sum::<usize>();
                                     if let Some(size)=styles.paragraph_font(Field::Paragraph,&line.iter().map(|r|r.0.as_str()).collect::<String>()){p=p.size(size);}
                                     for (text, underline) in line {
                                         for r in styles.word_runs(
@@ -142,6 +147,7 @@ pub(crate) fn write_documents(
                                 }
                             }
                             Item::Table(t) => {
+                                paragraph_cursor += table_scalar_count(t);
                                 if contains_images(t)
                                     && layout
                                         .physical_image_table(&plain_table(t), width, 596.)
@@ -417,6 +423,14 @@ enum Item<'a> {
     Line(Vec<(String, bool)>),
     Table(&'a MediaTable),
     Image(usize),
+}
+
+fn table_scalar_count(t: &MediaTable) -> usize {
+    t.rows.iter().flatten().flatten().map(|r| match r {
+        Inline::Text { text, .. } => text.chars().filter(|c|!c.is_whitespace()).count(),
+        Inline::Table { table } => table_scalar_count(table),
+        Inline::Image { .. } => 0,
+    }).sum()
 }
 
 /// 段落の字を改行で行に分け、本文の中の表を間に挟む。
@@ -774,6 +788,23 @@ fn physical_cell(mut cell: TableCell, runs: &[Inline]) -> TableCell {
 mod tests {
     use super::*;
     use kanpo_parser::model::Run;
+
+    #[test]
+    fn closing_signers_after_an_embedded_table_have_independent_paragraphs() {
+        let pdf = include_bytes!("../../kanpo-parser/tests/data/workbook/case-12.pdf");
+        let doc = xml(&crate::convert(pdf, &[]).unwrap());
+        let paragraphs = doc.split("</w:p>").map(|p| {
+            p.split("<w:t xml:space=\"preserve\">").skip(1)
+                .filter_map(|s| s.split_once("</w:t>").map(|(s,_)|s)).collect::<String>()
+        }).filter(|s|!s.is_empty()).collect::<Vec<_>>();
+        let compact = |s:&str|s.chars().filter(|c|!c.is_whitespace()).collect::<String>();
+        let n = paragraphs.len();
+        assert_eq!(compact(&paragraphs[n-2]), "内閣総理大臣高市早苗");
+        assert_eq!(compact(&paragraphs[n-1]), "総務大臣林芳正");
+        assert_eq!(paragraphs[n-2], "内閣総理大臣　高市　早苗");
+        assert_eq!(paragraphs[n-1], "総務大臣　林　芳正");
+        assert!(paragraphs[n-3].ends_with("から施行する。"));
+    }
 
     #[test]
     fn short_native_comparison_items_remain_independent_word_paragraphs() {

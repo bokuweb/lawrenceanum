@@ -90,6 +90,18 @@ fn prose_label(text: &str) -> Option<&str> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn one_character_names_can_follow_a_directional_office_word() {
+        for horizontal in [false,true] {
+            let mut w=words(1.,0.,0.,8.,horizontal);
+            w[1].text="任".into();w[1].raw="任".into();
+            let axis=if horizontal {0}else{1};
+            w[1].source_box[axis+2]=w[1].source_box[axis]+8.;
+            assert_eq!(measured(&w[0],&w[1]),Some(1));
+            w[0].source_box[axis+2]=w[0].source_box[axis]+8.;
+            assert_eq!(measured(&w[0],&w[1]),None,"two square glyphs do not prove the writing axis");
+        }
+    }
     fn words(scale: f32, dx: f32, dy: f32, gap: f32, horizontal: bool) -> Vec<Word> {
         [
             ("第一条", 0., 24.),
@@ -207,13 +219,13 @@ pub(crate) fn measured(a: &Word, b: &Word) -> Option<usize> {
         return None;
     }
     let (aw, ah, bw, bh) = (ar - ax, ab - ay, br - bx, bb - by);
-    let (em, gap) = if ah >= aw * 0.5
-        && bh > bw * 1.5
+    let (em, gap) = if ah >= aw * 0.5 && bh >= bw * 0.5
+        && (ah > aw * 1.5 || bh > bw * 1.5)
         && ((ax + ar - bx - br) / 2.).abs() <= aw.min(bw) * 0.3
     {
         (bw, by - ab)
-    } else if aw >= ah * 0.5
-        && bw > bh * 1.5
+    } else if aw >= ah * 0.5 && bw >= bh * 0.5
+        && (aw > ah * 1.5 || bw > bh * 1.5)
         && ((ay + ab - by - bb) / 2.).abs() <= ah.min(bh) * 0.3
     {
         (bh, bx - ar)
