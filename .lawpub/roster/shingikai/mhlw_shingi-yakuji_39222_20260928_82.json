@@ -1,0 +1,94 @@
+{
+  "schema_version": 2,
+  "corpus": "shingikai",
+  "id": "mhlw_shingi-yakuji_39222_20260928_82",
+  "date": "2026-09-28",
+  "title": "運営委員会 令和８年度第２回",
+  "organization": "厚生労働省",
+  "committee": "運営委員会",
+  "url": "https://www.mhlw.go.jp/stf/newpage_76054.html",
+  "laws": [
+    {
+      "law_id": "326AC0000000045",
+      "title": "社会福祉法"
+    },
+    {
+      "law_id": "331AC0000000160",
+      "title": "安全な血液製剤の安定供給の確保等に関する法律"
+    },
+    {
+      "law_id": "333AC1000000076",
+      "title": "臨床検査技師等に関する法律"
+    },
+    {
+      "law_id": "424AC0100000090",
+      "title": "移植に用いる造血幹細胞の適切な提供の推進に関する法律"
+    },
+    {
+      "law_id": "323AC0000000205",
+      "title": "医療法"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "堺田委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "山本血液対策課長補佐",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "後藤委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "日本赤十字社血液事業本部後藤技術部次長",
+      "role": "official",
+      "laws": []
+    },
+    {
+      "name": "日本赤十字社血液事業本部池上技術部次長",
+      "role": "official",
+      "laws": []
+    },
+    {
+      "name": "日本赤十字社血液事業本部金桶経営企画部次長",
+      "role": "official",
+      "laws": []
+    },
+    {
+      "name": "松岡血液対策課長",
+      "role": "official",
+      "laws": []
+    },
+    {
+      "name": "松本(剛)委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "松本(雅)委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "水上委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "田野﨑委員長",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "糸谷血液対策課長補佐",
+      "role": "member",
+      "laws": []
+    }
+  ]
+}

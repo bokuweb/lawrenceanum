@@ -44986,12 +44986,12 @@
     97217
   ],
   "pending": {
-    "94100": {
-      "first_seen": "2026-11-06",
+    "93810": {
+      "first_seen": "2026-11-07",
       "attempts": 1,
       "status": "summary_incomplete",
       "origin": "backfill",
-      "next_attempt": "2026-11-07",
+      "next_attempt": "2026-11-08",
       "selection_reason": "shared_article",
       "refresh": false
     },
@@ -45006,19 +45006,28 @@
     },
     "96896": {
       "first_seen": "2026-11-06",
-      "attempts": 1,
+      "attempts": 2,
       "status": "summary_incomplete",
       "origin": "backfill",
-      "next_attempt": "2026-11-07",
+      "next_attempt": "2026-11-10",
       "selection_reason": "shared_article",
       "refresh": false
     },
     "97032": {
       "first_seen": "2026-11-06",
-      "attempts": 1,
+      "attempts": 2,
       "status": "summary_incomplete",
       "origin": "backfill",
-      "next_attempt": "2026-11-07",
+      "next_attempt": "2026-11-10",
+      "selection_reason": "corpus_cursor",
+      "refresh": false
+    },
+    "97070": {
+      "first_seen": "2026-11-07",
+      "attempts": 1,
+      "status": "no_case_text",
+      "origin": "backfill",
+      "next_attempt": "2026-11-08",
       "selection_reason": "corpus_cursor",
       "refresh": false
     },
@@ -45050,9 +45059,9 @@
       "refresh": false
     }
   },
-  "backfill_cursor": 96798,
+  "backfill_cursor": 96834,
   "daily": {
-    "date": "2026-11-06",
+    "date": "2026-11-07",
     "new_planned": 0,
     "backfill_planned": 20,
     "new_probes": 0,
