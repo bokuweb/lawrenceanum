@@ -18,6 +18,7 @@ mod formalities;
 pub mod images;
 mod layout;
 mod pictures;
+mod paragraph_gaps;
 mod spacing;
 
 pub use images::{page_images, GrayImage, PageImage};

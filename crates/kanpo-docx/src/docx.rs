@@ -76,6 +76,7 @@ pub(crate) fn write_documents(
     let width = page_width - 2 * 1701;
     let mut documents = documents.to_vec();
     crate::continuations::apply(&mut documents, &layout);
+    crate::paragraph_gaps::apply(analysis, &mut documents);
     crate::formalities::apply(analysis, &mut documents);
     for (field, expected) in fields.into_iter().zip(&original) {
         let bag = |s: &str| {
@@ -773,6 +774,26 @@ fn physical_cell(mut cell: TableCell, runs: &[Inline]) -> TableCell {
 mod tests {
     use super::*;
     use kanpo_parser::model::Run;
+
+    #[test]
+    fn short_native_comparison_items_remain_independent_word_paragraphs() {
+        let pdf = include_bytes!("../../kanpo-parser/tests/data/workbook/case-10-listed-3.pdf");
+        let doc = xml(&crate::convert(pdf, &[]).unwrap());
+        let paragraphs = doc.split("</w:p>").map(|p| {
+            p.split("<w:t xml:space=\"preserve\">").skip(1)
+                .filter_map(|s| s.split_once("</w:t>").map(|(s, _)| s))
+                .collect::<String>()
+        }).collect::<Vec<_>>();
+        for item in ["（略）", "アナキンラ製剤", "セトメラノチド酢酸塩製剤", "ベピロビルセンナトリウム製剤"] {
+            assert!(paragraphs.iter().any(|p| p == item), "independent native item: {item}");
+        }
+        assert_eq!(paragraphs.iter().filter(|p| *p == "アナキンラ製剤").count(), 2);
+        assert!(paragraphs.iter().any(|p| p.contains("及び注入器用注射針加算")), "a full original column still wraps within the title");
+        for item in ["セトメラノチド酢酸塩製剤", "ベピロビルセンナトリウム製剤"] {
+            let paragraph = doc.split("</w:p>").find(|p| p.contains(item)).unwrap();
+            assert!(paragraph.contains("<w:u "), "native underline preserved");
+        }
+    }
 
     fn xml(bytes: &[u8]) -> String {
         let mut zip = zip_reader(bytes);
