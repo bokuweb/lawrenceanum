@@ -404,6 +404,18 @@ enum Scope {
     Other,
 }
 
+/// 文の途中に現れるインライン要素 (LawXML の mixed content)。
+///
+/// これらは開始・終了で `text_buf` を区切らず、前後のテキストと同じ文として連結する。
+/// 区切ると `<Sentence>前<Ruby>跨<Rt>こ</Rt></Ruby>線橋</Sentence>` の「前」と
+/// 「跨」が落ちる (開始タグごとに `text_buf` を捨てていたため)。
+///
+/// ルビは親字だけを残し、読み (`<Rt>`) は本文に入れない (e-Gov の本文テキスト・官報と
+/// 同じく「跨線橋」)。`<Sup>` / `<Sub>` / `<Line>` は中身をそのまま本文に連結する。
+fn is_inline_element(name: &str) -> bool {
+    matches!(name, "Ruby" | "Rt" | "Sup" | "Sub" | "Line")
+}
+
 /// `Item` / `Subitem1` 〜 `Subitem10` に `suffix` ("", "Title", "Sentence") を付けた
 /// 要素名か。
 fn is_item_element(name: &str, suffix: &str) -> bool {
@@ -456,6 +468,8 @@ pub fn parse_law_xml(xml: &[u8], law_id: &str) -> Result<LawDocument> {
     let mut orphan_paragraphs: Vec<Paragraph> = Vec::new();
 
     let mut text_buf = String::new();
+    // `<Rt>` (ルビの読み) の内側か。読みは本文に入れない。
+    let mut rt_depth: u32 = 0;
 
     // スコープスタック。Article は `current_scope()` の値で行き先を決める。
     let mut scope_stack: Vec<Scope> = vec![Scope::None];
@@ -466,6 +480,13 @@ pub fn parse_law_xml(xml: &[u8], law_id: &str) -> Result<LawDocument> {
         match reader.read_event_into(&mut buf) {
             Ok(Event::Start(e)) => {
                 let name = String::from_utf8_lossy(e.name().as_ref()).to_string();
+                if is_inline_element(&name) {
+                    if name == "Rt" {
+                        rt_depth += 1;
+                    }
+                    buf.clear();
+                    continue;
+                }
                 if name == "Law" && promulgation_date.is_none() {
                     if let Some(d) = promulgation_date_from_law_attrs(&e) {
                         promulgation_date = Some(d);
@@ -566,12 +587,19 @@ pub fn parse_law_xml(xml: &[u8], law_id: &str) -> Result<LawDocument> {
                 }
                 text_buf.clear();
             }
-            Ok(Event::Text(t)) => {
+            Ok(Event::Text(t)) if rt_depth == 0 => {
                 let s = t.unescape().unwrap_or_default().into_owned();
                 text_buf.push_str(&s);
             }
             Ok(Event::End(e)) => {
                 let name = String::from_utf8_lossy(e.name().as_ref()).to_string();
+                if is_inline_element(&name) {
+                    if name == "Rt" {
+                        rt_depth = rt_depth.saturating_sub(1);
+                    }
+                    buf.clear();
+                    continue;
+                }
                 let collected = std::mem::take(&mut text_buf);
                 let trimmed = collected.trim();
                 if let Some(b) = appdx.as_mut() {
@@ -1339,6 +1367,96 @@ mod tests {
         let nos: Vec<Option<&str>> = ps.iter().map(|p| p.paragraph_no.as_deref()).collect();
         assert_eq!(nos, vec![None, None, Some("３")]);
         assert_eq!(ps[1].text, "第二項。");
+    }
+
+    #[test]
+    fn keeps_text_around_ruby_in_item_sentence() {
+        // 建築基準法 第二条第一号の構造。`<Ruby>` の前の本文が落ちていた回帰テスト。
+        // ルビは親字だけを残し、読み (`<Rt>`) は本文に入れない。
+        let xml = r#"<?xml version="1.0"?>
+<Law>
+  <LawBody>
+    <MainProvision>
+      <Article Num="2">
+        <ArticleTitle>第二条</ArticleTitle>
+        <Paragraph Num="1">
+          <ParagraphNum/>
+          <ParagraphSentence>
+            <Sentence Num="1">次の各号に定めるところによる。</Sentence>
+          </ParagraphSentence>
+          <Item Num="1">
+            <ItemTitle>一</ItemTitle>
+            <ItemSentence>
+              <Column Num="1"><Sentence Num="1">建築物</Sentence></Column>
+              <Column Num="2"><Sentence Num="1">工作物（運転保安に関する施設並びに<Ruby>跨<Rt>こ</Rt></Ruby>線橋、プラットホームの上家を除く。）をいう。</Sentence></Column>
+            </ItemSentence>
+          </Item>
+        </Paragraph>
+      </Article>
+    </MainProvision>
+  </LawBody>
+</Law>"#;
+        let doc = parse_law_xml(xml.as_bytes(), "325AC0000000201").unwrap();
+        let p = &doc.articles[0].paragraphs[0];
+        let expected = "建築物\u{3000}工作物（運転保安に関する施設並びに跨線橋、プラットホームの上家を除く。）をいう。";
+        assert_eq!(p.items[0].text, expected);
+        assert_eq!(
+            p.text,
+            format!("次の各号に定めるところによる。\n一\u{3000}{expected}")
+        );
+    }
+
+    #[test]
+    fn keeps_text_around_inline_elements_in_paragraph_sentence() {
+        // `<Sup>` / `<Sub>` / `<Line>` / `<Ruby>` が前後のテキストを区切らないこと。
+        let xml = r#"<?xml version="1.0"?>
+<Law>
+  <LawBody>
+    <MainProvision>
+      <Article Num="1">
+        <ArticleTitle>第一条</ArticleTitle>
+        <Paragraph Num="1">
+          <ParagraphNum/>
+          <ParagraphSentence>
+            <Sentence Num="1">面積は十m<Sup>2</Sup>、濃度はCO<Sub>2</Sub>で、<Line Style="solid">傍線部</Line>を<Ruby>撤<Rt>てつ</Rt></Ruby>去し、<Ruby>跨<Rt>こ</Rt></Ruby>線橋とする。</Sentence>
+          </ParagraphSentence>
+        </Paragraph>
+      </Article>
+    </MainProvision>
+  </LawBody>
+</Law>"#;
+        let doc = parse_law_xml(xml.as_bytes(), "000AC0000000000").unwrap();
+        assert_eq!(
+            doc.articles[0].paragraphs[0].text,
+            "面積は十m2、濃度はCO2で、傍線部を撤去し、跨線橋とする。"
+        );
+    }
+
+    #[test]
+    fn keeps_text_around_ruby_in_appendix_table_cell() {
+        let xml = r#"<?xml version="1.0"?>
+<Law>
+  <LawBody>
+    <MainProvision>
+      <Article Num="1"><ArticleTitle>第一条</ArticleTitle>
+        <Paragraph Num="1"><ParagraphNum/><ParagraphSentence><Sentence>本文。</Sentence></ParagraphSentence></Paragraph>
+      </Article>
+    </MainProvision>
+    <AppdxTable Num="1">
+      <AppdxTableTitle>別表第一</AppdxTableTitle>
+      <TableStruct><Table>
+        <TableRow>
+          <TableColumn><Sentence>鉄道の<Ruby>跨<Rt>こ</Rt></Ruby>線橋</Sentence></TableColumn>
+          <TableColumn><Sentence>十m<Sup>2</Sup></Sentence></TableColumn>
+        </TableRow>
+      </Table></TableStruct>
+    </AppdxTable>
+  </LawBody>
+</Law>"#;
+        let doc = parse_law_xml(xml.as_bytes(), "000AC0000000000").unwrap();
+        let row = &doc.appendix_tables[0].rows[0];
+        assert_eq!(row[0].text, "鉄道の跨線橋");
+        assert_eq!(row[1].text, "十m2");
     }
 
     #[test]
