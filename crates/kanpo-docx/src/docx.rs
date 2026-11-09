@@ -79,6 +79,7 @@ pub(crate) fn write_documents(
     crate::paragraph_gaps::apply(analysis, &mut documents);
     crate::comparison_geometry::apply(analysis, &mut documents);
     crate::paragraph_gaps::apply_headings(analysis, &mut documents);
+    crate::paragraph_gaps::apply_citation_joins(analysis, &mut documents);
     let signature_leading = crate::formalities::apply(analysis, &mut documents);
     for (field, expected) in fields.into_iter().zip(&original) {
         let bag = |s: &str| {
@@ -903,8 +904,7 @@ mod tests {
         let doc = xml(&crate::convert(pdf, &[]).unwrap());
         let (_, paragraphs) = rows_and_paragraphs(&doc);
         let i = paragraphs.iter().position(|p| p.starts_with("別記様式第二十五号の四記載要領７")).unwrap();
-        assert!(paragraphs[i].ends_with("を「その国籍等（住民基本台帳法（昭和42年法律第81号）"), "{}", paragraphs[i]);
-        assert!(paragraphs[i + 1].starts_with("第30条の45に規定する国籍等をいう。）」に改める。"), "{}", paragraphs[i + 1]);
+        assert!(paragraphs[i].ends_with("を「その国籍等（住民基本台帳法（昭和42年法律第81号）第30条の45に規定する国籍等をいう。）」に改める。"), "{}", paragraphs[i]);
         assert!(!paragraphs.iter().any(|p| p == "その国籍等（住民基本台帳法（昭和42年法律第81号）"));
     }
 
