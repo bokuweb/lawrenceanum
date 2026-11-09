@@ -7,18 +7,18 @@ use kanpo_parser::{
 };
 use std::collections::{BTreeMap, BTreeSet};
 
-fn compact(s: &str) -> String {
+pub(crate) fn compact(s: &str) -> String {
     s.chars().filter(|c| !c.is_whitespace()).collect()
 }
 
 #[derive(Clone, Copy)]
-struct Geometry {
-    bounds: [f32; 4],
-    em: f32,
-    axis: usize,
+pub(crate) struct Geometry {
+    pub(crate) bounds: [f32; 4],
+    pub(crate) em: f32,
+    pub(crate) axis: usize,
 }
 
-fn geometry(page: &PageTrace, line: &Line, counts: &BTreeMap<usize, usize>) -> Option<Geometry> {
+pub(crate) fn geometry(page: &PageTrace, line: &Line, counts: &BTreeMap<usize, usize>) -> Option<Geometry> {
     if line.table.is_some() || line.words.is_empty() {
         return None;
     }
@@ -348,5 +348,72 @@ mod tests {
         let before = serde_json::to_value(&documents).unwrap();
         apply(&a, &mut documents);
         assert_eq!(serde_json::to_value(&documents).unwrap(), before);
+    }
+}
+
+/// Keep a supplementary-provisions heading (「附　則」) as its own paragraph.
+///
+/// The parser joins a short column with the next one unless the text marks a
+/// break, so the original heading column 「附則」 ran into the provision after
+/// it (「附則この省令は、…」). A paragraph is cut after the heading only where
+/// an original line consists of the heading alone and the paragraph continues
+/// with the complete text of the original line that follows it, once.
+pub(crate) fn apply_headings(analysis: &Analysis, documents: &mut [Document]) {
+    let mut keys = Vec::new();
+    for page in &analysis.pages {
+        for region in &page.regions {
+            if matches!(region.role, Role::After | Role::Before) {
+                continue;
+            }
+            for w in region.lines.windows(2) {
+                let used = w[0]
+                    .words
+                    .iter()
+                    .all(|&id| page.words.get(id).is_some_and(|w| w.status == WordStatus::Used));
+                if used && !w[0].words.is_empty() && w[0].table.is_none() && compact(&w[0].text) == "附則" {
+                    let next = compact(&w[1].text);
+                    if !next.is_empty() && w[1].table.is_none() {
+                        keys.push(format!("附則{next}"));
+                    }
+                }
+            }
+        }
+    }
+    for key in keys {
+        // (document, block, inline, byte) of the scalar right after 「附則」.
+        let mut found = Vec::new();
+        for (d, doc) in documents.iter().enumerate() {
+            for (b, block) in doc.blocks.iter().enumerate() {
+                let Block::Paragraph { runs } = block else { continue };
+                let mut scalars: Vec<(char, usize, usize)> = Vec::new();
+                let mut starts = vec![0];
+                for (k, run) in runs.iter().enumerate() {
+                    match run {
+                        Inline::Text { text, .. } => {
+                            for (i, c) in text.char_indices() {
+                                if c == '\n' {
+                                    starts.push(scalars.len());
+                                } else if !c.is_whitespace() {
+                                    scalars.push((c, k, i));
+                                }
+                            }
+                        }
+                        _ => starts.push(usize::MAX),
+                    }
+                }
+                for &s in &starts {
+                    let Some(seg) = scalars.get(s..) else { continue };
+                    if seg.len() > 2 && seg.iter().map(|x| x.0).take(key.chars().count()).eq(key.chars()) {
+                        found.push((d, b, seg[2].1, seg[2].2));
+                    }
+                }
+            }
+        }
+        let [(d, b, k, i)] = found[..] else { continue };
+        if let Block::Paragraph { runs } = &mut documents[d].blocks[b] {
+            if let Inline::Text { text, .. } = &mut runs[k] {
+                text.insert(i, '\n');
+            }
+        }
     }
 }

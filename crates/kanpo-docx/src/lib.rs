@@ -18,6 +18,7 @@ mod formalities;
 pub mod images;
 mod layout;
 mod pictures;
+mod comparison_geometry;
 mod paragraph_gaps;
 mod spacing;
 
