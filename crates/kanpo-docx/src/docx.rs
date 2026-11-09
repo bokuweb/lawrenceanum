@@ -32,6 +32,7 @@ pub fn write(analysis: &kanpo_parser::Analysis) -> Result<Vec<u8>> {
         &documents,
         &Pictures::default(),
         &SourceStyles::default(),
+        &[],
     )
 }
 
@@ -40,6 +41,7 @@ pub(crate) fn write_documents(
     documents: &[Document],
     pictures: &Pictures,
     source_styles: &SourceStyles,
+    painted: &[(Field, usize, String)],
 ) -> Result<Vec<u8>> {
     ensure!(
         analysis.articles.len() == documents.len(),
@@ -100,6 +102,7 @@ pub(crate) fn write_documents(
         );
     }
     let styles = source_styles.bind(&documents);
+    styles.set_insertions(painted);
     for (k, (article, document)) in analysis.articles.iter().zip(&documents).enumerate() {
         if k > 0 {
             docx = docx.add_paragraph(Paragraph::new());
@@ -136,14 +139,7 @@ pub(crate) fn write_documents(
                                     paragraph_cursor += line.iter().map(|(s,_)| s.chars().filter(|c| !c.is_whitespace()).count()).sum::<usize>();
                                     if let Some(size)=styles.paragraph_font(Field::Paragraph,&line.iter().map(|r|r.0.as_str()).collect::<String>()){p=p.size(size);}
                                     for (text, underline) in line {
-                                        for r in styles.word_runs(
-                                            Field::Paragraph,
-                                            &text,
-                                            underline,
-                                            first,
-                                        ) {
-                                            p = p.add_run(r);
-                                        }
+                                        p = styles.add_word_runs(p, Field::Paragraph, &text, underline, first, 1.);
                                     }
                                     docx = docx.add_paragraph(p);
                                     first = false;
@@ -538,9 +534,7 @@ fn cell_runs_in_canvas(runs:&[Inline],width:usize,header:bool,prose:bool,layout:
                         .keep_next(true);
                 }
                 for (text, underline) in line {
-                    for r in styles.word_runs_scaled(field, &text, underline, false,scale) {
-                        p = p.add_run(r);
-                    }
+                    p = styles.add_word_runs(p, field, &text, underline, false, scale);
                 }
                 cell = cell.add_paragraph(p);
                 any = true;
@@ -895,6 +889,22 @@ mod tests {
         let tail = &paragraphs[paragraphs.len() - 2..];
         assert_eq!(tail[0], "附　則", "{tail:?}");
         assert!(tail[1].starts_with("この省令は、"), "{tail:?}");
+    }
+
+    #[test]
+    fn painted_numbers_are_inserted_highlighted_with_an_unverified_comment() {
+        // 財務省令第十七号（添付一覧 No.6）: 「（二十八）」「（三十一）」 are paint.
+        let pdf = include_bytes!("../../kanpo-parser/tests/data/workbook/case-06.pdf");
+        let bytes = crate::convert(pdf, &[]).unwrap();
+        let doc = xml(&bytes);
+        let (_, paragraphs) = rows_and_paragraphs(&doc);
+        let text = paragraphs.join("\n");
+        assert_eq!(text.matches("別表第五（二十八）").count(), 4, "{text}");
+        assert_eq!(text.matches("別表第五（三十一）").count(), 4, "{text}");
+        assert!(!text.contains("別表第五　の"), "the painted seam is no longer a space");
+        assert_eq!(doc.matches("<w:highlight w:val=\"yellow\" />").count(), 8);
+        let comments = zip_reader(&bytes).remove("word/comments.xml").unwrap();
+        assert_eq!(comments.matches("未確認").count(), 8);
     }
 
     #[test]

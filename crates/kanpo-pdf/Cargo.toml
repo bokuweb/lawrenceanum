@@ -16,3 +16,4 @@ miniz_oxide = "0.8"
 serde = { workspace = true }
 serde_json.workspace = true
 sha2 = "0.10"
+ttf-parser = { version = "0.25.1", default-features = false, features = ["std", "glyph-names"] }

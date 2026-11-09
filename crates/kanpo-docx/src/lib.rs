@@ -19,6 +19,7 @@ pub mod images;
 mod layout;
 mod pictures;
 mod comparison_geometry;
+pub(crate) mod painted;
 mod paragraph_gaps;
 mod spacing;
 
@@ -146,7 +147,70 @@ pub fn convert(pdf: &[u8], ocr: &[Option<OcrPage>]) -> Result<Vec<u8>> {
     let (documents, pictures) = pictures::prepare_source(pdf, &analysis, &source)?;
     let mut styles = decorations::SourceStyles::from_media(&source, pdf)?;
     styles.rebind_fonts(pdf, &analysis, &documents, &source)?;
-    docx::write_documents(&analysis, &documents, &pictures, &styles)
+    let painted = painted_insertions(pdf, &documents);
+    docx::write_documents(&analysis, &documents, &pictures, &styles, &painted)
+}
+
+/// Readings of characters painted as shapes (`painted`), bound to the source
+/// line seam between their two native Words by `painted_text::analyze_pdf`,
+/// and placed at that seam's unique position in the document field. A reading
+/// that cannot be placed exactly once is dropped; the source image of the
+/// paint is not part of the Word output either way.
+fn painted_insertions(
+    pdf: &[u8],
+    documents: &[kanpo_parser::media::Document],
+) -> Vec<(kanpo_parser::media::Field, usize, String)> {
+    use kanpo_parser::{media::Field, trace::Role};
+    let Ok(readings) = painted::readings(pdf) else { return Vec::new() };
+    if readings.is_empty() {
+        return Vec::new();
+    }
+    let Some(digest) = kanpo_pdf::extract_pages_with_xobject_sources(pdf)
+        .ok()
+        .and_then(|s| s.first().map(|p| p.document_sha256().iter().map(|b| format!("{b:02x}")).collect::<String>()))
+    else {
+        return Vec::new();
+    };
+    let report = serde_json::json!({
+        "schema": 1,
+        "kind": "source_font_compound_observations",
+        "source": {"document_sha256": digest, "document_bytes": pdf.len()},
+        "observations": readings.iter().map(|r| serde_json::json!({
+            "page": r.page,
+            "before_glyph": r.gap.before_glyph,
+            "after_glyph": r.gap.after_glyph,
+            "gap": r.gap.gap,
+            "path_ids": r.gap.path_ids,
+            "text": r.text,
+            "status": "candidate_unverified",
+        })).collect::<Vec<_>>(),
+    });
+    let Ok(bound) = kanpo_parser::painted_text::analyze_pdf(pdf, report) else { return Vec::new() };
+    let compact = |s: &str| s.chars().filter(|c| !c.is_whitespace()).collect::<String>();
+    let mut out = Vec::new();
+    for b in &bound.bindings {
+        let Some(region) = bound.native.pages.get(b.page).and_then(|p| p.regions.get(b.region)) else { continue };
+        let Some(line) = region.lines.get(b.line) else { continue };
+        let field = match region.role {
+            Role::After => Field::After,
+            Role::Before => Field::Before,
+            _ => Field::Paragraph,
+        };
+        let Some(head) = line.text.get(..b.byte_offset) else { continue };
+        let offset = compact(head).chars().count();
+        let whole = compact(&line.text).chars().collect::<Vec<_>>();
+        if whole.is_empty() {
+            continue;
+        }
+        let stream = documents.iter().map(|d| d.field_text(field)).collect::<String>().chars().collect::<Vec<_>>();
+        let starts = (0..stream.len().saturating_sub(whole.len() - 1))
+            .filter(|&i| stream[i..i + whole.len()] == whole[..])
+            .collect::<Vec<_>>();
+        if let [start] = starts[..] {
+            out.push((field, start + offset, readings[b.observation].text.clone()));
+        }
+    }
+    out
 }
 
 /// `engine` で画像を OCR して PDF を DOCX にする（[`recognize_pages`] + [`convert`]）。

@@ -177,6 +177,8 @@ struct Interp<'a> {
     source_lineage: Option<crate::source_lineage::Capture>,
     source_alias_keys:Option<Vec<Option<crate::font::source_alias::FontGlyph>>>,
     source_rects:Option<Vec<Option<[f64;4]>>>,
+    /// Embedded outline of each emitted glyph in page coordinates (opt-in).
+    glyph_outlines: Option<Vec<Option<Vec<Vec<[f64; 2]>>>>>,
     ink_viewport:[f64;4],
     image_draws: Option<Vec<crate::source_images::ImageDraw>>,
     source_paths: Option<Vec<crate::source_images::PathDraw>>,
@@ -196,18 +198,25 @@ struct Interp<'a> {
 
 /// ページを解釈する。
 pub fn extract_page(doc: &Document, page: &PageRef) -> Page {
-    interpret_page(doc, page, false, false).0
+    interpret_page(doc, page, false, false, false).0
+}
+/// The page and, for each of its glyphs, the outline from the font's own
+/// embedded program in page coordinates (`None` without a supported program).
+pub(crate) fn extract_page_outlines(doc: &Document, page: &PageRef) -> (Page, Vec<Option<Vec<Vec<[f64; 2]>>>>) {
+    let r = interpret_page(doc, page, false, false, true);
+    (r.0, r.8)
 }
 pub(crate) fn extract_page_source_aj1(doc: &Document, page: &PageRef) -> crate::Aj1PageSources {
-    let (page, resolved, ink_rects, aliases, lineage, _, _, _) = interpret_page(doc, page, true, false);
+    let (page, resolved, ink_rects, aliases, lineage, _, _, _, _) = interpret_page(doc, page, true, false, false);
     crate::source_aj1::Aj1PageSources { lineage, original: page, resolved, ink_rects, aliases }
 }
 
 pub(crate) fn extract_page_source_images(doc:&Document,page:&PageRef)->crate::source_images::XObjectPageSources{
- let(original,resolved,ink_rects,aliases,lineage,draws,gaps,paths)=interpret_page(doc,page,true,true);
+ let(original,resolved,ink_rects,aliases,lineage,draws,gaps,paths,_)=interpret_page(doc,page,true,true,false);
  crate::source_images::XObjectPageSources{paths,native:crate::source_aj1::Aj1PageSources{lineage,original,resolved,ink_rects,aliases},crop:page.crop_box,draws,gaps,document_digest:[0;32],media:page.media_box}
 }
-fn interpret_page(doc: &Document, page: &PageRef, source: bool, image_sources:bool) -> (Page, Vec<Option<char>>,Vec<Option<[f64;4]>>,crate::font::source_alias::Aliases,crate::source_lineage::Tape,Vec<crate::source_images::ImageDraw>,Vec<crate::source_images::CaptureGap>,Vec<crate::source_images::PathDraw>) {
+#[allow(clippy::type_complexity)]
+fn interpret_page(doc: &Document, page: &PageRef, source: bool, image_sources:bool, outlines: bool) -> (Page, Vec<Option<char>>,Vec<Option<[f64;4]>>,crate::font::source_alias::Aliases,crate::source_lineage::Tape,Vec<crate::source_images::ImageDraw>,Vec<crate::source_images::CaptureGap>,Vec<crate::source_images::PathDraw>,Vec<Option<Vec<Vec<[f64; 2]>>>>) {
     let [x0, y0, x1, y1] = page.crop_box;
     let device = match page.rotate {
         90 => Matrix([0.0, 1.0, 1.0, 0.0, -y0, -x0]),
@@ -250,6 +259,7 @@ fn interpret_page(doc: &Document, page: &PageRef, source: bool, image_sources:bo
         source_lineage:source.then(Default::default),
         source_alias_keys:source.then(Vec::new),
         source_rects:source.then(Vec::new),
+        glyph_outlines: outlines.then(Vec::new),
         ink_viewport:[0.,0.,width,height],
         image_draws: image_sources.then(Vec::new),
         source_paths:image_sources.then(Vec::new),
@@ -276,6 +286,7 @@ fn interpret_page(doc: &Document, page: &PageRef, source: bool, image_sources:bo
     let ink_rects=it.source_rects.take().unwrap_or_default();
     let image_draws=it.image_draws.take().unwrap_or_default();
     let image_gaps=it.image_gaps.take().unwrap_or_default();
+    let glyph_outlines = it.glyph_outlines.take().unwrap_or_default();
     (
         Page {
         width,
@@ -301,6 +312,7 @@ fn interpret_page(doc: &Document, page: &PageRef, source: bool, image_sources:bo
         image_draws,
         image_gaps,
         it.source_paths.take().unwrap_or_default(),
+        glyph_outlines,
     )
 }
 
@@ -653,6 +665,18 @@ impl Interp<'_> {
                 show: self.show_count,
             });
             if let Some(rects)=&mut self.source_rects{rects.push(ink_rect);}
+            if self.glyph_outlines.is_some() {
+                // Glyph space is the horizontal em; vertical writing places
+                // the origin at the position vector (vx, vy).
+                let shift = if font.vertical { let (_, vx, vy) = font.vertical_metrics(&c); (vx, vy) } else { (0.0, 0.0) };
+                let outline = font.source_outline(self.doc, c.cid).map(|contours| {
+                    contours.into_iter().map(|c| c.into_iter().map(|[x, y]| {
+                        let (px, py) = trm.apply(x - shift.0, y - shift.1);
+                        [px, py]
+                    }).collect()).collect()
+                });
+                if let Some(o) = self.glyph_outlines.as_mut() { o.push(outline); }
+            }
             if let Some(keys)=&mut self.source_alias_keys{keys.push(font.source_alias_key(self.doc,&c));}
             if let Some(resolved) = &mut self.source_resolved {
                 resolved.push(font.source_aj1_fallback(self.doc, &c));

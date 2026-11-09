@@ -47,6 +47,10 @@ pub(crate) struct Styles {
     fields: [Option<RefCell<FieldStyle>>; 3],
     annotations: crate::annotations::Writer,
     borders: std::rc::Rc<crate::borders::Borders>,
+    /// Unverified readings of painted characters, keyed by (field, scalar
+    /// position of the source character they precede).
+    insertions: RefCell<std::collections::BTreeMap<(usize, usize), String>>,
+    comments: std::cell::Cell<usize>,
 }
 const FIELDS: [Field; 3] = [Field::Paragraph, Field::After, Field::Before];
 fn index(f: Field) -> usize {
@@ -157,6 +161,8 @@ impl SourceStyles {
     pub fn bind(&self, documents: &[Document]) -> Styles {
         Styles {
             base_font: self.base_font,
+            insertions: RefCell::default(),
+            comments: std::cell::Cell::new(0),
             borders: self.borders.clone(),
             annotations: self.annotations.writer(),
             fields: std::array::from_fn(|i| {
@@ -298,6 +304,62 @@ impl Styles {
             start..end,
             scalars.into_iter().map(|(_, (_, annotation))| annotation),
         );
+    }
+    /// Readings to insert, keyed by field and source scalar position.
+    pub fn set_insertions(&self, insertions: &[(Field, usize, String)]) {
+        *self.insertions.borrow_mut() = insertions.iter().map(|(f, p, t)| ((index(*f), *p), t.clone())).collect();
+    }
+    /// Add the runs for `text` to `p`, placing any pending painted-character
+    /// reading right before its source character: highlighted, inside a
+    /// comment that says the reading is unverified. The reading is not part of
+    /// the certified source field, so field positions are unaffected.
+    pub fn add_word_runs(
+        &self,
+        mut p: docx_rs::Paragraph,
+        field: Field,
+        text: &str,
+        underlined: bool,
+        bold: bool,
+        scale: f32,
+    ) -> docx_rs::Paragraph {
+        let mut position = self.fields[index(field)].as_ref().map_or(0, |s| s.borrow().position);
+        let mut segment = String::new();
+        for c in text.chars() {
+            if !c.is_whitespace() {
+                let reading = self.insertions.borrow_mut().remove(&(index(field), position));
+                if let Some(reading) = reading {
+                    // The parser renders the empty-looking seam where the
+                    // shape is painted as a space; the reading fills it.
+                    let kept = segment.trim_end().len();
+                    segment.truncate(kept);
+                    for r in self.word_runs_scaled(field, &segment, underlined, bold, scale) {
+                        p = p.add_run(r);
+                    }
+                    segment.clear();
+                    let id = self.comments.get() + 1;
+                    self.comments.set(id);
+                    let note = docx_rs::Comment::new(id).author("kanpo-docx").add_paragraph(
+                        docx_rs::Paragraph::new().add_run(docx_rs::Run::new().add_text(
+                            "原本では文字ではなく図形で描かれた字を、同じPDFの字形と照合して読み取った候補です（未確認）。原本で確認してください。",
+                        )),
+                    );
+                    let mut run = docx_rs::Run::new().add_text(reading).highlight("yellow");
+                    if bold {
+                        run = run.bold();
+                    }
+                    if scale != 1. {
+                        run = run.size((self.default_font() as f32 * scale).round().max(1.) as usize);
+                    }
+                    p = p.add_comment_start(note).add_run(run).add_comment_end(id);
+                }
+                position += 1;
+            }
+            segment.push(c);
+        }
+        for r in self.word_runs_scaled(field, &segment, underlined, bold, scale) {
+            p = p.add_run(r);
+        }
+        p
     }
     pub fn word_runs(
         &self,
