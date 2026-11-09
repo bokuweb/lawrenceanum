@@ -38,6 +38,8 @@ struct Segment {
     a: [f64; 2],
     b: [f64; 2],
     size: u8,
+    /// Bounds of the closed dashed rectangle this side belongs to, if any.
+    frame: Option<[f64; 4]>,
 }
 
 fn canonical(t: &NestedTable) -> NestedTable {
@@ -228,6 +230,7 @@ fn segments(source: &kanpo_pdf::XObjectPageSources) -> Vec<Segment> {
         let mut own = Vec::new();
         let mut valid = true;
         for sub in &path.subpaths {
+            let first = own.len();
             let mut pairs = sub
                 .points
                 .windows(2)
@@ -246,7 +249,17 @@ fn segments(source: &kanpo_pdf::XObjectPageSources) -> Vec<Segment> {
                     break;
                 }
                 if (a[0] - b[0]).abs().max((a[1] - b[1]).abs()) > 0.01 {
-                    own.push(Segment { a, b, size });
+                    own.push(Segment {
+                        a,
+                        b,
+                        size,
+                        frame: None,
+                    });
+                }
+            }
+            if let Some(frame) = rectangle(&own[first..]) {
+                for s in &mut own[first..] {
+                    s.frame = Some(frame);
                 }
             }
         }
@@ -257,6 +270,71 @@ fn segments(source: &kanpo_pdf::XObjectPageSources) -> Vec<Segment> {
     }
     out
 }
+/// A closed subpath of exactly four axis-aligned sides that trace one rectangle.
+fn rectangle(sides: &[Segment]) -> Option<[f64; 4]> {
+    if sides.len() != 4 {
+        return None;
+    }
+    let points = sides.iter().flat_map(|s| [s.a, s.b]).collect::<Vec<_>>();
+    let x0 = points.iter().map(|p| p[0]).fold(f64::INFINITY, f64::min);
+    let y0 = points.iter().map(|p| p[1]).fold(f64::INFINITY, f64::min);
+    let x1 = points
+        .iter()
+        .map(|p| p[0])
+        .fold(f64::NEG_INFINITY, f64::max);
+    let y1 = points
+        .iter()
+        .map(|p| p[1])
+        .fold(f64::NEG_INFINITY, f64::max);
+    let on = |v: f64, lo: f64, hi: f64| (v - lo).abs() <= 0.01 || (v - hi).abs() <= 0.01;
+    let corners = points.iter().all(|p| on(p[0], x0, x1) && on(p[1], y0, y1));
+    let chained = sides
+        .iter()
+        .zip(sides.iter().cycle().skip(1))
+        .all(|(s, n)| (s.b[0] - n.a[0]).abs() <= 0.01 && (s.b[1] - n.a[1]).abs() <= 0.01);
+    let full = sides.iter().all(|s| {
+        let axis = usize::from((s.a[0] - s.b[0]).abs() <= 0.01);
+        let (lo, hi) = if axis == 0 { (x0, x1) } else { (y0, y1) };
+        (s.a[axis] - s.b[axis]).abs() >= hi - lo - 0.01
+    });
+    (corners && chained && full && x1 - x0 > 0.01 && y1 - y0 > 0.01).then_some([x0, y0, x1, y1])
+}
+/// A dashed rectangle frames table cells only when the cells inside it tile it
+/// exactly (within the rule tolerance). Such a frame is often drawn a little
+/// outside the cell rules, or just inside the table's outer rule, so its
+/// corners need not meet the cell corners exactly.
+fn frames_cells(t: &Table, frame: [f64; 4], tol: f64) -> bool {
+    let inside = t
+        .cells
+        .iter()
+        .map(|c| [c.x0 as f64, c.y0 as f64, c.x1 as f64, c.y1 as f64])
+        .filter(|b| {
+            b[0] >= frame[0] - tol
+                && b[1] >= frame[1] - tol
+                && b[2] <= frame[2] + tol
+                && b[3] <= frame[3] + tol
+        })
+        .collect::<Vec<_>>();
+    if inside.is_empty() {
+        return false;
+    }
+    let union = [
+        inside.iter().map(|b| b[0]).fold(f64::INFINITY, f64::min),
+        inside.iter().map(|b| b[1]).fold(f64::INFINITY, f64::min),
+        inside
+            .iter()
+            .map(|b| b[2])
+            .fold(f64::NEG_INFINITY, f64::max),
+        inside
+            .iter()
+            .map(|b| b[3])
+            .fold(f64::NEG_INFINITY, f64::max),
+    ];
+    let area = |b: &[f64; 4]| (b[2] - b[0]) * (b[3] - b[1]);
+    let covered: f64 = inside.iter().map(area).sum();
+    union.iter().zip(&frame).all(|(u, f)| (u - f).abs() <= tol)
+        && (covered - area(&union)).abs() <= area(&union) * 0.01
+}
 fn covers(s: Segment, edge: Edge, b: [f64; 4], tol: f64) -> bool {
     let (axis, pos, lo, hi) = match edge {
         Edge::Left => (0, b[0], b[1], b[3]),
@@ -265,14 +343,23 @@ fn covers(s: Segment, edge: Edge, b: [f64; 4], tol: f64) -> bool {
         Edge::Bottom => (1, b[3], b[0], b[2]),
     };
     let flow = 1 - axis;
+    // Only a validated cell frame may stop short of a cell corner.
+    let slack = if s.frame.is_some() { tol } else { 0.01 };
     (s.a[axis] - s.b[axis]).abs() <= 0.01
         && (s.a[axis] - pos).abs() <= tol
-        && s.a[flow].min(s.b[flow]) <= lo + 0.01
-        && s.a[flow].max(s.b[flow]) >= hi - 0.01
+        && s.a[flow].min(s.b[flow]) <= lo + slack
+        && s.a[flow].max(s.b[flow]) >= hi - slack
 }
 fn plans(t: &Table, words: &[Word], segments: &[Segment]) -> Option<(CellPlan, CellPlan)> {
     let normal = direction(t)?;
     let tol = tolerance(t, words)?;
+    let segments = segments
+        .iter()
+        .map(|&s| Segment {
+            frame: s.frame.filter(|&f| frames_cells(t, f, tol)),
+            ..s
+        })
+        .collect::<Vec<_>>();
     let mut logical = CellPlan::default();
     let mut physical = CellPlan::default();
     for c in &t.cells {
@@ -530,6 +617,7 @@ mod tests {
             a: [8., 20.],
             b: [8., 80.],
             size: 3,
+            frame: None,
         };
         assert!(covers(left, Edge::Left, b, 2.8));
         assert!(!covers(
@@ -652,5 +740,99 @@ mod tests {
             }
         }
         assert_eq!(found, 2);
+    }
+
+    #[test]
+    fn a_closed_dashed_frame_around_whole_cells_dashes_every_side_it_traces() {
+        // No.9 第十四条: the frame stands about 2pt outside the cell rules and
+        // 0.5pt inside the table's outer rule, so its corners never meet the
+        // cell corners exactly.
+        let pdf = include_bytes!("../../kanpo-parser/tests/data/workbook/case-09.pdf");
+        let source = kanpo_parser::media::analyze_pdf(pdf).unwrap();
+        let pages = kanpo_pdf::extract_pages_with_xobject_sources(pdf).unwrap();
+        let page = &source.source_layout.pages[1];
+        let segments = segments(&pages[1]);
+        let mut bounds = segments.iter().filter_map(|s| s.frame).collect::<Vec<_>>();
+        assert_eq!(bounds.len(), 8, "two closed frames of four sides");
+        bounds.dedup();
+        assert_eq!(bounds.len(), 2);
+        let mut checked = 0;
+        for region in &page.regions {
+            for t in region.lines.iter().filter_map(|l| l.table.as_ref()) {
+                let tol = tolerance(t, &page.words).unwrap();
+                let (_, physical) = plans(t, &page.words, &segments).unwrap();
+                let frame = bounds
+                    .iter()
+                    .copied()
+                    .find(|&f| frames_cells(t, f, tol))
+                    .expect("each column's table has its frame");
+                for c in &t.cells {
+                    let b = [c.x0 as f64, c.y0 as f64, c.x1 as f64, c.y1 as f64];
+                    let inside = b[0] >= frame[0] - tol
+                        && b[1] >= frame[1] - tol
+                        && b[2] <= frame[2] + tol
+                        && b[3] <= frame[3] + tol;
+                    if !inside {
+                        continue;
+                    }
+                    let sides = physical.0.get(&(c.col, t.rows - c.row - c.rowspan));
+                    for (edge, at, on) in [
+                        (Edge::Left, b[0], frame[0]),
+                        (Edge::Top, b[1], frame[1]),
+                        (Edge::Right, b[2], frame[2]),
+                        (Edge::Bottom, b[3], frame[3]),
+                    ] {
+                        let dashed = sides.is_some_and(|s| s.contains_key(&edge));
+                        assert_eq!(dashed, (at - on).abs() <= tol, "{edge:?} of {b:?}");
+                        checked += usize::from(dashed);
+                    }
+                }
+            }
+        }
+        // After: 12 framed cell sides; Before: 8.
+        assert_eq!(checked, 20);
+    }
+
+    #[test]
+    fn a_dashed_box_that_does_not_tile_whole_cells_is_not_a_cell_frame() {
+        let side = |a: [f64; 2], b: [f64; 2]| Segment {
+            a,
+            b,
+            size: 2,
+            frame: None,
+        };
+        let square = [
+            side([0., 0.], [10., 0.]),
+            side([10., 0.], [10., 10.]),
+            side([10., 10.], [0., 10.]),
+            side([0., 10.], [0., 0.]),
+        ];
+        assert_eq!(rectangle(&square), Some([0., 0., 10., 10.]));
+        assert_eq!(rectangle(&square[..3]), None);
+        let mut open = square;
+        open[3] = side([0., 10.], [0., 2.]);
+        assert_eq!(rectangle(&open), None);
+
+        let pdf = include_bytes!("../../kanpo-parser/tests/data/workbook/case-09.pdf");
+        let source = kanpo_parser::media::analyze_pdf(pdf).unwrap();
+        let page = &source.source_layout.pages[1];
+        let t = page
+            .regions
+            .iter()
+            .flat_map(|r| &r.lines)
+            .find_map(|l| l.table.as_ref())
+            .unwrap();
+        let tol = tolerance(t, &page.words).unwrap();
+        let c = &t.cells[0];
+        let b = [c.x0 as f64, c.y0 as f64, c.x1 as f64, c.y1 as f64];
+        assert!(frames_cells(t, b, tol));
+        // A box around text inside one cell, or half of a cell, frames nothing.
+        let mid = (b[0] + b[2]) / 2.;
+        assert!(!frames_cells(
+            t,
+            [b[0] + 5., b[1] + 5., b[2] - 5., b[3] - 5.],
+            tol
+        ));
+        assert!(!frames_cells(t, [b[0], b[1], mid, b[3]], tol));
     }
 }
