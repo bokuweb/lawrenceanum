@@ -417,3 +417,111 @@ pub(crate) fn apply_headings(analysis: &Analysis, documents: &mut [Document]) {
         }
     }
 }
+
+/// Article number at the start of `text` (「第30条」「第三十条」「第３０条」).
+fn starts_article(text: &str) -> bool {
+    let Some(rest) = text.strip_prefix('第') else { return false };
+    let n = rest
+        .chars()
+        .take_while(|c| "〇一二三四五六七八九十百千".contains(*c) || c.is_ascii_digit() || ('０'..='９').contains(c))
+        .count();
+    n > 0 && rest.chars().nth(n) == Some('条')
+}
+
+/// Rejoin an article citation wrapped after a law number in body prose.
+///
+/// The parser starts a paragraph at a line beginning 「第…条」, which also
+/// cuts 「…（昭和42年法律第81号）」＋「第30条の45に規定する…」. The cut is
+/// removed only where the original proves a wrap: the previous vertical line
+/// reaches the end of the column and ends with the law number, and the next
+/// line starts one em or more below the top of the region, where no article
+/// heading is set.
+pub(crate) fn apply_citation_joins(analysis: &Analysis, documents: &mut [Document]) {
+    let mut keys = Vec::new();
+    for page in &analysis.pages {
+        for region in &page.regions {
+            if matches!(region.role, Role::After | Role::Before) {
+                continue;
+            }
+            // (bounds, em) of each vertical line made of bound original Words.
+            let lines = region
+                .lines
+                .iter()
+                .map(|l| {
+                    if l.table.is_some() || l.words.is_empty() {
+                        return None;
+                    }
+                    let boxes = l
+                        .words
+                        .iter()
+                        .map(|&id| {
+                            page.words
+                                .get(id)
+                                .filter(|w| w.status == WordStatus::Used)
+                                .and_then(|_| page.original_glyph_bounds(id))
+                        })
+                        .collect::<Option<Vec<_>>>()?;
+                    let em = boxes.iter().map(|b| b[2] - b[0]).reduce(f32::min)?;
+                    let mut u = boxes[0];
+                    for b in &boxes[1..] {
+                        u = [u[0].min(b[0]), u[1].min(b[1]), u[2].max(b[2]), u[3].max(b[3])];
+                    }
+                    (em > 0. && u[3] - u[1] > 1.5 * (u[2] - u[0])).then_some((u, em))
+                })
+                .collect::<Vec<_>>();
+            let Some(top) = lines.iter().flatten().map(|(u, _)| u[1]).reduce(f32::min) else { continue };
+            let Some(end) = lines.iter().flatten().map(|(u, _)| u[3]).reduce(f32::max) else { continue };
+            for i in 1..region.lines.len() {
+                let (Some((a, ea)), Some((b, eb))) = (lines[i - 1], lines[i]) else { continue };
+                let em = ea.min(eb);
+                let pitch = (a[0] + a[2]) / 2. - (b[0] + b[2]) / 2.;
+                let (at, bt) = (compact(&region.lines[i - 1].text), compact(&region.lines[i].text));
+                if (0.8 * em..=2.2 * em).contains(&pitch)
+                    && end - a[3] <= em
+                    && b[1] - top >= 0.75 * em
+                    && at.ends_with("号）")
+                    && starts_article(&bt)
+                {
+                    keys.push((at, bt));
+                }
+            }
+        }
+    }
+    for (before, after) in keys {
+        let mut found = Vec::new();
+        for (d, doc) in documents.iter().enumerate() {
+            for (b, block) in doc.blocks.iter().enumerate() {
+                let Block::Paragraph { runs } = block else { continue };
+                // Paragraph segments as compact text with the position of the
+                // newline that ends each of them.
+                let mut segments: Vec<(String, Option<(usize, usize)>)> = vec![(String::new(), None)];
+                for (k, run) in runs.iter().enumerate() {
+                    match run {
+                        Inline::Text { text, .. } => {
+                            for (i, c) in text.char_indices() {
+                                if c == '\n' {
+                                    segments.last_mut().unwrap().1 = Some((k, i));
+                                    segments.push((String::new(), None));
+                                } else if !c.is_whitespace() {
+                                    segments.last_mut().unwrap().0.push(c);
+                                }
+                            }
+                        }
+                        _ => segments.push((String::new(), None)),
+                    }
+                }
+                for w in segments.windows(2) {
+                    if let (Some(at), true) = (w[0].1, w[0].0.ends_with(&before) && w[1].0.starts_with(&after)) {
+                        found.push((d, b, at));
+                    }
+                }
+            }
+        }
+        let [(d, b, (k, i))] = found[..] else { continue };
+        if let Block::Paragraph { runs } = &mut documents[d].blocks[b] {
+            if let Inline::Text { text, .. } = &mut runs[k] {
+                text.remove(i);
+            }
+        }
+    }
+}

@@ -7,6 +7,7 @@ pub mod document;
 pub mod font;
 pub mod object;
 pub mod page;
+mod outline;
 pub mod rules;
 
 mod cmap;
@@ -29,6 +30,15 @@ pub use page::{extract_page, FontInfo, Glyph, Page, PathItem, SubPath};
 pub use rules::{page_rules, HRule, PageRules, VRule};
 
 /// PDF の全ページを解釈する。
+/// Every page with the outline of each of its glyphs (same order as
+/// `Page::glyphs`), read from the font's own embedded CFF program and placed
+/// in page coordinates. `None` where the font embeds no supported program.
+#[allow(clippy::type_complexity)]
+pub fn extract_pages_with_outlines(pdf: &[u8]) -> Result<Vec<(Page, Vec<Option<Vec<Vec<[f64; 2]>>>>)>> {
+    let doc = Document::load(pdf.to_vec())?;
+    Ok(doc.pages().iter().map(|p| page::extract_page_outlines(&doc, p)).collect())
+}
+
 pub fn extract_pages(pdf: &[u8]) -> Result<Vec<Page>> {
     let doc = Document::load(pdf.to_vec())?;
     Ok(doc.pages().iter().map(|p| extract_page(&doc, p)).collect())

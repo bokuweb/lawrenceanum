@@ -32,6 +32,7 @@ pub fn write(analysis: &kanpo_parser::Analysis) -> Result<Vec<u8>> {
         &documents,
         &Pictures::default(),
         &SourceStyles::default(),
+        &[],
     )
 }
 
@@ -40,6 +41,7 @@ pub(crate) fn write_documents(
     documents: &[Document],
     pictures: &Pictures,
     source_styles: &SourceStyles,
+    painted: &[(Field, usize, String)],
 ) -> Result<Vec<u8>> {
     ensure!(
         analysis.articles.len() == documents.len(),
@@ -79,6 +81,7 @@ pub(crate) fn write_documents(
     crate::paragraph_gaps::apply(analysis, &mut documents);
     crate::comparison_geometry::apply(analysis, &mut documents);
     crate::paragraph_gaps::apply_headings(analysis, &mut documents);
+    crate::paragraph_gaps::apply_citation_joins(analysis, &mut documents);
     let signature_leading = crate::formalities::apply(analysis, &mut documents);
     for (field, expected) in fields.into_iter().zip(&original) {
         let bag = |s: &str| {
@@ -99,6 +102,7 @@ pub(crate) fn write_documents(
         );
     }
     let styles = source_styles.bind(&documents);
+    styles.set_insertions(painted);
     for (k, (article, document)) in analysis.articles.iter().zip(&documents).enumerate() {
         if k > 0 {
             docx = docx.add_paragraph(Paragraph::new());
@@ -135,14 +139,7 @@ pub(crate) fn write_documents(
                                     paragraph_cursor += line.iter().map(|(s,_)| s.chars().filter(|c| !c.is_whitespace()).count()).sum::<usize>();
                                     if let Some(size)=styles.paragraph_font(Field::Paragraph,&line.iter().map(|r|r.0.as_str()).collect::<String>()){p=p.size(size);}
                                     for (text, underline) in line {
-                                        for r in styles.word_runs(
-                                            Field::Paragraph,
-                                            &text,
-                                            underline,
-                                            first,
-                                        ) {
-                                            p = p.add_run(r);
-                                        }
+                                        p = styles.add_word_runs(p, Field::Paragraph, &text, underline, first, 1.);
                                     }
                                     docx = docx.add_paragraph(p);
                                     first = false;
@@ -537,9 +534,7 @@ fn cell_runs_in_canvas(runs:&[Inline],width:usize,header:bool,prose:bool,layout:
                         .keep_next(true);
                 }
                 for (text, underline) in line {
-                    for r in styles.word_runs_scaled(field, &text, underline, false,scale) {
-                        p = p.add_run(r);
-                    }
+                    p = styles.add_word_runs(p, field, &text, underline, false, scale);
                 }
                 cell = cell.add_paragraph(p);
                 any = true;
@@ -897,14 +892,29 @@ mod tests {
     }
 
     #[test]
+    fn painted_numbers_are_inserted_highlighted_with_an_unverified_comment() {
+        // 財務省令第十七号（添付一覧 No.6）: 「（二十八）」「（三十一）」 are paint.
+        let pdf = include_bytes!("../../kanpo-parser/tests/data/workbook/case-06.pdf");
+        let bytes = crate::convert(pdf, &[]).unwrap();
+        let doc = xml(&bytes);
+        let (_, paragraphs) = rows_and_paragraphs(&doc);
+        let text = paragraphs.join("\n");
+        assert_eq!(text.matches("別表第五（二十八）").count(), 4, "{text}");
+        assert_eq!(text.matches("別表第五（三十一）").count(), 4, "{text}");
+        assert!(!text.contains("別表第五　の"), "the painted seam is no longer a space");
+        assert_eq!(doc.matches("<w:highlight w:val=\"yellow\" />").count(), 8);
+        let comments = zip_reader(&bytes).remove("word/comments.xml").unwrap();
+        assert_eq!(comments.matches("未確認").count(), 8);
+    }
+
+    #[test]
     fn a_sideways_quotation_continues_its_amendment_sentence() {
         // 国土交通省令第八十二号（添付一覧 No.16）第三条: 横倒しの引用の終わりが様式の後ろへ移っていた。
         let pdf = include_bytes!("../../kanpo-parser/tests/data/workbook/case-16.pdf");
         let doc = xml(&crate::convert(pdf, &[]).unwrap());
         let (_, paragraphs) = rows_and_paragraphs(&doc);
         let i = paragraphs.iter().position(|p| p.starts_with("別記様式第二十五号の四記載要領７")).unwrap();
-        assert!(paragraphs[i].ends_with("を「その国籍等（住民基本台帳法（昭和42年法律第81号）"), "{}", paragraphs[i]);
-        assert!(paragraphs[i + 1].starts_with("第30条の45に規定する国籍等をいう。）」に改める。"), "{}", paragraphs[i + 1]);
+        assert!(paragraphs[i].ends_with("を「その国籍等（住民基本台帳法（昭和42年法律第81号）第30条の45に規定する国籍等をいう。）」に改める。"), "{}", paragraphs[i]);
         assert!(!paragraphs.iter().any(|p| p == "その国籍等（住民基本台帳法（昭和42年法律第81号）"));
     }
 

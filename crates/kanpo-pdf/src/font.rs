@@ -71,6 +71,8 @@ pub struct Font {
     source_rectangle_frames: OnceLock<Option<std::collections::BTreeMap<u16,crate::source_aj1::RectangleFrame>>>,
     source_compound_envelopes: OnceLock<Option<std::collections::BTreeMap<u16,[f64;4]>>>,
     source_alias_program: OnceLock<Option<source_alias::Program>>,
+    /// Decoded embedded CFF program and its CID → GID map, for outlines.
+    source_outline_program: OnceLock<Option<(Vec<u8>, HashMap<u16, u16>)>>,
 }
 
 /// 文字列中の 1 文字。
@@ -121,6 +123,7 @@ impl Font {
             source_rectangle_frames: OnceLock::new(),
             source_compound_envelopes: OnceLock::new(),
             source_alias_program: OnceLock::new(),
+            source_outline_program: OnceLock::new(),
         };
         if subtype == "Type0" {
             font.composite = true;
@@ -380,6 +383,44 @@ impl Font {
             .as_ref()?;
         set.binary_search(&u16::try_from(cid).ok()?).ok()?;
         Some(c)
+    }
+
+    /// Outline of the glyph for CID `cid` from this font's own embedded CFF
+    /// program, as flattened contours in em units of horizontal glyph space
+    /// (y up). `None` when the font embeds no CID-keyed CFF program or the
+    /// glyph has no outline. No Unicode, name or substitute font is used.
+    pub(crate) fn source_outline(&self, doc: &Document, cid: u32) -> Option<Vec<Vec<[f64; 2]>>> {
+        if !self.composite || !self.source_cid0 {
+            return None;
+        }
+        let (bytes, gids) = self
+            .source_outline_program
+            .get_or_init(|| {
+                let bytes = doc.decode_stream(self.source_cff.as_ref()?).ok()?;
+                let table = ttf_parser::cff::Table::parse(&bytes)?;
+                let mut gids = HashMap::new();
+                for gid in 0..table.number_of_glyphs() {
+                    if let Some(cid) = table.glyph_cid(ttf_parser::GlyphId(gid)) {
+                        gids.entry(cid).or_insert(gid);
+                    }
+                }
+                Some((bytes, gids))
+            })
+            .as_ref()?;
+        let table = ttf_parser::cff::Table::parse(bytes)?;
+        let gid = *gids.get(&u16::try_from(cid).ok()?)?;
+        let m = table.matrix();
+        let mut flat = crate::outline::Flatten::new([
+            f64::from(m.sx),
+            f64::from(m.ky),
+            f64::from(m.kx),
+            f64::from(m.sy),
+            f64::from(m.tx),
+            f64::from(m.ty),
+        ]);
+        table.outline(ttf_parser::GlyphId(gid), &mut flat).ok()?;
+        let contours = flat.finish();
+        (!contours.is_empty()).then_some(contours)
     }
 
     /// Geometry from this exact embedded program and actual Identity CID route.
