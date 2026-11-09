@@ -77,6 +77,8 @@ pub(crate) fn write_documents(
     let mut documents = documents.to_vec();
     crate::continuations::apply(&mut documents, &layout);
     crate::paragraph_gaps::apply(analysis, &mut documents);
+    crate::comparison_geometry::apply(analysis, &mut documents);
+    crate::paragraph_gaps::apply_headings(analysis, &mut documents);
     let signature_leading = crate::formalities::apply(analysis, &mut documents);
     for (field, expected) in fields.into_iter().zip(&original) {
         let bag = |s: &str| {
@@ -824,6 +826,86 @@ mod tests {
             let paragraph = doc.split("</w:p>").find(|p| p.contains(item)).unwrap();
             assert!(paragraph.contains("<w:u "), "native underline preserved");
         }
+    }
+
+    /// Comparison rows as (改正後 paragraphs, 改正前 paragraphs), and the
+    /// paragraphs outside tables.
+    fn rows_and_paragraphs(doc: &str) -> (Vec<(Vec<String>, Vec<String>)>, Vec<String>) {
+        let texts = |s: &str| {
+            s.split("</w:p>")
+                .map(|p| {
+                    p.split("<w:t xml:space=\"preserve\">")
+                        .skip(1)
+                        .filter_map(|s| s.split_once("</w:t>").map(|(s, _)| s))
+                        .collect::<String>()
+                })
+                .filter(|t| !t.is_empty())
+                .collect::<Vec<_>>()
+        };
+        let mut rows = Vec::new();
+        let mut outside = String::new();
+        let mut rest = doc;
+        while let Some(start) = rest.find("<w:tbl>") {
+            outside.push_str(&rest[..start]);
+            let end = rest[start..].find("</w:tbl>").unwrap() + start;
+            for row in rest[start..end].split("<w:tr>").skip(1) {
+                let cells = row.split("<w:tc>").skip(1).map(texts).collect::<Vec<_>>();
+                if let [a, b] = &cells[..] {
+                    rows.push((a.clone(), b.clone()));
+                }
+            }
+            rest = &rest[end..];
+        }
+        outside.push_str(rest);
+        (rows, texts(&outside))
+    }
+
+    #[test]
+    fn evaluated_comparison_rows_follow_the_original_lines() {
+        // 環境省令第二十五号（添付一覧 No.1）の評価で指摘された箇所。
+        let pdf = include_bytes!("../../kanpo-parser/tests/data/workbook/case-01.pdf");
+        let doc = xml(&crate::convert(pdf, &[]).unwrap());
+        let (rows, paragraphs) = rows_and_paragraphs(&doc);
+        let starts = |cell: &[String], s: &str| cell.first().is_some_and(|p| p.starts_with(s));
+        // 改正前の第一条の七の六は、改正後の「（削る）」と同じ行に並ぶ。
+        let deleted = rows.iter().find(|(_, b)| b.iter().any(|p| p.starts_with("第一条の七の六"))).unwrap();
+        assert_eq!(deleted.0, vec!["（削る）".to_string()], "{deleted:?}");
+        assert!(starts(&deleted.1, "（受託者が他人に委託して"), "{deleted:?}");
+        // 前ページから続く第一条の二の三の号は、その条と同じ行に残る。
+        let continued = rows.iter().find(|(a, _)| starts(a, "（都道府県による非常災害廃棄物")).unwrap();
+        assert!(continued.0.iter().any(|p| p.starts_with("ニ　その他非常災害廃棄物")), "{continued:?}");
+        assert_eq!(continued.1, vec!["（新設）".to_string()]);
+        // 条の中の号も、原本で並ぶ相手と同じ行に置く。
+        for branch in ["一の二　法第六条の二第三項前段", "一の三　法第六条の二第五項前段"] {
+            let row = rows.iter().filter(|(a, _)| starts(a, branch)).collect::<Vec<_>>();
+            assert_eq!(row.len(), 2, "{branch}");
+            assert!(row.iter().all(|(a, b)| a.len() == 1 && b == &vec!["（新設）".to_string()]), "{row:?}");
+        }
+        // 列の折り返しで「第九条」「イ、」「（１）」から始まった行は、前の文に続ける。
+        for (a, b) in &rows {
+            for p in a.iter().chain(b) {
+                for wrapped in ["第九条の三第一項に規定する", "イ、第四号イ", "イ及び第四号イ", "ニ、第四号ニ", "イ中「", "（１）」とあるのは", "以下同じ。）又は", "第三号中「、第三号ハ"] {
+                    assert!(!p.starts_with(wrapped), "{p}");
+                }
+            }
+        }
+        // 号の細分・号の枝の後の空き、附則の見出し。
+        assert!(rows.iter().any(|(a, _)| a.iter().any(|p| p == "イ　非常災害廃棄物の処理に係る費用負担")));
+        let tail = &paragraphs[paragraphs.len() - 2..];
+        assert_eq!(tail[0], "附　則", "{tail:?}");
+        assert!(tail[1].starts_with("この省令は、"), "{tail:?}");
+    }
+
+    #[test]
+    fn a_sideways_quotation_continues_its_amendment_sentence() {
+        // 国土交通省令第八十二号（添付一覧 No.16）第三条: 横倒しの引用の終わりが様式の後ろへ移っていた。
+        let pdf = include_bytes!("../../kanpo-parser/tests/data/workbook/case-16.pdf");
+        let doc = xml(&crate::convert(pdf, &[]).unwrap());
+        let (_, paragraphs) = rows_and_paragraphs(&doc);
+        let i = paragraphs.iter().position(|p| p.starts_with("別記様式第二十五号の四記載要領７")).unwrap();
+        assert!(paragraphs[i].ends_with("を「その国籍等（住民基本台帳法（昭和42年法律第81号）"), "{}", paragraphs[i]);
+        assert!(paragraphs[i + 1].starts_with("第30条の45に規定する国籍等をいう。）」に改める。"), "{}", paragraphs[i + 1]);
+        assert!(!paragraphs.iter().any(|p| p == "その国籍等（住民基本台帳法（昭和42年法律第81号）"));
     }
 
     fn xml(bytes: &[u8]) -> String {

@@ -3467,9 +3467,52 @@ fn split_tiers(cols: Vec<Col>, rules: &TierRules) -> Vec<Vec<Col>> {
     rejoin_honoree_names(&mut out);
     rejoin_value_cells(&mut out);
     rejoin_prose_label_values(&mut out, rules);
+    rejoin_column_tails(&mut out);
     out.extend(trailing);
     out.retain(|t| !t.is_empty());
     out
+}
+
+/// 段の下端を越えて続く 1 列の終わり（横倒しに組んだ引用「その国籍等（住民基本台帳法（昭和42年法律第81号）」）が、
+/// 下の段に切られたものを元の列に戻す。号外第217号 17 ページで、列の終わりが段の下端に字送りの隙間なく続いていたのに
+/// 別の段になり、次の様式の見出しの後ろに置かれていた。
+///
+/// 戻すのは、3 語以下の 1 列だけの段で、上の段の列のうち段の下端まで届く最後の語と横に重なり、その下端から半字以内に
+/// 始まるもの。上の列が文末（「。」）で終わっていれば、続きではない。
+fn rejoin_column_tails(tiers: &mut [Vec<Col>]) {
+    let overlap = |a: &Col, b: &Col| a.x1.min(b.x1) - a.x.max(b.x);
+    let center = |c: &Col| (c.x + c.x1) / 2.0;
+    for i in 0..tiers.len() {
+        let tail = &tiers[i];
+        // 縦の列の終わりだけ（横組みの語「リンク＆リンケージ株式会社」は列の続きではない）。
+        if tail.is_empty() || tail.len() > 3 || tail.iter().any(|c| c.y1 - c.y < (c.x1 - c.x) * 1.5) {
+            continue;
+        }
+        let em = tail.iter().map(|c| c.x1 - c.x).fold(f32::INFINITY, f32::min).max(6.0);
+        if tail.iter().any(|c| tail.iter().any(|d| overlap(c, d) < em * 0.5)) {
+            continue;
+        }
+        let top = tail.iter().map(|c| c.y).fold(f32::INFINITY, f32::min);
+        // 横倒しの字と縦の字は同じ列でも半字ほど左右にずれるので、列は中心でそろえる。
+        let Some(j) = (0..tiers.len()).find(|&j| {
+            j != i && {
+                let bottom = tiers[j].iter().map(|c| c.y1).fold(f32::NEG_INFINITY, f32::max);
+                let last = tiers[j]
+                    .iter()
+                    .filter(|w| (center(w) - center(&tail[0])).abs() <= em * 0.7)
+                    .max_by(|a, b| a.y1.total_cmp(&b.y1));
+                last.is_some_and(|w| {
+                    (-em * 0.25..=em * 0.5).contains(&(top - w.y1))
+                        && bottom - w.y1 <= em * 1.0
+                        && !w.text.trim_end().ends_with('。')
+                })
+            }
+        }) else {
+            continue;
+        };
+        let moved = std::mem::take(&mut tiers[i]);
+        tiers[j].extend(moved);
+    }
 }
 
 /// 項目の番号（「１」「２」「三」「（４）」）だけの段が、すぐ下の段の同じ列の書き出しに続くなら下の段にまとめる
@@ -6135,6 +6178,42 @@ fn split_off_horizontal_blocks(cols: Vec<Col>, vrules: &[(f32, f32, f32)], hrule
 
 #[cfg(test)]
 mod tests {
+
+    #[test]
+    fn a_sideways_column_tail_cut_at_the_tier_bottom_returns_to_its_column() {
+        // 号外第217号 17 ページ: 縦の字（x=512〜520）と横倒しの引用（x=507〜515）の列が、段の下端（604.8）の
+        // すぐ下に続く横倒しの終わり（597〜789）で別の段に切られていた。
+        let col = |id, x: f32, w: f32, y: f32, y1: f32, text: &str| Col { id, x, x1: x + w, y, y1, text: text.into() };
+        let upper = vec![
+            col(0, 523.0, 8.0, 76.8, 604.8, "第十七条の十八第一項第四号中「その者の有する国籍」を「その国籍等」に改める。"),
+            col(1, 512.0, 8.0, 76.8, 500.8, "別記様式記載要領中「"),
+            col(2, 506.96, 8.18, 501.0, 573.0, "その者の有する国籍"),
+            col(3, 512.0, 8.0, 572.8, 596.8, "」を「"),
+            col(4, 501.0, 8.0, 204.8, 252.8, "」に改める。"),
+        ];
+        let tail = vec![col(5, 506.96, 8.18, 597.0, 789.0, "その国籍等（住民基本台帳法（昭和42年法律第81号）")];
+        let mut tiers = vec![upper.clone(), tail.clone()];
+        rejoin_column_tails(&mut tiers);
+        assert!(tiers[1].is_empty());
+        assert_eq!(tiers[0].len(), 6);
+        // 上の列が文末で終わっていれば別の段（次の文）のまま。
+        let mut closed = upper.clone();
+        closed[3].text = "」に改める。".into();
+        let mut tiers = vec![closed, tail.clone()];
+        rejoin_column_tails(&mut tiers);
+        assert_eq!(tiers[1].len(), 1);
+        // 段の下端の隙間（半字超）や、別の列の下に始まる段は戻さない。
+        let mut tiers = vec![upper.clone(), vec![col(5, 506.96, 8.18, 610.0, 789.0, "下の段")]];
+        rejoin_column_tails(&mut tiers);
+        assert_eq!(tiers[1].len(), 1);
+        let mut tiers = vec![upper.clone(), vec![col(5, 480.0, 8.0, 597.0, 789.0, "下の段")]];
+        rejoin_column_tails(&mut tiers);
+        assert_eq!(tiers[1].len(), 1);
+        // 横組みの語（表の見出しの社名）は列の続きではない（号外第214号 70 ページ）。
+        let mut tiers = vec![upper, vec![col(5, 470.0, 117.0, 597.0, 606.2, "リンク＆リンケージ株式会社")]];
+        rejoin_column_tails(&mut tiers);
+        assert_eq!(tiers[1].len(), 1);
+    }
 
     #[test]
     fn a_grid_whose_top_cells_are_short_labels_is_a_table_even_with_prose_below() {
