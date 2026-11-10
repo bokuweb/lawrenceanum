@@ -42,6 +42,14 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-unknown-unknown
+      # テストの CPU 時間の大半は、最適化せずにビルドした依存クレートの中だった。
+      # このジョブでだけ依存クレートを最適化する（手元で全テストの CPU 時間 1221 秒 → 286 秒）。
+      # 依存クレートは rust-cache に載るので、ビルドが重くなるのはキャッシュが外れたときだけ。
+      # キャッシュのキーに入るよう rust-cache より前に書く。
+      - name: Optimize dependencies in test builds
+        run: |
+          mkdir -p .cargo
+          printf '[profile.dev.package."*"]\nopt-level = 2\n' >> .cargo/config.toml
       - uses: Swatinem/rust-cache@v2
       # cargo test はテストのバイナリを 1 つずつ順に走らせるので、重いバイナリ（1 つで数分かかる）が
       # 続くと CPU が遊ぶ。nextest はバイナリをまたいでテストを並列に走らせる（手元で 651 秒 → 228 秒）。
