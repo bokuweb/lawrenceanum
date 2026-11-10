@@ -42,13 +42,27 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-unknown-unknown
+      # テストの CPU 時間の大半は、最適化せずにビルドした依存クレートの中だった。
+      # このジョブでだけ依存クレートを最適化する（手元で全テストの CPU 時間 1221 秒 → 286 秒）。
+      # 依存クレートは rust-cache に載るので、ビルドが重くなるのはキャッシュが外れたときだけ。
+      # キャッシュのキーに入るよう rust-cache より前に書く。
+      - name: Optimize dependencies in test builds
+        run: |
+          mkdir -p .cargo
+          printf '[profile.dev.package."*"]\nopt-level = 2\n' >> .cargo/config.toml
       - uses: Swatinem/rust-cache@v2
+      # cargo test はテストのバイナリを 1 つずつ順に走らせるので、重いバイナリ（1 つで数分かかる）が
+      # 続くと CPU が遊ぶ。nextest はバイナリをまたいでテストを並列に走らせる（手元で 651 秒 → 228 秒）。
+      # nextest は doctest を走らせないので、doctest は cargo test --doc で別に回す。
+      - uses: taiki-e/install-action@nextest
       # スナップショットが変わったら CI では更新せずに落とす（差分は手元で cargo insta review）。
       - name: Test
         env:
           INSTA_UPDATE: "no"
           CI: "true"
-        run: cargo test -p kanpo-pdf -p kanpo-parser -p kanpo-parser-wasm -p kanpo-docx -p kanpo-lm --locked
+        run: cargo nextest run -p kanpo-pdf -p kanpo-parser -p kanpo-parser-wasm -p kanpo-docx -p kanpo-lm --locked --no-fail-fast
+      - name: Doc tests
+        run: cargo test --doc -p kanpo-pdf -p kanpo-parser -p kanpo-parser-wasm -p kanpo-docx -p kanpo-lm --locked
       # 官報 PDF → DOCX はブラウザでも動かす（/kanpo-docx）。WASM でビルドが通ることを確かめる。
       - name: Build kanpo-docx for WASM
         run: cargo build -p kanpo-docx-wasm --target wasm32-unknown-unknown --locked
