@@ -414,11 +414,100 @@ pub(super) fn apply(
 #[cfg(test)]
 mod tests {
     use super::*;
+    const PDF: &[u8] = include_bytes!("../tests/data/workbook/case-06.pdf");
+
+    /// The two (ヲ) glyphs of case-06 as they were before the static table knew
+    /// their code: `（１８）�`. No other original exercises this path.
+    fn without_static_wo<T>(f: impl FnOnce() -> T) -> T {
+        crate::normalize::WITHOUT_STATIC_WO.with(|c| c.set(true));
+        let out = f();
+        crate::normalize::WITHOUT_STATIC_WO.with(|c| c.set(false));
+        out
+    }
+    fn observations() -> serde_json::Value {
+        let glyphs: serde_json::Value = serde_json::from_str(include_str!(
+            "../tests/data/workbook/case-06.native-glyph-observations.json"
+        ))
+        .unwrap();
+        glyphs["observations"].clone()
+    }
+    fn run(observations: &serde_json::Value) -> (crate::Analysis, Audit) {
+        without_static_wo(|| {
+            let sources = kanpo_pdf::extract_pages_with_xobject_sources(PDF).unwrap();
+            let base = crate::analyze_item(&crate::page_inputs(PDF).unwrap());
+            apply(&base, &sources, None, Some(observations)).unwrap()
+        })
+    }
+    fn text(analysis: &crate::Analysis) -> String {
+        analysis
+            .pages
+            .iter()
+            .flat_map(|p| &p.regions)
+            .flat_map(|r| &r.lines)
+            .map(|l| l.text.as_str())
+            .collect()
+    }
+
+    #[test]
+    fn isolated_native_readings_bind_unknown_identity_glyphs_without_guessing() {
+        let (observed, audit) = run(&observations());
+        assert_eq!(audit.candidates.len(), 2);
+        assert_eq!(audit.bindings.len(), 2);
+        assert!(audit.unresolved.is_empty(), "{:?}", audit.unresolved);
+        assert!(audit.source_issues.is_empty());
+        for binding in &audit.bindings {
+            assert_eq!(binding.text, "（ヲ）");
+            assert_eq!(binding.status, "candidate_unverified");
+        }
+        let text = text(&observed);
+        assert!(!text.contains('�'));
+        assert_eq!(text.matches("（１８）（ヲ）").count(), 2);
+    }
+
+    #[test]
+    fn wrong_occurrences_and_known_number_halves_cannot_take_native_readings() {
+        for mutation in 0..4 {
+            let mut observations = observations();
+            let source = &mut observations[0]["candidate"];
+            match mutation {
+                0 => {
+                    source["bounds"][0] =
+                        serde_json::json!(source["bounds"][0].as_f64().unwrap() + 1.)
+                }
+                1 => source["source_document_sha256"] = serde_json::json!("foreign PDF"),
+                2 => source["source_word_box"][1] = serde_json::json!(0.),
+                _ => {
+                    source["glyph"] = serde_json::json!(2805);
+                    source["raw_index"] = serde_json::json!(0);
+                    source["cid"] = serde_json::json!(26141);
+                }
+            }
+            let (observed, audit) = run(&observations);
+            assert_eq!(audit.bindings.len(), 1, "{mutation}");
+            assert_eq!(audit.unresolved.len(), 1);
+            assert_eq!(audit.source_issues.len(), 1);
+            let text = text(&observed);
+            assert_eq!(text.matches('�').count(), 1);
+            assert!(text.contains("（１８）�"));
+        }
+    }
+
+    #[test]
+    fn competing_observations_reject_both_without_confidence_or_order_selection() {
+        let mut observations = observations();
+        let mut other = observations[0].clone();
+        other["text"] = serde_json::json!("（ア）");
+        observations.as_array_mut().unwrap().push(other);
+        let (observed, audit) = run(&observations);
+        assert_eq!(audit.bindings.len(), 1);
+        assert_eq!(audit.unresolved.len(), 2);
+        assert_eq!(text(&observed).matches('�').count(), 1);
+    }
     #[test]
     fn ineligible_placeholder_words_still_remain_in_source_issue_inventory() {
-        let pdf = include_bytes!("../tests/data/workbook/case-06.pdf");
-        let sources = kanpo_pdf::extract_pages_with_xobject_sources(pdf).unwrap();
-        let mut base = crate::analyze_item(&crate::page_inputs(pdf).unwrap());
+        crate::normalize::WITHOUT_STATIC_WO.with(|c| c.set(true));
+        let sources = kanpo_pdf::extract_pages_with_xobject_sources(PDF).unwrap();
+        let mut base = crate::analyze_item(&crate::page_inputs(PDF).unwrap());
         for page in &mut base.pages {
             for word in &mut page.words {
                 if word.text.contains('�') {
@@ -427,6 +516,7 @@ mod tests {
             }
         }
         let (_, audit) = apply(&base, &sources, None, None).unwrap();
+        crate::normalize::WITHOUT_STATIC_WO.with(|c| c.set(false));
         assert!(audit.candidates.is_empty());
         assert!(audit.bindings.is_empty());
         assert_eq!(audit.source_issues.len(), 2);
@@ -442,9 +532,9 @@ mod tests {
 
     #[test]
     fn earlier_paint_insertions_shift_glyph_positions_only_through_complete_source_tokens() {
-        let pdf = include_bytes!("../tests/data/workbook/case-06.pdf");
-        let sources = kanpo_pdf::extract_pages_with_xobject_sources(pdf).unwrap();
-        let mut base = crate::analyze_item(&crate::page_inputs(pdf).unwrap());
+        crate::normalize::WITHOUT_STATIC_WO.with(|c| c.set(true));
+        let sources = kanpo_pdf::extract_pages_with_xobject_sources(PDF).unwrap();
+        let mut base = crate::analyze_item(&crate::page_inputs(PDF).unwrap());
         let original = targets(&base, &sources, None)
             .into_iter()
             .find(|t| t.candidate.word == 178)
@@ -497,5 +587,6 @@ mod tests {
         assert!(targets(&base, &sources, Some(&duplicate))
             .iter()
             .all(|t| t.candidate != original.candidate));
+        crate::normalize::WITHOUT_STATIC_WO.with(|c| c.set(false));
     }
 }

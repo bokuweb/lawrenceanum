@@ -266,13 +266,14 @@ fn cid_glyph(chars: &[char], width: f32, height: f32, sure: bool) -> Option<CidG
                     FAM_PAREN_KANJI,
                     format!("（{}）", nth("一二三四五六七八九十", code - 0x63B4)?),
                 ),
-                // (ア)〜(ン)（五十音順）
-                0x6541..=0x656E => (
+                // (ア)〜(ワ)（五十音順。(カ)・(ル)・(ワ) まで原本で確かめた）。
+                // 続く 0x656D〜0x656F は確かめていない（(ヰ)・(ヱ) などが入りうる）ので写像しない。
+                0x6541..=0x656C => (
                     FAM_PAREN_KANA,
                     format!(
                         "（{}）",
                         nth(
-                            "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン",
+                            "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワ",
                             code - 0x6541
                         )?
                     ),
@@ -339,11 +340,31 @@ fn cid_glyph(chars: &[char], width: f32, height: f32, sure: bool) -> Option<CidG
     })
 }
 
+#[cfg(test)]
+thread_local! {
+    /// 単体テストで、(ヲ) が未知の符号だったときの状態（`�`）を再現する。原本の字を外部の
+    /// 観測から読み込む経路は、この字のほかに試せる原本が無いため。
+    pub(crate) static WITHOUT_STATIC_WO: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+}
+fn static_wo_disabled() -> bool {
+    #[cfg(test)]
+    {
+        WITHOUT_STATIC_WO.with(std::cell::Cell::get)
+    }
+    #[cfg(not(test))]
+    {
+        false
+    }
+}
+
 /// ToUnicode の無いフォントの字と分かっているときだけ写像するもの（常用漢字と同じ符号を含む）。
 /// 原本の字形で確かめた。
 fn identity_only_glyph(code: u32) -> Option<(u8, String)> {
     let nth = |s: &str, i: u32| s.chars().nth(i as usize).map(String::from);
     let text = match code {
+        // (ヲ)（常用漢字「数」と同じ符号。No.6 財務省令17号の別表第六「備考２（１８）（ヲ）」
+        // で、原本の字形と改め文の号の並び（ル→ヲ→ワ→カ）から確かめた）
+        0x6570 if !static_wo_disabled() => return Some((FAM_PAREN_KANA, "（ヲ）".to_string())),
         // (あ)〜(わ)（五十音順。(と)・(ぬ)・(る) で確かめた）
         0x650E..=0x6538 => {
             let kana = nth(
