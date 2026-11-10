@@ -49,8 +49,19 @@ jobs:
         uses: jdx/mr-boxington-action@v1
 
       # build/test は崩れていたら落とす (= 真の壊れ=今回のライセンス継承崩れ等を検出)。
-      - name: Build & test (workspace)
-        run: mbx test --workspace --locked
+      # ビルドは全クレートの全ターゲット (kanpo のテストも含む) をコンパイルして壊れを検出する。
+      - name: Build (workspace, all targets)
+        run: mbx build --workspace --all-targets --locked
+
+      # kanpo-pdf / kanpo-parser / kanpo-parser-wasm / kanpo-docx / kanpo-lm のテストは
+      # kanpo-parser-test.yml が同じ変更で回すので、ここでは実行しない。
+      # (含めると debug ビルドで 15 分以上かかり、30 分の上限で打ち切られていた。
+      # 打ち切りで main の実行が成功しないと mbx のキャッシュも保存されない。)
+      - name: Test (workspace, kanpo crates excluded)
+        run: >-
+          mbx test --workspace --locked
+          --exclude kanpo-pdf --exclude kanpo-parser --exclude kanpo-parser-wasm
+          --exclude kanpo-docx --exclude kanpo-lm
 
       # fmt / clippy は情報提供のみ (既存クレートに整形崩れ・warning が残っているため)。
       # 一度 `cargo fmt --all` で整形し既存 warning を解消したら、それぞれ
