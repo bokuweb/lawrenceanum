@@ -6,7 +6,7 @@ use docx_rs::{
 };
 use kanpo_parser::{
     media::Field,
-    model::{NestedTable, Run},
+    model::{CellMerge, NestedTable, Run},
     trace::{Role, Table, Word, WordStatus},
     Analysis,
 };
@@ -571,6 +571,54 @@ impl Borders {
     }
 }
 impl CellPlan {
+    /// Word gives a dashed border a fixed conflict weight of 1, so on a
+    /// shared edge the neighbour's default solid rule (`single`, `sz` 2:
+    /// weight 2) wins over it (MS-OE376 §2.4.63). Give each neighbour facing a
+    /// dashed side no border there instead: `nil` loses to any border, while
+    /// the neighbour's other cells keep their default rules.
+    pub fn clear_neighbours(&self, merges: &[CellMerge], rows: usize, cols: usize) -> Self {
+        let owner = |r: usize, c: usize| -> (usize, usize, usize, usize) {
+            merges
+                .iter()
+                .find(|m| {
+                    r >= m.row && r < m.row + m.rowspan && c >= m.col && c < m.col + m.colspan
+                })
+                .map_or((r, c, 1, 1), |m| (m.row, m.col, m.rowspan, m.colspan))
+        };
+        let mut out = self.clone();
+        for (&(r0, c0), edges) in &self.0 {
+            let (_, _, rs, cs) = owner(r0, c0);
+            for (&edge, &size) in edges {
+                if size == 0 {
+                    continue;
+                }
+                let (facing, slots): (Edge, Vec<(usize, usize)>) = match edge {
+                    Edge::Left if c0 > 0 => {
+                        (Edge::Right, (r0..r0 + rs).map(|r| (r, c0 - 1)).collect())
+                    }
+                    Edge::Right if c0 + cs < cols => {
+                        (Edge::Left, (r0..r0 + rs).map(|r| (r, c0 + cs)).collect())
+                    }
+                    Edge::Top if r0 > 0 => {
+                        (Edge::Bottom, (c0..c0 + cs).map(|c| (r0 - 1, c)).collect())
+                    }
+                    Edge::Bottom if r0 + rs < rows => {
+                        (Edge::Top, (c0..c0 + cs).map(|c| (r0 + rs, c)).collect())
+                    }
+                    _ => continue,
+                };
+                for (r, c) in slots {
+                    let (nr, nc, _, _) = owner(r, c);
+                    out.0
+                        .entry((nr, nc))
+                        .or_default()
+                        .entry(facing)
+                        .or_insert(0);
+                }
+            }
+        }
+        out
+    }
     pub fn apply(
         &self,
         cell: TableCell,
@@ -592,11 +640,13 @@ impl CellPlan {
                 Edge::Bottom if bottom => Position::Bottom,
                 _ => continue,
             };
-            borders = borders.set(
+            borders = borders.set(if size == 0 {
+                TableCellBorder::new(side).border_type(BorderType::Nil)
+            } else {
                 TableCellBorder::new(side)
                     .border_type(BorderType::Dashed)
-                    .size(size as usize),
-            );
+                    .size(size as usize)
+            });
             any = true;
         }
         if any {
@@ -834,5 +884,50 @@ mod tests {
             tol
         ));
         assert!(!frames_cells(t, [b[0], b[1], mid, b[3]], tol));
+    }
+
+    #[test]
+    fn neighbours_facing_a_dashed_side_give_up_their_solid_rule_there() {
+        // 3x3 grid; column 0 is one cell merged down all rows, the framed
+        // cell is (1, 1). Word's dashed weight (1) loses to a default single
+        // rule (2), so every owner across a dashed side gets `nil` there.
+        let merges = [CellMerge {
+            row: 0,
+            col: 0,
+            rowspan: 3,
+            colspan: 1,
+        }];
+        let mut plan = CellPlan::default();
+        plan.0.insert(
+            (1, 1),
+            [
+                (Edge::Left, 2),
+                (Edge::Top, 2),
+                (Edge::Right, 2),
+                (Edge::Bottom, 2),
+            ]
+            .into_iter()
+            .collect(),
+        );
+        // (2, 2) already has its own dashed top: keep it rather than clearing.
+        plan.0
+            .insert((2, 1), [(Edge::Top, 2)].into_iter().collect());
+        let cleared = plan.clear_neighbours(&merges, 3, 3);
+        let side = |r, c, e| {
+            cleared
+                .0
+                .get(&(r, c))
+                .and_then(|s: &Edges| s.get(&e))
+                .copied()
+        };
+        assert_eq!(side(0, 0, Edge::Right), Some(0), "merged owner, not (1, 0)");
+        assert_eq!(side(1, 0, Edge::Right), None);
+        assert_eq!(side(0, 1, Edge::Bottom), Some(0));
+        assert_eq!(side(1, 2, Edge::Left), Some(0));
+        assert_eq!(side(2, 1, Edge::Top), Some(2));
+        assert_eq!(side(1, 1, Edge::Left), Some(2));
+        // The framed cell's own sides and unrelated cells are unchanged.
+        assert_eq!(cleared.0.get(&(1, 1)), plan.0.get(&(1, 1)));
+        assert!(cleared.0.get(&(0, 2)).is_none());
     }
 }
