@@ -361,15 +361,6 @@ impl Styles {
         }
         p
     }
-    pub fn word_runs(
-        &self,
-        field: Field,
-        text: &str,
-        underlined: bool,
-        bold: bool,
-    ) -> Vec<docx_rs::Run> {
-        self.word_runs_scaled(field, text, underlined, bold, 1.)
-    }
     pub fn word_runs_scaled(
         &self,
         field: Field,
