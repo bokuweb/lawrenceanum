@@ -660,6 +660,7 @@ fn table_in_canvas(t:&MediaTable,width:usize,layout:&Layout<'_>,pictures:&Pictur
     let t = physical.as_ref().map_or(t, |(physical, _)| physical);
     let plain = plain_table(t);
     let cols = t.rows.iter().map(Vec::len).max().unwrap_or(0);
+    let borders = borders.clear_neighbours(&t.merges, t.rows.len(), cols);
     let grid = plan
         .as_ref()
         .map_or_else(|| layout.columns(&plain, width), |p| p.widths.clone());
