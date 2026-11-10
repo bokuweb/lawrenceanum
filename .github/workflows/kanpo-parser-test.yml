@@ -43,12 +43,18 @@ jobs:
         with:
           targets: wasm32-unknown-unknown
       - uses: Swatinem/rust-cache@v2
+      # cargo test はテストのバイナリを 1 つずつ順に走らせるので、重いバイナリ（1 つで数分かかる）が
+      # 続くと CPU が遊ぶ。nextest はバイナリをまたいでテストを並列に走らせる（手元で 651 秒 → 228 秒）。
+      # nextest は doctest を走らせないので、doctest は cargo test --doc で別に回す。
+      - uses: taiki-e/install-action@nextest
       # スナップショットが変わったら CI では更新せずに落とす（差分は手元で cargo insta review）。
       - name: Test
         env:
           INSTA_UPDATE: "no"
           CI: "true"
-        run: cargo test -p kanpo-pdf -p kanpo-parser -p kanpo-parser-wasm -p kanpo-docx -p kanpo-lm --locked
+        run: cargo nextest run -p kanpo-pdf -p kanpo-parser -p kanpo-parser-wasm -p kanpo-docx -p kanpo-lm --locked --no-fail-fast
+      - name: Doc tests
+        run: cargo test --doc -p kanpo-pdf -p kanpo-parser -p kanpo-parser-wasm -p kanpo-docx -p kanpo-lm --locked
       # 官報 PDF → DOCX はブラウザでも動かす（/kanpo-docx）。WASM でビルドが通ることを確かめる。
       - name: Build kanpo-docx for WASM
         run: cargo build -p kanpo-docx-wasm --target wasm32-unknown-unknown --locked
