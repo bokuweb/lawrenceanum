@@ -193,7 +193,7 @@ pub(crate) fn write_documents(
                         let side = |runs: &[Inline], t: Option<&MediaTable>, field: Field| {
                             let mut c = cell_runs(
                                 runs,
-                                field_width.saturating_sub(110),
+                                field_width.saturating_sub(SHINKYU_CELL_MARGINS),
                                 false,
                                 true,
                                 &layout,
@@ -206,7 +206,7 @@ pub(crate) fn write_documents(
                                 c = c
                                     .add_table(table(
                                         t,
-                                        field_width.saturating_sub(110),
+                                        field_width.saturating_sub(SHINKYU_CELL_MARGINS),
                                         &layout,
                                         pictures,
                                         &styles,
@@ -290,6 +290,11 @@ pub(crate) fn write_documents(
     package.pack(&mut out).map_err(|e| anyhow!("docx: {e}"))?;
     Ok(out.into_inner())
 }
+
+/// 新旧対照表の欄（セル）に入れる段落・表の幅は、欄の幅から左右のセル余白（既定 108 twip ずつ）を引く。
+/// 左の余白だけ引くと、欄に入れた表の右端が欄の右の罫線に重なり、表の右端の線（枠の破線など）が
+/// 欄の実線に隠れる（原本では表と欄の罫線の間があいている）。
+const SHINKYU_CELL_MARGINS: usize = 220;
 
 fn comparative_tables_need_landscape(
     analysis: &kanpo_parser::Analysis,
@@ -1077,12 +1082,12 @@ mod tests {
                 }));
             }
             assert_eq!(t.rows[0][2].iter().map(|r|r.text.as_str()).collect::<String>(),"電気通信番号により識別する電気通信設備又は提供すべき電気通信役務の種類若しくは内容");
-            assert_eq!(layout.columns(t, 6608), vec![645, 1289, 1289, 3385]);
+            assert_eq!(layout.columns(t, 6718 - SHINKYU_CELL_MARGINS), vec![634, 1268, 1268, 3328]);
         }
         let doc = xml(&write(&analysis).unwrap());
         assert!(doc.contains("w:orient=\"landscape\""));
-        assert!(doc.contains("<w:gridCol w:w=\"645\""));
-        assert!(doc.contains("<w:gridCol w:w=\"3385\""));
+        assert!(doc.contains("<w:gridCol w:w=\"634\""));
+        assert!(doc.contains("<w:gridCol w:w=\"3328\""));
         assert!(doc.contains("<w:vAlign w:val=\"center\""));
         let headers=doc.split("<w:tr>").skip(1).filter_map(|row|row.split_once("</w:tr>").map(|p|p.0)).filter(|row|row.contains("<w:tblHeader")).collect::<Vec<_>>();
         assert_eq!(headers.iter().map(|row|row.matches("w:vMerge w:val=\"restart\"").count()).sum::<usize>(),4);
