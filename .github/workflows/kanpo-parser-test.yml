@@ -13,6 +13,7 @@ on:
       - "crates/kanpo-docx-wasm/**"
       - "crates/kanpo-pdf/**"
       - "crates/kanpo-lm/**"
+      - "Cargo.toml"
       - "Cargo.lock"
       - ".github/workflows/kanpo-parser-test.yml"
   push:
@@ -25,6 +26,7 @@ on:
       - "crates/kanpo-docx-wasm/**"
       - "crates/kanpo-pdf/**"
       - "crates/kanpo-lm/**"
+      - "Cargo.toml"
       - "Cargo.lock"
       - ".github/workflows/kanpo-parser-test.yml"
 
