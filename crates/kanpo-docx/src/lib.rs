@@ -15,6 +15,7 @@ mod continuations;
 mod decorations;
 pub mod docx;
 mod formalities;
+mod indents;
 pub mod images;
 mod layout;
 mod pictures;
