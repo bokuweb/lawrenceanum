@@ -103,6 +103,7 @@ pub(crate) fn write_documents(
     }
     let styles = source_styles.bind(&documents);
     styles.set_insertions(painted);
+    styles.set_indents(crate::indents::Indents::new(analysis, &documents));
     for (k, (article, document)) in analysis.articles.iter().zip(&documents).enumerate() {
         if k > 0 {
             docx = docx.add_paragraph(Paragraph::new());
@@ -137,7 +138,10 @@ pub(crate) fn write_documents(
                                         p = p.line_spacing(docx_rs::LineSpacing::new().line_rule(docx_rs::LineSpacingType::Exact).line(twips as i32));
                                     }
                                     paragraph_cursor += line.iter().map(|(s,_)| s.chars().filter(|c| !c.is_whitespace()).count()).sum::<usize>();
-                                    if let Some(size)=styles.paragraph_font(Field::Paragraph,&line.iter().map(|r|r.0.as_str()).collect::<String>()){p=p.size(size);}
+                                    let text=line.iter().map(|r|r.0.as_str()).collect::<String>();
+                                    let size=styles.paragraph_font(Field::Paragraph,&text);
+                                    if let Some(size)=size{p=p.size(size);}
+                                    p=styles.indent_paragraph(p,Field::Paragraph,&text,size.unwrap_or_else(||styles.default_font()));
                                     for (text, underline) in line {
                                         p = styles.add_word_runs(p, Field::Paragraph, &text, underline, first, 1.);
                                     }
@@ -532,6 +536,10 @@ fn cell_runs_in_canvas(runs:&[Inline],width:usize,header:bool,prose:bool,layout:
                 let line = source_label_spaces(line, layout, prose);
                 let mut p = Paragraph::new();
                 let size=styles.paragraph_font(field,&line.iter().map(|r|r.0.as_str()).collect::<String>()).unwrap_or_else(||styles.default_font());p=p.size((size as f32*scale).round().max(1.) as usize);
+                if !header {
+                    let text=line.iter().map(|r|r.0.as_str()).collect::<String>();
+                    p=styles.indent_paragraph(p,field,&text,(size as f32*scale).round().max(1.) as usize);
+                }
                 if header {
                     p = p
                         .align(AlignmentType::Center)
@@ -895,6 +903,56 @@ mod tests {
         let tail = &paragraphs[paragraphs.len() - 2..];
         assert_eq!(tail[0], "附　則", "{tail:?}");
         assert!(tail[1].starts_with("この省令は、"), "{tail:?}");
+    }
+
+    /// (left, hanging or -firstLine) in twips and the size in half-points of
+    /// the first paragraph whose text starts with `start`.
+    fn indent_of(doc: &str, start: &str) -> Option<(i32, i32, i32)> {
+        for p in doc.split("<w:p ").skip(1) {
+            let p = &p[..p.find("</w:p>").unwrap_or(p.len())];
+            let text = p
+                .split("<w:t xml:space=\"preserve\">")
+                .skip(1)
+                .map(|t| &t[..t.find("</w:t>").unwrap()])
+                .collect::<String>();
+            if !text.starts_with(start) {
+                continue;
+            }
+            let attr = |name: &str| {
+                let k = format!("w:{name}=\"");
+                p.find("<w:ind ").and_then(|i| {
+                    let ind = &p[i..i + p[i..].find("/>").unwrap()];
+                    ind.find(&k).map(|j| ind[j + k.len()..].split('"').next().unwrap().parse::<i32>().unwrap())
+                })
+            };
+            let size = p.split("<w:sz w:val=\"").nth(1).map_or(21, |v| v.split('"').next().unwrap().parse().unwrap());
+            return Some((attr("left").unwrap_or(0), attr("hanging").unwrap_or(0) - attr("firstLine").unwrap_or(0), size));
+        }
+        None
+    }
+
+    #[test]
+    fn evaluated_indents_follow_the_original_lines() {
+        // 一次確認の項目 4（字下げ）: 原本の行の始まりを、欄の上端からの字数で段落の字下げにする。
+        // (first-line level, continuation level) in em, read from the original.
+        let check = |doc: &str, start: &str, first: i32, rest: i32| {
+            let (left, hanging, size) = indent_of(doc, start).unwrap_or_else(|| panic!("{start}"));
+            let em = size * 10;
+            assert_eq!((left - hanging, left), (first * em, rest * em), "{start}");
+        };
+        // 環境省令第二十五号（No.1）の新旧表の欄: 条・号・号の細分。
+        let doc = xml(&crate::convert(include_bytes!("../../kanpo-parser/tests/data/workbook/case-01.pdf"), &[]).unwrap());
+        check(&doc, "第一条の二の三", 0, 1);
+        check(&doc, "一　協定に参加する者の氏名又は名称", 1, 2);
+        check(&doc, "二　非常災害廃棄物適正処理業者（法第五条", 1, 2);
+        check(&doc, "イ　非常災害廃棄物の処理に係る費用負担", 2, 3);
+        check(&doc, "２　法第五条の六の二第二項", 0, 1);
+        check(&doc, "令和八年九月十五日", 3, 3);
+        // 財務省令第十七号（No.6）の本文: 項・号・号の細分。
+        let doc = xml(&crate::convert(include_bytes!("../../kanpo-parser/tests/data/workbook/case-06.pdf"), &[]).unwrap());
+        check(&doc, "２　令第二十条の二第三号に規定する財務省令で定める金額は", 0, 1);
+        check(&doc, "一　当該駐車場等の料金が月を単位として", 1, 2);
+        check(&doc, "イ　その者が通勤のためその利用の都度負担した", 2, 3);
     }
 
     #[test]

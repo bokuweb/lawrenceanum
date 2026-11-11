@@ -50,6 +50,7 @@ pub(crate) struct Styles {
     /// Unverified readings of painted characters, keyed by (field, scalar
     /// position of the source character they precede).
     insertions: RefCell<std::collections::BTreeMap<(usize, usize), String>>,
+    indents: RefCell<crate::indents::Indents>,
     comments: std::cell::Cell<usize>,
 }
 const FIELDS: [Field; 3] = [Field::Paragraph, Field::After, Field::Before];
@@ -162,6 +163,7 @@ impl SourceStyles {
         Styles {
             base_font: self.base_font,
             insertions: RefCell::default(),
+            indents: RefCell::default(),
             comments: std::cell::Cell::new(0),
             borders: self.borders.clone(),
             annotations: self.annotations.writer(),
@@ -304,6 +306,20 @@ impl Styles {
             start..end,
             scalars.into_iter().map(|(_, (_, annotation))| annotation),
         );
+    }
+    pub fn set_indents(&self, indents: crate::indents::Indents) {
+        *self.indents.borrow_mut() = indents;
+    }
+    /// Indent `p`, about to receive `text` of `field`, as its original lines
+    /// are indented (see `indents`).
+    pub fn indent_paragraph(&self, p: docx_rs::Paragraph, field: Field, text: &str, size: usize) -> docx_rs::Paragraph {
+        let Some(position) = self.fields[index(field)].as_ref().map(|s| s.borrow().position) else {
+            return p;
+        };
+        match self.indents.borrow().indent(field, position, text, size) {
+            Some((left, special)) => p.indent(Some(left), special, None, None),
+            None => p,
+        }
     }
     /// Readings to insert, keyed by field and source scalar position.
     pub fn set_insertions(&self, insertions: &[(Field, usize, String)]) {
