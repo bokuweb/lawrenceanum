@@ -1,20 +1,20 @@
 ---
 type: "bill"
 title: "公立学校の学校医、学校歯科医及び学校薬剤師の公務災害補償に関する法律の一部を改正する法律案"
-description: "学校医等の公務災害補償の消滅時効期間を見直す閣法案。2026-10-27 衆議院文部科学に付託"
+description: "閣法（第222回国会）: 2026-11-06 参議院で受理"
 resource: "https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/keika/1DE34BA.htm"
-timestamp: "2026-10-31T00:08:00Z"
-date: "2026-10-27"
+timestamp: "2026-11-12T00:09:13Z"
+date: "2026-11-06"
 session: 222
 bill_id: "1DE34BA"
 bill_type: "閣法"
-result: ""
-latest_date: "2026-10-27"
+result: "可決"
+latest_date: "2026-11-06"
 law_num_text: null
 laws: ["332AC0100000143"]
-votes: []
+votes: [{"house":"衆議院","side":"賛成","groups":["自由民主党・無所属の会","中道","日本維新の会","国民民主党・無所属クラブ","参政党","チームみらい","日本共産党","志士の会"]}]
 proposer_groups: []
-stages: [{"date":"2026-10-09","kind":"received","label":"衆議院で受理"},{"date":"2026-10-27","kind":"referred","label":"衆議院 文部科学に付託"}]
+stages: [{"date":"2026-10-09","kind":"received","label":"衆議院で受理"},{"date":"2026-10-27","kind":"referred","label":"衆議院 文部科学に付託"},{"date":"2026-10-30","kind":"committee","label":"衆議院 委員会で可決"},{"date":"2026-11-06","kind":"plenary","label":"衆議院 本会議で可決"},{"date":"2026-11-06","kind":"received","label":"参議院で受理"}]
 tags: []
 render_version: 3
 llm_latest_date: "2026-10-27"
@@ -45,6 +45,7 @@ llm_latest_date: "2026-10-27"
 |---|---|
 | 種類 | 閣法（第222回国会 第8号） |
 | 提出者 | 内閣 |
+| 結果 | 可決 |
 | 対象法令 | [公立学校の学校医、学校歯科医及び学校薬剤師の公務災害補償に関する法律](../../laws/332AC0100000143.md) |
 | 原文 | [衆議院 議案審議経過](https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/keika/1DE34BA.htm) |
 
@@ -54,4 +55,11 @@ llm_latest_date: "2026-10-27"
 |---|---|
 | 2026-10-09 | 衆議院で受理 |
 | 2026-10-27 | 衆議院 文部科学に付託 |
+| 2026-10-30 | 衆議院 委員会で可決 |
+| 2026-11-06 | 衆議院 本会議で可決 |
+| 2026-11-06 | 参議院で受理 |
+
+## 会派の賛否
+
+- 衆議院 賛成: 自由民主党・無所属の会、中道、日本維新の会、国民民主党・無所属クラブ、参政党、チームみらい、日本共産党、志士の会
 <!-- lawpub:end meta -->
