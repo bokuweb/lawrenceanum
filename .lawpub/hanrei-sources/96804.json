@@ -61,7 +61,7 @@
   ],
   "has_case_text": true,
   "scope": "判決PDFの機械抽出本文・判示事項・裁判要旨",
-  "captured_on": "2026-11-12",
+  "captured_on": "2026-11-18",
   "summary_format_version": 4,
   "prompt_version": "hanrei-rag-v4",
   "generation_model": "claude-sonnet-5-5",
@@ -72,5 +72,5 @@
     "omitted_refs": [],
     "selection": "資料ごとの文字数上限。長い資料は冒頭・中盤・末尾の離れた抜粋（末尾を多めに収録）"
   },
-  "source_fingerprint": "cf126dfa5dac25fcbde6ed863fe2eb9170ab8000d2ee82347db4ee9bd053a7bc"
+  "source_fingerprint": "aa2c9fff7363b84ffbf3eee01f182f4959ce97ea56d91f1a5b780e05ecfb7000"
 }
