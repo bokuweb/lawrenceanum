@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "corpus": "kokkai",
+  "id": "122214024X00520261111",
+  "date": "2026-11-11",
+  "title": "参議院 議院運営委員会 第5号",
+  "organization": "参議院",
+  "committee": "議院運営委員会",
+  "url": "https://kokkai.ndl.go.jp/txt/122214024X00520261111",
+  "laws": [
+    {
+      "law_id": "402AC1000000049",
+      "title": "国会議員の秘書の給与等に関する法律"
+    }
+  ],
+  "speakers": []
+}
