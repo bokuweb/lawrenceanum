@@ -1,0 +1,44 @@
+---
+type: "bill"
+title: "特別児童扶養手当等の支給に関する法律の一部を改正する法律案"
+description: "参法（第222回国会）: 2026-11-18 参議院で受理"
+resource: "https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/keika/1DE37BA.htm"
+timestamp: "2026-11-23T00:09:27Z"
+date: "2026-11-18"
+session: 222
+bill_id: "1DE37BA"
+bill_type: "参法"
+result: ""
+latest_date: "2026-11-18"
+law_num_text: null
+laws: ["339AC0000000134"]
+votes: []
+proposer_groups: []
+stages: [{"date":"2026-11-18","kind":"received","label":"参議院で受理"}]
+tags: []
+render_version: 3
+---
+
+# 特別児童扶養手当等の支給に関する法律の一部を改正する法律案
+
+## 概要と経緯
+
+<!-- llm:begin -->
+<!-- llm:end -->
+
+<!-- lawpub:begin meta -->
+## 議案の情報（一覧）
+
+| 項目 | 内容 |
+|---|---|
+| 種類 | 参法（第222回国会 第5号） |
+| 提出者 | 小林 さやか君外一名 |
+| 対象法令 | [特別児童扶養手当等の支給に関する法律](../../laws/339AC0000000134.md) |
+| 原文 | [衆議院 議案審議経過](https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/keika/1DE37BA.htm) |
+
+## 審議経過
+
+| 日付 | 経過 |
+|---|---|
+| 2026-11-18 | 参議院で受理 |
+<!-- lawpub:end meta -->

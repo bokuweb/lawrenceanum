@@ -45005,15 +45005,35 @@
     97302,
     97303,
     97313,
-    97314
+    97314,
+    97325,
+    97326
   ],
   "pending": {
-    "92819": {
-      "first_seen": "2026-11-12",
-      "attempts": 2,
+    "92600": {
+      "first_seen": "2026-11-23",
+      "attempts": 1,
       "status": "summary_incomplete",
       "origin": "backfill",
-      "next_attempt": "2026-11-21",
+      "next_attempt": "2026-11-24",
+      "selection_reason": "shared_article",
+      "refresh": false
+    },
+    "92819": {
+      "first_seen": "2026-11-12",
+      "attempts": 3,
+      "status": "summary_incomplete",
+      "origin": "backfill",
+      "next_attempt": "2026-11-30",
+      "selection_reason": "shared_article",
+      "refresh": false
+    },
+    "93645": {
+      "first_seen": "2026-11-23",
+      "attempts": 1,
+      "status": "summary_incomplete",
+      "origin": "backfill",
+      "next_attempt": "2026-11-24",
       "selection_reason": "shared_article",
       "refresh": false
     },
@@ -45026,39 +45046,12 @@
       "selection_reason": "shared_article",
       "refresh": false
     },
-    "94211": {
-      "first_seen": "2026-11-18",
-      "attempts": 2,
-      "status": "summary_incomplete",
-      "origin": "backfill",
-      "next_attempt": "2026-11-23",
-      "selection_reason": "shared_article",
-      "refresh": false
-    },
-    "95287": {
-      "first_seen": "2026-11-20",
+    "96463": {
+      "first_seen": "2026-11-23",
       "attempts": 1,
       "status": "summary_incomplete",
       "origin": "backfill",
-      "next_attempt": "2026-11-21",
-      "selection_reason": "shared_article",
-      "refresh": false
-    },
-    "96536": {
-      "first_seen": "2026-11-18",
-      "attempts": 2,
-      "status": "summary_incomplete",
-      "origin": "backfill",
-      "next_attempt": "2026-11-23",
-      "selection_reason": "corpus_cursor",
-      "refresh": false
-    },
-    "96881": {
-      "first_seen": "2026-11-18",
-      "attempts": 2,
-      "status": "summary_incomplete",
-      "origin": "backfill",
-      "next_attempt": "2026-11-23",
+      "next_attempt": "2026-11-24",
       "selection_reason": "corpus_cursor",
       "refresh": false
     },
@@ -45105,33 +45098,6 @@
       "origin": "backfill",
       "next_attempt": "2026-12-18",
       "selection_reason": "corpus_cursor",
-      "refresh": false
-    },
-    "97249": {
-      "first_seen": "2026-11-12",
-      "attempts": 0,
-      "status": "pending",
-      "origin": "",
-      "next_attempt": null,
-      "selection_reason": "",
-      "refresh": false
-    },
-    "97251": {
-      "first_seen": "2026-11-12",
-      "attempts": 0,
-      "status": "pending",
-      "origin": "",
-      "next_attempt": null,
-      "selection_reason": "",
-      "refresh": false
-    },
-    "97256": {
-      "first_seen": "2026-11-12",
-      "attempts": 0,
-      "status": "pending",
-      "origin": "",
-      "next_attempt": null,
-      "selection_reason": "",
       "refresh": false
     },
     "97259": {
@@ -45223,14 +45189,32 @@
       "next_attempt": null,
       "selection_reason": "",
       "refresh": false
+    },
+    "97325": {
+      "first_seen": "2026-11-23",
+      "attempts": 0,
+      "status": "pending",
+      "origin": "",
+      "next_attempt": null,
+      "selection_reason": "",
+      "refresh": false
+    },
+    "97326": {
+      "first_seen": "2026-11-23",
+      "attempts": 0,
+      "status": "pending",
+      "origin": "",
+      "next_attempt": null,
+      "selection_reason": "",
+      "refresh": false
     }
   },
-  "backfill_cursor": 96696,
+  "backfill_cursor": 96822,
   "daily": {
-    "date": "2026-11-20",
+    "date": "2026-11-23",
     "new_planned": 3,
     "backfill_planned": 20,
     "new_probes": 3,
-    "backfill_probes": 22
+    "backfill_probes": 20
   }
 }

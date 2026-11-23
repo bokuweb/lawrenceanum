@@ -1,23 +1,23 @@
 ---
 type: "bill"
 title: "特定Ｂ型肝炎ウイルス感染者給付金等の支給に関する特別措置法の一部を改正する法律案"
-description: "閣法（第222回国会）: 2026-11-13 参議院 本会議で可決"
+description: "閣法（第222回国会）: 2026-11-20 公布（法律第88号）"
 resource: "https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/keika/1DE34CE.htm"
-timestamp: "2026-11-18T00:08:52Z"
-date: "2026-11-13"
+timestamp: "2026-11-23T00:09:27Z"
+date: "2026-11-20"
 session: 222
 bill_id: "1DE34CE"
 bill_type: "閣法"
 result: "可決"
-latest_date: "2026-11-13"
-law_num_text: null
+latest_date: "2026-11-20"
+law_num_text: "令和八年法律第八十八号"
 laws: ["423AC0000000126"]
 votes: [{"house":"衆議院","side":"賛成","groups":["自由民主党・無所属の会","中道","日本維新の会","国民民主党・無所属クラブ","参政党","チームみらい","日本共産党","志士の会"]}]
 proposer_groups: []
-stages: [{"date":"2026-10-09","kind":"received","label":"衆議院で受理"},{"date":"2026-10-27","kind":"referred","label":"衆議院 厚生労働に付託"},{"date":"2026-10-30","kind":"committee","label":"衆議院 委員会で可決"},{"date":"2026-11-06","kind":"plenary","label":"衆議院 本会議で可決"},{"date":"2026-11-06","kind":"received","label":"参議院で受理"},{"date":"2026-11-09","kind":"referred","label":"参議院 厚生労働に付託"},{"date":"2026-11-12","kind":"committee","label":"参議院 委員会で可決"},{"date":"2026-11-13","kind":"plenary","label":"参議院 本会議で可決"}]
+stages: [{"date":"2026-10-09","kind":"received","label":"衆議院で受理"},{"date":"2026-10-27","kind":"referred","label":"衆議院 厚生労働に付託"},{"date":"2026-10-30","kind":"committee","label":"衆議院 委員会で可決"},{"date":"2026-11-06","kind":"plenary","label":"衆議院 本会議で可決"},{"date":"2026-11-06","kind":"received","label":"参議院で受理"},{"date":"2026-11-09","kind":"referred","label":"参議院 厚生労働に付託"},{"date":"2026-11-12","kind":"committee","label":"参議院 委員会で可決"},{"date":"2026-11-13","kind":"plenary","label":"参議院 本会議で可決"},{"date":"2026-11-20","kind":"promulgated","label":"公布（法律第88号）"}]
 tags: []
 render_version: 3
-llm_latest_date: "2026-11-13"
+llm_latest_date: "2026-11-20"
 ---
 
 # 特定Ｂ型肝炎ウイルス感染者給付金等の支給に関する特別措置法の一部を改正する法律案
@@ -37,8 +37,9 @@ llm_latest_date: "2026-11-13"
 - 2026-11-09 参議院 厚生労働に付託。
 - 2026-11-12 参議院 委員会で可決。
 - 2026-11-13 参議院本会議で可決。
+- 2026-11-20 公布（法律第88号）。
 
-**結果**: 2026-11-13 に参議院本会議で可決された（議案の経過表による）。公布・施行の日付や具体的な延長後の期限は収録資料からは確認できない。
+**結果**: 2026-11-13 に参議院本会議で可決され、2026-11-20 に令和八年法律第八十八号として公布された（議案の経過表による）。施行日や具体的な延長後の期限は収録資料からは確認できない。
 
 [^1]: [gian:222/1DE34CE#reason](https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/houan/g22209009.htm) 「特定Ｂ型肝炎ウイルス感染者給付金等の支給の請求の状況等を勘案し、当該請求の請求期限を延長する等の措置を講ずる必要がある」
 <!-- llm:end -->
@@ -51,6 +52,7 @@ llm_latest_date: "2026-11-13"
 | 種類 | 閣法（第222回国会 第9号） |
 | 提出者 | 内閣 |
 | 結果 | 可決 |
+| 法律番号 | 令和八年法律第八十八号 |
 | 対象法令 | [特定Ｂ型肝炎ウイルス感染者給付金等の支給に関する特別措置法](../../laws/423AC0000000126.md) |
 | 原文 | [衆議院 議案審議経過](https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/keika/1DE34CE.htm) |
 
@@ -66,6 +68,7 @@ llm_latest_date: "2026-11-13"
 | 2026-11-09 | 参議院 厚生労働に付託 |
 | 2026-11-12 | 参議院 委員会で可決 |
 | 2026-11-13 | 参議院 本会議で可決 |
+| 2026-11-20 | 公布（法律第88号） |
 
 ## 会派の賛否
 
