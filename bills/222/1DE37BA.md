@@ -17,6 +17,7 @@ proposer_groups: []
 stages: [{"date":"2026-11-18","kind":"received","label":"参議院で受理"}]
 tags: []
 render_version: 3
+llm_latest_date: "2026-11-18"
 ---
 
 # 特別児童扶養手当等の支給に関する法律の一部を改正する法律案

@@ -1,0 +1,133 @@
+{
+  "schema_version": 2,
+  "corpus": "shingikai",
+  "id": "mlit_s504_roumuhikijun01_20261005",
+  "date": "2026-10-05",
+  "title": "第13回 中央建設業審議会 労務費の基準に関するワーキンググループ（2026年10月5日）",
+  "organization": "国土交通省",
+  "committee": "第13回 中央建設業審議会 労務費の基準に関するワーキンググループ",
+  "url": "https://www.mlit.go.jp/policy/shingikai/tochi_fudousan_kensetsugyo13_sg_000001_00083.html",
+  "laws": [
+    {
+      "law_id": "324AC0000000100",
+      "title": "建設業法"
+    },
+    {
+      "law_id": "334AC0000000160",
+      "title": "中小企業退職金共済法"
+    },
+    {
+      "law_id": "412AC0000000127",
+      "title": "公共工事の入札及び契約の適正化の促進に関する法律"
+    },
+    {
+      "law_id": "506M60000800105",
+      "title": "公共工事の入札及び契約の適正化の促進に関する法律施行規則"
+    }
+  ],
+  "speakers": [
+    {
+      "name": "丸山委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "堀田委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "増田参事官",
+      "role": "official",
+      "laws": []
+    },
+    {
+      "name": "大森委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "小川推進官",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "小澤座長",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "山影調整官",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "岩田委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "惠羅委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "早川室長",
+      "role": "official",
+      "laws": []
+    },
+    {
+      "name": "森村様（渡邊（美）委員代理）",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "榎並委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "池田補佐",
+      "role": "member",
+      "laws": [
+        "324AC0000000100"
+      ],
+      "excerpt": "… 5 ますような見積書や契約書、支払いに関する建設業法に基づく取引の遵守といったものを 推進していくというような形で考えてございます。 最後の 14 ページ目は、前回お示しした中長期のロードマップになってございます。先 ほどもご説明したような取組を推進していくというところですとか、あと…",
+      "excerpt_url": "https://www.mlit.go.jp/policy/shingikai/tochi_fudousan_kensetsugyo13_sg_000001_00083.html"
+    },
+    {
+      "name": "渡辺（直）委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "白石委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "西野委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "長谷部委員",
+      "role": "member",
+      "laws": []
+    },
+    {
+      "name": "須藤局長",
+      "role": "official",
+      "laws": [
+        "324AC0000000100"
+      ],
+      "excerpt": "…とうございます。 昨年、労務費に関する基準が中建審から勧告され、その後、改正建設業法の全面施行が なされました。今、技能者の処遇改善と持続可能な建設業、こういうものに向けて本格的 な取組を行っているところでございます。 本日は、実効性確保策の取組状況ですとか、あるいはフォローアップ調査の具体的な実 施内容や進め方…",
+      "excerpt_url": "https://www.mlit.go.jp/policy/shingikai/tochi_fudousan_kensetsugyo13_sg_000001_00083.html"
+    },
+    {
+      "name": "齋藤室長",
+      "role": "official",
+      "laws": []
+    }
+  ]
+}
